@@ -14,18 +14,7 @@ export type AppRole =
   | 'employee';
 
 export type EmployeeStatus = 'active' | 'inactive';
-
-export type EmployeeType =
-  | 'teacher'
-  | 'education_staff'
-  | 'administrative_staff'
-  | 'principal'
-  | 'vice_principal'
-  | 'laboratory_staff'
-  | 'librarian'
-  | 'technician'
-  | 'security'
-  | 'other';
+export type Gender = 'male' | 'female';
 
 export interface Database {
   public: {
@@ -74,7 +63,6 @@ export interface Database {
         Row: {
           id: string;
           name: string;
-          code: string;
           description: string | null;
           is_active: boolean;
           created_at: string;
@@ -83,7 +71,6 @@ export interface Database {
         Insert: {
           id?: string;
           name: string;
-          code: string;
           description?: string | null;
           is_active?: boolean;
           created_at?: string;
@@ -92,7 +79,6 @@ export interface Database {
         Update: {
           id?: string;
           name?: string;
-          code?: string;
           description?: string | null;
           is_active?: boolean;
           created_at?: string;
@@ -104,7 +90,6 @@ export interface Database {
         Row: {
           id: string;
           name: string;
-          code: string;
           description: string | null;
           is_active: boolean;
           created_at: string;
@@ -113,7 +98,6 @@ export interface Database {
         Insert: {
           id?: string;
           name: string;
-          code: string;
           description?: string | null;
           is_active?: boolean;
           created_at?: string;
@@ -122,7 +106,6 @@ export interface Database {
         Update: {
           id?: string;
           name?: string;
-          code?: string;
           description?: string | null;
           is_active?: boolean;
           created_at?: string;
@@ -138,8 +121,8 @@ export interface Database {
           nik: string | null;
           employee_number: string | null;
           full_name: string;
-          gender: 'male' | 'female' | null;
-          employee_type: EmployeeType;
+          gender: Gender | null;
+          employee_type: string | null;
           position_id: string | null;
           department_id: string | null;
           phone: string | null;
@@ -158,8 +141,8 @@ export interface Database {
           nik?: string | null;
           employee_number?: string | null;
           full_name: string;
-          gender?: 'male' | 'female' | null;
-          employee_type?: EmployeeType;
+          gender?: Gender | null;
+          employee_type?: string | null;
           position_id?: string | null;
           department_id?: string | null;
           phone?: string | null;
@@ -178,8 +161,8 @@ export interface Database {
           nik?: string | null;
           employee_number?: string | null;
           full_name?: string;
-          gender?: 'male' | 'female' | null;
-          employee_type?: EmployeeType;
+          gender?: Gender | null;
+          employee_type?: string | null;
           position_id?: string | null;
           department_id?: string | null;
           phone?: string | null;
@@ -225,7 +208,6 @@ export interface Database {
     Enums: {
       app_role: AppRole;
       employee_status: EmployeeStatus;
-      employee_type: EmployeeType;
     };
     CompositeTypes: {
       [_ in never]: never;

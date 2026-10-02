@@ -26,7 +26,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     label: 'Riwayat',
     path: '/history',
     iconName: 'CalendarCheck',
-    allowedRoles: ['super_admin', 'admin', 'headmaster', 'verifier', 'employee'],
+    allowedRoles: ['super_admin', 'employee'],
     section: 'main',
     description: 'Daftar riwayat presensi pribadi',
   },
@@ -73,7 +73,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     label: 'Jadwal Kerja',
     path: '/schedules',
     iconName: 'Clock',
-    allowedRoles: ['super_admin', 'admin', 'headmaster'],
+    allowedRoles: ['super_admin', 'admin'],
     section: 'management',
     description: 'Pengaturan jam kerja & shift guru',
   },
@@ -139,6 +139,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/dashboard',
     '/attendance',
     '/requests',
+    '/reports',
     '/notifications',
     '/profile',
   ],
@@ -188,6 +189,10 @@ export const getNavItemsForRole = (role: UserRole): NavItem[] => {
 };
 
 export const canUserAccessPath = (role: UserRole, path: string): boolean => {
-  return ROLE_PERMISSIONS[role]?.includes(path) ?? false;
+  const allowedPaths = ROLE_PERMISSIONS[role] || [];
+  if (allowedPaths.includes(path)) return true;
+  if (path.startsWith('/employees/')) {
+    return allowedPaths.includes('/employees');
+  }
+  return false;
 };
-

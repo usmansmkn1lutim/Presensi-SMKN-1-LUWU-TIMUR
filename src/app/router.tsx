@@ -20,6 +20,7 @@ import { ProfilePage } from '../pages/profile/ProfilePage';
 
 // Admin & Management Pages
 import { EmployeesPage } from '../pages/admin/EmployeesPage';
+import { EmployeeDetailPage } from '../pages/admin/EmployeeDetailPage';
 import { SchedulesPage } from '../pages/admin/SchedulesPage';
 import { LocationsPage } from '../pages/admin/LocationsPage';
 import { HolidaysPage } from '../pages/admin/HolidaysPage';
@@ -122,6 +123,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
             <EmployeesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/employees/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
+            <EmployeeDetailPage />
           </ProtectedRoute>
         ),
       },

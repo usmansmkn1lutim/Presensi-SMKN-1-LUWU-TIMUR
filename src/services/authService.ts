@@ -4,16 +4,20 @@ import { User, LoginCredentials } from '../types/auth';
 import { ProfileRow } from '../types/database.types';
 import { APP_CONFIG } from '../config/appConfig';
 
+const VALID_ROLES = ['super_admin', 'admin', 'headmaster', 'employee', 'verifier'];
+
 /**
  * Authentication Service (Phase 3 Production Supabase Auth)
  * Encapsulates signInWithPassword, signOut, getSession, resetPassword, and updateUser.
+ * Role is strictly authoritative from `public.profiles.role`.
  */
 class AuthService {
   /**
-   * Helper to transform Supabase auth user, profile, and employee records into app User model
+   * Fetch authoritative user profile from database based on authenticated user ID.
+   * Role is never taken from user input or client storage.
    */
   public async loadFullUserData(supabaseUser: SupabaseUser): Promise<{ user: User; profile: ProfileRow }> {
-    // 1. Fetch authoritative profile from database
+    // 1. Fetch authoritative profile from database based on auth.uid()
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -21,39 +25,15 @@ class AuthService {
       .single();
 
     if (profileError || !profile) {
-      // Fallback profile if record is still propagating from trigger
-      const fallbackProfile: ProfileRow = {
-        id: supabaseUser.id,
-        full_name: (supabaseUser.user_metadata?.full_name as string) ||
-                   (supabaseUser.user_metadata?.name as string) ||
-                   supabaseUser.email?.split('@')[0] || 'Pegawai',
-        avatar_url: (supabaseUser.user_metadata?.avatar_url as string) || null,
-        role: 'employee',
-        is_active: true,
-        last_login_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      const userModel: User = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        name: fallbackProfile.full_name || 'Pegawai',
-        role: fallbackProfile.role,
-        nip: '—',
-        position: 'Guru / Pegawai',
-        department: 'SMK Negeri 1 Luwu Timur',
-        avatarUrl: fallbackProfile.avatar_url || undefined,
-        schoolName: APP_CONFIG.schoolName,
-        status: 'active',
-        joinedDate: '—',
-        lastLoginAt: fallbackProfile.last_login_at,
-      };
-
-      return { user: userModel, profile: fallbackProfile };
+      throw new Error('Profil pengguna tidak ditemukan di database. Hubungi administrator.');
     }
 
-    // 2. Fetch employee details if linked
+    // 2. Validate authoritative role
+    if (!VALID_ROLES.includes(profile.role)) {
+      throw new Error('Role pengguna tidak valid. Hubungi administrator.');
+    }
+
+    // 3. Fetch employee details if linked
     let employeeData = null;
     try {
       const { data: emp } = await supabase
@@ -66,7 +46,7 @@ class AuthService {
         employeeData = emp;
       }
     } catch {
-      // Ignore if employee row does not exist yet
+      // Ignore if employee table row does not exist yet
     }
 
     const deptName = (employeeData?.departments as { name?: string } | null)?.name || 'Satuan Pendidikan';
@@ -97,6 +77,7 @@ class AuthService {
 
   /**
    * Production Sign In with Email & Password
+   * Automatically derives user role from public.profiles.role in database
    */
   public async signIn(credentials: LoginCredentials): Promise<{ user: User; session: Session; profile: ProfileRow }> {
     if (!isSupabaseConfigured()) {
@@ -120,7 +101,7 @@ class AuthService {
       throw new Error('Password wajib diisi.');
     }
 
-    // 2. Call Supabase Auth API
+    // 2. Call Supabase Auth signInWithPassword
     let authResponse;
     try {
       authResponse = await supabase.auth.signInWithPassword({
@@ -132,7 +113,7 @@ class AuthService {
       if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
         throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
       }
-      throw new Error('Terjadi kesalahan. Silakan coba lagi.');
+      throw new Error('Terjadi kesalahan saat masuk. Silakan coba lagi.');
     }
 
     const { data, error } = authResponse;
@@ -150,7 +131,6 @@ class AuthService {
       if (errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection')) {
         throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
       }
-      // Never leak internal stack or SQL error
       throw new Error('Email atau password salah.');
     }
 
@@ -158,12 +138,11 @@ class AuthService {
       throw new Error('Email atau password salah.');
     }
 
-    // 3. Load authoritative profile from database
+    // 3. Load authoritative profile directly from database (public.profiles.role)
     const { user: userModel, profile } = await this.loadFullUserData(data.user);
 
     // 4. Check active account status
     if (profile.is_active === false) {
-      // Force logout if account has been deactivated
       await supabase.auth.signOut();
       throw new Error('Akun Anda tidak aktif. Silakan hubungi administrator.');
     }
@@ -172,7 +151,6 @@ class AuthService {
     try {
       await supabase.rpc('record_last_login');
     } catch {
-      // Fallback direct update if RPC is pending
       try {
         await supabase
           .from('profiles')
