@@ -12,6 +12,7 @@ import {
   UserX,
   Users,
   Link2,
+  Power,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -24,11 +25,21 @@ import {
 } from '../../services/userService';
 import { CreateUserModal } from '../../components/users/CreateUserModal';
 import { UserDetailModal } from '../../components/users/UserDetailModal';
+import { UpdateRoleModal } from '../../components/users/UpdateRoleModal';
+import { UserStatusConfirmModal } from '../../components/users/UserStatusConfirmModal';
+
+const ROLE_LABELS: Record<ActiveAppRole, string> = {
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  headmaster: 'Kepala Sekolah',
+  employee: 'Pegawai',
+};
 
 export const UsersPage: React.FC = () => {
   const { user: currentUser } = useAuth();
-  const canCreate =
+  const canManage =
     currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
+  const isSuperAdmin = currentUser?.role === 'super_admin';
 
   // State: Data List & Stats
   const [users, setUsers] = useState<UserManagementItem[]>([]);
@@ -45,6 +56,10 @@ export const UsersPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserManagementItem | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [userForRoleUpdate, setUserForRoleUpdate] = useState<UserManagementItem | null>(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [userForStatusUpdate, setUserForStatusUpdate] = useState<UserManagementItem | null>(null);
 
   // Fetch Users
   const fetchUsersData = useCallback(async () => {
@@ -70,6 +85,36 @@ export const UsersPage: React.FC = () => {
     fetchUsersData();
     setSuccessToast(
       `Pengguna "${result.user?.full_name || 'Baru'}" berhasil dibuat.`
+    );
+    setTimeout(() => setSuccessToast(null), 5000);
+  };
+
+  // Handle Update Role Success
+  const handleRoleUpdateSuccess = (updatedUser: {
+    id: string;
+    role: ActiveAppRole;
+    full_name?: string;
+  }) => {
+    fetchUsersData();
+    setSuccessToast(
+      `Peran pengguna "${updatedUser.full_name || 'Pengguna'}" berhasil diubah menjadi ${
+        ROLE_LABELS[updatedUser.role]
+      }.`
+    );
+    setTimeout(() => setSuccessToast(null), 5000);
+  };
+
+  // Handle Update Status Success
+  const handleStatusUpdateSuccess = (updatedUser: {
+    id: string;
+    is_active: boolean;
+    full_name?: string;
+  }) => {
+    fetchUsersData();
+    setSuccessToast(
+      `Akun "${updatedUser.full_name || 'Pengguna'}" berhasil ${
+        updatedUser.is_active ? 'diaktifkan' : 'dinonaktifkan'
+      }.`
     );
     setTimeout(() => setSuccessToast(null), 5000);
   };
@@ -124,7 +169,7 @@ export const UsersPage: React.FC = () => {
           </p>
         </div>
 
-        {canCreate && (
+        {canManage && (
           <Button
             variant="primary"
             size="sm"
@@ -295,173 +340,293 @@ export const UsersPage: React.FC = () => {
                   <tr>
                     <th className="py-3.5 px-4">Pengguna</th>
                     <th className="py-3.5 px-4">Peran (Role)</th>
-                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4">Status Akun</th>
                     <th className="py-3.5 px-4">Hubungan Pegawai</th>
                     <th className="py-3.5 px-4">Login Terakhir</th>
                     <th className="py-3.5 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB]">
-                  {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-[#F9FAFB] transition-colors">
-                      {/* Name & Avatar */}
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
-                          {u.avatar_url ? (
-                            <img
-                              src={u.avatar_url}
-                              alt={u.full_name}
-                              className="w-8 h-8 rounded-lg object-cover border border-[#E5E7EB]"
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded-lg bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-xs">
-                              {u.full_name.charAt(0)}
+                  {filteredUsers.map((u) => {
+                    const isSelf = currentUser?.id === u.id;
+                    const isTargetSuperAdmin = u.role === 'super_admin';
+                    const canEditThisAccount =
+                      canManage &&
+                      !isSelf &&
+                      (isSuperAdmin || !isTargetSuperAdmin);
+
+                    return (
+                      <tr key={u.id} className="hover:bg-[#F9FAFB] transition-colors">
+                        {/* Name & Avatar */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            {u.avatar_url ? (
+                              <img
+                                src={u.avatar_url}
+                                alt={u.full_name}
+                                className="w-8 h-8 rounded-lg object-cover border border-[#E5E7EB]"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-lg bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-xs">
+                                {u.full_name.charAt(0)}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-[#111827] block truncate">
+                                  {u.full_name}
+                                </span>
+                                {isSelf && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 font-semibold">
+                                    Anda
+                                  </span>
+                                )}
+                              </div>
+                              <span className="font-mono text-[10px] text-[#9CA3AF] block truncate max-w-[140px]">
+                                {u.id}
+                              </span>
                             </div>
+                          </div>
+                        </td>
+
+                        {/* Role */}
+                        <td className="py-3 px-4">
+                          <RoleBadge role={u.role} size="sm" />
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-3 px-4">
+                          <Badge variant={u.is_active ? 'success' : 'danger'} size="sm">
+                            {u.is_active ? '● Aktif' : '● Nonaktif'}
+                          </Badge>
+                        </td>
+
+                        {/* Linked Employee */}
+                        <td className="py-3 px-4">
+                          {u.employee_id ? (
+                            <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate max-w-[180px]">
+                                {u.employee_name}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-amber-600 font-medium flex items-center gap-1.5">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>Belum Terhubung</span>
+                            </span>
                           )}
-                          <div className="min-w-0">
-                            <span className="font-bold text-[#111827] block truncate">
-                              {u.full_name}
+                        </td>
+
+                        {/* Last Login */}
+                        <td className="py-3 px-4 text-[#6B7280]">
+                          {u.last_login_at ? (
+                            <span className="font-mono text-[11px]">
+                              {new Date(u.last_login_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
                             </span>
-                            <span className="font-mono text-[10px] text-[#9CA3AF] block truncate max-w-[140px]">
-                              {u.id}
-                            </span>
+                          ) : (
+                            <span className="text-[#9CA3AF] text-[11px]">Belum pernah</span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {canManage && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={!canEditThisAccount}
+                                  title={
+                                    isSelf
+                                      ? 'Role akun Anda tidak dapat diubah sendiri'
+                                      : !isSuperAdmin && isTargetSuperAdmin
+                                      ? 'Admin tidak dapat mengubah akun Super Admin'
+                                      : 'Ubah peran pengguna ini'
+                                  }
+                                  onClick={() => {
+                                    setUserForRoleUpdate(u);
+                                    setIsRoleModalOpen(true);
+                                  }}
+                                  leftIcon={<Shield className="w-3.5 h-3.5" />}
+                                >
+                                  Ubah Role
+                                </Button>
+
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={!canEditThisAccount}
+                                  title={
+                                    isSelf
+                                      ? 'Anda tidak dapat mengubah status akun sendiri'
+                                      : !isSuperAdmin && isTargetSuperAdmin
+                                      ? 'Admin tidak dapat mengubah akun Super Admin'
+                                      : u.is_active
+                                      ? 'Nonaktifkan akun pengguna ini'
+                                      : 'Aktifkan akun pengguna ini'
+                                  }
+                                  onClick={() => {
+                                    setUserForStatusUpdate(u);
+                                    setIsStatusModalOpen(true);
+                                  }}
+                                  className={
+                                    u.is_active
+                                      ? 'text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200'
+                                      : 'text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-200'
+                                  }
+                                  leftIcon={<Power className="w-3.5 h-3.5" />}
+                                >
+                                  {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                                </Button>
+                              </>
+                            )}
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedUser(u);
+                                setIsDetailModalOpen(true);
+                              }}
+                              leftIcon={<Eye className="w-3.5 h-3.5" />}
+                            >
+                              Detail
+                            </Button>
                           </div>
-                        </div>
-                      </td>
-
-                      {/* Role */}
-                      <td className="py-3 px-4">
-                        <RoleBadge role={u.role} size="sm" />
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3 px-4">
-                        <Badge variant={u.is_active ? 'success' : 'danger'} size="sm">
-                          {u.is_active ? 'Aktif' : 'Nonaktif'}
-                        </Badge>
-                      </td>
-
-                      {/* Linked Employee */}
-                      <td className="py-3 px-4">
-                        {u.employee_id ? (
-                          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate max-w-[180px]">
-                              {u.employee_name}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-amber-600 font-medium flex items-center gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                            <span>Belum Terhubung</span>
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Last Login */}
-                      <td className="py-3 px-4 text-[#6B7280]">
-                        {u.last_login_at ? (
-                          <span className="font-mono text-[11px]">
-                            {new Date(u.last_login_at).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </span>
-                        ) : (
-                          <span className="text-[#9CA3AF] text-[11px]">Belum pernah</span>
-                        )}
-                      </td>
-
-                      {/* Action */}
-                      <td className="py-3 px-4 text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUser(u);
-                            setIsDetailModalOpen(true);
-                          }}
-                          leftIcon={<Eye className="w-3.5 h-3.5" />}
-                        >
-                          Lihat Detail
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile Card List */}
             <div className="md:hidden divide-y divide-[#E5E7EB]">
-              {filteredUsers.map((u) => (
-                <div key={u.id} className="p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {u.avatar_url ? (
-                        <img
-                          src={u.avatar_url}
-                          alt={u.full_name}
-                          className="w-10 h-10 rounded-xl object-cover border border-[#E5E7EB]"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-sm">
-                          {u.full_name.charAt(0)}
+              {filteredUsers.map((u) => {
+                const isSelf = currentUser?.id === u.id;
+                const isTargetSuperAdmin = u.role === 'super_admin';
+                const canEditThisAccount =
+                  canManage &&
+                  !isSelf &&
+                  (isSuperAdmin || !isTargetSuperAdmin);
+
+                return (
+                  <div key={u.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {u.avatar_url ? (
+                          <img
+                            src={u.avatar_url}
+                            alt={u.full_name}
+                            className="w-10 h-10 rounded-xl object-cover border border-[#E5E7EB]"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-sm">
+                            {u.full_name.charAt(0)}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-sm text-[#111827] block truncate">
+                              {u.full_name}
+                            </span>
+                            {isSelf && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 font-semibold">
+                                Anda
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 pt-0.5">
+                            <RoleBadge role={u.role} size="sm" />
+                            <Badge variant={u.is_active ? 'success' : 'danger'} size="sm">
+                              {u.is_active ? '● Aktif' : '● Nonaktif'}
+                            </Badge>
+                          </div>
                         </div>
-                      )}
-                      <div className="min-w-0">
-                        <span className="font-bold text-sm text-[#111827] block truncate">
-                          {u.full_name}
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(u);
+                          setIsDetailModalOpen(true);
+                        }}
+                        className="shrink-0"
+                      >
+                        Detail
+                      </Button>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-[11px] space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#6B7280]">Pegawai:</span>
+                        {u.employee_id ? (
+                          <span className="font-semibold text-emerald-700 truncate max-w-[180px]">
+                            {u.employee_name}
+                          </span>
+                        ) : (
+                          <span className="font-semibold text-amber-600">Belum Terhubung</span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#6B7280]">Login:</span>
+                        <span className="text-[#111827]">
+                          {u.last_login_at
+                            ? new Date(u.last_login_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                            : 'Belum pernah'}
                         </span>
-                        <div className="flex items-center gap-1.5 pt-0.5">
-                          <RoleBadge role={u.role} size="sm" />
-                          <Badge variant={u.is_active ? 'success' : 'danger'} size="sm">
-                            {u.is_active ? 'Aktif' : 'Nonaktif'}
-                          </Badge>
-                        </div>
                       </div>
                     </div>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedUser(u);
-                        setIsDetailModalOpen(true);
-                      }}
-                      className="shrink-0"
-                    >
-                      Detail
-                    </Button>
+                    {canManage && (
+                      <div className="pt-1 grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!canEditThisAccount}
+                          onClick={() => {
+                            setUserForRoleUpdate(u);
+                            setIsRoleModalOpen(true);
+                          }}
+                          leftIcon={<Shield className="w-3.5 h-3.5" />}
+                          className="w-full justify-center"
+                        >
+                          Ubah Role
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!canEditThisAccount}
+                          onClick={() => {
+                            setUserForStatusUpdate(u);
+                            setIsStatusModalOpen(true);
+                          }}
+                          leftIcon={<Power className="w-3.5 h-3.5" />}
+                          className={`w-full justify-center ${
+                            u.is_active
+                              ? 'text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200'
+                              : 'text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-200'
+                          }`}
+                        >
+                          {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                        </Button>
+                      </div>
+                    )}
                   </div>
-
-                  <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-[11px] space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#6B7280]">Pegawai:</span>
-                      {u.employee_id ? (
-                        <span className="font-semibold text-emerald-700 truncate max-w-[180px]">
-                          {u.employee_name}
-                        </span>
-                      ) : (
-                        <span className="font-semibold text-amber-600">Belum Terhubung</span>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#6B7280]">Login:</span>
-                      <span className="text-[#111827]">
-                        {u.last_login_at
-                          ? new Date(u.last_login_at).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })
-                          : 'Belum pernah'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}
@@ -478,6 +643,26 @@ export const UsersPage: React.FC = () => {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         user={selectedUser}
+      />
+
+      <UpdateRoleModal
+        isOpen={isRoleModalOpen}
+        onClose={() => {
+          setIsRoleModalOpen(false);
+          setUserForRoleUpdate(null);
+        }}
+        user={userForRoleUpdate}
+        onSuccess={handleRoleUpdateSuccess}
+      />
+
+      <UserStatusConfirmModal
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          setUserForStatusUpdate(null);
+        }}
+        user={userForStatusUpdate}
+        onSuccess={handleStatusUpdateSuccess}
       />
     </div>
   );

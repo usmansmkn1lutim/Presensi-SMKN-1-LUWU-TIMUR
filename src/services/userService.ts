@@ -219,30 +219,103 @@ class UserService {
   }
 
   /**
-   * 5. Update User Role (Safe Placeholder)
-   * Protected against privilege escalation: requires server-side authorization RPC/Edge Function.
-   * Direct updates to profiles.role from browser are blocked for security.
+   * 5. Update User Role
+   * Invokes secure Edge Function `update-user-role` (PHASE 4B-5-1).
+   * Validates target role client-side and enforces server-side privilege matrices.
    */
-  async updateUserRole(userId: string, newRole: ActiveAppRole): Promise<void> {
-    if (!ALLOWED_ROLES.includes(newRole)) {
-      throw new Error(`Role tidak valid: ${newRole}`);
+  async updateUserRole(targetUserId: string, newRole: ActiveAppRole): Promise<{
+    success: boolean;
+    message: string;
+    user?: { id: string; full_name: string; role: ActiveAppRole; is_active: boolean };
+  }> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Konfigurasi Supabase belum lengkap.');
     }
 
-    // Role modification requires server-side authorized endpoint to prevent self-elevation
-    throw new Error(
-      `Pengubahan role pengguna (${userId} -> ${newRole}) memerlukan endpoint backend terotorisasi yang akan disediakan pada tahap berikutnya.`
-    );
+    if (!targetUserId || typeof targetUserId !== 'string') {
+      throw new Error('ID pengguna target tidak valid.');
+    }
+
+    if (!newRole || !ALLOWED_ROLES.includes(newRole)) {
+      throw new Error(`Role tidak valid. Pilihan role: ${ALLOWED_ROLES.join(', ')}.`);
+    }
+
+    const { data, error } = await supabase.functions.invoke('update-user-role', {
+      body: {
+        target_user_id: targetUserId.trim(),
+        new_role: newRole,
+      },
+    });
+
+    if (error) {
+      let errorMessage = 'Gagal memperbarui peran pengguna.';
+      try {
+        if (data && typeof data === 'object' && 'message' in data) {
+          errorMessage = (data as { message: string }).message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      } catch {
+        // Fallback message
+      }
+      throw new Error(errorMessage);
+    }
+
+    if (data && typeof data === 'object' && 'success' in data && !(data as { success: boolean }).success) {
+      throw new Error((data as { message: string }).message || 'Gagal memperbarui peran pengguna.');
+    }
+
+    return data;
   }
 
   /**
-   * 6. Update User Active Status (Safe Placeholder)
-   * Modifying account active status across users requires server-side authorization.
+   * 6. Update User Active Status
+   * Invokes secure Edge Function `update-user-status` (PHASE 4B-6-1).
+   * Validates target ID and boolean status, enforcing server-side authorization.
    */
-  async updateUserStatus(userId: string, isActive: boolean): Promise<void> {
-    // Status modification requires backend authorization to prevent unauthorized lockout
-    throw new Error(
-      `Pengubahan status akun pengguna (${userId} -> ${isActive ? 'aktif' : 'nonaktif'}) memerlukan endpoint backend terotorisasi yang akan disediakan pada tahap berikutnya.`
-    );
+  async updateUserStatus(targetUserId: string, isActive: boolean): Promise<{
+    success: boolean;
+    message: string;
+    user?: { id: string; full_name: string; role: ActiveAppRole; is_active: boolean };
+  }> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Konfigurasi Supabase belum lengkap.');
+    }
+
+    if (!targetUserId || typeof targetUserId !== 'string') {
+      throw new Error('ID pengguna target tidak valid.');
+    }
+
+    if (typeof isActive !== 'boolean') {
+      throw new Error('Status akun tidak valid (harus berupa boolean true atau false).');
+    }
+
+    const { data, error } = await supabase.functions.invoke('update-user-status', {
+      body: {
+        target_user_id: targetUserId.trim(),
+        is_active: isActive,
+      },
+    });
+
+    if (error) {
+      let errorMessage = 'Gagal memperbarui status akun pengguna.';
+      try {
+        if (data && typeof data === 'object' && 'message' in data) {
+          errorMessage = (data as { message: string }).message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      } catch {
+        // Fallback message
+      }
+      throw new Error(errorMessage);
+    }
+
+    if (data && typeof data === 'object' && 'success' in data && !(data as { success: boolean }).success) {
+      throw new Error((data as { message: string }).message || 'Gagal memperbarui status akun pengguna.');
+    }
+
+    return data;
   }
 
   /**
