@@ -10,7 +10,6 @@ export type AppRole =
   | 'super_admin'
   | 'admin'
   | 'headmaster'
-  | 'verifier'
   | 'employee';
 
 export type EmployeeStatus = 'active' | 'inactive';

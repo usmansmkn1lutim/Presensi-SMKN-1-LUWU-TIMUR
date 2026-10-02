@@ -45,8 +45,6 @@ export const RoleBadge: React.FC<{ role: UserRole; size?: 'sm' | 'md' }> = ({ ro
       return <Badge variant="primary" size={size}>Admin</Badge>;
     case 'headmaster':
       return <Badge variant="warning" size={size}>Kepala Sekolah</Badge>;
-    case 'verifier':
-      return <Badge variant="info" size={size}>Verifikator</Badge>;
     case 'employee':
     default:
       return <Badge variant="default" size={size}>Pegawai</Badge>;

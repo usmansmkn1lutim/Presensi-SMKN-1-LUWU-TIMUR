@@ -1,14 +1,36 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, QrCode, CalendarCheck, FileText, User } from 'lucide-react';
+import { Home, QrCode, CalendarCheck, FileText, User, Users, BarChart3, LucideIcon } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+
+interface MobileNavTab {
+  label: string;
+  path: string;
+  icon: LucideIcon;
+  isPrimary?: boolean;
+}
 
 export const MobileBottomNav: React.FC = () => {
-  // Navigation tabs for Mobile & Tablet: Presensi in the center (index 2 of 5 items)
-  const navTabs = [
-    { label: 'Beranda', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Riwayat', path: '/history', icon: CalendarCheck },
+  const { user } = useAuth();
+  const role = user?.role || 'employee';
+
+  // Determine role-aware 5-item tabs for mobile & tablet navbar
+  let middleLeftTab: MobileNavTab = { label: 'Riwayat', path: '/history', icon: CalendarCheck };
+  let middleRightTab: MobileNavTab = { label: 'Pengajuan', path: '/requests', icon: FileText };
+
+  if (role === 'admin' || role === 'super_admin') {
+    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: Users };
+    middleRightTab = { label: 'Pengajuan', path: '/requests', icon: FileText };
+  } else if (role === 'headmaster') {
+    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: Users };
+    middleRightTab = { label: 'Laporan', path: '/reports', icon: BarChart3 };
+  }
+
+  const navTabs: MobileNavTab[] = [
+    { label: 'Beranda', path: '/dashboard', icon: Home },
+    middleLeftTab,
     { label: 'Presensi', path: '/attendance', icon: QrCode, isPrimary: true },
-    { label: 'Pengajuan', path: '/requests', icon: FileText },
+    middleRightTab,
     { label: 'Profil', path: '/profile', icon: User },
   ];
 
@@ -27,17 +49,27 @@ export const MobileBottomNav: React.FC = () => {
                 key={tab.path}
                 to={tab.path}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center -mt-6 transition-transform active:scale-95 px-2 ${
+                  `flex flex-col items-center justify-center -mt-6 transition-transform active:scale-95 px-2 flex-1 max-w-[72px] ${
                     isActive ? 'scale-105' : ''
                   }`
                 }
               >
-                <div className="w-13 h-13 rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <span className="text-[11px] font-bold text-[#F97316] mt-0.5 tracking-tight">
-                  {tab.label}
-                </span>
+                {({ isActive }) => (
+                  <>
+                    <div className="w-12 h-12 rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span
+                      className={`text-[10px] mt-1 truncate transition-colors ${
+                        isActive
+                          ? 'text-[#F97316] font-semibold'
+                          : 'text-[#6B7280] hover:text-[#111827]'
+                      }`}
+                    >
+                      {tab.label}
+                    </span>
+                  </>
+                )}
               </NavLink>
             );
           }
@@ -67,4 +99,3 @@ export const MobileBottomNav: React.FC = () => {
     </nav>
   );
 };
-

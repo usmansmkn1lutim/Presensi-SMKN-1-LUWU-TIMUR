@@ -4,7 +4,7 @@ import { User, LoginCredentials } from '../types/auth';
 import { ProfileRow } from '../types/database.types';
 import { APP_CONFIG } from '../config/appConfig';
 
-const VALID_ROLES = ['super_admin', 'admin', 'headmaster', 'employee', 'verifier'];
+const VALID_ROLES = ['super_admin', 'admin', 'headmaster', 'employee'];
 
 /**
  * Authentication Service (Phase 3 Production Supabase Auth)
@@ -53,7 +53,6 @@ class AuthService {
     const posName = (employeeData?.positions as { name?: string } | null)?.name ||
       (profile.role === 'admin' ? 'Administrator SIM' :
        profile.role === 'headmaster' ? 'Kepala Sekolah' :
-       profile.role === 'verifier' ? 'Verifikator Presensi' :
        profile.role === 'super_admin' ? 'Super Administrator' : 'Tenaga Pendidik / Guru');
 
     const userModel: User = {

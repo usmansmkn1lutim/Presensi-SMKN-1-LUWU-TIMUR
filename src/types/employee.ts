@@ -20,6 +20,7 @@ export interface EmployeeWithRelations extends EmployeeRow {
 export interface EmployeeFilterParams {
   searchQuery?: string;
   status?: 'all' | 'active' | 'inactive';
+  gender?: 'all' | 'male' | 'female';
   departmentId?: string;
   positionId?: string;
   employeeType?: string;

@@ -3,7 +3,7 @@ import { PositionRow, PositionInsert, PositionUpdate } from '../types/database.t
 
 class PositionService {
   /**
-   * Fetch all positions (active only by default for selector dropdowns).
+   * Fetch all positions (active only by default for selector dropdowns, or all for admin management).
    */
   async getPositions(params?: { onlyActive?: boolean }): Promise<PositionRow[]> {
     if (!isSupabaseConfigured()) {
@@ -61,7 +61,11 @@ class PositionService {
 
     const { data, error } = await supabase
       .from('positions')
-      .insert(payload)
+      .insert({
+        name: payload.name.trim(),
+        description: payload.description?.trim() || null,
+        is_active: payload.is_active ?? true,
+      })
       .select()
       .single();
 
@@ -83,9 +87,14 @@ class PositionService {
       throw new Error('Supabase belum dikonfigurasi.');
     }
 
+    const updates: PositionUpdate = {};
+    if (payload.name !== undefined) updates.name = payload.name.trim();
+    if (payload.description !== undefined) updates.description = payload.description?.trim() || null;
+    if (payload.is_active !== undefined) updates.is_active = payload.is_active;
+
     const { data, error } = await supabase
       .from('positions')
-      .update(payload)
+      .update(updates)
       .eq('id', id)
       .select()
       .single();
@@ -98,6 +107,24 @@ class PositionService {
     }
 
     return data;
+  }
+
+  /**
+   * Update position active status.
+   */
+  async updatePositionStatus(id: string, isActive: boolean): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase belum dikonfigurasi.');
+    }
+
+    const { error } = await supabase
+      .from('positions')
+      .update({ is_active: isActive })
+      .eq('id', id);
+
+    if (error) {
+      throw new Error('Gagal mengubah status jabatan: ' + error.message);
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
+  Home,
   LayoutDashboard,
   QrCode,
   CalendarCheck,
@@ -26,6 +27,7 @@ import { APP_CONFIG } from '../../config/appConfig';
 
 // Map icon name string to Lucide icon component
 const ICON_MAP: Record<string, LucideIcon> = {
+  Home,
   LayoutDashboard,
   QrCode,
   CalendarCheck,

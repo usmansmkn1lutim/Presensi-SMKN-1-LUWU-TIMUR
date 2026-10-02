@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
 }
 
-const VALID_ROLES: UserRole[] = ['super_admin', 'admin', 'headmaster', 'employee', 'verifier'];
+const VALID_ROLES: UserRole[] = ['super_admin', 'admin', 'headmaster', 'employee'];
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
   const { user, profile, isAuthenticated, loading, logout } = useAuth();

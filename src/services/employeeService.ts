@@ -74,6 +74,11 @@ class EmployeeService {
       query = query.eq('status', params.status);
     }
 
+    // Gender Filter
+    if (params?.gender && params.gender !== 'all') {
+      query = query.eq('gender', params.gender);
+    }
+
     // Department Filter
     if (params?.departmentId) {
       query = query.eq('department_id', params.departmentId);

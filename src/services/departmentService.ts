@@ -3,7 +3,7 @@ import { DepartmentRow, DepartmentInsert, DepartmentUpdate } from '../types/data
 
 class DepartmentService {
   /**
-   * Fetch all departments (active only by default for selector dropdowns).
+   * Fetch all departments (active only by default for selector dropdowns, or all for admin management).
    */
   async getDepartments(params?: { onlyActive?: boolean }): Promise<DepartmentRow[]> {
     if (!isSupabaseConfigured()) {
@@ -61,7 +61,11 @@ class DepartmentService {
 
     const { data, error } = await supabase
       .from('departments')
-      .insert(payload)
+      .insert({
+        name: payload.name.trim(),
+        description: payload.description?.trim() || null,
+        is_active: payload.is_active ?? true,
+      })
       .select()
       .single();
 
@@ -83,9 +87,14 @@ class DepartmentService {
       throw new Error('Supabase belum dikonfigurasi.');
     }
 
+    const updates: DepartmentUpdate = {};
+    if (payload.name !== undefined) updates.name = payload.name.trim();
+    if (payload.description !== undefined) updates.description = payload.description?.trim() || null;
+    if (payload.is_active !== undefined) updates.is_active = payload.is_active;
+
     const { data, error } = await supabase
       .from('departments')
-      .update(payload)
+      .update(updates)
       .eq('id', id)
       .select()
       .single();
@@ -98,6 +107,24 @@ class DepartmentService {
     }
 
     return data;
+  }
+
+  /**
+   * Update department active status.
+   */
+  async updateDepartmentStatus(id: string, isActive: boolean): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase belum dikonfigurasi.');
+    }
+
+    const { error } = await supabase
+      .from('departments')
+      .update({ is_active: isActive })
+      .eq('id', id);
+
+    if (error) {
+      throw new Error('Gagal mengubah status departemen: ' + error.message);
+    }
   }
 }
 

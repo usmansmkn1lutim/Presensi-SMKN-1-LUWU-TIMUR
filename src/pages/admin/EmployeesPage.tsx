@@ -1,15 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users,
   UserPlus,
   Search,
-  Filter,
   RefreshCw,
-  MoreVertical,
   CheckCircle2,
   AlertCircle,
-  Link2,
   Power,
   Edit2,
   Eye,
@@ -17,24 +14,25 @@ import {
   UserX,
   ShieldCheck,
   X,
+  Building,
+  Briefcase,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { Card } from '../../components/ui/Card';
 import { DepartmentRow, PositionRow } from '../../types/database.types';
 import {
   EmployeeWithRelations,
   EmployeeStats,
   EmployeeFilterParams,
-  COMMON_EMPLOYEE_TYPES,
 } from '../../types/employee';
 import { employeeService } from '../../services/employeeService';
 import { departmentService } from '../../services/departmentService';
 import { positionService } from '../../services/positionService';
 import { EmployeeFormModal } from '../../components/employees/EmployeeFormModal';
-import { LinkProfileModal } from '../../components/employees/LinkProfileModal';
 import { StatusConfirmModal } from '../../components/employees/StatusConfirmModal';
+import { DepartmentModal } from '../../components/employees/DepartmentModal';
+import { PositionModal } from '../../components/employees/PositionModal';
 
 export const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -60,15 +58,16 @@ export const EmployeesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('');
   const [positionFilter, setPositionFilter] = useState<string>('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
 
   // State: Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [isDepartmentModalOpen, setIsDepartmentModalOpen] = useState(false);
+  const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
 
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRelations | null>(null);
   const [targetStatus, setTargetStatus] = useState<'active' | 'inactive'>('inactive');
@@ -82,21 +81,22 @@ export const EmployeesPage: React.FC = () => {
   }, [searchQuery]);
 
   // Load Master Filters (Departments & Positions)
-  useEffect(() => {
-    const loadMasterFilters = async () => {
-      try {
-        const [depts, pos] = await Promise.all([
-          departmentService.getDepartments(),
-          positionService.getPositions(),
-        ]);
-        setDepartments(depts);
-        setPositions(pos);
-      } catch (err) {
-        console.warn('Gagal memuat filter departemen/jabatan:', err);
-      }
-    };
-    loadMasterFilters();
+  const loadMasterFilters = useCallback(async () => {
+    try {
+      const [depts, pos] = await Promise.all([
+        departmentService.getDepartments({ onlyActive: true }),
+        positionService.getPositions({ onlyActive: true }),
+      ]);
+      setDepartments(depts);
+      setPositions(pos);
+    } catch (err) {
+      console.warn('Gagal memuat filter departemen/jabatan:', err);
+    }
   }, []);
+
+  useEffect(() => {
+    loadMasterFilters();
+  }, [loadMasterFilters]);
 
   // Fetch Employees Data & Statistics
   const fetchEmployeesData = useCallback(async () => {
@@ -105,9 +105,9 @@ export const EmployeesPage: React.FC = () => {
       const filterParams: EmployeeFilterParams = {
         searchQuery: debouncedSearch,
         status: statusFilter,
+        gender: genderFilter,
         departmentId: departmentFilter || undefined,
         positionId: positionFilter || undefined,
-        employeeType: typeFilter || undefined,
       };
 
       const [employeeList, statSummary] = await Promise.all([
@@ -122,7 +122,7 @@ export const EmployeesPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, statusFilter, departmentFilter, positionFilter, typeFilter]);
+  }, [debouncedSearch, statusFilter, genderFilter, departmentFilter, positionFilter]);
 
   useEffect(() => {
     fetchEmployeesData();
@@ -139,11 +139,6 @@ export const EmployeesPage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleOpenLinkModal = (emp: EmployeeWithRelations) => {
-    setSelectedEmployee(emp);
-    setIsLinkModalOpen(true);
-  };
-
   const handleOpenStatusModal = (emp: EmployeeWithRelations) => {
     setSelectedEmployee(emp);
     setTargetStatus(emp.status === 'active' ? 'inactive' : 'active');
@@ -156,12 +151,6 @@ export const EmployeesPage: React.FC = () => {
     setTimeout(() => setSuccessToast(null), 4000);
   };
 
-  const handleLinkSuccess = () => {
-    fetchEmployeesData();
-    setSuccessToast('Status akun pegawai berhasil diperbarui.');
-    setTimeout(() => setSuccessToast(null), 4000);
-  };
-
   const handleStatusSuccess = () => {
     fetchEmployeesData();
     setSuccessToast('Status keaktifan pegawai berhasil diubah.');
@@ -171,17 +160,17 @@ export const EmployeesPage: React.FC = () => {
   const handleResetFilter = () => {
     setSearchQuery('');
     setStatusFilter('all');
+    setGenderFilter('all');
     setDepartmentFilter('');
     setPositionFilter('');
-    setTypeFilter('');
   };
 
   const hasActiveFilters =
     searchQuery !== '' ||
     statusFilter !== 'all' ||
+    genderFilter !== 'all' ||
     departmentFilter !== '' ||
-    positionFilter !== '' ||
-    typeFilter !== '';
+    positionFilter !== '';
 
   return (
     <div className="space-y-6 pb-12">
@@ -201,11 +190,11 @@ export const EmployeesPage: React.FC = () => {
               Data Pegawai
             </h1>
             <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-              Kelola data dan informasi pegawai sekolah.
+              Kelola dan pantau data pegawai sekolah.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <Button
               variant="outline"
               size="md"
@@ -217,14 +206,34 @@ export const EmployeesPage: React.FC = () => {
             </Button>
 
             {canManage && (
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<UserPlus className="w-4 h-4" />}
-                onClick={handleOpenAddModal}
-              >
-                + Tambah Pegawai
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="md"
+                  leftIcon={<Building className="w-4 h-4" />}
+                  onClick={() => setIsDepartmentModalOpen(true)}
+                >
+                  Departemen
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="md"
+                  leftIcon={<Briefcase className="w-4 h-4" />}
+                  onClick={() => setIsPositionModalOpen(true)}
+                >
+                  Jabatan
+                </Button>
+
+                <Button
+                  variant="primary"
+                  size="md"
+                  leftIcon={<UserPlus className="w-4 h-4" />}
+                  onClick={handleOpenAddModal}
+                >
+                  + Tambah Pegawai
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -264,11 +273,11 @@ export const EmployeesPage: React.FC = () => {
           <p className="text-[11px] text-[#9CA3AF] mt-1">Status aktif bekerja</p>
         </div>
 
-        {/* Card 3: Pegawai Tidak Aktif */}
+        {/* Card 3: Pegawai Nonaktif */}
         <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
-              Tidak Aktif
+              Pegawai Nonaktif
             </span>
             <div className="w-8 h-8 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center">
               <UserX className="w-4 h-4" />
@@ -280,11 +289,11 @@ export const EmployeesPage: React.FC = () => {
           <p className="text-[11px] text-[#9CA3AF] mt-1">Cuti / Nonaktif</p>
         </div>
 
-        {/* Card 4: Terhubung Akun */}
+        {/* Card 4: Akun Terhubung */}
         <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
-              Terhubung Akun
+              Akun Terhubung
             </span>
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
@@ -348,30 +357,27 @@ export const EmployeesPage: React.FC = () => {
             >
               <option value="all">Semua Status</option>
               <option value="active">Aktif</option>
-              <option value="inactive">Tidak Aktif</option>
+              <option value="inactive">Nonaktif</option>
             </select>
           </div>
 
-          {/* Jenis Pegawai */}
+          {/* Jenis Kelamin Filter */}
           <div>
             <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
-              Jenis Pegawai
+              Jenis Kelamin
             </label>
             <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              value={genderFilter}
+              onChange={(e) => setGenderFilter(e.target.value as 'all' | 'male' | 'female')}
               className="w-full h-9 px-2.5 bg-white border border-[#E5E7EB] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827]"
             >
-              <option value="">Semua Jenis</option>
-              {COMMON_EMPLOYEE_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
+              <option value="all">Semua Jenis Kelamin</option>
+              <option value="male">Laki-laki</option>
+              <option value="female">Perempuan</option>
             </select>
           </div>
 
-          {/* Departemen */}
+          {/* Departemen Filter */}
           <div>
             <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
               Departemen
@@ -390,7 +396,7 @@ export const EmployeesPage: React.FC = () => {
             </select>
           </div>
 
-          {/* Jabatan */}
+          {/* Jabatan Filter */}
           <div>
             <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
               Jabatan
@@ -459,25 +465,31 @@ export const EmployeesPage: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
-                    <th className="py-3 px-4">Foto & Nama</th>
+                    <th className="py-3 px-3 text-center w-12">No</th>
+                    <th className="py-3 px-4">Pegawai</th>
                     <th className="py-3 px-4">NIP</th>
                     <th className="py-3 px-4">Jenis Pegawai</th>
                     <th className="py-3 px-4">Jabatan</th>
-                    <th className="py-3 px-4">Departemen</th>
+                    <th className="py-3 px-4">Department</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4">Akun</th>
                     <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] text-xs">
-                  {employees.map((emp) => {
-                    const isLinked = !!emp.profile_id;
+                  {employees.map((emp, index) => {
+                    const isLinked = !!emp.profile_id && (emp.profiles?.is_active ?? true);
                     return (
                       <tr
                         key={emp.id}
                         className="hover:bg-[#F9FAFB] transition-colors group"
                       >
-                        {/* Foto & Nama */}
+                        {/* No */}
+                        <td className="py-3.5 px-3 text-center font-mono text-[11px] text-[#9CA3AF]">
+                          {index + 1}
+                        </td>
+
+                        {/* Pegawai */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
                             {emp.photo_url ? (
@@ -522,7 +534,7 @@ export const EmployeesPage: React.FC = () => {
                           {emp.positions?.name || '—'}
                         </td>
 
-                        {/* Departemen */}
+                        {/* Department */}
                         <td className="py-3.5 px-4 text-[#4B5563]">
                           {emp.departments?.name || '—'}
                         </td>
@@ -533,7 +545,7 @@ export const EmployeesPage: React.FC = () => {
                             variant={emp.status === 'active' ? 'success' : 'danger'}
                             size="sm"
                           >
-                            {emp.status === 'active' ? 'Aktif' : 'Tidak Aktif'}
+                            {emp.status === 'active' ? 'Aktif' : 'Nonaktif'}
                           </Badge>
                         </td>
 
@@ -576,15 +588,6 @@ export const EmployeesPage: React.FC = () => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleOpenLinkModal(emp)}
-                                  title="Hubungkan Akun"
-                                >
-                                  <Link2 className="w-3.5 h-3.5 text-blue-600" />
-                                </Button>
-
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
                                   onClick={() => handleOpenStatusModal(emp)}
                                   title={emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
                                   className={
@@ -608,8 +611,8 @@ export const EmployeesPage: React.FC = () => {
 
             {/* Mobile Card List View */}
             <div className="md:hidden divide-y divide-[#E5E7EB]">
-              {employees.map((emp) => {
-                const isLinked = !!emp.profile_id;
+              {employees.map((emp, index) => {
+                const isLinked = !!emp.profile_id && (emp.profiles?.is_active ?? true);
                 return (
                   <div key={emp.id} className="p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
@@ -618,7 +621,7 @@ export const EmployeesPage: React.FC = () => {
                           <img
                             src={emp.photo_url}
                             alt={emp.full_name}
-                            className="w-10 h-10 rounded-xl object-cover border border-orange-200"
+                            className="w-10 h-10 rounded-xl object-cover border border-orange-200 shrink-0"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] font-bold text-sm flex items-center justify-center shrink-0">
@@ -626,13 +629,16 @@ export const EmployeesPage: React.FC = () => {
                           </div>
                         )}
                         <div>
-                          <button
-                            onClick={() => navigate(`/employees/${emp.id}`)}
-                            className="font-bold text-xs text-[#111827] text-left hover:text-[#F97316]"
-                          >
-                            {emp.full_name}
-                          </button>
-                          <p className="text-[11px] text-[#6B7280] font-mono">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-[#9CA3AF] font-mono">#{index + 1}</span>
+                            <button
+                              onClick={() => navigate(`/employees/${emp.id}`)}
+                              className="font-bold text-xs text-[#111827] text-left hover:text-[#F97316]"
+                            >
+                              {emp.full_name}
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-[#6B7280] font-mono mt-0.5">
                             NIP: {emp.nip || '—'}
                           </p>
                         </div>
@@ -656,7 +662,7 @@ export const EmployeesPage: React.FC = () => {
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#9CA3AF]">Departemen:</span>{' '}
+                        <span className="text-[#9CA3AF]">Department:</span>{' '}
                         <span className="font-semibold text-[#111827]">
                           {emp.departments?.name || '—'}
                         </span>
@@ -670,7 +676,7 @@ export const EmployeesPage: React.FC = () => {
                         {isLinked ? (
                           <span className="text-emerald-700 font-bold">Terhubung</span>
                         ) : (
-                          <span className="text-amber-700 font-bold">Belum Ada</span>
+                          <span className="text-amber-700 font-bold">Belum Terhubung</span>
                         )}
                       </div>
                     </div>
@@ -696,16 +702,6 @@ export const EmployeesPage: React.FC = () => {
                             className="text-xs"
                           >
                             Edit
-                          </Button>
-
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleOpenLinkModal(emp)}
-                            leftIcon={<Link2 className="w-3.5 h-3.5" />}
-                            className="text-xs text-blue-600"
-                          >
-                            Akun
                           </Button>
 
                           <Button
@@ -746,19 +742,24 @@ export const EmployeesPage: React.FC = () => {
         employeeToEdit={selectedEmployee}
       />
 
-      <LinkProfileModal
-        isOpen={isLinkModalOpen}
-        onClose={() => setIsLinkModalOpen(false)}
-        onSuccess={handleLinkSuccess}
-        employee={selectedEmployee}
-      />
-
       <StatusConfirmModal
         isOpen={isStatusModalOpen}
         onClose={() => setIsStatusModalOpen(false)}
         onSuccess={handleStatusSuccess}
         employee={selectedEmployee}
         targetStatus={targetStatus}
+      />
+
+      <DepartmentModal
+        isOpen={isDepartmentModalOpen}
+        onClose={() => setIsDepartmentModalOpen(false)}
+        onDepartmentsUpdated={loadMasterFilters}
+      />
+
+      <PositionModal
+        isOpen={isPositionModalOpen}
+        onClose={() => setIsPositionModalOpen(false)}
+        onPositionsUpdated={loadMasterFilters}
       />
     </div>
   );
