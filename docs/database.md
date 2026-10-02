@@ -149,6 +149,7 @@ Jika menggunakan **Supabase Dashboard**:
    * `supabase/migrations/005_positions.sql`
    * `supabase/migrations/006_employees.sql`
    * `supabase/migrations/007_auth_last_login.sql`
+   * `supabase/migrations/008_create_profiles_and_auth_trigger.sql` (Khusus inisialisasi tabel profiles, trigger auth.users, dan sinkronisasi user existing)
 4. Jalankan seed master data:
    * `supabase/seed.sql`
 
