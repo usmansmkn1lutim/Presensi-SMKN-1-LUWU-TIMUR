@@ -203,6 +203,17 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: void;
       };
+      get_linkable_profiles: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          id: string;
+          full_name: string | null;
+          role: AppRole;
+          is_active: boolean;
+          last_login_at: string | null;
+          avatar_url: string | null;
+        }[];
+      };
     };
     Enums: {
       app_role: AppRole;

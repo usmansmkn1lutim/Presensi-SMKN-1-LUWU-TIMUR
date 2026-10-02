@@ -1,6 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
-  EmployeeRow,
   EmployeeInsert,
   EmployeeUpdate,
   ProfileRow,
@@ -22,16 +21,47 @@ class EmployeeService {
 
     const { data, error } = await supabase
       .from('employees')
-      .select('*, departments(*), positions(*), profiles(*)')
+      .select(`
+        *,
+        departments (
+          id,
+          name,
+          description
+        ),
+        positions (
+          id,
+          name,
+          description
+        )
+      `)
       .eq('id', employeeId)
       .single();
 
     if (error) {
-      console.warn('EmployeeService.getEmployeeById error:', error.message);
+      console.error('EmployeeService.getEmployeeById error:', error);
       return null;
     }
 
-    return (data as unknown) as EmployeeWithRelations;
+    const emp = (data as unknown) as EmployeeWithRelations;
+
+    // Fetch linked profile safely if profile_id exists
+    if (emp.profile_id) {
+      try {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url, role, is_active, last_login_at, created_at, updated_at')
+          .eq('id', emp.profile_id)
+          .maybeSingle();
+
+        if (prof) {
+          emp.profiles = prof as ProfileRow;
+        }
+      } catch (profErr) {
+        console.warn('Could not fetch linked profile:', profErr);
+      }
+    }
+
+    return emp;
   }
 
   /**
@@ -44,12 +74,22 @@ class EmployeeService {
 
     const { data, error } = await supabase
       .from('employees')
-      .select('*, departments(*), positions(*), profiles(*)')
+      .select(`
+        *,
+        departments (
+          id,
+          name
+        ),
+        positions (
+          id,
+          name
+        )
+      `)
       .eq('profile_id', profileId)
       .maybeSingle();
 
     if (error) {
-      console.warn('EmployeeService.getEmployeeByProfileId error:', error.message);
+      console.error('EmployeeService.getEmployeeByProfileId error:', error);
       return null;
     }
 
@@ -58,6 +98,7 @@ class EmployeeService {
 
   /**
    * Fetch list of employees with search and filter support.
+   * Does not depend on profiles(*) join to prevent RLS restriction on list view.
    */
   async getEmployees(params?: EmployeeFilterParams): Promise<EmployeeWithRelations[]> {
     if (!isSupabaseConfigured()) {
@@ -66,7 +107,17 @@ class EmployeeService {
 
     let query = supabase
       .from('employees')
-      .select('*, departments(*), positions(*), profiles(*)')
+      .select(`
+        *,
+        departments (
+          id,
+          name
+        ),
+        positions (
+          id,
+          name
+        )
+      `)
       .order('full_name', { ascending: true });
 
     // Status Filter
@@ -104,8 +155,14 @@ class EmployeeService {
 
     const { data, error } = await query;
 
+    console.log('Employees query result:', {
+      data,
+      error,
+      count: data?.length,
+    });
+
     if (error) {
-      console.warn('EmployeeService.getEmployees error:', error.message);
+      console.error('EmployeeService.getEmployees error:', error);
       return [];
     }
 
@@ -113,7 +170,7 @@ class EmployeeService {
   }
 
   /**
-   * Aggregate statistics for employee management dashboard.
+   * Aggregate statistics for employee management dashboard directly from employees table.
    */
   async getEmployeeStats(): Promise<EmployeeStats> {
     if (!isSupabaseConfigured()) {
@@ -125,7 +182,14 @@ class EmployeeService {
         .from('employees')
         .select('id, status, profile_id');
 
+      console.log('Employee stats query result:', {
+        data,
+        error,
+        count: data?.length,
+      });
+
       if (error || !data) {
+        if (error) console.error('EmployeeService.getEmployeeStats error:', error);
         return { total: 0, active: 0, inactive: 0, linkedToAccount: 0 };
       }
 
@@ -137,11 +201,12 @@ class EmployeeService {
       for (const row of data) {
         if (row.status === 'active') active++;
         if (row.status === 'inactive') inactive++;
-        if (row.profile_id) linkedToAccount++;
+        if (row.profile_id !== null && row.profile_id !== undefined) linkedToAccount++;
       }
 
       return { total, active, inactive, linkedToAccount };
-    } catch {
+    } catch (err) {
+      console.error('Employee stats calculation error:', err);
       return { total: 0, active: 0, inactive: 0, linkedToAccount: 0 };
     }
   }
@@ -172,7 +237,17 @@ class EmployeeService {
     const { data, error } = await supabase
       .from('employees')
       .insert(sanitized)
-      .select('*, departments(*), positions(*), profiles(*)')
+      .select(`
+        *,
+        departments (
+          id,
+          name
+        ),
+        positions (
+          id,
+          name
+        )
+      `)
       .single();
 
     if (error) {
@@ -214,7 +289,17 @@ class EmployeeService {
       .from('employees')
       .update(sanitized)
       .eq('id', id)
-      .select('*, departments(*), positions(*), profiles(*)')
+      .select(`
+        *,
+        departments (
+          id,
+          name
+        ),
+        positions (
+          id,
+          name
+        )
+      `)
       .single();
 
     if (error) {
@@ -250,6 +335,7 @@ class EmployeeService {
 
   /**
    * Link an existing profile (from auth.users/public.profiles) to an employee record.
+   * Updates only employees.profile_id.
    */
   async linkProfileToEmployee(employeeId: string, profileId: string | null): Promise<void> {
     if (!isSupabaseConfigured()) {
@@ -270,41 +356,21 @@ class EmployeeService {
   }
 
   /**
-   * Fetch active profiles that are not yet linked to any employee record (or linked to target employee).
+   * Fetch active, unlinked profiles directly via RPC get_linkable_profiles().
    */
-  async getUnlinkedProfiles(currentProfileId?: string | null): Promise<ProfileRow[]> {
+  async getUnlinkedProfiles(): Promise<ProfileRow[]> {
     if (!isSupabaseConfigured()) {
       return [];
     }
 
-    // 1. Fetch all active profiles
-    const { data: allProfiles, error: profError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('is_active', true)
-      .order('full_name', { ascending: true });
+    const { data, error } = await supabase.rpc('get_linkable_profiles');
 
-    if (profError || !allProfiles) {
-      return [];
+    if (error) {
+      console.error('EmployeeService.getUnlinkedProfiles RPC error:', error);
+      throw new Error(error.message || 'Gagal memuat daftar akun yang dapat dihubungkan.');
     }
 
-    // 2. Fetch all currently assigned profile_ids in employees table
-    const { data: assignedEmployees, error: empError } = await supabase
-      .from('employees')
-      .select('profile_id')
-      .not('profile_id', 'is', null);
-
-    if (empError || !assignedEmployees) {
-      return allProfiles;
-    }
-
-    const assignedSet = new Set(
-      assignedEmployees
-        .map((e) => e.profile_id)
-        .filter((id): id is string => id !== null && id !== currentProfileId)
-    );
-
-    return allProfiles.filter((p) => !assignedSet.has(p.id));
+    return (data as unknown as ProfileRow[]) || [];
   }
 }
 

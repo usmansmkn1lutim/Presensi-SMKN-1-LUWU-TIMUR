@@ -8,6 +8,7 @@ import {
   FileText,
   Edit2,
   Power,
+  Link2,
   CheckCircle2,
   AlertCircle,
   Clock,
@@ -19,6 +20,7 @@ import { Badge, RoleBadge } from '../../components/ui/Badge';
 import { employeeService, EmployeeWithRelations } from '../../services/employeeService';
 import { EmployeeFormModal } from '../../components/employees/EmployeeFormModal';
 import { StatusConfirmModal } from '../../components/employees/StatusConfirmModal';
+import { LinkProfileModal } from '../../components/employees/LinkProfileModal';
 
 export const EmployeeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +35,7 @@ export const EmployeeDetailPage: React.FC = () => {
   // Modals
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
 
   const canManage =
     currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
@@ -68,6 +71,12 @@ export const EmployeeDetailPage: React.FC = () => {
   const handleStatusSuccess = () => {
     loadEmployee();
     setSuccessToast('Status keaktifan pegawai berhasil diperbarui.');
+    setTimeout(() => setSuccessToast(null), 4000);
+  };
+
+  const handleLinkSuccess = () => {
+    loadEmployee();
+    setSuccessToast('Akun pengguna berhasil dihubungkan dengan pegawai.');
     setTimeout(() => setSuccessToast(null), 4000);
   };
 
@@ -385,11 +394,23 @@ export const EmployeeDetailPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="p-4 rounded-xl bg-[#FFF7ED] border border-orange-200 text-center space-y-1.5">
+              <div className="p-4 rounded-xl bg-[#FFF7ED] border border-orange-200 text-center space-y-2">
                 <p className="font-bold text-[#111827]">Akun Belum Terhubung</p>
                 <p className="text-[11px] text-[#6B7280]">
                   Pegawai ini belum terhubung dengan akun login pengguna.
                 </p>
+                {canManage && (
+                  <div className="pt-1">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setIsLinkModalOpen(true)}
+                      leftIcon={<Link2 className="w-3.5 h-3.5" />}
+                    >
+                      Hubungkan Akun
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -441,6 +462,13 @@ export const EmployeeDetailPage: React.FC = () => {
         onClose={() => setIsEditModalOpen(false)}
         onSuccess={handleEditSuccess}
         employeeToEdit={employee}
+      />
+
+      <LinkProfileModal
+        isOpen={isLinkModalOpen}
+        onClose={() => setIsLinkModalOpen(false)}
+        onSuccess={handleLinkSuccess}
+        employee={employee}
       />
 
       <StatusConfirmModal
