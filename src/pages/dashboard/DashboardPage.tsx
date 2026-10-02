@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Clock,
-  QrCode,
+  MapPin,
   CalendarCheck,
   FileText,
-  AlertCircle,
   LogIn,
   LogOut,
   ChevronRight,
@@ -13,29 +12,26 @@ import {
   Info,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { RoleBadge } from '../../components/ui/Badge';
-import { APP_CONFIG } from '../../config/appConfig';
 
 export const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
-  // Current real-time clock
+  // Current real-time clock & formatted date
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDateFormatted, setCurrentDateFormatted] = useState<string>('');
 
+  // Real-time time & Indonesian date formatting (DDDD, D MMMM YYYY without "Hari ini")
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      // Indonesian date formatting
-      const dateStr = new Intl.DateTimeFormat('id-ID', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }).format(now);
+      // Format: DDDD(Hari), D(Tanggal) MMMM(Bulan) YYYY(Tahun)
+      const dayName = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(now);
+      const dateNum = now.getDate();
+      const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
+      const yearNum = now.getFullYear();
+
+      setCurrentDateFormatted(`${dayName}, ${dateNum} ${monthName} ${yearNum}`);
 
       const timeStr = now.toLocaleTimeString('id-ID', {
         hour: '2-digit',
@@ -43,7 +39,6 @@ export const DashboardPage: React.FC = () => {
         second: '2-digit',
       });
 
-      setCurrentDateFormatted(dateStr);
       setCurrentTime(timeStr);
     };
 
@@ -52,143 +47,126 @@ export const DashboardPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const fullName = profile?.full_name || user?.name || 'Pegawai';
+
   return (
-    <div className="space-y-6">
-      {/* Welcome Banner Card (White Surface with subtle border) */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-[#6B7280]">
-                {APP_CONFIG.schoolName}
-              </span>
-              <span className="text-[#D1D5DB]">·</span>
-              {user && <RoleBadge role={user.role} size="sm" />}
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">
-              Selamat datang, {user?.name || 'Pegawai'}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
-              {currentDateFormatted || 'Memuat tanggal...'}
-            </p>
+    <div className="space-y-5 pb-8">
+      {/* Card Paling Atas (Sunset Orange Background + Geometric Minimalist Pattern) */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-md space-y-3 sm:space-y-3.5">
+        {/* Geometric Minimalist Background Pattern */}
+        <div className="absolute inset-0 opacity-12 pointer-events-none overflow-hidden rounded-2xl">
+          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+              <pattern id="geometric-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="currentColor" strokeWidth="1" />
+                <circle cx="20" cy="20" r="2" fill="currentColor" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#geometric-pattern)" className="text-white" />
+          </svg>
+        </div>
+
+        {/* Baris Pertama: Nama Lengkap User dengan font lebih besar 2px (+2px) */}
+        <div className="min-w-0 relative z-10">
+          <h1 className="text-[22px] sm:text-[26px] md:text-[32px] font-extrabold text-white tracking-tight truncate drop-shadow-2xs">
+            {fullName}
+          </h1>
+        </div>
+
+        {/* Baris Kedua: Posisi "Guru Mata Pelajaran" */}
+        <div className="-mt-1 relative z-10">
+          <p className="text-sm sm:text-base font-medium text-orange-100/95 tracking-wide truncate">
+            Guru Mata Pelajaran
+          </p>
+        </div>
+
+        {/* Baris Ketiga: 2 Kolom (Kiri: Tanggal, Kanan: Info Lokasi Malili, Luwu Timur) */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/20 text-xs sm:text-sm relative z-10">
+          {/* Kolom Pertama (Rata Kiri) */}
+          <div className="text-left font-medium text-orange-100 truncate">
+            {currentDateFormatted || 'Memuat tanggal...'}
           </div>
 
-          {/* Real-time Clock display */}
-          <div className="flex items-center gap-3 bg-[#F9FAFB] border border-[#E5E7EB] px-4 py-3 rounded-xl self-start sm:self-auto">
-            <Clock className="w-5 h-5 text-[#F97316]" />
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
-                Waktu Sistem (WITA)
+          {/* Kolom Kedua (Rata Kanan: Info Lokasi Malili, Luwu Timur) */}
+          <div className="text-right flex items-center justify-end gap-1.5 shrink-0 font-semibold text-white">
+            <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
+            <span>Malili, Luwu Timur</span>
+          </div>
+        </div>
+
+        {/* Baris Keempat: 2 Card Putih Persegi Panjang Horizontal (Tombol Check-in & Check-out) */}
+        <div className="grid grid-cols-2 gap-3 pt-1.5 relative z-10">
+          {/* Card Kiri: Tombol Check-in (2 Baris: Check-in & 07.30 WITA) */}
+          <button
+            type="button"
+            onClick={() => navigate('/attendance?type=in')}
+            className="group bg-white hover:bg-orange-50/80 active:scale-[0.98] transition-all rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs text-[#111827] cursor-pointer min-h-[62px]"
+          >
+            <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+              <LogIn className="w-4 h-4 stroke-[2.2]" />
+            </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="font-bold text-sm sm:text-base text-[#111827] leading-tight tracking-tight truncate">
+                Check-in
               </p>
-              <p className="text-lg font-bold text-[#111827] tabular-nums font-mono">
-                {currentTime || '--:--:--'}
+              <p className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight mt-0.5 truncate tabular-nums">
+                07.30 WITA
               </p>
             </div>
-          </div>
+          </button>
+
+          {/* Card Kanan: Tombol Check-out (2 Baris: Check-out & 15.00 WITA) */}
+          <button
+            type="button"
+            onClick={() => navigate('/attendance?type=out')}
+            className="group bg-white hover:bg-red-50/80 active:scale-[0.98] transition-all rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs text-[#111827] cursor-pointer min-h-[62px]"
+          >
+            <div className="w-9 h-9 rounded-lg bg-red-50 text-[#EF4444] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+              <LogOut className="w-4 h-4 stroke-[2.2]" />
+            </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="font-bold text-sm sm:text-base text-[#111827] leading-tight tracking-tight truncate">
+                Check-out
+              </p>
+              <p className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight mt-0.5 truncate tabular-nums">
+                15.00 WITA
+              </p>
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* Today's Attendance Action Section (Secondary Surface #F3F4F6) */}
-      <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#E5E7EB]">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
-              Status Presensi Hari Ini
-            </span>
-            <div className="flex items-center gap-2.5 mt-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-              <h3 className="text-base sm:text-lg font-bold text-[#111827]">
-                Belum melakukan presensi
-              </h3>
-            </div>
-            <p className="text-xs text-[#6B7280] mt-1">
-              Jadwal Reguler: Masuk 07:00 - 07:30 WITA · Pulang 15:30 - 17:00 WITA
-            </p>
-          </div>
-
-          {/* Primary Action Button (Sunset Orange) */}
-          <div className="shrink-0">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => navigate('/attendance')}
-              leftIcon={<QrCode className="w-5 h-5" />}
-              className="w-full md:w-auto font-bold tracking-wide"
-            >
-              PRESENSI SEKARANG
-            </Button>
-          </div>
-        </div>
-
-        {/* Check In & Check Out Card Grids */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-          {/* Check In Box */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center">
-                <LogIn className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-[#6B7280]">Presensi Masuk</p>
-                <p className="text-sm font-bold text-[#111827]">Belum Tercatat</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-xs font-mono font-medium text-[#9CA3AF]">— : —</span>
-              <p className="text-[10px] text-[#9CA3AF]">WITA</p>
-            </div>
-          </div>
-
-          {/* Check Out Box */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gray-100 text-[#4B5563] flex items-center justify-center">
-                <LogOut className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-[#6B7280]">Presensi Pulang</p>
-                <p className="text-sm font-bold text-[#111827]">Belum Tercatat</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-xs font-mono font-medium text-[#9CA3AF]">— : —</span>
-              <p className="text-[10px] text-[#9CA3AF]">WITA</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Attendance Summary Grid (Zero Fake Data - Clean Placeholders) */}
+      {/* Ringkasan Kehadiran Bulan Ini */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-[#111827] uppercase tracking-wider">
+          <h3 className="text-xs sm:text-sm font-bold text-[#111827] uppercase tracking-wider">
             Ringkasan Kehadiran Bulan Ini
           </h3>
           <span className="text-xs text-[#9CA3AF]">Periode Aktif</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-4 text-center">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
             <span className="text-xs font-medium text-[#6B7280]">Hadir Tepat Waktu</span>
-            <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
+            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
             <span className="text-[11px] text-[#9CA3AF]">hari</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-4 text-center">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
             <span className="text-xs font-medium text-[#6B7280]">Terlambat</span>
-            <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
+            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
             <span className="text-[11px] text-[#9CA3AF]">kali</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-4 text-center">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
             <span className="text-xs font-medium text-[#6B7280]">Izin / Sakit / Dinas</span>
-            <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
+            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
             <span className="text-[11px] text-[#9CA3AF]">hari</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-4 text-center">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
             <span className="text-xs font-medium text-[#6B7280]">Tanpa Keterangan</span>
-            <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
+            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
             <span className="text-[11px] text-[#9CA3AF]">hari</span>
           </div>
         </div>
@@ -196,74 +174,71 @@ export const DashboardPage: React.FC = () => {
 
       {/* Quick Action Navigation Cards */}
       <div>
-        <h3 className="text-sm font-bold text-[#111827] uppercase tracking-wider mb-3">
+        <h3 className="text-xs sm:text-sm font-bold text-[#111827] uppercase tracking-wider mb-3">
           Aksi Cepat
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
             onClick={() => navigate('/requests')}
-            className="p-4 rounded-xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer"
+            className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
                   Ajukan Izin / Cuti
                 </p>
-                <p className="text-xs text-[#6B7280]">Form permohonan dinas & sakit</p>
+                <p className="text-xs text-[#6B7280] truncate">Form permohonan dinas & sakit</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors" />
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
 
           <button
             onClick={() => navigate('/history')}
-            className="p-4 rounded-xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer"
+            className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
                 <CalendarCheck className="w-5 h-5" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
                   Riwayat Presensi
                 </p>
-                <p className="text-xs text-[#6B7280]">Cek log rekap presensi</p>
+                <p className="text-xs text-[#6B7280] truncate">Cek log rekap presensi</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors" />
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
 
           <button
             onClick={() => navigate('/profile')}
-            className="p-4 rounded-xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer"
+            className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
                   Kelengkapan Profil
                 </p>
-                <p className="text-xs text-[#6B7280]">Cek data NIP & akun</p>
+                <p className="text-xs text-[#6B7280] truncate">Cek data NIP & akun</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors" />
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
         </div>
       </div>
 
-      {/* Phase 1 Technical Boundary Notice (Clean & Unobtrusive) */}
-      <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-3 text-xs text-[#6B7280]">
+      {/* Information Note */}
+      <div className="p-3.5 sm:p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-3 text-xs text-[#6B7280]">
         <Info className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold text-[#111827]">Informasi Pengembangan Fase 1:</span> Data
-          ringkasan kehadiran di atas merupakan placeholder fondasi aplikasi. Integrasi database
-          Supabase, GPS Geofencing, dan deteksi kamera wajah akan dihubungkan secara penuh pada Fase
-          2 & 3.
+          <span className="font-semibold text-[#111827]">Waktu Sistem Aktual:</span> Jam operasional presensi mengikuti zona waktu Indonesia Tengah (WITA). Saat ini: <span className="font-mono font-bold text-[#111827]">{currentTime || '--:--:--'} WITA</span>.
         </div>
       </div>
     </div>
