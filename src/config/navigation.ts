@@ -79,12 +79,12 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
   {
     id: 'locations',
-    label: 'Titik Lokasi',
+    label: 'Lokasi',
     path: '/locations',
     iconName: 'MapPin',
-    allowedRoles: ['super_admin', 'admin'],
+    allowedRoles: ['super_admin', 'admin', 'headmaster'],
     section: 'management',
-    description: 'Radius geofence sekolah & unit luar',
+    description: 'Kelola titik koordinat dan radius presensi',
   },
   {
     id: 'holidays',
@@ -148,6 +148,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/dashboard',
     '/attendance',
     '/employees',
+    '/locations',
     '/requests',
     '/reports',
     '/notifications',

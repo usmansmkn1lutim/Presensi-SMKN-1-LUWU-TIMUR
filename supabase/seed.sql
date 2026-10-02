@@ -40,3 +40,32 @@ SET
     description = EXCLUDED.description,
     is_active = EXCLUDED.is_active,
     updated_at = now();
+
+-- 3. Seed Locations (Master Data Titik Lokasi Presensi Pegawai)
+-- Sesuai Phase 5A-1: Lokasi awal Kantor/TU (OFFICE)
+-- Koordinat tidak dikarang, is_attendance_enabled = false sampai admin menginput koordinat valid.
+-- ON CONFLICT (code) DO NOTHING menjamin tidak pernah menimpa konfigurasi/koordinat existing.
+INSERT INTO public.locations (
+    name,
+    code,
+    description,
+    location_type,
+    latitude,
+    longitude,
+    radius_meters,
+    is_attendance_enabled,
+    is_active,
+    address
+) VALUES (
+    'Kantor/TU',
+    'OFFICE',
+    'Lokasi utama presensi pegawai',
+    'office',
+    NULL,
+    NULL,
+    100,
+    false,
+    true,
+    'SMK Negeri 1 Luwu Timur'
+)
+ON CONFLICT (code) DO NOTHING;

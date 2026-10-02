@@ -14,6 +14,7 @@ export type AppRole =
 
 export type EmployeeStatus = 'active' | 'inactive';
 export type Gender = 'male' | 'female';
+export type LocationType = 'office' | 'teacher_room' | 'laboratory' | 'other';
 
 export interface Database {
   public: {
@@ -194,6 +195,54 @@ export interface Database {
           }
         ];
       };
+      locations: {
+        Row: {
+          id: string;
+          name: string;
+          code: string;
+          description: string | null;
+          location_type: LocationType;
+          latitude: number | null;
+          longitude: number | null;
+          radius_meters: number;
+          is_attendance_enabled: boolean;
+          is_active: boolean;
+          address: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          code: string;
+          description?: string | null;
+          location_type?: LocationType;
+          latitude?: number | null;
+          longitude?: number | null;
+          radius_meters?: number;
+          is_attendance_enabled?: boolean;
+          is_active?: boolean;
+          address?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          code?: string;
+          description?: string | null;
+          location_type?: LocationType;
+          latitude?: number | null;
+          longitude?: number | null;
+          radius_meters?: number;
+          is_attendance_enabled?: boolean;
+          is_active?: boolean;
+          address?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -240,3 +289,7 @@ export type PositionUpdate = Database['public']['Tables']['positions']['Update']
 export type EmployeeRow = Database['public']['Tables']['employees']['Row'];
 export type EmployeeInsert = Database['public']['Tables']['employees']['Insert'];
 export type EmployeeUpdate = Database['public']['Tables']['employees']['Update'];
+
+export type LocationRow = Database['public']['Tables']['locations']['Row'];
+export type LocationInsert = Database['public']['Tables']['locations']['Insert'];
+export type LocationUpdate = Database['public']['Tables']['locations']['Update'];

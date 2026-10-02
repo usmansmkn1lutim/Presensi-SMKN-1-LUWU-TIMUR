@@ -109,6 +109,27 @@ Menyimpan data identitas kepegawaian resmi:
 * `notes` (`TEXT`): Catatan khusus kepegawaian.
 * `created_at`, `updated_at` (`TIMESTAMPTZ`).
 
+### 5. `public.locations` (Phase 5A-1 — Master Lokasi Presensi)
+Menyimpan master titik lokasi presensi sekolah yang extensible untuk multi-lokasi:
+* `id` (`UUID PRIMARY KEY DEFAULT gen_random_uuid()`): Identifier lokasi.
+* `name` (`TEXT NOT NULL`): Nama lokasi (misal: "Kantor/TU", "Ruang Guru", "Lab Komputer").
+* `code` (`TEXT UNIQUE NOT NULL`): Kode singkat lokasi (misal: `OFFICE`, `LAB_KOMP`).
+* `description` (`TEXT`): Deskripsi dan fungsi lokasi.
+* `location_type` (`TEXT NOT NULL`): Jenis lokasi (`office`, `teacher_room`, `laboratory`, `other`).
+* `latitude` (`NUMERIC`): Koordinat latitude GPS (-90 s/d 90).
+* `longitude` (`NUMERIC`): Koordinat longitude GPS (-180 s/d 180).
+* `radius_meters` (`NUMERIC NOT NULL DEFAULT 100`): Radius batas toleransi geofencing presensi (1 s/d 500 meter).
+* `is_attendance_enabled` (`BOOLEAN DEFAULT false`): Status izin penggunaan lokasi sebagai titik presensi aktif. Wajib memiliki koordinat valid jika `true`.
+* `is_active` (`BOOLEAN DEFAULT true`): Status keaktifan lokasi secara umum.
+* `address` (`TEXT`): Alamat fisik / deskripsi petunjuk arah.
+* `created_at`, `updated_at` (`TIMESTAMPTZ`): Otomatis diperbarui via `set_updated_at()`.
+* **V1 Single Active Attendance Location Constraint**:
+  Index unik parsial `idx_locations_single_active_attendance` menjamin maksimal hanya 1 lokasi yang dapat berstatus `is_active = true AND is_attendance_enabled = true` secara bersamaan.
+* **RLS & Security**:
+  * Admin / Super Admin: `SELECT`, `INSERT`, `UPDATE` (tanpa hak `DELETE`).
+  * Headmaster & Pegawai Aktif: `SELECT` lokasi aktif.
+  * Inactive user: Diblokir sepenuhnya.
+
 ---
 
 ## 4. Keamanan & Row Level Security (RLS)
@@ -151,8 +172,10 @@ Jika menggunakan **Supabase Dashboard**:
    * `supabase/migrations/007_auth_last_login.sql`
    * `supabase/migrations/008_create_profiles_and_auth_trigger.sql` (Inisialisasi tabel profiles, trigger auth.users, dan sinkronisasi user existing)
    * `supabase/migrations/009_employee_management.sql` (Tabel departments, positions, employees, relasi ke profiles, indexes, master data, dan RLS)
+   * `supabase/migrations/010_linkable_profiles_rpc.sql` (RPC get_linkable_profiles untuk manajemen linking akun)
+   * `supabase/migrations/011_locations.sql` (Phase 5A-1: Tabel locations, GPS & radius constraints, partial unique index single active attendance location, RLS, no delete, dan seed Kantor/TU)
 4. Jalankan seed master data:
-   * `supabase/seed.sql`
+   * `supabase/seed.sql` (Departments, Positions, dan Locations)
 
 Jika menggunakan **Supabase CLI**:
 ```bash
