@@ -15,6 +15,7 @@ export type AppRole =
 export type EmployeeStatus = 'active' | 'inactive';
 export type Gender = 'male' | 'female';
 export type LocationType = 'office' | 'teacher_room' | 'laboratory' | 'other';
+export type HolidayType = 'national' | 'collective_leave' | 'school' | 'special' | 'other';
 
 export interface Database {
   public: {
@@ -243,6 +244,96 @@ export interface Database {
         };
         Relationships: [];
       };
+      holidays: {
+        Row: {
+          id: string;
+          name: string;
+          holiday_date: string;
+          holiday_type: HolidayType;
+          description: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          holiday_date: string;
+          holiday_type: HolidayType;
+          description?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          holiday_date?: string;
+          holiday_type?: HolidayType;
+          description?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      work_schedules: {
+        Row: {
+          id: string;
+          name: string;
+          code: string;
+          description: string | null;
+          check_in_start_time: string;
+          check_in_on_time_end: string;
+          check_in_end_time: string;
+          work_start_time: string;
+          operational_end_time: string;
+          work_end_time: string;
+          check_out_start_time: string;
+          check_out_end_time: string;
+          working_days: string[];
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          code: string;
+          description?: string | null;
+          check_in_start_time: string;
+          check_in_on_time_end: string;
+          check_in_end_time: string;
+          work_start_time: string;
+          operational_end_time: string;
+          work_end_time: string;
+          check_out_start_time: string;
+          check_out_end_time: string;
+          working_days: string[];
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          code?: string;
+          description?: string | null;
+          check_in_start_time?: string;
+          check_in_on_time_end?: string;
+          check_in_end_time?: string;
+          work_start_time?: string;
+          operational_end_time?: string;
+          work_end_time?: string;
+          check_out_start_time?: string;
+          check_out_end_time?: string;
+          working_days?: string[];
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -262,6 +353,12 @@ export interface Database {
           last_login_at: string | null;
           avatar_url: string | null;
         }[];
+      };
+      is_holiday: {
+        Args: {
+          check_date: string;
+        };
+        Returns: boolean;
       };
     };
     Enums: {
@@ -293,3 +390,11 @@ export type EmployeeUpdate = Database['public']['Tables']['employees']['Update']
 export type LocationRow = Database['public']['Tables']['locations']['Row'];
 export type LocationInsert = Database['public']['Tables']['locations']['Insert'];
 export type LocationUpdate = Database['public']['Tables']['locations']['Update'];
+
+export type HolidayRow = Database['public']['Tables']['holidays']['Row'];
+export type HolidayInsert = Database['public']['Tables']['holidays']['Insert'];
+export type HolidayUpdate = Database['public']['Tables']['holidays']['Update'];
+
+export type WorkScheduleRow = Database['public']['Tables']['work_schedules']['Row'];
+export type WorkScheduleInsert = Database['public']['Tables']['work_schedules']['Insert'];
+export type WorkScheduleUpdate = Database['public']['Tables']['work_schedules']['Update'];

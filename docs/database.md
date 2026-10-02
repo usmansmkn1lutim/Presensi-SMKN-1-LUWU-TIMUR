@@ -130,6 +130,55 @@ Menyimpan master titik lokasi presensi sekolah yang extensible untuk multi-lokas
   * Headmaster & Pegawai Aktif: `SELECT` lokasi aktif.
   * Inactive user: Diblokir sepenuhnya.
 
+### 6. `public.holidays` (Phase 5B-1 — Kalender & Hari Libur)
+Menyimpan master data kalender kerja sekolah, hari libur nasional, cuti bersama, dan hari khusus:
+* `id` (`UUID PRIMARY KEY DEFAULT gen_random_uuid()`): Identifier hari libur.
+* `name` (`TEXT NOT NULL`): Nama hari libur / acara (CHECK: `length(trim(name)) > 0`).
+* `holiday_date` (`DATE NOT NULL`): Tanggal hari libur. Mendukung data lampau dan masa depan.
+* `holiday_type` (`TEXT NOT NULL`): Jenis libur (`national`, `collective_leave`, `school`, `special`, `other`).
+* `description` (`TEXT`): Keterangan tambahan atau surat edaran.
+* `is_active` (`BOOLEAN NOT NULL DEFAULT true`): Status keaktifan record (soft-deactivation).
+* `created_at`, `updated_at` (`TIMESTAMPTZ`): Otomatis diperbarui via `set_updated_at()`.
+* **Integrity Constraints**:
+  * `UNIQUE (holiday_date, name)`: Mencegah duplikasi record identik namun tetap mengizinkan multi-event pada tanggal yang sama.
+  * Tidak ada pembatasan tahun atau `holiday_date >= CURRENT_DATE`, memungkinkan data historis dan perancangan masa depan.
+* **Fungsi Pembantu**:
+  * `public.is_holiday(check_date DATE) RETURNS BOOLEAN`: Fungsi `SECURITY DEFINER` dengan `search_path = public, pg_temp` untuk memverifikasi apakah suatu tanggal berstatus libur aktif.
+* **RLS & Security**:
+  * Admin / Super Admin: `SELECT`, `INSERT`, `UPDATE` (tanpa hak `DELETE`).
+  * Headmaster & Pegawai Aktif: `SELECT` data libur aktif.
+  * Inactive user: Diblokir sepenuhnya.
+
+### 7. `public.work_schedules` (Phase 5C-1 — Jadwal Kerja)
+Menyimpan konfigurasi jam kerja normal, jendela check-in, batas akhir, kepulangan operasional sekolah, dan jendela check-out:
+* `id` (`UUID PRIMARY KEY DEFAULT gen_random_uuid()`): Identifier jadwal kerja.
+* `name` (`TEXT NOT NULL`): Nama jadwal kerja (CHECK: `length(trim(name)) > 0`).
+* `code` (`TEXT NOT NULL UNIQUE`): Kode unik jadwal kerja (CHECK: `length(trim(code)) > 0`).
+* `description` (`TEXT`): Keterangan opsional.
+* `check_in_start_time` (`TIME NOT NULL`): Awal jendela check-in (misal 06:30).
+* `check_in_on_time_end` (`TIME NOT NULL`): Akhir jendela tepat waktu (misal 07:30).
+* `check_in_end_time` (`TIME NOT NULL`): Batas akhir check-in / ditutup (misal 10:00).
+* `work_start_time` (`TIME NOT NULL`): Jam kerja resmi masuk (misal 07:30).
+* `operational_end_time` (`TIME NOT NULL`): Jam kepulangan operasional bus sekolah (misal 15:00).
+* `work_end_time` (`TIME NOT NULL`): Jam kerja resmi selesai (misal 15:30).
+* `check_out_start_time` (`TIME NOT NULL`): Awal jendela check-out (sama dengan `operational_end_time` = 15:00).
+* `check_out_end_time` (`TIME NOT NULL`): Batas akhir check-out / ditutup (misal 17:00).
+* `working_days` (`TEXT[] NOT NULL`): Array hari kerja (`monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`).
+* `is_active` (`BOOLEAN NOT NULL DEFAULT true`): Status aktif jadwal kerja (soft-deactivation).
+* `created_at`, `updated_at` (`TIMESTAMPTZ`): Otomatis diperbarui via `set_updated_at()`.
+* **Integrity Constraints**:
+  * `work_schedules_time_sequence_check`: Memastikan konsistensi urutan waktu V1:
+    `check_in_start_time < check_in_on_time_end < check_in_end_time`
+    `check_in_on_time_end <= work_start_time`
+    `work_start_time < operational_end_time < work_end_time`
+    `check_out_start_time = operational_end_time`
+    `operational_end_time < check_out_end_time`
+  * `work_schedules_working_days_check`: Memvalidasi array hari kerja tidak kosong, hanya memuat 7 hari yang valid, dan tidak memiliki duplikasi via `public.validate_working_days()`.
+* **RLS & Security**:
+  * Admin / Super Admin: `SELECT`, `INSERT`, `UPDATE` (tanpa hak `DELETE`).
+  * Headmaster & Pegawai Aktif: `SELECT` jadwal aktif.
+  * Inactive user: Diblokir sepenuhnya dari mutasi.
+
 ---
 
 ## 4. Keamanan & Row Level Security (RLS)
@@ -174,6 +223,8 @@ Jika menggunakan **Supabase Dashboard**:
    * `supabase/migrations/009_employee_management.sql` (Tabel departments, positions, employees, relasi ke profiles, indexes, master data, dan RLS)
    * `supabase/migrations/010_linkable_profiles_rpc.sql` (RPC get_linkable_profiles untuk manajemen linking akun)
    * `supabase/migrations/011_locations.sql` (Phase 5A-1: Tabel locations, GPS & radius constraints, partial unique index single active attendance location, RLS, no delete, dan seed Kantor/TU)
+   * `supabase/migrations/012_holidays.sql` (Phase 5B-1: Tabel holidays, holiday_type check, non-empty name, unique date+name, RLS, no delete, dan helper function is_holiday)
+   * `supabase/migrations/013_work_schedules.sql` (Phase 5C-1: Tabel work_schedules, validasi working_days, time sequence constraint V1, RLS, no delete)
 4. Jalankan seed master data:
    * `supabase/seed.sql` (Departments, Positions, dan Locations)
 
