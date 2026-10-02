@@ -1,0 +1,7 @@
+{
+  "name": "Presensi Pegawai Sekolah - SMKN 1 Luwu Timur",
+  "description": "Aplikasi Sistem Presensi dan Kehadiran Pegawai SMK Negeri 1 Luwu Timur",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
