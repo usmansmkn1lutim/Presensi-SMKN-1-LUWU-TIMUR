@@ -1,249 +1,316 @@
-import { User, UserRole, LoginCredentials, AuthSession } from '../types/auth';
+import { User as SupabaseUser, Session, AuthChangeEvent } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured, SUPABASE_MISSING_CONFIG_MESSAGE } from '../lib/supabase';
+import { User, LoginCredentials } from '../types/auth';
+import { ProfileRow } from '../types/database.types';
+import { APP_CONFIG } from '../config/appConfig';
 
-const STORAGE_KEY_USER = 'presensi_smk_user';
-const STORAGE_KEY_TOKEN = 'presensi_smk_token';
-const STORAGE_KEY_REMEMBER = 'presensi_smk_remember';
-
-export const MOCK_USERS: Record<string, User> = {
-  'usman@smkn1luwutimur.sch.id': {
-    id: 'usr_emp_001',
-    name: 'Usman, S.Pd., M.Pd.',
-    email: 'usman@smkn1luwutimur.sch.id',
-    role: 'employee',
-    nip: '19850712 201001 1 014',
-    position: 'Guru Produktif RPL',
-    department: 'Teknik Komputer & Informatika',
-    schoolName: 'SMK Negeri 1 Luwu Timur',
-    status: 'active',
-    joinedDate: '2010-01-01',
-    phoneNumber: '+62 812-3456-7890',
-  },
-  'admin@smkn1luwutimur.sch.id': {
-    id: 'usr_adm_002',
-    name: 'Siti Rahmawati, S.Kom.',
-    email: 'admin@smkn1luwutimur.sch.id',
-    role: 'admin',
-    nip: '19890315 201502 2 006',
-    position: 'Administrator SIM Presensi',
-    department: 'Bagian Tata Usaha & IT',
-    schoolName: 'SMK Negeri 1 Luwu Timur',
-    status: 'active',
-    joinedDate: '2015-02-01',
-    phoneNumber: '+62 821-9876-5432',
-  },
-  'kepala@smkn1luwutimur.sch.id': {
-    id: 'usr_hdm_003',
-    name: 'Drs. H. Baharuddin, M.M.',
-    email: 'kepala@smkn1luwutimur.sch.id',
-    role: 'headmaster',
-    nip: '19680410 199412 1 002',
-    position: 'Kepala Sekolah',
-    department: 'Pimpinan Satuan Pendidikan',
-    schoolName: 'SMK Negeri 1 Luwu Timur',
-    status: 'active',
-    joinedDate: '1994-12-01',
-    phoneNumber: '+62 811-4567-8901',
-  },
-  'verifikator@smkn1luwutimur.sch.id': {
-    id: 'usr_ver_004',
-    name: 'Hj. Nurjannah, S.E.',
-    email: 'verifikator@smkn1luwutimur.sch.id',
-    role: 'verifier',
-    nip: '19760822 200501 2 008',
-    position: 'Verifikator Presensi & Izin',
-    department: 'Kepegawaian & Tata Usaha',
-    schoolName: 'SMK Negeri 1 Luwu Timur',
-    status: 'active',
-    joinedDate: '2005-01-01',
-    phoneNumber: '+62 813-5566-7788',
-  },
-  'superadmin@smkn1luwutimur.sch.id': {
-    id: 'usr_sup_005',
-    name: 'Super Admin Sistem',
-    email: 'superadmin@smkn1luwutimur.sch.id',
-    role: 'super_admin',
-    nip: '19900101 201801 1 001',
-    position: 'Super Administrator',
-    department: 'Dinas Pendidikan & IT Pusat',
-    schoolName: 'SMK Negeri 1 Luwu Timur',
-    status: 'active',
-    joinedDate: '2018-01-01',
-    phoneNumber: '+62 852-1122-3344',
-  },
-};
-
-type AuthListener = (user: User | null) => void;
-
+/**
+ * Authentication Service (Phase 3 Production Supabase Auth)
+ * Encapsulates signInWithPassword, signOut, getSession, resetPassword, and updateUser.
+ */
 class AuthService {
-  private listeners: Set<AuthListener> = new Set();
-  private currentUser: User | null = null;
-  private currentToken: string | null = null;
+  /**
+   * Helper to transform Supabase auth user, profile, and employee records into app User model
+   */
+  public async loadFullUserData(supabaseUser: SupabaseUser): Promise<{ user: User; profile: ProfileRow }> {
+    // 1. Fetch authoritative profile from database
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', supabaseUser.id)
+      .single();
 
-  constructor() {
-    this.restoreSession();
-  }
+    if (profileError || !profile) {
+      // Fallback profile if record is still propagating from trigger
+      const fallbackProfile: ProfileRow = {
+        id: supabaseUser.id,
+        full_name: (supabaseUser.user_metadata?.full_name as string) ||
+                   (supabaseUser.user_metadata?.name as string) ||
+                   supabaseUser.email?.split('@')[0] || 'Pegawai',
+        avatar_url: (supabaseUser.user_metadata?.avatar_url as string) || null,
+        role: 'employee',
+        is_active: true,
+        last_login_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-  private restoreSession(): void {
+      const userModel: User = {
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        name: fallbackProfile.full_name || 'Pegawai',
+        role: fallbackProfile.role,
+        nip: '—',
+        position: 'Guru / Pegawai',
+        department: 'SMK Negeri 1 Luwu Timur',
+        avatarUrl: fallbackProfile.avatar_url || undefined,
+        schoolName: APP_CONFIG.schoolName,
+        status: 'active',
+        joinedDate: '—',
+        lastLoginAt: fallbackProfile.last_login_at,
+      };
+
+      return { user: userModel, profile: fallbackProfile };
+    }
+
+    // 2. Fetch employee details if linked
+    let employeeData = null;
     try {
-      const isRemembered = localStorage.getItem(STORAGE_KEY_REMEMBER) === 'true';
-      const storage = isRemembered ? localStorage : sessionStorage;
+      const { data: emp } = await supabase
+        .from('employees')
+        .select('*, departments(name), positions(name)')
+        .eq('profile_id', supabaseUser.id)
+        .maybeSingle();
 
-      const rawUser = storage.getItem(STORAGE_KEY_USER);
-      const rawToken = storage.getItem(STORAGE_KEY_TOKEN);
-
-      if (rawUser && rawToken) {
-        this.currentUser = JSON.parse(rawUser) as User;
-        this.currentToken = rawToken;
+      if (emp) {
+        employeeData = emp;
       }
     } catch {
-      this.currentUser = null;
-      this.currentToken = null;
+      // Ignore if employee row does not exist yet
     }
-  }
 
-  public subscribe(listener: AuthListener): () => void {
-    this.listeners.add(listener);
-    // Immediately invoke with current state
-    listener(this.currentUser);
-    return () => {
-      this.listeners.delete(listener);
+    const deptName = (employeeData?.departments as { name?: string } | null)?.name || 'Satuan Pendidikan';
+    const posName = (employeeData?.positions as { name?: string } | null)?.name ||
+      (profile.role === 'admin' ? 'Administrator SIM' :
+       profile.role === 'headmaster' ? 'Kepala Sekolah' :
+       profile.role === 'verifier' ? 'Verifikator Presensi' :
+       profile.role === 'super_admin' ? 'Super Administrator' : 'Tenaga Pendidik / Guru');
+
+    const userModel: User = {
+      id: profile.id,
+      email: supabaseUser.email || '',
+      name: profile.full_name || supabaseUser.email?.split('@')[0] || 'Pegawai',
+      role: profile.role,
+      nip: employeeData?.nip || '—',
+      position: posName,
+      department: deptName,
+      avatarUrl: profile.avatar_url || undefined,
+      schoolName: APP_CONFIG.schoolName,
+      status: profile.is_active ? 'active' : 'inactive',
+      joinedDate: employeeData?.join_date || profile.created_at?.split('T')[0] || '—',
+      phoneNumber: employeeData?.phone || undefined,
+      lastLoginAt: profile.last_login_at,
     };
-  }
 
-  private notify(): void {
-    this.listeners.forEach((listener) => listener(this.currentUser));
-  }
-
-  public getCurrentUser(): User | null {
-    return this.currentUser;
-  }
-
-  public getToken(): string | null {
-    return this.currentToken;
-  }
-
-  public isAuthenticated(): boolean {
-    return this.currentUser !== null;
-  }
-
-  public getSession(): AuthSession {
-    return {
-      user: this.currentUser,
-      token: this.currentToken,
-      isAuthenticated: this.isAuthenticated(),
-    };
+    return { user: userModel, profile };
   }
 
   /**
-   * Phase 1 Mock Login
-   * Accepts credentials, verifies against mock accounts or generates demo employee
+   * Production Sign In with Email & Password
    */
-  public async login(credentials: LoginCredentials): Promise<User> {
-    const trimmedEmail = credentials.email.trim().toLowerCase();
-    const { password, rememberMe = false } = credentials;
+  public async signIn(credentials: LoginCredentials): Promise<{ user: User; session: Session; profile: ProfileRow }> {
+    if (!isSupabaseConfigured()) {
+      throw new Error(SUPABASE_MISSING_CONFIG_MESSAGE);
+    }
 
-    // Simulate network delay for natural UI response
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    const email = credentials.email.trim().toLowerCase();
+    const password = credentials.password;
 
-    if (!trimmedEmail) {
-      throw new Error('Alamat email wajib diisi.');
+    // 1. Client-side input validation
+    if (!email) {
+      throw new Error('Email wajib diisi.');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Format email tidak valid.');
     }
 
     if (!password) {
-      throw new Error('Kata sandi wajib diisi.');
+      throw new Error('Password wajib diisi.');
     }
 
-    if (password.length < 6) {
-      throw new Error('Kata sandi minimal 6 karakter.');
-    }
-
-    // Find mock user or allow registered test emails
-    let matchedUser = MOCK_USERS[trimmedEmail];
-
-    // If not in standard list, allow any valid email as a test employee
-    if (!matchedUser) {
-      if (!trimmedEmail.includes('@')) {
-        throw new Error('Format email tidak valid.');
+    // 2. Call Supabase Auth API
+    let authResponse;
+    try {
+      authResponse = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
       }
+      throw new Error('Terjadi kesalahan. Silakan coba lagi.');
+    }
 
-      // Check if credentials match simple test pattern
-      if (password === 'wrongpassword') {
-        throw new Error('Email atau kata sandi tidak cocok.');
+    const { data, error } = authResponse;
+
+    if (error) {
+      const errMsg = error.message.toLowerCase();
+      if (
+        errMsg.includes('invalid login credentials') ||
+        errMsg.includes('invalid_grant') ||
+        errMsg.includes('invalid credentials') ||
+        errMsg.includes('email not confirmed')
+      ) {
+        throw new Error('Email atau password salah.');
       }
-
-      // Create guest employee for arbitrary test email
-      const namePart = trimmedEmail.split('@')[0];
-      const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-      matchedUser = {
-        id: `usr_${Date.now()}`,
-        name: formattedName,
-        email: trimmedEmail,
-        role: 'employee',
-        nip: '19920101 202201 1 099',
-        position: 'Guru Pengajar',
-        department: 'Tenaga Pendidik',
-        schoolName: 'SMK Negeri 1 Luwu Timur',
-        status: 'active',
-        joinedDate: '2022-01-01',
-      };
+      if (errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection')) {
+        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
+      }
+      // Never leak internal stack or SQL error
+      throw new Error('Email atau password salah.');
     }
 
-    const mockToken = `mock_jwt_token_${matchedUser.id}_${Date.now()}`;
-    const storage = rememberMe ? localStorage : sessionStorage;
-
-    if (rememberMe) {
-      localStorage.setItem(STORAGE_KEY_REMEMBER, 'true');
-    } else {
-      localStorage.removeItem(STORAGE_KEY_REMEMBER);
-      localStorage.removeItem(STORAGE_KEY_USER);
-      localStorage.removeItem(STORAGE_KEY_TOKEN);
+    if (!data.user || !data.session) {
+      throw new Error('Email atau password salah.');
     }
 
-    storage.setItem(STORAGE_KEY_USER, JSON.stringify(matchedUser));
-    storage.setItem(STORAGE_KEY_TOKEN, mockToken);
+    // 3. Load authoritative profile from database
+    const { user: userModel, profile } = await this.loadFullUserData(data.user);
 
-    this.currentUser = matchedUser;
-    this.currentToken = mockToken;
-    this.notify();
+    // 4. Check active account status
+    if (profile.is_active === false) {
+      // Force logout if account has been deactivated
+      await supabase.auth.signOut();
+      throw new Error('Akun Anda tidak aktif. Silakan hubungi administrator.');
+    }
 
-    return matchedUser;
-  }
+    // 5. Safely record last login timestamp
+    try {
+      await supabase.rpc('record_last_login');
+    } catch {
+      // Fallback direct update if RPC is pending
+      try {
+        await supabase
+          .from('profiles')
+          .update({ last_login_at: new Date().toISOString() })
+          .eq('id', data.user.id);
+      } catch {
+        // Non-blocking
+      }
+    }
 
-  public async logout(): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    localStorage.removeItem(STORAGE_KEY_USER);
-    localStorage.removeItem(STORAGE_KEY_TOKEN);
-    localStorage.removeItem(STORAGE_KEY_REMEMBER);
-
-    sessionStorage.removeItem(STORAGE_KEY_USER);
-    sessionStorage.removeItem(STORAGE_KEY_TOKEN);
-
-    this.currentUser = null;
-    this.currentToken = null;
-    this.notify();
+    return {
+      user: userModel,
+      session: data.session,
+      profile,
+    };
   }
 
   /**
-   * Helper to quickly switch roles during Phase 1 testing
+   * Production Sign Out
    */
-  public switchRole(role: UserRole): User {
-    const targetUser = Object.values(MOCK_USERS).find((u) => u.role === role);
-    if (!targetUser) {
-      throw new Error(`Role ${role} tidak ditemukan.`);
+  public async signOut(): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
+  }
+
+  /**
+   * Get Current Session
+   */
+  public async getSession(): Promise<Session | null> {
+    if (!isSupabaseConfigured()) {
+      return null;
+    }
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      return null;
+    }
+    return data.session;
+  }
+
+  /**
+   * Get Current Authenticated User from Supabase
+   */
+  public async getCurrentUser(): Promise<SupabaseUser | null> {
+    if (!isSupabaseConfigured()) {
+      return null;
+    }
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      return null;
+    }
+    return data.user;
+  }
+
+  /**
+   * Send Password Reset Email via Supabase Auth
+   */
+  public async resetPassword(email: string, redirectTo?: string): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      throw new Error(SUPABASE_MISSING_CONFIG_MESSAGE);
     }
 
-    const mockToken = `mock_jwt_token_${targetUser.id}_${Date.now()}`;
-    const storage = localStorage.getItem(STORAGE_KEY_REMEMBER) === 'true' ? localStorage : sessionStorage;
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed) {
+      throw new Error('Email wajib diisi.');
+    }
 
-    storage.setItem(STORAGE_KEY_USER, JSON.stringify(targetUser));
-    storage.setItem(STORAGE_KEY_TOKEN, mockToken);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+      throw new Error('Format email tidak valid.');
+    }
 
-    this.currentUser = targetUser;
-    this.currentToken = mockToken;
-    this.notify();
+    const callbackUrl = redirectTo || `${window.location.origin}/reset-password`;
 
-    return targetUser;
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
+      redirectTo: callbackUrl,
+    });
+
+    if (error) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes('network') || msg.includes('fetch')) {
+        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
+      }
+      throw new Error('Terjadi kesalahan saat memproses permintaan reset password.');
+    }
+  }
+
+  /**
+   * Update User Password (used after user opens password reset link)
+   */
+  public async updatePassword(newPassword: string): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      throw new Error(SUPABASE_MISSING_CONFIG_MESSAGE);
+    }
+
+    if (!newPassword) {
+      throw new Error('Password wajib diisi.');
+    }
+
+    if (newPassword.length < 6) {
+      throw new Error('Kata sandi minimal 6 karakter.');
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes('network') || msg.includes('fetch')) {
+        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
+      }
+      throw new Error('Gagal memperbarui kata sandi. Tautan mungkin telah kedaluwarsa.');
+    }
+  }
+
+  /**
+   * Listen to auth state changes from Supabase
+   */
+  public onAuthStateChange(
+    callback: (event: AuthChangeEvent, session: Session | null) => void
+  ): () => void {
+    if (!isSupabaseConfigured()) {
+      return () => {};
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(callback);
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }
 }
 

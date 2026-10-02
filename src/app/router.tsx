@@ -5,8 +5,12 @@ import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { PublicOnlyRoute } from '../components/auth/PublicOnlyRoute';
 import { AppLayout } from '../components/layout/AppLayout';
 
-// Pages
+// Public Auth Pages
 import { LoginPage } from '../pages/auth/LoginPage';
+import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage';
+
+// Protected App Pages
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { AttendancePage } from '../pages/attendance/AttendancePage';
 import { HistoryPage } from '../pages/history/HistoryPage';
@@ -14,7 +18,7 @@ import { RequestsPage } from '../pages/requests/RequestsPage';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
 
-// Admin / Management Pages
+// Admin & Management Pages
 import { EmployeesPage } from '../pages/admin/EmployeesPage';
 import { SchedulesPage } from '../pages/admin/SchedulesPage';
 import { LocationsPage } from '../pages/admin/LocationsPage';
@@ -24,14 +28,17 @@ import { AuditLogsPage } from '../pages/admin/AuditLogsPage';
 import { SettingsPage } from '../pages/admin/SettingsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
-// Root redirect handler: / -> /dashboard (if logged in) or /login (if not)
+// Root redirect handler: / -> /dashboard (if authenticated) or /login (if not)
 const RootRedirect: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
-        <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-[#6B7280]">Memuat sesi...</p>
+        </div>
       </div>
     );
   }
@@ -46,12 +53,28 @@ export const router = createBrowserRouter([
     element: <RootRedirect />,
   },
 
-  // Public / Auth Route
+  // Public / Authentication Routes
   {
     path: '/login',
     element: (
       <PublicOnlyRoute>
         <LoginPage />
+      </PublicOnlyRoute>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <PublicOnlyRoute>
+        <ForgotPasswordPage />
+      </PublicOnlyRoute>
+    ),
+  },
+  {
+    path: '/reset-password',
+    element: (
+      <PublicOnlyRoute>
+        <ResetPasswordPage />
       </PublicOnlyRoute>
     ),
   },
@@ -74,7 +97,11 @@ export const router = createBrowserRouter([
       },
       {
         path: '/history',
-        element: <HistoryPage />,
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'employee']}>
+            <HistoryPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/requests',
@@ -101,7 +128,7 @@ export const router = createBrowserRouter([
       {
         path: '/schedules',
         element: (
-          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
+          <ProtectedRoute allowedRoles={['super_admin', 'admin']}>
             <SchedulesPage />
           </ProtectedRoute>
         ),
@@ -125,7 +152,7 @@ export const router = createBrowserRouter([
       {
         path: '/reports',
         element: (
-          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster', 'verifier']}>
+          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
             <ReportsPage />
           </ProtectedRoute>
         ),

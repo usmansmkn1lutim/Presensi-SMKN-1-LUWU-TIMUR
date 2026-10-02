@@ -1,36 +1,54 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SchoolLogo } from '../../components/ui/SchoolLogo';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { APP_CONFIG } from '../../config/appConfig';
-import { MOCK_USERS } from '../../services/authService';
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState('usman@smkn1luwutimur.sch.id');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Redirection target after login
+  // Redirection target after successful login
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return; // Prevent double submission
     setErrorMessage(null);
+
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) {
+      setErrorMessage('Email wajib diisi.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setErrorMessage('Format email tidak valid.');
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage('Password wajib diisi.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await login({ email, password, rememberMe });
+      await signIn({ email: trimmedEmail, password, rememberMe });
       navigate(from, { replace: true });
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -41,12 +59,6 @@ export const LoginPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const setDemoAccount = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('password123');
-    setErrorMessage(null);
   };
 
   return (
@@ -74,10 +86,7 @@ export const LoginPage: React.FC = () => {
           {errorMessage && (
             <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in duration-150">
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <span className="font-semibold">Gagal Masuk: </span>
-                {errorMessage}
-              </div>
+              <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
 
@@ -87,7 +96,7 @@ export const LoginPage: React.FC = () => {
               <Input
                 label="Alamat Email Pegawai"
                 type="email"
-                placeholder="nama@smkn1luwutimur.sch.id"
+                placeholder="Masukkan email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 leftIcon={<Mail className="w-4 h-4" />}
@@ -101,7 +110,7 @@ export const LoginPage: React.FC = () => {
               <Input
                 label="Kata Sandi"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
+                placeholder="Masukkan password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 leftIcon={<Lock className="w-4 h-4" />}
@@ -122,7 +131,7 @@ export const LoginPage: React.FC = () => {
               />
             </div>
 
-            {/* Remember Me */}
+            {/* Remember Me & Forgot Password Link */}
             <div className="flex items-center justify-between text-xs pt-1">
               <label className="flex items-center gap-2 cursor-pointer select-none text-[#4B5563]">
                 <input
@@ -134,9 +143,12 @@ export const LoginPage: React.FC = () => {
                 <span>Ingat saya di perangkat ini</span>
               </label>
 
-              <span className="text-[#9CA3AF] cursor-default">
-                Lupa sandi?
-              </span>
+              <Link
+                to="/forgot-password"
+                className="font-medium text-[#F97316] hover:text-[#EA580C] transition-colors"
+              >
+                Lupa password?
+              </Link>
             </div>
 
             {/* Primary Submit Button (Sunset Orange) */}
@@ -146,54 +158,14 @@ export const LoginPage: React.FC = () => {
                 variant="primary"
                 size="md"
                 isLoading={isLoading}
+                disabled={isLoading}
                 className="w-full"
-                rightIcon={<ArrowRight className="w-4 h-4 ml-1" />}
+                rightIcon={!isLoading ? <ArrowRight className="w-4 h-4 ml-1" /> : undefined}
               >
-                MASUK
+                {isLoading ? 'Memproses...' : 'Masuk'}
               </Button>
             </div>
           </form>
-
-          {/* Quick Demo Credentials Picker for Evaluation */}
-          <div className="mt-6 pt-5 border-t border-[#E5E7EB]">
-            <p className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-2.5 text-center">
-              Pilihan Akun Demo (Phase 1 Testing)
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => setDemoAccount('usman@smkn1luwutimur.sch.id')}
-                className="p-2 rounded-xl bg-[#F9FAFB] hover:bg-[#F3F4F6] border border-[#E5E7EB] text-left transition-colors cursor-pointer"
-              >
-                <p className="font-semibold text-[#111827] truncate">Guru (Usman)</p>
-                <p className="text-[10px] text-[#6B7280]">Role: employee</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDemoAccount('admin@smkn1luwutimur.sch.id')}
-                className="p-2 rounded-xl bg-[#F9FAFB] hover:bg-[#F3F4F6] border border-[#E5E7EB] text-left transition-colors cursor-pointer"
-              >
-                <p className="font-semibold text-[#111827] truncate">Administrator</p>
-                <p className="text-[10px] text-[#6B7280]">Role: admin</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDemoAccount('kepala@smkn1luwutimur.sch.id')}
-                className="p-2 rounded-xl bg-[#F9FAFB] hover:bg-[#F3F4F6] border border-[#E5E7EB] text-left transition-colors cursor-pointer"
-              >
-                <p className="font-semibold text-[#111827] truncate">Kepala Sekolah</p>
-                <p className="text-[10px] text-[#6B7280]">Role: headmaster</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDemoAccount('verifikator@smkn1luwutimur.sch.id')}
-                className="p-2 rounded-xl bg-[#F9FAFB] hover:bg-[#F3F4F6] border border-[#E5E7EB] text-left transition-colors cursor-pointer"
-              >
-                <p className="font-semibold text-[#111827] truncate">Verifikator</p>
-                <p className="text-[10px] text-[#6B7280]">Role: verifier</p>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -203,7 +175,7 @@ export const LoginPage: React.FC = () => {
           © {APP_CONFIG.copyrightYear} {APP_CONFIG.appName} · {APP_CONFIG.schoolName}
         </p>
         <p className="text-[11px] mt-1 text-[#9CA3AF]">
-          Versi {APP_CONFIG.version} · Siap Terintegrasi Supabase
+          Versi {APP_CONFIG.version} · Terintegrasi Supabase Auth
         </p>
       </footer>
     </div>

@@ -126,12 +126,68 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
 ];
 
+export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
+  employee: [
+    '/dashboard',
+    '/attendance',
+    '/history',
+    '/requests',
+    '/notifications',
+    '/profile',
+  ],
+  verifier: [
+    '/dashboard',
+    '/attendance',
+    '/requests',
+    '/notifications',
+    '/profile',
+  ],
+  headmaster: [
+    '/dashboard',
+    '/attendance',
+    '/employees',
+    '/requests',
+    '/reports',
+    '/notifications',
+    '/profile',
+  ],
+  admin: [
+    '/dashboard',
+    '/attendance',
+    '/employees',
+    '/requests',
+    '/schedules',
+    '/locations',
+    '/holidays',
+    '/reports',
+    '/audit-logs',
+    '/settings',
+    '/notifications',
+    '/profile',
+  ],
+  super_admin: [
+    '/dashboard',
+    '/attendance',
+    '/history',
+    '/requests',
+    '/notifications',
+    '/profile',
+    '/employees',
+    '/schedules',
+    '/locations',
+    '/holidays',
+    '/reports',
+    '/audit-logs',
+    '/settings',
+  ],
+};
+
 export const getNavItemsForRole = (role: UserRole): NavItem[] => {
-  return NAVIGATION_ITEMS.filter((item) => item.allowedRoles.includes(role));
+  const allowedPaths = ROLE_PERMISSIONS[role] || [];
+  return NAVIGATION_ITEMS.filter((item) => allowedPaths.includes(item.path));
 };
 
 export const canUserAccessPath = (role: UserRole, path: string): boolean => {
-  const item = NAVIGATION_ITEMS.find((nav) => nav.path === path);
-  if (!item) return true; // generic routes like /profile
-  return item.allowedRoles.includes(role);
+  return ROLE_PERMISSIONS[role]?.includes(path) ?? false;
 };
+
