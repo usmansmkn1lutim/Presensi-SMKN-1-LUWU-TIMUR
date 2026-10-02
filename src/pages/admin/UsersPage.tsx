@@ -12,6 +12,7 @@ import {
   UserX,
   Users,
   Link2,
+  Unlink,
   Power,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -27,6 +28,8 @@ import { CreateUserModal } from '../../components/users/CreateUserModal';
 import { UserDetailModal } from '../../components/users/UserDetailModal';
 import { UpdateRoleModal } from '../../components/users/UpdateRoleModal';
 import { UserStatusConfirmModal } from '../../components/users/UserStatusConfirmModal';
+import { LinkUserEmployeeModal } from '../../components/users/LinkUserEmployeeModal';
+import { UnlinkUserEmployeeModal } from '../../components/users/UnlinkUserEmployeeModal';
 
 const ROLE_LABELS: Record<ActiveAppRole, string> = {
   super_admin: 'Super Admin',
@@ -60,6 +63,10 @@ export const UsersPage: React.FC = () => {
   const [userForRoleUpdate, setUserForRoleUpdate] = useState<UserManagementItem | null>(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [userForStatusUpdate, setUserForStatusUpdate] = useState<UserManagementItem | null>(null);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [userForLinking, setUserForLinking] = useState<UserManagementItem | null>(null);
+  const [isUnlinkModalOpen, setIsUnlinkModalOpen] = useState(false);
+  const [userForUnlink, setUserForUnlink] = useState<UserManagementItem | null>(null);
 
   // Fetch Users
   const fetchUsersData = useCallback(async () => {
@@ -115,6 +122,31 @@ export const UsersPage: React.FC = () => {
       `Akun "${updatedUser.full_name || 'Pengguna'}" berhasil ${
         updatedUser.is_active ? 'diaktifkan' : 'dinonaktifkan'
       }.`
+    );
+    setTimeout(() => setSuccessToast(null), 5000);
+  };
+
+  // Handle User-Employee Link Success
+  const handleLinkSuccess = (linkedData: {
+    userId: string;
+    employeeId: string;
+    employeeName: string;
+  }) => {
+    fetchUsersData();
+    setSuccessToast(
+      `Akun berhasil dihubungkan dengan data pegawai "${linkedData.employeeName}".`
+    );
+    setTimeout(() => setSuccessToast(null), 5000);
+  };
+
+  // Handle User-Employee Unlink Success
+  const handleUnlinkSuccess = (data: {
+    userId: string;
+    employeeName: string;
+  }) => {
+    fetchUsersData();
+    setSuccessToast(
+      `Hubungan akun dengan data pegawai "${data.employeeName}" berhasil dilepaskan.`
     );
     setTimeout(() => setSuccessToast(null), 5000);
   };
@@ -404,14 +436,19 @@ export const UsersPage: React.FC = () => {
                         {/* Linked Employee */}
                         <td className="py-3 px-4">
                           {u.employee_id ? (
-                            <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                              <span className="truncate max-w-[180px]">
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
+                                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                                <span className="font-semibold text-xs text-emerald-800">
+                                  Terhubung
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-[#4B5563] block truncate max-w-[180px]">
                                 {u.employee_name}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-amber-600 font-medium flex items-center gap-1.5">
+                            <span className="text-amber-600 font-medium flex items-center gap-1.5 text-xs">
                               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                               <span>Belum Terhubung</span>
                             </span>
@@ -438,6 +475,50 @@ export const UsersPage: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             {canManage && (
                               <>
+                                {/* Link User to Employee Action (Only if unlinked and active) */}
+                                {!u.employee_id && u.is_active && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isSelf}
+                                    title={
+                                      isSelf
+                                        ? 'Tidak dapat menautkan akun Anda sendiri'
+                                        : 'Hubungkan akun ini ke data pegawai'
+                                    }
+                                    onClick={() => {
+                                      setUserForLinking(u);
+                                      setIsLinkModalOpen(true);
+                                    }}
+                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
+                                    leftIcon={<Link2 className="w-3.5 h-3.5" />}
+                                  >
+                                    Hubungkan ke Pegawai
+                                  </Button>
+                                )}
+
+                                {/* Unlink User from Employee Action (Only if linked) */}
+                                {u.employee_id && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isSelf}
+                                    title={
+                                      isSelf
+                                        ? 'Tidak dapat melepaskan hubungan akun Anda sendiri'
+                                        : 'Lepaskan hubungan akun dengan data pegawai'
+                                    }
+                                    onClick={() => {
+                                      setUserForUnlink(u);
+                                      setIsUnlinkModalOpen(true);
+                                    }}
+                                    className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-amber-200"
+                                    leftIcon={<Unlink className="w-3.5 h-3.5" />}
+                                  >
+                                    Lepaskan Hubungan
+                                  </Button>
+                                )}
+
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -567,11 +648,16 @@ export const UsersPage: React.FC = () => {
 
                     <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-[11px] space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[#6B7280]">Pegawai:</span>
+                        <span className="text-[#6B7280]">Status Pegawai:</span>
                         {u.employee_id ? (
-                          <span className="font-semibold text-emerald-700 truncate max-w-[180px]">
-                            {u.employee_name}
-                          </span>
+                          <div className="text-right">
+                            <span className="font-semibold text-emerald-700 block">
+                              Terhubung
+                            </span>
+                            <span className="text-[10px] text-[#4B5563] block truncate max-w-[180px]">
+                              {u.employee_name}
+                            </span>
+                          </div>
                         ) : (
                           <span className="font-semibold text-amber-600">Belum Terhubung</span>
                         )}
@@ -591,37 +677,83 @@ export const UsersPage: React.FC = () => {
                     </div>
 
                     {canManage && (
-                      <div className="pt-1 grid grid-cols-2 gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!canEditThisAccount}
-                          onClick={() => {
-                            setUserForRoleUpdate(u);
-                            setIsRoleModalOpen(true);
-                          }}
-                          leftIcon={<Shield className="w-3.5 h-3.5" />}
-                          className="w-full justify-center"
-                        >
-                          Ubah Role
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!canEditThisAccount}
-                          onClick={() => {
-                            setUserForStatusUpdate(u);
-                            setIsStatusModalOpen(true);
-                          }}
-                          leftIcon={<Power className="w-3.5 h-3.5" />}
-                          className={`w-full justify-center ${
-                            u.is_active
-                              ? 'text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200'
-                              : 'text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-200'
-                          }`}
-                        >
-                          {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                        </Button>
+                      <div className="pt-1 space-y-2">
+                        {/* Link to Employee Action Button (Mobile) */}
+                        {!u.employee_id && u.is_active && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isSelf}
+                            title={
+                              isSelf
+                                ? 'Tidak dapat menautkan akun Anda sendiri'
+                                : 'Hubungkan akun ini ke data pegawai'
+                            }
+                            onClick={() => {
+                              setUserForLinking(u);
+                              setIsLinkModalOpen(true);
+                            }}
+                            leftIcon={<Link2 className="w-3.5 h-3.5" />}
+                            className="w-full justify-center text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
+                          >
+                            Hubungkan ke Pegawai
+                          </Button>
+                        )}
+
+                        {/* Unlink from Employee Action Button (Mobile) */}
+                        {u.employee_id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isSelf}
+                            title={
+                              isSelf
+                                ? 'Tidak dapat melepaskan hubungan akun Anda sendiri'
+                                : 'Lepaskan hubungan akun dengan data pegawai'
+                            }
+                            onClick={() => {
+                              setUserForUnlink(u);
+                              setIsUnlinkModalOpen(true);
+                            }}
+                            leftIcon={<Unlink className="w-3.5 h-3.5" />}
+                            className="w-full justify-center text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-amber-200"
+                          >
+                            Lepaskan Hubungan
+                          </Button>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!canEditThisAccount}
+                            onClick={() => {
+                              setUserForRoleUpdate(u);
+                              setIsRoleModalOpen(true);
+                            }}
+                            leftIcon={<Shield className="w-3.5 h-3.5" />}
+                            className="w-full justify-center"
+                          >
+                            Ubah Role
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!canEditThisAccount}
+                            onClick={() => {
+                              setUserForStatusUpdate(u);
+                              setIsStatusModalOpen(true);
+                            }}
+                            leftIcon={<Power className="w-3.5 h-3.5" />}
+                            className={`w-full justify-center ${
+                              u.is_active
+                                ? 'text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200'
+                                : 'text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-200'
+                            }`}
+                          >
+                            {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -663,6 +795,26 @@ export const UsersPage: React.FC = () => {
         }}
         user={userForStatusUpdate}
         onSuccess={handleStatusUpdateSuccess}
+      />
+
+      <LinkUserEmployeeModal
+        isOpen={isLinkModalOpen}
+        onClose={() => {
+          setIsLinkModalOpen(false);
+          setUserForLinking(null);
+        }}
+        user={userForLinking}
+        onSuccess={handleLinkSuccess}
+      />
+
+      <UnlinkUserEmployeeModal
+        isOpen={isUnlinkModalOpen}
+        onClose={() => {
+          setIsUnlinkModalOpen(false);
+          setUserForUnlink(null);
+        }}
+        user={userForUnlink}
+        onSuccess={handleUnlinkSuccess}
       />
     </div>
   );

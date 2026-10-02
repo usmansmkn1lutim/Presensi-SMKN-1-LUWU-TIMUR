@@ -33,6 +33,14 @@ export interface CreateUserResponse {
   };
 }
 
+export interface UnlinkedEmployeeItem {
+  id: string;
+  full_name: string;
+  nip: string | null;
+  department_name: string | null;
+  position_name: string | null;
+}
+
 export interface UserManagementItem {
   id: string;
   full_name: string;
@@ -341,7 +349,31 @@ class UserService {
   }
 
   /**
-   * 8. Trigger Password Reset
+   * 8. Unlink User Account from Employee Record
+   * Sets employees.profile_id = NULL without modifying or deleting user account or employee record (PHASE 4B-7-3).
+   */
+  async unlinkUserFromEmployee(employeeId: string): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase belum dikonfigurasi.');
+    }
+
+    if (!employeeId || typeof employeeId !== 'string') {
+      throw new Error('ID pegawai target tidak valid.');
+    }
+
+    const { error } = await supabase
+      .from('employees')
+      .update({ profile_id: null })
+      .eq('id', employeeId);
+
+    if (error) {
+      console.error('UserService.unlinkUserFromEmployee error:', error);
+      throw new Error('Gagal melepaskan hubungan akun dengan data pegawai: ' + error.message);
+    }
+  }
+
+  /**
+   * 9. Trigger Password Reset
    * Sends password reset email to the user using standard safe Supabase client.
    */
   async triggerPasswordReset(email: string): Promise<void> {
@@ -357,6 +389,46 @@ class UserService {
     if (error) {
       throw new Error('Gagal mengirim email reset password: ' + error.message);
     }
+  }
+
+  /**
+   * 9. Fetch Active Employees Not Yet Linked to Any Profile
+   * Strictly filters employees where profile_id IS NULL and status is active.
+   */
+  async getUnlinkedEmployees(): Promise<UnlinkedEmployeeItem[]> {
+    if (!isSupabaseConfigured()) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('employees')
+      .select(`
+        id,
+        full_name,
+        nip,
+        departments (
+          name
+        ),
+        positions (
+          name
+        )
+      `)
+      .is('profile_id', null)
+      .eq('status', 'active')
+      .order('full_name', { ascending: true });
+
+    if (error) {
+      console.error('UserService.getUnlinkedEmployees error:', error);
+      throw new Error('Gagal memuat data pegawai yang belum terhubung.');
+    }
+
+    return (data || []).map((emp: any) => ({
+      id: emp.id,
+      full_name: emp.full_name,
+      nip: emp.nip || null,
+      department_name: emp.departments?.name || null,
+      position_name: emp.positions?.name || null,
+    }));
   }
 }
 
