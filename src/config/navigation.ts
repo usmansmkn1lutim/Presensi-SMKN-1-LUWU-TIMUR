@@ -107,6 +107,15 @@ export const NAVIGATION_ITEMS: NavItem[] = [
 
   // SECTION: SISTEM (System)
   {
+    id: 'users',
+    label: 'Manajemen Pengguna',
+    path: '/users',
+    iconName: 'UserCheck',
+    allowedRoles: ['super_admin', 'admin'],
+    section: 'system',
+    description: 'Kelola akun, peran, dan status pengguna',
+  },
+  {
     id: 'audit-logs',
     label: 'Audit Log',
     path: '/audit-logs',
@@ -153,6 +162,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/locations',
     '/holidays',
     '/reports',
+    '/users',
     '/audit-logs',
     '/settings',
     '/notifications',
@@ -170,6 +180,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/locations',
     '/holidays',
     '/reports',
+    '/users',
     '/audit-logs',
     '/settings',
   ],

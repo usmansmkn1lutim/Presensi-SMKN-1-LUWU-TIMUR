@@ -19,6 +19,7 @@ import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
 
 // Admin & Management Pages
+import { UsersPage } from '../pages/admin/UsersPage';
 import { EmployeesPage } from '../pages/admin/EmployeesPage';
 import { EmployeeDetailPage } from '../pages/admin/EmployeeDetailPage';
 import { SchedulesPage } from '../pages/admin/SchedulesPage';
@@ -163,6 +164,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
             <ReportsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/users',
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'admin']}>
+            <UsersPage />
           </ProtectedRoute>
         ),
       },
