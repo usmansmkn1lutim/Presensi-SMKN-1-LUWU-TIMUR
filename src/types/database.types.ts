@@ -360,6 +360,10 @@ export interface Database {
         };
         Returns: boolean;
       };
+      get_active_work_schedule: {
+        Args: Record<PropertyKey, never>;
+        Returns: Database['public']['Tables']['work_schedules']['Row'][];
+      };
     };
     Enums: {
       app_role: AppRole;

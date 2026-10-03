@@ -69,3 +69,41 @@ INSERT INTO public.locations (
     'SMK Negeri 1 Luwu Timur'
 )
 ON CONFLICT (code) DO NOTHING;
+
+-- 4. Seed Default Work Schedule (Phase 5C-2: Jadwal Kerja Sekolah)
+-- Sesuai Phase 5C-2: Jadwal kerja standar sekolah berlaku untuk seluruh pegawai (Single Active Schedule)
+-- Waktu: 07:30 - 15:30, Operasional Bus: 15:00, Check-in: 06:30 - 10:00, Check-out: 15:00 - 17:00, Senin - Jumat.
+INSERT INTO public.work_schedules (
+    name,
+    code,
+    description,
+    check_in_start_time,
+    check_in_on_time_end,
+    check_in_end_time,
+    work_start_time,
+    operational_end_time,
+    work_end_time,
+    check_out_start_time,
+    check_out_end_time,
+    working_days,
+    is_active
+)
+SELECT
+    'Jadwal Kerja Sekolah',
+    'SCHOOL_DEFAULT',
+    'Jadwal kerja standar yang berlaku untuk seluruh pegawai sekolah',
+    '06:30:00'::time,
+    '07:30:00'::time,
+    '10:00:00'::time,
+    '07:30:00'::time,
+    '15:00:00'::time,
+    '15:30:00'::time,
+    '15:00:00'::time,
+    '17:00:00'::time,
+    ARRAY['monday', 'tuesday', 'wednesday', 'thursday', 'friday']::text[],
+    true
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.work_schedules WHERE is_active = true
+)
+ON CONFLICT (code) DO NOTHING;
+

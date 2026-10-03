@@ -174,6 +174,10 @@ Menyimpan konfigurasi jam kerja normal, jendela check-in, batas akhir, kepulanga
     `check_out_start_time = operational_end_time`
     `operational_end_time < check_out_end_time`
   * `work_schedules_working_days_check`: Memvalidasi array hari kerja tidak kosong, hanya memuat 7 hari yang valid, dan tidak memiliki duplikasi via `public.validate_working_days()`.
+* **Single Active Protection (Phase 5C-2)**:
+  * `idx_work_schedules_single_active`: Partial unique index `UNIQUE (is_active) WHERE is_active = true` menjamin tepat 1 jadwal kerja aktif untuk seluruh sekolah (tanpa sistem shift dan tanpa tabel per-pegawai).
+* **Fungsi Pembantu (Phase 5C-2)**:
+  * `public.get_active_work_schedule()`: Fungsi `SECURITY DEFINER` dengan `search_path = public, pg_temp` untuk mengambil baris jadwal kerja sekolah yang sedang aktif.
 * **RLS & Security**:
   * Admin / Super Admin: `SELECT`, `INSERT`, `UPDATE` (tanpa hak `DELETE`).
   * Headmaster & Pegawai Aktif: `SELECT` jadwal aktif.
@@ -225,8 +229,9 @@ Jika menggunakan **Supabase Dashboard**:
    * `supabase/migrations/011_locations.sql` (Phase 5A-1: Tabel locations, GPS & radius constraints, partial unique index single active attendance location, RLS, no delete, dan seed Kantor/TU)
    * `supabase/migrations/012_holidays.sql` (Phase 5B-1: Tabel holidays, holiday_type check, non-empty name, unique date+name, RLS, no delete, dan helper function is_holiday)
    * `supabase/migrations/013_work_schedules.sql` (Phase 5C-1: Tabel work_schedules, validasi working_days, time sequence constraint V1, RLS, no delete)
+   * `supabase/migrations/014_default_work_schedule.sql` (Phase 5C-2: Index single active schedule, default seed Jadwal Kerja Sekolah, helper get_active_work_schedule)
 4. Jalankan seed master data:
-   * `supabase/seed.sql` (Departments, Positions, dan Locations)
+   * `supabase/seed.sql` (Departments, Positions, Locations, dan Default Work Schedule)
 
 Jika menggunakan **Supabase CLI**:
 ```bash

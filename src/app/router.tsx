@@ -138,7 +138,7 @@ export const router = createBrowserRouter([
       {
         path: '/schedules',
         element: (
-          <ProtectedRoute allowedRoles={['super_admin', 'admin']}>
+          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster', 'employee']}>
             <SchedulesPage />
           </ProtectedRoute>
         ),
