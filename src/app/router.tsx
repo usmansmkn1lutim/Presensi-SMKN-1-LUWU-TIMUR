@@ -14,6 +14,8 @@ import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { AttendancePage } from '../pages/attendance/AttendancePage';
 import { HistoryPage } from '../pages/history/HistoryPage';
+import { AttendanceMonitoringPage } from '../pages/monitoring/AttendanceMonitoringPage';
+import { AttendanceRecapPage } from '../pages/recap/AttendanceRecapPage';
 import { RequestsPage } from '../pages/requests/RequestsPage';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
@@ -98,9 +100,25 @@ export const router = createBrowserRouter([
         element: <AttendancePage />,
       },
       {
+        path: '/attendance-monitoring',
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
+            <AttendanceMonitoringPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/attendance-recap',
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
+            <AttendanceRecapPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/history',
         element: (
-          <ProtectedRoute allowedRoles={['super_admin', 'employee']}>
+          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster', 'employee']}>
             <HistoryPage />
           </ProtectedRoute>
         ),

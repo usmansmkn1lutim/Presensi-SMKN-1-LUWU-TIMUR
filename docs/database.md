@@ -185,6 +185,42 @@ Menyimpan konfigurasi jam kerja normal, jendela check-in, batas akhir, kepulanga
 
 ---
 
+### 8. Tabel Transaksi Presensi Pegawai (`public.attendance`) — Phase 6A-1
+
+Tabel `public.attendance` menyimpan data transaksi harian presensi pegawai (1 pegawai = maksimal 1 record per tanggal kerja).
+
+* **Struktur Kolom**:
+  * `id` (`UUID PRIMARY KEY DEFAULT gen_random_uuid()`)
+  * `employee_id` (`UUID NOT NULL REFERENCES public.employees(id) ON DELETE RESTRICT`)
+  * `attendance_date` (`DATE NOT NULL`)
+  * `check_in_at` (`TIMESTAMPTZ NULL`)
+  * `check_out_at` (`TIMESTAMPTZ NULL`)
+  * `check_in_status` (`TEXT NULL`): Constraint CHECK (`'on_time'`, `'late'`)
+  * `check_out_status` (`TEXT NULL`): Constraint CHECK (`'operational'`, `'after_work'`)
+  * `check_in_location_id` (`UUID NULL REFERENCES public.locations(id) ON DELETE SET NULL`)
+  * `check_out_location_id` (`UUID NULL REFERENCES public.locations(id) ON DELETE SET NULL`)
+  * `check_in_latitude`, `check_in_longitude` (`NUMERIC NULL`)
+  * `check_out_latitude`, `check_out_longitude` (`NUMERIC NULL`)
+  * `notes` (`TEXT NULL`)
+  * `created_at`, `updated_at` (`TIMESTAMPTZ NOT NULL DEFAULT now()`)
+* **Integrity Constraints**:
+  * `attendance_employee_date_key`: Constraint `UNIQUE(employee_id, attendance_date)` menjamin 1 pegawai tepat 1 record presensi per tanggal.
+  * `attendance_check_in_status_check`: Membatasi status check-in ke `'on_time'` atau `'late'`.
+  * `attendance_check_out_status_check`: Membatasi status check-out ke `'operational'` (15:00-15:30) atau `'after_work'` (15:31-17:00).
+  * `attendance_check_in_lat_check`, `attendance_check_out_lat_check`: Rentang latitude valid (-90 sampai 90).
+  * `attendance_check_in_lng_check`, `attendance_check_out_lng_check`: Rentang longitude valid (-180 sampai 180).
+  * `attendance_time_order_check`: Memastikan `check_out_at >= check_in_at` jika keduanya terisi.
+* **Fungsi Pembantu**:
+  * `private.get_employee_id(check_user_id UUID)`: Mengambil `employee.id` yang terhubung dengan `profile_id` (auth.uid()).
+* **RLS & Security**:
+  * Admin & Super Admin: `SELECT`, `INSERT`, `UPDATE`.
+  * Headmaster: `SELECT` seluruh presensi pegawai (read-only).
+  * Pegawai Aktif: `SELECT` dan `INSERT` presensi milik sendiri.
+  * Inactive user: Diblokir sepenuhnya dari mutasi.
+  * Hard Delete: Diblokir (tidak ada policy DELETE).
+
+---
+
 ## 4. Keamanan & Row Level Security (RLS)
 
 1. **Prinsip Hak Akses**:
@@ -230,6 +266,7 @@ Jika menggunakan **Supabase Dashboard**:
    * `supabase/migrations/012_holidays.sql` (Phase 5B-1: Tabel holidays, holiday_type check, non-empty name, unique date+name, RLS, no delete, dan helper function is_holiday)
    * `supabase/migrations/013_work_schedules.sql` (Phase 5C-1: Tabel work_schedules, validasi working_days, time sequence constraint V1, RLS, no delete)
    * `supabase/migrations/014_default_work_schedule.sql` (Phase 5C-2: Index single active schedule, default seed Jadwal Kerja Sekolah, helper get_active_work_schedule)
+   * `supabase/migrations/015_attendance.sql` (Phase 6A-1: Tabel attendance, unique employee+date, check_in_status/check_out_status constraints, RLS, no delete)
 4. Jalankan seed master data:
    * `supabase/seed.sql` (Departments, Positions, Locations, dan Default Work Schedule)
 

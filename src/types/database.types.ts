@@ -16,6 +16,8 @@ export type EmployeeStatus = 'active' | 'inactive';
 export type Gender = 'male' | 'female';
 export type LocationType = 'office' | 'teacher_room' | 'laboratory' | 'other';
 export type HolidayType = 'national' | 'collective_leave' | 'school' | 'special' | 'other';
+export type CheckInStatus = 'on_time' | 'late';
+export type CheckOutStatus = 'operational' | 'after_work';
 
 export interface Database {
   public: {
@@ -333,6 +335,82 @@ export interface Database {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      attendance: {
+        Row: {
+          id: string;
+          employee_id: string;
+          attendance_date: string;
+          check_in_at: string | null;
+          check_out_at: string | null;
+          check_in_status: CheckInStatus | null;
+          check_out_status: CheckOutStatus | null;
+          check_in_location_id: string | null;
+          check_out_location_id: string | null;
+          check_in_latitude: number | null;
+          check_in_longitude: number | null;
+          check_out_latitude: number | null;
+          check_out_longitude: number | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          employee_id: string;
+          attendance_date: string;
+          check_in_at?: string | null;
+          check_out_at?: string | null;
+          check_in_status?: CheckInStatus | null;
+          check_out_status?: CheckOutStatus | null;
+          check_in_location_id?: string | null;
+          check_out_location_id?: string | null;
+          check_in_latitude?: number | null;
+          check_in_longitude?: number | null;
+          check_out_latitude?: number | null;
+          check_out_longitude?: number | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          employee_id?: string;
+          attendance_date?: string;
+          check_in_at?: string | null;
+          check_out_at?: string | null;
+          check_in_status?: CheckInStatus | null;
+          check_out_status?: CheckOutStatus | null;
+          check_in_location_id?: string | null;
+          check_out_location_id?: string | null;
+          check_in_latitude?: number | null;
+          check_in_longitude?: number | null;
+          check_out_latitude?: number | null;
+          check_out_longitude?: number | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'attendance_employee_id_fkey';
+            columns: ['employee_id'];
+            referencedRelation: 'employees';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'attendance_check_in_location_id_fkey';
+            columns: ['check_in_location_id'];
+            referencedRelation: 'locations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'attendance_check_out_location_id_fkey';
+            columns: ['check_out_location_id'];
+            referencedRelation: 'locations';
+            referencedColumns: ['id'];
+          }
+        ];
       };
     };
     Views: {
