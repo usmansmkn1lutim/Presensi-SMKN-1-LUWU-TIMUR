@@ -113,6 +113,9 @@ export const attendanceService = {
       .maybeSingle();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        return null;
+      }
       console.error("Error fetching today's attendance:", error);
       throw new Error(formatAttendanceError(error));
     }

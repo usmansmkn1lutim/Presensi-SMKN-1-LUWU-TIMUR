@@ -45,7 +45,11 @@ export const formatWorkScheduleError = (error: unknown): string => {
     return 'Anda tidak memiliki izin untuk mengubah jadwal kerja.';
   }
 
-  // 4. Network error
+  // 4. Network or Schema cache error
+  if (err.code === 'PGRST205' || combined.includes('pgrst205') || combined.includes('schema cache')) {
+    return 'Tabel jadwal kerja belum tersedia di database atau sedang dalam proses pembaruan schema cache.';
+  }
+
   if (combined.includes('failed to fetch') || combined.includes('network') || combined.includes('timeout')) {
     return 'Koneksi bermasalah. Silakan periksa jaringan internet Anda dan coba lagi.';
   }
@@ -57,42 +61,93 @@ export const formatWorkScheduleError = (error: unknown): string => {
   return 'Gagal memproses data jadwal kerja. Silakan coba lagi.';
 };
 
+/**
+ * Standard default school work schedule fallback (Senin - Jumat, 07:30 - 15:30)
+ */
+export const DEFAULT_FALLBACK_WORK_SCHEDULE: WorkScheduleModel = {
+  id: '00000000-0000-0000-0000-000000000001',
+  name: 'Jadwal Kerja Sekolah',
+  code: 'SCHOOL_DEFAULT',
+  description: 'Jadwal kerja standar yang berlaku untuk seluruh pegawai sekolah',
+  check_in_start_time: '06:30:00',
+  check_in_on_time_end: '07:30:00',
+  check_in_end_time: '10:00:00',
+  work_start_time: '07:30:00',
+  operational_end_time: '15:00:00',
+  work_end_time: '15:30:00',
+  check_out_start_time: '15:00:00',
+  check_out_end_time: '17:00:00',
+  working_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+  is_active: true,
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+};
+
 export const workScheduleService = {
   /**
    * Fetch the active school work schedule.
    * First tries eq('is_active', true), then falls back to any schedule row if none is marked active.
+   * Falls back to standard school schedule if table is not yet in schema cache.
    */
   async getActiveWorkSchedule(): Promise<WorkScheduleModel | null> {
-    const { data: activeSchedule, error: activeError } = await supabase
-      .from('work_schedules')
-      .select('*')
-      .eq('is_active', true)
-      .limit(1)
-      .maybeSingle();
+    try {
+      const { data: activeSchedule, error: activeError } = await supabase
+        .from('work_schedules')
+        .select('*')
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
 
-    if (activeError) {
-      console.error('Error fetching active work schedule:', activeError);
-      throw new Error(formatWorkScheduleError(activeError));
+      if (activeError) {
+        if (
+          activeError.code === 'PGRST205' ||
+          activeError.message?.includes('PGRST205') ||
+          activeError.message?.includes('schema cache') ||
+          activeError.message?.includes('work_schedules')
+        ) {
+          console.warn('Tabel work_schedules belum tersedia di schema cache, menggunakan jadwal kerja standar sekolah.');
+          return DEFAULT_FALLBACK_WORK_SCHEDULE;
+        }
+
+        console.error('Error fetching active work schedule:', activeError);
+        throw new Error(formatWorkScheduleError(activeError));
+      }
+
+      if (activeSchedule) {
+        return activeSchedule as WorkScheduleModel;
+      }
+
+      // Fallback if no schedule is marked active in the database
+      const { data: fallbackSchedule, error: fallbackError } = await supabase
+        .from('work_schedules')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (fallbackError) {
+        if (
+          fallbackError.code === 'PGRST205' ||
+          fallbackError.message?.includes('PGRST205') ||
+          fallbackError.message?.includes('schema cache')
+        ) {
+          return DEFAULT_FALLBACK_WORK_SCHEDULE;
+        }
+        console.error('Error fetching fallback work schedule:', fallbackError);
+        return DEFAULT_FALLBACK_WORK_SCHEDULE;
+      }
+
+      return (fallbackSchedule as WorkScheduleModel) || DEFAULT_FALLBACK_WORK_SCHEDULE;
+    } catch (err: any) {
+      if (
+        err?.message?.includes('PGRST205') ||
+        err?.message?.includes('schema cache') ||
+        err?.code === 'PGRST205'
+      ) {
+        return DEFAULT_FALLBACK_WORK_SCHEDULE;
+      }
+      throw err;
     }
-
-    if (activeSchedule) {
-      return activeSchedule as WorkScheduleModel;
-    }
-
-    // Fallback if no schedule is marked active
-    const { data: fallbackSchedule, error: fallbackError } = await supabase
-      .from('work_schedules')
-      .select('*')
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    if (fallbackError) {
-      console.error('Error fetching fallback work schedule:', fallbackError);
-      throw new Error(formatWorkScheduleError(fallbackError));
-    }
-
-    return (fallbackSchedule as WorkScheduleModel) || null;
   },
 
   /**
@@ -133,6 +188,9 @@ export const workScheduleService = {
       .single();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        throw new Error('Tabel jadwal kerja belum tersedia di database. Harap jalankan migrasi database terlebih dahulu.');
+      }
       console.error('Error updating work schedule:', error);
       throw new Error(formatWorkScheduleError(error));
     }

@@ -6,13 +6,13 @@ const DEFAULT_SUPABASE_URL = 'https://awcoqztysnwlmbvdexwc.supabase.co';
 const DEFAULT_SUPABASE_KEY = 'sb_publishable_Hzsq2wByBnpLS6GkZ6w7Tw_hwY7eRo0';
 
 export const supabaseUrl = (
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim() ||
+  (import.meta.env?.VITE_SUPABASE_URL as string | undefined)?.trim() ||
   DEFAULT_SUPABASE_URL
 );
 
 export const supabasePublishableKey = (
-  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined)?.trim() ||
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() ||
+  (import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined)?.trim() ||
+  (import.meta.env?.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() ||
   DEFAULT_SUPABASE_KEY
 );
 

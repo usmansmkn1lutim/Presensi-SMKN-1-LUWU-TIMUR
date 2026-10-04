@@ -412,6 +412,70 @@ export interface Database {
           }
         ];
       };
+      requests: {
+        Row: {
+          id: string;
+          employee_id: string;
+          request_type: 'leave' | 'sick' | 'official_duty' | 'other';
+          start_date: string;
+          end_date: string;
+          reason: string;
+          attachment_url: string | null;
+          status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+          submitted_at: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          reviewer_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          employee_id: string;
+          request_type: 'leave' | 'sick' | 'official_duty' | 'other';
+          start_date: string;
+          end_date: string;
+          reason: string;
+          attachment_url?: string | null;
+          status?: 'pending' | 'approved' | 'rejected' | 'cancelled';
+          submitted_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          reviewer_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          employee_id?: string;
+          request_type?: 'leave' | 'sick' | 'official_duty' | 'other';
+          start_date?: string;
+          end_date?: string;
+          reason?: string;
+          attachment_url?: string | null;
+          status?: 'pending' | 'approved' | 'rejected' | 'cancelled';
+          submitted_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          reviewer_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'requests_employee_id_fkey';
+            columns: ['employee_id'];
+            referencedRelation: 'employees';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'requests_reviewed_by_fkey';
+            columns: ['reviewed_by'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -441,6 +505,36 @@ export interface Database {
       get_active_work_schedule: {
         Args: Record<PropertyKey, never>;
         Returns: Database['public']['Tables']['work_schedules']['Row'][];
+      };
+      create_my_request: {
+        Args: {
+          p_request_type: string;
+          p_start_date: string;
+          p_end_date: string;
+          p_reason: string;
+          p_attachment_url?: string | null;
+        };
+        Returns: Database['public']['Tables']['requests']['Row'];
+      };
+      cancel_my_request: {
+        Args: {
+          p_request_id: string;
+        };
+        Returns: Database['public']['Tables']['requests']['Row'];
+      };
+      approve_request: {
+        Args: {
+          p_request_id: string;
+          p_reviewer_note?: string | null;
+        };
+        Returns: Database['public']['Tables']['requests']['Row'];
+      };
+      reject_request: {
+        Args: {
+          p_request_id: string;
+          p_reviewer_note?: string | null;
+        };
+        Returns: Database['public']['Tables']['requests']['Row'];
       };
     };
     Enums: {

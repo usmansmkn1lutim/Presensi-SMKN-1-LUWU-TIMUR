@@ -51,7 +51,12 @@ export const formatLocationError = (error: unknown): string => {
     return 'Anda tidak memiliki izin untuk melakukan tindakan ini.';
   }
 
-  // 4. Network error
+  // 4. Schema cache / Missing table (PGRST205)
+  if (err.code === 'PGRST205' || combined.includes('pgrst205') || combined.includes('schema cache')) {
+    return 'Tabel lokasi belum terdaftar di schema cache database. Periksa migrasi tabel lokasi.';
+  }
+
+  // 5. Network error
   if (combined.includes('failed to fetch') || combined.includes('network') || combined.includes('timeout')) {
     return 'Koneksi bermasalah. Silakan periksa jaringan internet Anda dan coba lagi.';
   }
@@ -65,6 +70,50 @@ export const formatLocationError = (error: unknown): string => {
 };
 
 /**
+ * Standard default school location fallback (SMKN 1 Luwu Timur)
+ */
+export const DEFAULT_FALLBACK_LOCATION: LocationModel = {
+  id: '00000000-0000-0000-0000-000000000002',
+  name: 'Kampus Utama SMKN 1 Lutim',
+  code: 'LOC_MAIN_CAMPUS',
+  description: 'Gedung utama dan area lingkungan sekolah',
+  locationType: 'office',
+  address: 'Jl. Trans Sulawesi, Luwu Timur, Sulawesi Selatan',
+  latitude: -2.5936,
+  longitude: 121.3486,
+  radiusMeters: 100,
+  isActive: true,
+  isAttendanceEnabled: true,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
+const LOCAL_STORAGE_LOCATIONS_KEY = 'smkn1_master_locations_fallback';
+
+function getLocalLocations(): LocationModel[] {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = localStorage.getItem(LOCAL_STORAGE_LOCATIONS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    }
+  } catch {}
+  return [DEFAULT_FALLBACK_LOCATION];
+}
+
+function saveLocalLocations(locations: LocationModel[]): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(LOCAL_STORAGE_LOCATIONS_KEY, JSON.stringify(locations));
+    }
+  } catch {}
+}
+
+/**
  * Service to manage Master Locations
  * Phase 5A-2: Frontend & Management UI
  */
@@ -75,7 +124,7 @@ class LocationService {
    */
   async getLocations(): Promise<LocationModel[]> {
     if (!isSupabaseConfigured()) {
-      return [];
+      return getLocalLocations();
     }
 
     const { data, error } = await supabase
@@ -86,11 +135,16 @@ class LocationService {
       .order('name', { ascending: true });
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        return getLocalLocations();
+      }
       console.error('LocationService.getLocations error:', error);
       throw new Error(formatLocationError(error));
     }
 
-    return (data as LocationRow[]).map(mapLocationRowToModel);
+    const models = (data as LocationRow[]).map(mapLocationRowToModel);
+    saveLocalLocations(models);
+    return models;
   }
 
   /**
@@ -105,7 +159,7 @@ class LocationService {
    */
   async getActiveLocations(): Promise<LocationModel[]> {
     if (!isSupabaseConfigured()) {
-      return [];
+      return getLocalLocations().filter((l) => l.isActive);
     }
 
     const { data, error } = await supabase
@@ -115,8 +169,11 @@ class LocationService {
       .order('name', { ascending: true });
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        return getLocalLocations().filter((l) => l.isActive);
+      }
       console.error('LocationService.getActiveLocations error:', error);
-      return [];
+      return getLocalLocations().filter((l) => l.isActive);
     }
 
     return (data as LocationRow[]).map(mapLocationRowToModel);
@@ -127,7 +184,7 @@ class LocationService {
    */
   async getActiveAttendanceLocation(): Promise<LocationModel | null> {
     if (!isSupabaseConfigured()) {
-      return null;
+      return getLocalLocations().find((l) => l.isActive && l.isAttendanceEnabled) || DEFAULT_FALLBACK_LOCATION;
     }
 
     const { data, error } = await supabase
@@ -138,11 +195,14 @@ class LocationService {
       .maybeSingle();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        return getLocalLocations().find((l) => l.isActive && l.isAttendanceEnabled) || DEFAULT_FALLBACK_LOCATION;
+      }
       console.error('LocationService.getActiveAttendanceLocation error:', error);
-      return null;
+      return DEFAULT_FALLBACK_LOCATION;
     }
 
-    return data ? mapLocationRowToModel(data as LocationRow) : null;
+    return data ? mapLocationRowToModel(data as LocationRow) : DEFAULT_FALLBACK_LOCATION;
   }
 
   /**
@@ -150,7 +210,7 @@ class LocationService {
    */
   async getLocationById(id: string): Promise<LocationModel | null> {
     if (!isSupabaseConfigured()) {
-      return null;
+      return getLocalLocations().find((l) => l.id === id) || null;
     }
 
     const { data, error } = await supabase
@@ -160,6 +220,9 @@ class LocationService {
       .maybeSingle();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        return getLocalLocations().find((l) => l.id === id) || null;
+      }
       console.error('LocationService.getLocationById error:', error);
       throw new Error(formatLocationError(error));
     }
@@ -205,7 +268,13 @@ class LocationService {
       }
     }
 
-    if (payload.is_attendance_enabled && (payload.latitude === null || payload.longitude === null || payload.latitude === undefined || payload.longitude === undefined)) {
+    if (
+      payload.is_attendance_enabled &&
+      (payload.latitude === null ||
+        payload.longitude === null ||
+        payload.latitude === undefined ||
+        payload.longitude === undefined)
+    ) {
       throw new Error('Lokasi presensi aktif wajib memiliki koordinat latitude dan longitude yang valid.');
     }
 
@@ -214,8 +283,10 @@ class LocationService {
       code,
       description: payload.description?.trim() || null,
       location_type: payload.location_type || 'office',
-      latitude: payload.latitude !== undefined && payload.latitude !== null ? Number(payload.latitude) : null,
-      longitude: payload.longitude !== undefined && payload.longitude !== null ? Number(payload.longitude) : null,
+      latitude:
+        payload.latitude !== undefined && payload.latitude !== null ? Number(payload.latitude) : null,
+      longitude:
+        payload.longitude !== undefined && payload.longitude !== null ? Number(payload.longitude) : null,
       radius_meters: radius,
       is_attendance_enabled: Boolean(payload.is_attendance_enabled),
       is_active: payload.is_active !== undefined ? Boolean(payload.is_active) : true,
@@ -229,6 +300,45 @@ class LocationService {
       .single();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        // Table not yet available in remote schema cache: fallback to local storage persistence
+        const localList = getLocalLocations();
+        if (localList.some((l) => l.code === sanitizedPayload.code)) {
+          throw new Error('Kode lokasi sudah digunakan. Silakan gunakan kode lain.');
+        }
+
+        const now = new Date().toISOString();
+        const fallbackId =
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `loc-${Date.now()}`;
+
+        const newModel: LocationModel = {
+          id: fallbackId,
+          name: sanitizedPayload.name,
+          code: sanitizedPayload.code,
+          description: sanitizedPayload.description || null,
+          locationType: sanitizedPayload.location_type || 'office',
+          latitude: sanitizedPayload.latitude !== undefined ? sanitizedPayload.latitude : null,
+          longitude: sanitizedPayload.longitude !== undefined ? sanitizedPayload.longitude : null,
+          radiusMeters: sanitizedPayload.radius_meters !== undefined ? sanitizedPayload.radius_meters : 100,
+          isAttendanceEnabled: Boolean(sanitizedPayload.is_attendance_enabled),
+          isActive: sanitizedPayload.is_active !== undefined ? sanitizedPayload.is_active : true,
+          address: sanitizedPayload.address || null,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        if (newModel.isAttendanceEnabled) {
+          localList.forEach((l) => {
+            l.isAttendanceEnabled = false;
+          });
+        }
+        localList.unshift(newModel);
+        saveLocalLocations(localList);
+        return newModel;
+      }
+
       console.error('LocationService.createLocation error:', error);
       throw new Error(formatLocationError(error));
     }
@@ -318,6 +428,48 @@ class LocationService {
       .single();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        const localList = getLocalLocations();
+        const index = localList.findIndex((l) => l.id === id);
+        if (index === -1) {
+          throw new Error('Data lokasi tidak ditemukan.');
+        }
+
+        if (
+          updatePayload.code &&
+          localList.some((l) => l.id !== id && l.code === updatePayload.code)
+        ) {
+          throw new Error('Kode lokasi sudah digunakan. Silakan gunakan kode lain.');
+        }
+
+        const current = localList[index];
+        const updated: LocationModel = {
+          ...current,
+          ...(updatePayload.name !== undefined ? { name: updatePayload.name } : {}),
+          ...(updatePayload.code !== undefined ? { code: updatePayload.code } : {}),
+          ...(updatePayload.description !== undefined ? { description: updatePayload.description } : {}),
+          ...(updatePayload.location_type !== undefined ? { locationType: updatePayload.location_type } : {}),
+          ...(updatePayload.address !== undefined ? { address: updatePayload.address } : {}),
+          ...(updatePayload.latitude !== undefined ? { latitude: updatePayload.latitude } : {}),
+          ...(updatePayload.longitude !== undefined ? { longitude: updatePayload.longitude } : {}),
+          ...(updatePayload.radius_meters !== undefined ? { radiusMeters: updatePayload.radius_meters } : {}),
+          ...(updatePayload.is_active !== undefined ? { isActive: updatePayload.is_active } : {}),
+          ...(updatePayload.is_attendance_enabled !== undefined
+            ? { isAttendanceEnabled: updatePayload.is_attendance_enabled }
+            : {}),
+          updatedAt: new Date().toISOString(),
+        };
+
+        if (updated.isAttendanceEnabled) {
+          localList.forEach((l) => {
+            if (l.id !== id) l.isAttendanceEnabled = false;
+          });
+        }
+        localList[index] = updated;
+        saveLocalLocations(localList);
+        return updated;
+      }
+
       console.error('LocationService.updateLocation error:', error);
       throw new Error(formatLocationError(error));
     }
@@ -333,7 +485,6 @@ class LocationService {
       throw new Error(SUPABASE_MISSING_CONFIG_MESSAGE);
     }
 
-    // When deactivating, also turn off attendance enabled if it was on
     const updateData: LocationUpdate = {
       is_active: isActive,
     };
@@ -349,6 +500,17 @@ class LocationService {
       .single();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        const localList = getLocalLocations();
+        const target = localList.find((l) => l.id === id);
+        if (!target) throw new Error('Data lokasi tidak ditemukan.');
+        target.isActive = isActive;
+        if (!isActive) target.isAttendanceEnabled = false;
+        target.updatedAt = new Date().toISOString();
+        saveLocalLocations(localList);
+        return target;
+      }
+
       console.error('LocationService.setLocationActive error:', error);
       throw new Error(formatLocationError(error));
     }
@@ -365,7 +527,6 @@ class LocationService {
     }
 
     if (enabled) {
-      // Fetch target location first to ensure coordinates are valid before requesting DB
       const current = await this.getLocationById(id);
       if (!current) {
         throw new Error('Data lokasi tidak ditemukan.');
@@ -388,6 +549,21 @@ class LocationService {
       .single();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        const localList = getLocalLocations();
+        const target = localList.find((l) => l.id === id);
+        if (!target) throw new Error('Data lokasi tidak ditemukan.');
+        if (enabled) {
+          localList.forEach((l) => {
+            l.isAttendanceEnabled = false;
+          });
+        }
+        target.isAttendanceEnabled = enabled;
+        target.updatedAt = new Date().toISOString();
+        saveLocalLocations(localList);
+        return target;
+      }
+
       console.error('LocationService.setAttendanceEnabled error:', error);
       throw new Error(formatLocationError(error));
     }

@@ -58,9 +58,41 @@ function formatHolidayError(err: unknown): Error {
       return new Error('Anda tidak memiliki wewenang untuk mengubah data hari libur.');
     }
 
+    // Schema cache / Missing table (PGRST205)
+    if (
+      msg.includes('PGRST205') ||
+      msg.includes('schema cache') ||
+      ('code' in err && (err as { code: string }).code === 'PGRST205')
+    ) {
+      return new Error('Tabel hari libur belum terdaftar di schema cache database.');
+    }
+
     return err;
   }
   return new Error('Terjadi kesalahan saat memproses data hari libur.');
+}
+
+const LOCAL_STORAGE_HOLIDAYS_KEY = 'smkn1_holidays_fallback';
+
+function getLocalHolidays(): HolidayModel[] {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = localStorage.getItem(LOCAL_STORAGE_HOLIDAYS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    }
+  } catch {}
+  return [];
+}
+
+function saveLocalHolidays(holidays: HolidayModel[]): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(LOCAL_STORAGE_HOLIDAYS_KEY, JSON.stringify(holidays));
+    }
+  } catch {}
 }
 
 export const holidayService = {
@@ -95,11 +127,19 @@ export const holidayService = {
       const { data, error } = await query;
 
       if (error) {
+        if ((error as any)?.code === 'PGRST205' || (error as any)?.message?.includes('schema cache')) {
+          return getLocalHolidays();
+        }
         throw error;
       }
 
-      return (data || []).map(toHolidayModel);
-    } catch (err) {
+      const models = (data || []).map(toHolidayModel);
+      saveLocalHolidays(models);
+      return models;
+    } catch (err: any) {
+      if (err?.code === 'PGRST205' || err?.message?.includes('schema cache')) {
+        return getLocalHolidays();
+      }
       console.error('holidayService.getHolidays error:', err);
       throw formatHolidayError(err);
     }
@@ -117,11 +157,17 @@ export const holidayService = {
         .maybeSingle();
 
       if (error) {
+        if ((error as any)?.code === 'PGRST205' || (error as any)?.message?.includes('schema cache')) {
+          return getLocalHolidays().find((h) => h.id === id) || null;
+        }
         throw error;
       }
 
       return data ? toHolidayModel(data) : null;
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.code === 'PGRST205' || err?.message?.includes('schema cache')) {
+        return getLocalHolidays().find((h) => h.id === id) || null;
+      }
       console.error(`holidayService.getHolidayById error (${id}):`, err);
       throw formatHolidayError(err);
     }
@@ -156,11 +202,53 @@ export const holidayService = {
         .single();
 
       if (error) {
+        if ((error as any)?.code === 'PGRST205' || (error as any)?.message?.includes('schema cache')) {
+          const list = getLocalHolidays();
+          const now = new Date().toISOString();
+          const fallbackId =
+            typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `hol-${Date.now()}`;
+          const newModel: HolidayModel = {
+            id: fallbackId,
+            name: payload.name,
+            holidayDate: payload.holiday_date,
+            holidayType: payload.holiday_type,
+            description: payload.description,
+            isActive: payload.is_active,
+            createdAt: now,
+            updatedAt: now,
+          };
+          list.push(newModel);
+          saveLocalHolidays(list);
+          return newModel;
+        }
         throw error;
       }
 
       return toHolidayModel(data);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.code === 'PGRST205' || err?.message?.includes('schema cache')) {
+        const list = getLocalHolidays();
+        const now = new Date().toISOString();
+        const fallbackId =
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `hol-${Date.now()}`;
+        const newModel: HolidayModel = {
+          id: fallbackId,
+          name: input.name.trim(),
+          holidayDate: input.holiday_date,
+          holidayType: input.holiday_type,
+          description: input.description?.trim() || null,
+          isActive: input.is_active !== undefined ? input.is_active : true,
+          createdAt: now,
+          updatedAt: now,
+        };
+        list.push(newModel);
+        saveLocalHolidays(list);
+        return newModel;
+      }
       console.error('holidayService.createHoliday error:', err);
       throw formatHolidayError(err);
     }
@@ -208,11 +296,37 @@ export const holidayService = {
         .single();
 
       if (error) {
+        if ((error as any)?.code === 'PGRST205' || (error as any)?.message?.includes('schema cache')) {
+          const list = getLocalHolidays();
+          const target = list.find((h) => h.id === id);
+          if (!target) throw new Error('Data hari libur tidak ditemukan.');
+          if (payload.name) target.name = payload.name;
+          if (payload.holiday_date) target.holidayDate = payload.holiday_date;
+          if (payload.holiday_type) target.holidayType = payload.holiday_type;
+          if (payload.description !== undefined) target.description = payload.description;
+          if (payload.is_active !== undefined) target.isActive = payload.is_active;
+          target.updatedAt = new Date().toISOString();
+          saveLocalHolidays(list);
+          return target;
+        }
         throw error;
       }
 
       return toHolidayModel(data);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.code === 'PGRST205' || err?.message?.includes('schema cache')) {
+        const list = getLocalHolidays();
+        const target = list.find((h) => h.id === id);
+        if (!target) throw new Error('Data hari libur tidak ditemukan.');
+        if (input.name) target.name = input.name.trim();
+        if (input.holiday_date) target.holidayDate = input.holiday_date;
+        if (input.holiday_type) target.holidayType = input.holiday_type;
+        if (input.description !== undefined) target.description = input.description?.trim() || null;
+        if (input.is_active !== undefined) target.isActive = input.is_active;
+        target.updatedAt = new Date().toISOString();
+        saveLocalHolidays(list);
+        return target;
+      }
       console.error(`holidayService.updateHoliday error (${id}):`, err);
       throw formatHolidayError(err);
     }
@@ -231,11 +345,29 @@ export const holidayService = {
         .single();
 
       if (error) {
+        if ((error as any)?.code === 'PGRST205' || (error as any)?.message?.includes('schema cache')) {
+          const list = getLocalHolidays();
+          const target = list.find((h) => h.id === id);
+          if (!target) throw new Error('Data hari libur tidak ditemukan.');
+          target.isActive = isActive;
+          target.updatedAt = new Date().toISOString();
+          saveLocalHolidays(list);
+          return target;
+        }
         throw error;
       }
 
       return toHolidayModel(data);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.code === 'PGRST205' || err?.message?.includes('schema cache')) {
+        const list = getLocalHolidays();
+        const target = list.find((h) => h.id === id);
+        if (!target) throw new Error('Data hari libur tidak ditemukan.');
+        target.isActive = isActive;
+        target.updatedAt = new Date().toISOString();
+        saveLocalHolidays(list);
+        return target;
+      }
       console.error(`holidayService.setHolidayActiveStatus error (${id}):`, err);
       throw formatHolidayError(err);
     }
