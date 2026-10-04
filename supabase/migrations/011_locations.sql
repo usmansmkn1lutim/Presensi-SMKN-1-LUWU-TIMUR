@@ -75,11 +75,10 @@ CREATE INDEX IF NOT EXISTS idx_locations_is_attendance_enabled
 CREATE INDEX IF NOT EXISTS idx_locations_type 
     ON public.locations(location_type);
 
--- V1 Architectural Protection: Exactly ONE active attendance location at any time
--- Partial unique index guarantees that at most one row can have (is_active = true AND is_attendance_enabled = true)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_locations_single_active_attendance
-    ON public.locations (is_attendance_enabled)
-    WHERE is_active = true AND is_attendance_enabled = true;
+-- Multi-location Architectural Support:
+-- Any restriction forcing only a single active attendance location is explicitly removed.
+-- Multiple locations can have (is_active = true AND is_attendance_enabled = true) simultaneously.
+DROP INDEX IF EXISTS public.idx_locations_single_active_attendance;
 
 -- ----------------------------------------------------------------------------
 -- 4. Row Level Security (RLS)

@@ -20,9 +20,6 @@ export const formatLocationError = (error: unknown): string => {
 
   // 1. Unique constraint violation (23505)
   if (err.code === '23505' || combined.includes('duplicate key') || combined.includes('unique')) {
-    if (combined.includes('idx_locations_single_active_attendance') || combined.includes('single_active')) {
-      return 'Lokasi presensi aktif sudah tersedia. Nonaktifkan lokasi presensi tersebut terlebih dahulu sebelum menggunakan lokasi ini.';
-    }
     if (combined.includes('code') || combined.includes('locations_code_key')) {
       return 'Kode lokasi sudah digunakan. Silakan gunakan kode lain.';
     }
@@ -180,11 +177,12 @@ class LocationService {
   }
 
   /**
-   * Fetch the single active attendance location for V1
+   * Fetch all active attendance-enabled locations (Multi-location support: 3 or more active points)
    */
-  async getActiveAttendanceLocation(): Promise<LocationModel | null> {
+  async getActiveAttendanceLocations(): Promise<LocationModel[]> {
     if (!isSupabaseConfigured()) {
-      return getLocalLocations().find((l) => l.isActive && l.isAttendanceEnabled) || DEFAULT_FALLBACK_LOCATION;
+      const fallbackList = getLocalLocations().filter((l) => l.isActive && l.isAttendanceEnabled);
+      return fallbackList.length > 0 ? fallbackList : [DEFAULT_FALLBACK_LOCATION];
     }
 
     const { data, error } = await supabase
@@ -192,17 +190,27 @@ class LocationService {
       .select('*')
       .eq('is_active', true)
       .eq('is_attendance_enabled', true)
-      .maybeSingle();
+      .order('name', { ascending: true });
 
     if (error) {
       if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
-        return getLocalLocations().find((l) => l.isActive && l.isAttendanceEnabled) || DEFAULT_FALLBACK_LOCATION;
+        const fallbackList = getLocalLocations().filter((l) => l.isActive && l.isAttendanceEnabled);
+        return fallbackList.length > 0 ? fallbackList : [DEFAULT_FALLBACK_LOCATION];
       }
-      console.error('LocationService.getActiveAttendanceLocation error:', error);
-      return DEFAULT_FALLBACK_LOCATION;
+      console.error('LocationService.getActiveAttendanceLocations error:', error);
+      return [DEFAULT_FALLBACK_LOCATION];
     }
 
-    return data ? mapLocationRowToModel(data as LocationRow) : DEFAULT_FALLBACK_LOCATION;
+    return (data as LocationRow[]).map(mapLocationRowToModel);
+  }
+
+  /**
+   * Fetch the primary active attendance location.
+   * Backward-compatible: returns the first active attendance location without throwing on multiple rows.
+   */
+  async getActiveAttendanceLocation(): Promise<LocationModel | null> {
+    const list = await this.getActiveAttendanceLocations();
+    return list.length > 0 ? list[0] : DEFAULT_FALLBACK_LOCATION;
   }
 
   /**
@@ -329,11 +337,6 @@ class LocationService {
           updatedAt: now,
         };
 
-        if (newModel.isAttendanceEnabled) {
-          localList.forEach((l) => {
-            l.isAttendanceEnabled = false;
-          });
-        }
         localList.unshift(newModel);
         saveLocalLocations(localList);
         return newModel;
@@ -460,11 +463,6 @@ class LocationService {
           updatedAt: new Date().toISOString(),
         };
 
-        if (updated.isAttendanceEnabled) {
-          localList.forEach((l) => {
-            if (l.id !== id) l.isAttendanceEnabled = false;
-          });
-        }
         localList[index] = updated;
         saveLocalLocations(localList);
         return updated;
@@ -553,11 +551,6 @@ class LocationService {
         const localList = getLocalLocations();
         const target = localList.find((l) => l.id === id);
         if (!target) throw new Error('Data lokasi tidak ditemukan.');
-        if (enabled) {
-          localList.forEach((l) => {
-            l.isAttendanceEnabled = false;
-          });
-        }
         target.isAttendanceEnabled = enabled;
         target.updatedAt = new Date().toISOString();
         saveLocalLocations(localList);

@@ -492,7 +492,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                     Gunakan sebagai Lokasi Presensi Pegawai
                   </span>
                   <span className="text-[#6B7280] block mt-0.5">
-                    Pada V1, hanya satu lokasi yang dapat aktif sebagai titik presensi pegawai dalam satu waktu.
+                    Dapat mengaktifkan 3 atau lebih titik presensi aktif secara bersamaan (misal: Kantor/TU, Ruang Guru, Lab, Bengkel, Perpustakaan).
                   </span>
                 </div>
               </label>

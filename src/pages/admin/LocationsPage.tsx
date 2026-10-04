@@ -111,7 +111,7 @@ export const LocationsPage: React.FC = () => {
   // Statistics calculation
   const totalCount = locations.length;
   const activeCount = locations.filter((loc) => loc.isActive).length;
-  const attendanceActiveLocation = locations.find(
+  const attendanceActiveLocations = locations.filter(
     (loc) => loc.isActive && loc.isAttendanceEnabled
   );
 
@@ -260,20 +260,32 @@ export const LocationsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 3: Lokasi Presensi Utama */}
+        {/* Card 3: Lokasi Presensi Aktif */}
         <div className="bg-white border border-[#F97316]/30 rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs bg-gradient-to-br from-white to-orange-50/30">
           <div className="w-12 h-12 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
             <Radio className="w-6 h-6" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-[#F97316] uppercase tracking-wide">
-              Lokasi Presensi
+              Titik Presensi Aktif
             </p>
             <p className="text-sm sm:text-base font-bold text-[#111827] truncate mt-0.5">
-              {isLoading ? '...' : attendanceActiveLocation ? attendanceActiveLocation.name : 'Belum Ditentukan'}
+              {isLoading
+                ? '...'
+                : attendanceActiveLocations.length > 0
+                ? `${attendanceActiveLocations.length} Titik Presensi Aktif`
+                : 'Belum Ditentukan'}
             </p>
             <p className="text-[11px] text-[#6B7280] truncate">
-              {attendanceActiveLocation ? `Radius ${attendanceActiveLocation.radiusMeters} Meter` : '1 Lokasi Aktif (V1)'}
+              {attendanceActiveLocations.length > 0
+                ? attendanceActiveLocations
+                    .map((l) => l.name)
+                    .slice(0, 3)
+                    .join(', ') +
+                  (attendanceActiveLocations.length > 3
+                    ? ` +${attendanceActiveLocations.length - 3} lainnya`
+                    : '')
+                : 'Mendukung 3+ lokasi aktif'}
             </p>
           </div>
         </div>

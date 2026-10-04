@@ -218,6 +218,10 @@ export const requestService = {
           id,
           full_name,
           nip,
+          nik,
+          employee_number,
+          gender,
+          photo_url,
           status,
           departments (
             name
@@ -298,6 +302,10 @@ export const requestService = {
           id,
           full_name,
           nip,
+          nik,
+          employee_number,
+          gender,
+          photo_url,
           status,
           departments (
             name
@@ -357,6 +365,10 @@ export const requestService = {
           id,
           full_name,
           nip,
+          nik,
+          employee_number,
+          gender,
+          photo_url,
           status,
           departments (
             name
@@ -455,6 +467,10 @@ export const requestService = {
           id,
           full_name,
           nip,
+          nik,
+          employee_number,
+          gender,
+          photo_url,
           status,
           departments (
             name

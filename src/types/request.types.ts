@@ -86,6 +86,11 @@ export interface RequestEmployeeDetail {
   id: string;
   full_name: string;
   nip: string | null;
+  nik?: string | null;
+  employee_number?: string | null;
+  gender?: string | null;
+  photo_url?: string | null;
+  status?: string | null;
   department_name: string | null;
   position_name: string | null;
 }
@@ -140,6 +145,11 @@ export function normalizeRequestDetail(
         id: emp.id,
         full_name: emp.full_name,
         nip: emp.nip || null,
+        nik: (emp as any).nik || null,
+        employee_number: (emp as any).employee_number || null,
+        gender: (emp as any).gender || null,
+        photo_url: (emp as any).photo_url || null,
+        status: (emp as any).status || null,
         department_name: emp.departments?.name || null,
         position_name: emp.positions?.name || null,
       }
@@ -256,4 +266,40 @@ export function formatRequestDateTime(dateStr: string | null): string {
   } catch {
     return dateStr;
   }
+}
+
+/**
+ * Calculates calendar day duration between start and end date (inclusive).
+ * Uses UTC dates to avoid any daylight savings or browser timezone shifting.
+ * E.g. '2026-10-01' to '2026-10-03' returns 3 days.
+ */
+export function calculateDurationDays(startStr: string, endStr: string): number {
+  if (!startStr || !endStr) return 0;
+  try {
+    const parts1 = startStr.split('-');
+    const parts2 = endStr.split('-');
+    if (parts1.length !== 3 || parts2.length !== 3) return 0;
+    const y1 = parseInt(parts1[0], 10);
+    const m1 = parseInt(parts1[1], 10);
+    const d1 = parseInt(parts1[2], 10);
+    const y2 = parseInt(parts2[0], 10);
+    const m2 = parseInt(parts2[1], 10);
+    const d2 = parseInt(parts2[2], 10);
+
+    const utc1 = Date.UTC(y1, m1 - 1, d1);
+    const utc2 = Date.UTC(y2, m2 - 1, d2);
+    const diffMs = utc2 - utc1;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays > 0 ? diffDays : 1;
+  } catch {
+    return 1;
+  }
+}
+
+/**
+ * Formats calendar duration in Indonesian days (e.g. '3 hari')
+ */
+export function formatRequestDuration(startStr: string, endStr: string): string {
+  const days = calculateDurationDays(startStr, endStr);
+  return `${days} hari`;
 }

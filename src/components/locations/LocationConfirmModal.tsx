@@ -65,7 +65,7 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
 
     case 'enable_attendance':
       title = 'Jadikan Lokasi Presensi?';
-      description = `Lokasi "${location.name}" akan dijadikan titik presensi utama pegawai. Pada V1, hanya 1 lokasi yang dapat menjadi lokasi presensi aktif secara bersamaan.`;
+      description = `Lokasi "${location.name}" akan dijadikan salah satu titik presensi aktif pegawai bersama titik presensi lainnya.`;
       confirmButtonLabel = 'Jadikan Lokasi Presensi';
       confirmButtonVariant = 'primary';
       icon = <Radio className="w-5 h-5" />;
