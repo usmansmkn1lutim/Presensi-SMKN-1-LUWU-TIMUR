@@ -29,13 +29,18 @@ export {
 } from './attendanceBusinessRules';
 
 // ----------------------------------------------------------------------------
-// Attendance Service Implementation
+// Personal Attendance Service Implementation
 // ----------------------------------------------------------------------------
 
 export const attendanceService = {
   /**
    * Resolves the active employee record associated with the authenticated user profile.
-   * Auto-links by email or admin status if profile_id is not yet populated.
+   *
+   * Personal attendance eligibility is determined STRICTLY by employee record linkage:
+   *   authenticated user (auth.uid()) -> profiles.id -> employees.profile_id
+   *
+   * Applies identically across all roles (super_admin, admin, headmaster, employee).
+   * NO fallback to unlinked employees, arbitrary active employees, or role-based auto-linking.
    */
   async getCurrentEmployee(): Promise<EmployeeRow> {
     const {
@@ -47,7 +52,7 @@ export const attendanceService = {
       throw new Error('Sesi telah berakhir. Silakan login kembali.');
     }
 
-    // 1. Direct query by profile_id
+    // Direct, strict lookup: employees.profile_id = user.id
     const { data: employee, error: employeeError } = await supabase
       .from('employees')
       .select('*')
@@ -59,91 +64,15 @@ export const attendanceService = {
       throw new Error(formatAttendanceError(employeeError));
     }
 
-    if (employee) {
-      if (employee.status !== 'active') {
-        throw new Error('Akun pegawai Anda sedang tidak aktif.');
-      }
-      return employee as EmployeeRow;
+    if (!employee) {
+      throw new Error('Akun Anda belum terhubung dengan data pegawai.');
     }
 
-    // 2. Fallback Attempt A: Auto-link by matching email
-    if (user.email) {
-      const { data: empByEmail } = await supabase
-        .from('employees')
-        .select('*')
-        .ilike('email', user.email)
-        .maybeSingle();
-
-      if (empByEmail) {
-        // Link profile_id to user.id
-        await supabase
-          .from('employees')
-          .update({ profile_id: user.id })
-          .eq('id', empByEmail.id);
-
-        return { ...empByEmail, profile_id: user.id } as EmployeeRow;
-      }
+    if (employee.status !== 'active') {
+      throw new Error('Akun pegawai Anda sedang tidak aktif.');
     }
 
-    // 3. Fallback Attempt B: Check user role in profiles
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, full_name')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    const isAdminRole =
-      profile && ['super_admin', 'admin', 'headmaster'].includes(profile.role);
-
-    if (isAdminRole) {
-      // Find an unlinked active employee to auto-link
-      const { data: unlinkedEmp } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('status', 'active')
-        .is('profile_id', null)
-        .limit(1)
-        .maybeSingle();
-
-      if (unlinkedEmp) {
-        await supabase
-          .from('employees')
-          .update({ profile_id: user.id })
-          .eq('id', unlinkedEmp.id);
-
-        return { ...unlinkedEmp, profile_id: user.id } as EmployeeRow;
-      }
-
-      // Or pick any active employee for testing
-      const { data: anyActiveEmp } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
-
-      if (anyActiveEmp) {
-        return anyActiveEmp as EmployeeRow;
-      }
-
-      // If no employee records exist at all, auto-create one for this admin user
-      const { data: newEmp, error: createError } = await supabase
-        .from('employees')
-        .insert({
-          profile_id: user.id,
-          full_name: profile?.full_name || user.email || 'Administrator',
-          email: user.email || null,
-          status: 'active',
-        })
-        .select()
-        .single();
-
-      if (!createError && newEmp) {
-        return newEmp as EmployeeRow;
-      }
-    }
-
-    throw new Error('Akun Anda belum terhubung dengan data pegawai.');
+    return employee as EmployeeRow;
   },
 
   /**
@@ -224,7 +153,7 @@ export const attendanceService = {
   },
 
   /**
-   * Submits a Check-In record.
+   * Submits a Check-In record for the authenticated employee.
    */
   async checkIn(payload: CheckInPayload): Promise<AttendanceModel> {
     const employee = await this.getCurrentEmployee();
@@ -273,7 +202,7 @@ export const attendanceService = {
   },
 
   /**
-   * Submits a Check-Out record.
+   * Submits a Check-Out record for the authenticated employee.
    */
   async checkOut(payload: CheckOutPayload): Promise<AttendanceModel> {
     const employee = await this.getCurrentEmployee();

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CalendarCheck,
-  ChevronLeft,
-  ChevronRight,
   AlertCircle,
   RefreshCw,
-  Info,
+  UserX,
+  Users,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { attendanceHistoryService } from '../../services/attendanceHistoryService';
 import {
   AttendanceHistoryRecord,
-  AttendanceHistoryResponse,
   AttendanceHistorySummary,
 } from '../../types/attendanceHistory.types';
 import { HistorySummaryCards } from '../../components/history/HistorySummaryCards';
@@ -21,7 +21,9 @@ import { HistoryDetailModal } from '../../components/history/HistoryDetailModal'
 import { Button } from '../../components/ui/Button';
 
 export const HistoryPage: React.FC = () => {
-  // Date Helpers for Default Range
+  const { profile } = useAuth();
+  const navigate = useNavigate();
+
   const getTodayString = () => {
     const d = new Date();
     return d.toISOString().split('T')[0];
@@ -45,6 +47,7 @@ export const HistoryPage: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [errorState, setErrorState] = useState<string | null>(null);
+  const [isUnlinked, setIsUnlinked] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const [records, setRecords] = useState<AttendanceHistoryRecord[]>([]);
@@ -71,29 +74,42 @@ export const HistoryPage: React.FC = () => {
     setValidationError(null);
     setLoading(true);
     setErrorState(null);
+    setIsUnlinked(false);
 
     try {
-      const res: AttendanceHistoryResponse =
-        await attendanceHistoryService.getAttendanceHistory({
-          startDate: sDate,
-          endDate: eDate,
-          statusFilter: sFilter,
-          checkoutFilter: cFilter,
-          page,
-          pageSize,
-        });
+      const res = await attendanceHistoryService.getAttendanceHistory({
+        startDate: sDate,
+        endDate: eDate,
+        statusFilter: sFilter,
+        checkoutFilter: cFilter,
+        page,
+        pageSize,
+      });
 
       setRecords(res.records);
       setSummary(res.summary);
       setTotalCount(res.totalCount);
       setTotalPages(res.totalPages);
     } catch (err: any) {
-      console.error('Failed to fetch attendance history:', err);
-      setErrorState(err?.message || 'Riwayat presensi tidak dapat dimuat.');
+      console.error('Failed to fetch personal attendance history:', err);
+      const msg = err?.message || 'Gagal memuat riwayat presensi.';
+      setErrorState(msg);
+
+      if (
+        msg.includes('belum terhubung') ||
+        msg.includes('tidak ditemukan') ||
+        msg.includes('belum dikaitkan')
+      ) {
+        setIsUnlinked(true);
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, 1);
+  }, []);
 
   useEffect(() => {
     fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, currentPage);
@@ -150,6 +166,7 @@ export const HistoryPage: React.FC = () => {
     fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, currentPage);
   };
 
+  const isAdminRole = profile && ['super_admin', 'admin'].includes(profile.role);
   const startRecordNum = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endRecordNum = Math.min(currentPage * pageSize, totalCount);
 
@@ -198,8 +215,45 @@ export const HistoryPage: React.FC = () => {
         loading={loading}
       />
 
-      {/* Error State */}
-      {errorState && (
+      {/* UNLINKED ACCOUNT STATE (FINDING-03 Fix) */}
+      {isUnlinked ? (
+        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
+            <UserX className="w-7 h-7" />
+          </div>
+
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="text-base sm:text-lg font-bold text-amber-950">
+              Akun Anda Belum Terhubung dengan Data Pegawai
+            </h3>
+            <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+              Akun login Anda belum ditautkan ke profil pegawai sekolah pada SIM Master Pegawai.
+            </p>
+            <p className="text-xs text-amber-700/90 pt-1">
+              Hubungi Administrator untuk menautkan akun Anda di Manajemen Pegawai agar dapat melihat riwayat presensi pribadi.
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-wrap justify-center gap-3">
+            <Button variant="outline" size="sm" onClick={handleRefresh} className="text-xs">
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Segarkan Halaman
+            </Button>
+            {isAdminRole && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => navigate('/employees')}
+                className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white"
+              >
+                <Users className="w-3.5 h-3.5 mr-1.5" />
+                Manajemen Pegawai
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : errorState ? (
+        /* Generic Error State */
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 space-y-3">
           <div className="flex items-center gap-2 font-bold text-sm">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
@@ -210,10 +264,7 @@ export const HistoryPage: React.FC = () => {
             Coba Lagi
           </Button>
         </div>
-      )}
-
-      {/* Loading Skeleton / Records List */}
-      {loading ? (
+      ) : loading ? (
         <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
           <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
           <div className="space-y-3">
@@ -222,7 +273,7 @@ export const HistoryPage: React.FC = () => {
             ))}
           </div>
         </div>
-      ) : !errorState && records.length === 0 ? (
+      ) : records.length === 0 ? (
         /* Empty State */
         <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
@@ -235,7 +286,7 @@ export const HistoryPage: React.FC = () => {
             Belum ada data presensi pada periode yang dipilih. Silakan pilih rentang tanggal lain.
           </p>
         </div>
-      ) : !errorState ? (
+      ) : (
         /* Records Content */
         <div className="space-y-4">
           {/* Desktop Table View */}
@@ -258,46 +309,29 @@ export const HistoryPage: React.FC = () => {
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage <= 1 || loading}
-                className="text-xs h-9 px-3"
+                className="text-xs"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
                 Sebelumnya
               </Button>
-
-              <span className="px-3 font-semibold text-[#111827]">
-                Halaman {currentPage} dari {totalPages}
+              <span className="text-[#111827] font-semibold px-2">
+                {currentPage} / {totalPages}
               </span>
-
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages || loading}
-                className="text-xs h-9 px-3"
+                className="text-xs"
               >
-                Berikutnya
-                <ChevronRight className="w-4 h-4 ml-1" />
+                Selanjutnya
               </Button>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
 
-      {/* Read-Only Detail Modal */}
-      <HistoryDetailModal
-        record={selectedRecord}
-        onClose={() => setSelectedRecord(null)}
-      />
-
-      {/* Information Footer */}
-      <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-3 text-xs text-[#6B7280]">
-        <Info className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
-        <div>
-          <span className="font-semibold text-[#111827]">Catatan Akses Riwayat:</span> Data
-          riwayat presensi bersifat murni hak baca (*read-only*) untuk akun pegawai terautentikasi.
-          Penyesuaian atau pengajuan izin/sakit diproses secara terpisah.
-        </div>
-      </div>
+      {/* Detail Modal */}
+      <HistoryDetailModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />
     </div>
   );
 };
