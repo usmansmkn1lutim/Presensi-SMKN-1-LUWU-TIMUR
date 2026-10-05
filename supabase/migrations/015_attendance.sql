@@ -155,15 +155,33 @@ CREATE POLICY "attendance_insert_policy"
     );
 
 -- Policy 3: UPDATE
--- Strictly restricted to active Administrators (admin & super_admin).
--- Employees and Headmaster CANNOT generic update attendance.
+-- Active Administrators (admin & super_admin) can update attendance records.
+-- Active Employees can update ONLY their own attendance record (e.g. check-out).
 DROP POLICY IF EXISTS "attendance_update_policy" ON public.attendance;
 CREATE POLICY "attendance_update_policy"
     ON public.attendance
     FOR UPDATE
     TO authenticated
-    USING (private.is_admin(auth.uid()))
-    WITH CHECK (private.is_admin(auth.uid()));
+    USING (
+        private.is_admin(auth.uid())
+        OR (
+            employee_id = private.get_employee_id(auth.uid())
+            AND EXISTS (
+                SELECT 1 FROM public.profiles
+                WHERE id = auth.uid() AND is_active = true
+            )
+        )
+    )
+    WITH CHECK (
+        private.is_admin(auth.uid())
+        OR (
+            employee_id = private.get_employee_id(auth.uid())
+            AND EXISTS (
+                SELECT 1 FROM public.profiles
+                WHERE id = auth.uid() AND is_active = true
+            )
+        )
+    );
 
 -- Note on DELETE:
 -- NO DELETE policy is created. Attendance records are immutable historical data.

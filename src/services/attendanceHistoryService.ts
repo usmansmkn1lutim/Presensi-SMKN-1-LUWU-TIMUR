@@ -1,5 +1,7 @@
 import { supabase } from '../lib/supabase';
 import { attendanceService, formatAttendanceError } from './attendanceService';
+import { getLocalAttendanceRecords } from './attendanceStorage';
+import { locationService } from './locationService';
 import {
   AttendanceHistoryFilter,
   AttendanceHistoryRecord,
@@ -31,6 +33,62 @@ export const attendanceHistoryService = {
       throw new Error('Tanggal mulai tidak boleh lebih besar dari tanggal akhir.');
     }
 
+    // Helper for local fallback
+    const getLocalHistoryFallback = async (): Promise<AttendanceHistoryResponse> => {
+      const allLocal = getLocalAttendanceRecords();
+      const locations = await locationService.getLocations();
+      const locationMap = new Map(locations.map((l) => [l.id, l]));
+
+      const matching = allLocal.filter((r) => {
+        if (r.employee_id !== employee.id) return false;
+        if (r.attendance_date < startDate || r.attendance_date > endDate) return false;
+        if (statusFilter !== 'all' && r.check_in_status !== statusFilter) return false;
+        if (checkoutFilter === 'checked_out' && !r.check_out_at) return false;
+        if (checkoutFilter === 'not_checked_out' && r.check_out_at) return false;
+        return true;
+      });
+
+      // Sort descending by attendance_date
+      matching.sort((a, b) => b.attendance_date.localeCompare(a.attendance_date));
+
+      const summaryRows = allLocal.filter(
+        (r) =>
+          r.employee_id === employee.id &&
+          r.attendance_date >= startDate &&
+          r.attendance_date <= endDate
+      );
+
+      const summary: AttendanceHistorySummary = {
+        totalAttendance: summaryRows.length,
+        onTimeCount: summaryRows.filter((r) => r.check_in_status === 'on_time').length,
+        lateCount: summaryRows.filter((r) => r.check_in_status === 'late').length,
+        checkedOutCount: summaryRows.filter((r) => r.check_out_at !== null).length,
+      };
+
+      const from = (page - 1) * pageSize;
+      const paginated = matching.slice(from, from + pageSize).map((r) => {
+        const inLoc = r.check_in_location_id ? locationMap.get(r.check_in_location_id) : null;
+        const outLoc = r.check_out_location_id ? locationMap.get(r.check_out_location_id) : null;
+        return {
+          ...r,
+          check_in_location: inLoc ? { id: inLoc.id, name: inLoc.name, code: inLoc.code } : null,
+          check_out_location: outLoc ? { id: outLoc.id, name: outLoc.name, code: outLoc.code } : null,
+        } as unknown as AttendanceHistoryRecord;
+      });
+
+      const totalCount = matching.length;
+      const totalPages = Math.ceil(totalCount / pageSize) || 1;
+
+      return {
+        records: paginated,
+        summary,
+        totalCount,
+        page,
+        pageSize,
+        totalPages,
+      };
+    };
+
     // 1. Fetch overall summary stats for the date range
     const { data: summaryRows, error: summaryError } = await supabase
       .from('attendance')
@@ -40,6 +98,9 @@ export const attendanceHistoryService = {
       .lte('attendance_date', endDate);
 
     if (summaryError) {
+      if ((summaryError as any).code === 'PGRST205' || (summaryError as any).message?.includes('schema cache')) {
+        return getLocalHistoryFallback();
+      }
       console.error('Error fetching attendance history summary:', summaryError);
       throw new Error(formatAttendanceError(summaryError));
     }
@@ -86,6 +147,9 @@ export const attendanceHistoryService = {
     const { data: recordsData, count, error: queryError } = await query;
 
     if (queryError) {
+      if ((queryError as any).code === 'PGRST205' || (queryError as any).message?.includes('schema cache')) {
+        return getLocalHistoryFallback();
+      }
       console.error('Error fetching attendance history records:', queryError);
       throw new Error(formatAttendanceError(queryError));
     }

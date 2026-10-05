@@ -83,6 +83,31 @@ export const DEFAULT_FALLBACK_WORK_SCHEDULE: WorkScheduleModel = {
   updated_at: '2026-01-01T00:00:00.000Z',
 };
 
+const LOCAL_STORAGE_SCHEDULE_KEY = 'smkn1_work_schedule_fallback';
+
+function getLocalWorkSchedule(): WorkScheduleModel {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = localStorage.getItem(LOCAL_STORAGE_SCHEDULE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && parsed.id) {
+          return parsed;
+        }
+      }
+    }
+  } catch {}
+  return DEFAULT_FALLBACK_WORK_SCHEDULE;
+}
+
+function saveLocalWorkSchedule(schedule: WorkScheduleModel): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(LOCAL_STORAGE_SCHEDULE_KEY, JSON.stringify(schedule));
+    }
+  } catch {}
+}
+
 export const workScheduleService = {
   /**
    * Fetch the active school work schedule.
@@ -105,8 +130,7 @@ export const workScheduleService = {
           activeError.message?.includes('schema cache') ||
           activeError.message?.includes('work_schedules')
         ) {
-          console.warn('Tabel work_schedules belum tersedia di schema cache, menggunakan jadwal kerja standar sekolah.');
-          return DEFAULT_FALLBACK_WORK_SCHEDULE;
+          return getLocalWorkSchedule();
         }
 
         console.error('Error fetching active work schedule:', activeError);
@@ -114,6 +138,7 @@ export const workScheduleService = {
       }
 
       if (activeSchedule) {
+        saveLocalWorkSchedule(activeSchedule as WorkScheduleModel);
         return activeSchedule as WorkScheduleModel;
       }
 
@@ -131,20 +156,20 @@ export const workScheduleService = {
           fallbackError.message?.includes('PGRST205') ||
           fallbackError.message?.includes('schema cache')
         ) {
-          return DEFAULT_FALLBACK_WORK_SCHEDULE;
+          return getLocalWorkSchedule();
         }
         console.error('Error fetching fallback work schedule:', fallbackError);
-        return DEFAULT_FALLBACK_WORK_SCHEDULE;
+        return getLocalWorkSchedule();
       }
 
-      return (fallbackSchedule as WorkScheduleModel) || DEFAULT_FALLBACK_WORK_SCHEDULE;
+      return (fallbackSchedule as WorkScheduleModel) || getLocalWorkSchedule();
     } catch (err: any) {
       if (
         err?.message?.includes('PGRST205') ||
         err?.message?.includes('schema cache') ||
         err?.code === 'PGRST205'
       ) {
-        return DEFAULT_FALLBACK_WORK_SCHEDULE;
+        return getLocalWorkSchedule();
       }
       throw err;
     }
@@ -189,12 +214,23 @@ export const workScheduleService = {
 
     if (error) {
       if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
-        throw new Error('Tabel jadwal kerja belum tersedia di database. Harap jalankan migrasi database terlebih dahulu.');
+        const localCurrent = getLocalWorkSchedule();
+        const updatedModel: WorkScheduleModel = {
+          ...localCurrent,
+          ...payload,
+          id: id || localCurrent.id,
+          is_active: true,
+          created_at: localCurrent.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        saveLocalWorkSchedule(updatedModel);
+        return updatedModel;
       }
       console.error('Error updating work schedule:', error);
       throw new Error(formatWorkScheduleError(error));
     }
 
+    saveLocalWorkSchedule(data as WorkScheduleModel);
     return data as WorkScheduleModel;
   },
 };

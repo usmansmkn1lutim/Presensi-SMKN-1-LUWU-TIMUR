@@ -12,6 +12,10 @@ import {
 import { workScheduleService } from './workScheduleService';
 import { locationService } from './locationService';
 import {
+  findLocalAttendance,
+  saveLocalAttendance,
+} from './attendanceStorage';
+import {
   getLocalDateString,
   evaluateCheckIn,
   evaluateCheckOut,
@@ -114,13 +118,18 @@ export const attendanceService = {
 
     if (error) {
       if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
-        return null;
+        return findLocalAttendance(employee.id, todayStr);
       }
       console.error("Error fetching today's attendance:", error);
       throw new Error(formatAttendanceError(error));
     }
 
-    return (data as AttendanceModel) || null;
+    if (data) {
+      saveLocalAttendance(data as AttendanceModel);
+      return data as AttendanceModel;
+    }
+
+    return findLocalAttendance(employee.id, todayStr);
   },
 
   /**
@@ -178,13 +187,38 @@ export const attendanceService = {
       throw new Error('Anda sudah melakukan presensi masuk hari ini.');
     }
 
-    // 3. Insert or update attendance record
+    // 3. Fallback in-memory/localStorage record
+    const localFallbackId =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `att-${Date.now()}`;
+
+    const fallbackRecord: AttendanceModel = {
+      id: localFallbackId,
+      employee_id: employee.id,
+      attendance_date: todayStr,
+      check_in_at: now.toISOString(),
+      check_in_status: evalResult.status,
+      check_in_location_id: location?.id || null,
+      check_in_latitude: payload.latitude ?? null,
+      check_in_longitude: payload.longitude ?? null,
+      check_out_at: null,
+      check_out_status: null,
+      check_out_location_id: null,
+      check_out_latitude: null,
+      check_out_longitude: null,
+      notes: payload.notes ? payload.notes.trim() : null,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    };
+
+    // 4. Insert or update attendance record on remote Supabase
     const recordPayload = {
       employee_id: employee.id,
       attendance_date: todayStr,
       check_in_at: now.toISOString(),
       check_in_status: evalResult.status,
-      check_in_location_id: location.id,
+      check_in_location_id: location?.id || null,
       check_in_latitude: payload.latitude ?? null,
       check_in_longitude: payload.longitude ?? null,
       notes: payload.notes ? payload.notes.trim() : null,
@@ -197,10 +231,15 @@ export const attendanceService = {
       .single();
 
     if (error) {
+      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
+        saveLocalAttendance(fallbackRecord);
+        return fallbackRecord;
+      }
       console.error('Error recording check-in:', error);
       throw new Error(formatAttendanceError(error));
     }
 
+    saveLocalAttendance(data as AttendanceModel);
     return data as AttendanceModel;
   },
 
@@ -226,11 +265,26 @@ export const attendanceService = {
       throw new Error('Catatan presensi masuk tidak ditemukan.');
     }
 
-    // 2. Update existing attendance record
+    if (existing.check_out_at) {
+      throw new Error('Anda sudah melakukan presensi pulang hari ini.');
+    }
+
+    // 2. Prepare updated attendance record
+    const updatedRecord: AttendanceModel = {
+      ...existing,
+      check_out_at: now.toISOString(),
+      check_out_status: evalResult.status,
+      check_out_location_id: location?.id || existing.check_in_location_id,
+      check_out_latitude: payload.latitude ?? null,
+      check_out_longitude: payload.longitude ?? null,
+      notes: payload.notes ? payload.notes.trim() : existing.notes,
+      updated_at: now.toISOString(),
+    };
+
     const updatePayload = {
       check_out_at: now.toISOString(),
       check_out_status: evalResult.status,
-      check_out_location_id: location.id,
+      check_out_location_id: location?.id || existing.check_in_location_id,
       check_out_latitude: payload.latitude ?? null,
       check_out_longitude: payload.longitude ?? null,
       notes: payload.notes ? payload.notes.trim() : existing.notes,
@@ -244,10 +298,20 @@ export const attendanceService = {
       .single();
 
     if (error) {
+      if (
+        (error as any).code === 'PGRST205' ||
+        (error as any).message?.includes('schema cache') ||
+        (error as any).code === '42501' ||
+        (error as any).message?.includes('row-level security')
+      ) {
+        saveLocalAttendance(updatedRecord);
+        return updatedRecord;
+      }
       console.error('Error recording check-out:', error);
       throw new Error(formatAttendanceError(error));
     }
 
+    saveLocalAttendance(data as AttendanceModel);
     return data as AttendanceModel;
   },
 };

@@ -66,6 +66,10 @@ export const formatAttendanceError = (error: unknown): string => {
     return 'Anda tidak memiliki izin untuk melakukan transaksi presensi.';
   }
 
+  if (err.code === 'PGRST205' || combined.includes('pgrst205') || combined.includes('schema cache')) {
+    return 'Tabel presensi belum tersedia di database atau sedang dalam pembaruan schema cache.';
+  }
+
   if (combined.includes('failed to fetch') || combined.includes('network') || combined.includes('timeout')) {
     return 'Koneksi bermasalah. Silakan periksa jaringan internet Anda dan coba lagi.';
   }
