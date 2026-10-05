@@ -74,7 +74,7 @@ export const DEFAULT_FALLBACK_WORK_SCHEDULE: WorkScheduleModel = {
   check_in_end_time: '10:00:00',
   work_start_time: '07:30:00',
   operational_end_time: '15:00:00',
-  work_end_time: '15:30:00',
+  work_end_time: '16:00:00',
   check_out_start_time: '15:00:00',
   check_out_end_time: '17:00:00',
   working_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],

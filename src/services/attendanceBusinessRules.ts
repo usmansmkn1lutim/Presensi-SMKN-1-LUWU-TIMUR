@@ -74,7 +74,21 @@ export const formatAttendanceError = (error: unknown): string => {
     return 'Koneksi bermasalah. Silakan periksa jaringan internet Anda dan coba lagi.';
   }
 
-  if (message && !message.includes('PGRST') && !message.includes('schema') && !message.includes('column')) {
+  // Filter out internal database / SQL details if any leaked
+  const isInternalLeak =
+    combined.includes('security definer') ||
+    combined.includes('search_path') ||
+    combined.includes('plpgsql') ||
+    combined.includes('syntax error') ||
+    combined.includes('pg_temp') ||
+    combined.includes('pg_catalog') ||
+    combined.includes('stack trace') ||
+    combined.includes('pgrst') ||
+    combined.includes('relation "') ||
+    combined.includes('function ') ||
+    combined.includes('column ');
+
+  if (message && !isInternalLeak) {
     return message;
   }
 

@@ -8,6 +8,8 @@ import {
   EvaluateCheckOutResult,
   CheckInPayload,
   CheckOutPayload,
+  CheckInRpcResult,
+  CheckOutRpcResult,
 } from '../types/attendance.types';
 import { workScheduleService } from './workScheduleService';
 import { locationService } from './locationService';
@@ -92,12 +94,14 @@ export const attendanceService = {
 
   /**
    * Fetches the primary active attendance location.
+   * STRICT: Only returns a location that is active and attendance-enabled.
+   * Never falls back to non-attendance enabled locations.
    */
   async getActiveAttendanceLocation(): Promise<LocationModel> {
-    const locs = await locationService.getActiveLocations();
-    const primary = locs.find((l) => l.isAttendanceEnabled) || locs[0];
+    const locs = await locationService.getActiveAttendanceLocations();
+    const primary = locs.find((l) => l.isActive && l.isAttendanceEnabled);
     if (!primary) {
-      throw new Error('Lokasi presensi sekolah belum dikonfigurasi atau sedang tidak aktif.');
+      throw new Error('Belum ada titik presensi yang aktif. Silakan hubungi administrator sekolah.');
     }
     return primary;
   },
@@ -165,153 +169,104 @@ export const attendanceService = {
   },
 
   /**
-   * Submits a Check-In record for the authenticated employee.
+   * Submits a Check-In record for the authenticated employee via secure Supabase RPC.
+   * Server RPC enforces employee validation, schedule, holiday, radius, and time calculations.
    */
   async checkIn(payload: CheckInPayload): Promise<AttendanceModel> {
-    const employee = await this.getCurrentEmployee();
-    const schedule = await this.getActiveWorkSchedule();
-    const location = await this.getActiveAttendanceLocation();
+    const latitude = payload.latitude ?? null;
+    const longitude = payload.longitude ?? null;
 
-    const now = new Date();
-    const todayStr = getLocalDateString(now);
-
-    // 1. Re-evaluate check-in rules server-side
-    const evalResult = this.evaluateCheckIn(now, schedule);
-    if (!evalResult.allowed) {
-      throw new Error(evalResult.reason);
+    if (latitude === null || longitude === null) {
+      throw new Error('Koordinat lokasi tidak valid. Pastikan GPS perangkat Anda aktif.');
     }
 
-    // 2. Check if check-in already recorded today
-    const existing = await this.getTodayAttendance();
-    if (existing && existing.check_in_at) {
-      throw new Error('Anda sudah melakukan presensi masuk hari ini.');
+    const { data, error } = await supabase.rpc('check_in', {
+      user_latitude: latitude,
+      user_longitude: longitude,
+    });
+
+    if (error) {
+      console.error('Error executing check_in RPC:', error);
+      throw new Error(formatAttendanceError(error));
     }
 
-    // 3. Fallback in-memory/localStorage record
-    const localFallbackId =
-      typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `att-${Date.now()}`;
+    const rpcResult = (Array.isArray(data) ? data[0] : data) as CheckInRpcResult;
+    if (!rpcResult || !rpcResult.attendance_id) {
+      throw new Error('Respons presensi masuk tidak valid.');
+    }
 
-    const fallbackRecord: AttendanceModel = {
-      id: localFallbackId,
-      employee_id: employee.id,
-      attendance_date: todayStr,
-      check_in_at: now.toISOString(),
-      check_in_status: evalResult.status,
-      check_in_location_id: location?.id || null,
-      check_in_latitude: payload.latitude ?? null,
-      check_in_longitude: payload.longitude ?? null,
+    const mappedRecord: AttendanceModel = {
+      id: rpcResult.attendance_id,
+      employee_id: rpcResult.employee_id || '',
+      attendance_date: rpcResult.attendance_date,
+      check_in_at: rpcResult.check_in_at,
       check_out_at: null,
+      check_in_status: rpcResult.check_in_status,
       check_out_status: null,
+      check_in_location_id: rpcResult.location_id,
       check_out_location_id: null,
+      check_in_latitude: latitude,
+      check_in_longitude: longitude,
       check_out_latitude: null,
       check_out_longitude: null,
       notes: payload.notes ? payload.notes.trim() : null,
-      created_at: now.toISOString(),
-      updated_at: now.toISOString(),
+      created_at: rpcResult.check_in_at,
+      updated_at: rpcResult.check_in_at,
     };
 
-    // 4. Insert or update attendance record on remote Supabase
-    const recordPayload = {
-      employee_id: employee.id,
-      attendance_date: todayStr,
-      check_in_at: now.toISOString(),
-      check_in_status: evalResult.status,
-      check_in_location_id: location?.id || null,
-      check_in_latitude: payload.latitude ?? null,
-      check_in_longitude: payload.longitude ?? null,
-      notes: payload.notes ? payload.notes.trim() : null,
-    };
-
-    const { data, error } = await supabase
-      .from('attendance')
-      .upsert(recordPayload, { onConflict: 'employee_id,attendance_date' })
-      .select()
-      .single();
-
-    if (error) {
-      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
-        saveLocalAttendance(fallbackRecord);
-        return fallbackRecord;
-      }
-      console.error('Error recording check-in:', error);
-      throw new Error(formatAttendanceError(error));
-    }
-
-    saveLocalAttendance(data as AttendanceModel);
-    return data as AttendanceModel;
+    saveLocalAttendance(mappedRecord);
+    return mappedRecord;
   },
 
   /**
-   * Submits a Check-Out record for the authenticated employee.
+   * Submits a Check-Out record for the authenticated employee via secure Supabase RPC.
+   * Server RPC enforces employee validation, schedule, holiday, radius, and time calculations.
    */
   async checkOut(payload: CheckOutPayload): Promise<AttendanceModel> {
-    const employee = await this.getCurrentEmployee();
-    const schedule = await this.getActiveWorkSchedule();
-    const location = await this.getActiveAttendanceLocation();
+    const latitude = payload.latitude ?? null;
+    const longitude = payload.longitude ?? null;
 
-    const now = new Date();
+    if (latitude === null || longitude === null) {
+      throw new Error('Koordinat lokasi tidak valid. Pastikan GPS perangkat Anda aktif.');
+    }
 
-    // 1. Re-evaluate check-out rules server-side
     const existing = await this.getTodayAttendance();
-    const evalResult = this.evaluateCheckOut(now, schedule, existing);
 
-    if (!evalResult.allowed) {
-      throw new Error(evalResult.reason);
-    }
-
-    if (!existing || !existing.id) {
-      throw new Error('Catatan presensi masuk tidak ditemukan.');
-    }
-
-    if (existing.check_out_at) {
-      throw new Error('Anda sudah melakukan presensi pulang hari ini.');
-    }
-
-    // 2. Prepare updated attendance record
-    const updatedRecord: AttendanceModel = {
-      ...existing,
-      check_out_at: now.toISOString(),
-      check_out_status: evalResult.status,
-      check_out_location_id: location?.id || existing.check_in_location_id,
-      check_out_latitude: payload.latitude ?? null,
-      check_out_longitude: payload.longitude ?? null,
-      notes: payload.notes ? payload.notes.trim() : existing.notes,
-      updated_at: now.toISOString(),
-    };
-
-    const updatePayload = {
-      check_out_at: now.toISOString(),
-      check_out_status: evalResult.status,
-      check_out_location_id: location?.id || existing.check_in_location_id,
-      check_out_latitude: payload.latitude ?? null,
-      check_out_longitude: payload.longitude ?? null,
-      notes: payload.notes ? payload.notes.trim() : existing.notes,
-    };
-
-    const { data, error } = await supabase
-      .from('attendance')
-      .update(updatePayload)
-      .eq('id', existing.id)
-      .select()
-      .single();
+    const { data, error } = await supabase.rpc('check_out', {
+      user_latitude: latitude,
+      user_longitude: longitude,
+    });
 
     if (error) {
-      if (
-        (error as any).code === 'PGRST205' ||
-        (error as any).message?.includes('schema cache') ||
-        (error as any).code === '42501' ||
-        (error as any).message?.includes('row-level security')
-      ) {
-        saveLocalAttendance(updatedRecord);
-        return updatedRecord;
-      }
-      console.error('Error recording check-out:', error);
+      console.error('Error executing check_out RPC:', error);
       throw new Error(formatAttendanceError(error));
     }
 
-    saveLocalAttendance(data as AttendanceModel);
-    return data as AttendanceModel;
+    const rpcResult = (Array.isArray(data) ? data[0] : data) as CheckOutRpcResult;
+    if (!rpcResult || !rpcResult.attendance_id) {
+      throw new Error('Respons presensi pulang tidak valid.');
+    }
+
+    const mappedRecord: AttendanceModel = {
+      id: rpcResult.attendance_id,
+      employee_id: existing?.employee_id || rpcResult.employee_id || '',
+      attendance_date: rpcResult.attendance_date,
+      check_in_at: rpcResult.check_in_at || existing?.check_in_at || null,
+      check_out_at: rpcResult.check_out_at,
+      check_in_status: existing?.check_in_status || null,
+      check_out_status: rpcResult.check_out_status,
+      check_in_location_id: existing?.check_in_location_id || rpcResult.location_id,
+      check_out_location_id: rpcResult.location_id,
+      check_in_latitude: existing?.check_in_latitude ?? null,
+      check_in_longitude: existing?.check_in_longitude ?? null,
+      check_out_latitude: latitude,
+      check_out_longitude: longitude,
+      notes: payload.notes ? payload.notes.trim() : existing?.notes || null,
+      created_at: existing?.created_at || rpcResult.check_in_at,
+      updated_at: rpcResult.check_out_at,
+    };
+
+    saveLocalAttendance(mappedRecord);
+    return mappedRecord;
   },
 };

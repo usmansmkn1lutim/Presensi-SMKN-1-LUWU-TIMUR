@@ -506,6 +506,37 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: Database['public']['Tables']['work_schedules']['Row'][];
       };
+      check_in: {
+        Args: {
+          user_latitude: number;
+          user_longitude: number;
+        };
+        Returns: {
+          attendance_id: string;
+          attendance_date: string;
+          check_in_at: string;
+          check_in_status: string;
+          location_id: string;
+          location_name: string;
+          distance_meters: number;
+        }[];
+      };
+      check_out: {
+        Args: {
+          user_latitude: number;
+          user_longitude: number;
+        };
+        Returns: {
+          attendance_id: string;
+          attendance_date: string;
+          check_in_at: string;
+          check_out_at: string;
+          check_out_status: string;
+          location_id: string;
+          location_name: string;
+          distance_meters: number;
+        }[];
+      };
       create_my_request: {
         Args: {
           p_request_type: string;

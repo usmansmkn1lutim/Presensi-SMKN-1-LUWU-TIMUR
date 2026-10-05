@@ -45,6 +45,35 @@ export interface EvaluateCheckOutResult {
 }
 
 /**
+ * Response structure returned by check_in RPC function
+ */
+export interface CheckInRpcResult {
+  attendance_id: string;
+  attendance_date: string;
+  check_in_at: string;
+  check_in_status: CheckInStatus;
+  location_id: string;
+  location_name: string;
+  distance_meters: number;
+  employee_id?: string;
+}
+
+/**
+ * Response structure returned by check_out RPC function
+ */
+export interface CheckOutRpcResult {
+  attendance_id: string;
+  attendance_date: string;
+  check_in_at: string;
+  check_out_at: string;
+  check_out_status: CheckOutStatus;
+  location_id: string;
+  location_name: string;
+  distance_meters: number;
+  employee_id?: string;
+}
+
+/**
  * Input payload for performing check-in
  */
 export interface CheckInPayload {
