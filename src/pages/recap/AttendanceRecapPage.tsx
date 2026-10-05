@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FileSpreadsheet, AlertCircle, Users, RefreshCw, Info } from 'lucide-react';
 import { attendanceRecapService } from '../../services/attendanceRecapService';
+import {
+  getMakassarTodayDateString,
+  getMakassarFirstDayOfMonthString,
+} from '../../services/attendanceReportService';
 import { DepartmentOption } from '../../types/attendanceMonitoring.types';
 import {
   EmployeeRecapRecord,
@@ -18,19 +22,8 @@ import { AttendanceDetailDrawerModal } from '../../components/recap/AttendanceDe
 import { Button } from '../../components/ui/Button';
 
 export const AttendanceRecapPage: React.FC = () => {
-  const getTodayString = () => {
-    const d = new Date();
-    return d.toISOString().split('T')[0];
-  };
-
-  const getFirstDayOfMonthString = () => {
-    const d = new Date();
-    d.setDate(1);
-    return d.toISOString().split('T')[0];
-  };
-
-  const [startDate, setStartDate] = useState<string>(getFirstDayOfMonthString());
-  const [endDate, setEndDate] = useState<string>(getTodayString());
+  const [startDate, setStartDate] = useState<string>(getMakassarFirstDayOfMonthString());
+  const [endDate, setEndDate] = useState<string>(getMakassarTodayDateString());
   const [departmentId, setDepartmentId] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -51,7 +44,7 @@ export const AttendanceRecapPage: React.FC = () => {
 
   // Modal 2: Single date snapshot detail modal
   const [snapshotEmployeeId, setSnapshotEmployeeId] = useState<string | null>(null);
-  const [snapshotDate, setSnapshotDate] = useState<string>(getTodayString());
+  const [snapshotDate, setSnapshotDate] = useState<string>(getMakassarTodayDateString());
 
   // Load departments once
   useEffect(() => {
@@ -127,8 +120,8 @@ export const AttendanceRecapPage: React.FC = () => {
   const handlePresetChange = (
     preset: 'today' | 'last_7_days' | 'this_month' | 'last_month' | 'this_year'
   ) => {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getMakassarTodayDateString();
+    const [y, m, d] = todayStr.split('-').map(Number);
     let newStart = todayStr;
     let newEnd = todayStr;
 
@@ -136,22 +129,25 @@ export const AttendanceRecapPage: React.FC = () => {
       newStart = todayStr;
       newEnd = todayStr;
     } else if (preset === 'last_7_days') {
-      const sevenDaysAgo = new Date(today);
-      sevenDaysAgo.setDate(today.getDate() - 6);
-      newStart = sevenDaysAgo.toISOString().split('T')[0];
+      const past = new Date(y, m - 1, d - 6, 12, 0, 0);
+      const py = past.getFullYear();
+      const pm = String(past.getMonth() + 1).padStart(2, '0');
+      const pd = String(past.getDate()).padStart(2, '0');
+      newStart = `${py}-${pm}-${pd}`;
       newEnd = todayStr;
     } else if (preset === 'this_month') {
-      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-      newStart = firstDay.toISOString().split('T')[0];
+      newStart = `${y}-${String(m).padStart(2, '0')}-01`;
       newEnd = todayStr;
     } else if (preset === 'last_month') {
-      const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-      newStart = firstDayLastMonth.toISOString().split('T')[0];
-      newEnd = lastDayLastMonth.toISOString().split('T')[0];
+      const firstDayLastMonth = new Date(y, m - 2, 1, 12, 0, 0);
+      const lastDayLastMonth = new Date(y, m - 1, 0, 12, 0, 0);
+      const lmy = firstDayLastMonth.getFullYear();
+      const lmm = String(firstDayLastMonth.getMonth() + 1).padStart(2, '0');
+      const lmdEnd = String(lastDayLastMonth.getDate()).padStart(2, '0');
+      newStart = `${lmy}-${lmm}-01`;
+      newEnd = `${lmy}-${lmm}-${lmdEnd}`;
     } else if (preset === 'this_year') {
-      const janFirst = new Date(today.getFullYear(), 0, 1);
-      newStart = janFirst.toISOString().split('T')[0];
+      newStart = `${y}-01-01`;
       newEnd = todayStr;
     }
 
@@ -162,8 +158,8 @@ export const AttendanceRecapPage: React.FC = () => {
   };
 
   const handleResetFilter = () => {
-    const defStart = getFirstDayOfMonthString();
-    const defEnd = getTodayString();
+    const defStart = getMakassarFirstDayOfMonthString();
+    const defEnd = getMakassarTodayDateString();
 
     setStartDate(defStart);
     setEndDate(defEnd);
@@ -193,10 +189,10 @@ export const AttendanceRecapPage: React.FC = () => {
             Laporan & Analisis Kehadiran Pegawai
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
-            Rekap & Detail Presensi
+            Rekap dan Laporan Presensi
           </h2>
           <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            Rangkuman, rincian harian, dan statistik kehadiran pegawai berdasarkan periode
+            Rekapitulasi kehadiran pegawai sekolah, tren harian, dan laporan rincian presensi
           </p>
         </div>
 

@@ -109,11 +109,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/attendance-recap',
-        element: (
-          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster']}>
-            <AttendanceRecapPage />
-          </ProtectedRoute>
-        ),
+        element: <Navigate to="/reports" replace />,
       },
       {
         path: '/history',

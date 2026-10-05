@@ -1,53 +1,442 @@
-import React, { useState } from 'react';
-import { BarChart3, Download, FileSpreadsheet, Filter } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Calendar,
+  Users,
+  CalendarRange,
+  FileText,
+  AlertTriangle,
+  RotateCcw,
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react';
+import {
+  attendanceReportService,
+  getMakassarTodayDateString,
+  getMakassarFirstDayOfMonthString,
+  formatMakassarShortDate,
+} from '../../services/attendanceReportService';
+import { attendanceExcelExportService } from '../../services/attendanceExcelExportService';
+import { attendancePdfExportService } from '../../services/attendancePdfExportService';
+import {
+  AttendanceReportFilter,
+  AttendanceReportResponse,
+} from '../../types/attendanceReport.types';
+import { ReportHeader } from '../../components/reports/ReportHeader';
+import { ReportFilterBar } from '../../components/reports/ReportFilterBar';
+import { ReportSummaryCards } from '../../components/reports/ReportSummaryCards';
+import { DailyReportTable } from '../../components/reports/DailyReportTable';
+import { EmployeeReportTable } from '../../components/reports/EmployeeReportTable';
+import { MonthlyReportTable } from '../../components/reports/MonthlyReportTable';
+import { DetailReportTable } from '../../components/reports/DetailReportTable';
 import { Button } from '../../components/ui/Button';
 
+type ReportTab = 'daily' | 'employee' | 'monthly' | 'detail';
+
 export const ReportsPage: React.FC = () => {
+  // Initial default filter (Current Month in Asia/Makassar)
+  const [filter, setFilter] = useState<AttendanceReportFilter>({
+    startDate: getMakassarFirstDayOfMonthString(),
+    endDate: getMakassarTodayDateString(),
+    employeeId: null,
+    departmentId: null,
+    locationId: null,
+    checkInStatus: null,
+    checkOutStatus: null,
+    searchQuery: undefined,
+  });
+
+  const [activeTab, setActiveTab] = useState<ReportTab>('daily');
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
+  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
+  const [employees, setEmployees] = useState<{ id: string; name: string; nip: string | null }[]>([]);
+
+  const [reportData, setReportData] = useState<AttendanceReportResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Export State & Feedback
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportingType, setExportingType] = useState<'excel' | 'pdf' | null>(null);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
+  const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+
+  const [detailPage, setDetailPage] = useState<number>(1);
+  const [detailPageSize, setDetailPageSize] = useState<number>(15);
+
+  // 1. Load Filter Selectors (departments, locations, employees)
+  useEffect(() => {
+    let mounted = true;
+    const fetchOptions = async () => {
+      try {
+        const [depts, locs, emps] = await Promise.all([
+          attendanceReportService.getDepartments(),
+          attendanceReportService.getLocations(),
+          attendanceReportService.getEmployees(),
+        ]);
+        if (mounted) {
+          setDepartments(depts);
+          setLocations(locs);
+          setEmployees(emps);
+        }
+      } catch (err) {
+        console.error('Error loading filter options:', err);
+      }
+    };
+    fetchOptions();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // 2. Main Report Loader
+  const loadReport = useCallback(
+    async (
+      activeFilter: AttendanceReportFilter = filter,
+      page: number = detailPage,
+      pageSize: number = detailPageSize
+    ) => {
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      try {
+        const response = await attendanceReportService.getFullReport(
+          activeFilter,
+          page,
+          pageSize
+        );
+        setReportData(response);
+      } catch (err: any) {
+        console.error('Failed to load attendance report:', err);
+        setErrorMessage(
+          err.message ||
+            'Terjadi kesalahan saat memuat data laporan presensi. Silakan periksa koneksi dan coba lagi.'
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [filter, detailPage, detailPageSize]
+  );
+
+  // Load initial report on mount
+  useEffect(() => {
+    loadReport(filter, 1, detailPageSize);
+  }, []);
+
+  // 3. Filter Actions
+  const handleApplyFilter = (newFilter: AttendanceReportFilter) => {
+    setFilter(newFilter);
+    setDetailPage(1);
+    loadReport(newFilter, 1, detailPageSize);
+  };
+
+  const handleResetFilter = () => {
+    const defaultFilter: AttendanceReportFilter = {
+      startDate: getMakassarFirstDayOfMonthString(),
+      endDate: getMakassarTodayDateString(),
+      employeeId: null,
+      departmentId: null,
+      locationId: null,
+      checkInStatus: null,
+      checkOutStatus: null,
+      searchQuery: undefined,
+    };
+    setFilter(defaultFilter);
+    setDetailPage(1);
+    loadReport(defaultFilter, 1, detailPageSize);
+  };
+
+  // 4. Pagination handlers for Detail Tab
+  const handlePageChange = async (newPage: number) => {
+    setDetailPage(newPage);
+    if (!reportData) return;
+
+    setIsDetailLoading(true);
+    try {
+      const pagedDetails = await attendanceReportService.getAttendanceDetails(
+        filter,
+        newPage,
+        detailPageSize
+      );
+      setReportData((prev) => (prev ? { ...prev, details: pagedDetails } : null));
+    } catch (err) {
+      console.error('Error navigating detail page:', err);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
+  const handlePageSizeChange = async (newPageSize: number) => {
+    setDetailPageSize(newPageSize);
+    setDetailPage(1);
+    if (!reportData) return;
+
+    setIsDetailLoading(true);
+    try {
+      const pagedDetails = await attendanceReportService.getAttendanceDetails(
+        filter,
+        1,
+        newPageSize
+      );
+      setReportData((prev) => (prev ? { ...prev, details: pagedDetails } : null));
+    } catch (err) {
+      console.error('Error changing detail page size:', err);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
+  // 5. Export Actions
+  const handleExportExcel = async () => {
+    if (!reportData || isExporting) return;
+    setIsExporting(true);
+    setExportingType('excel');
+    setExportMessage('Menyiapkan file Excel...');
+    setExportSuccess(null);
+    setErrorMessage(null);
+
+    try {
+      if (activeTab === 'daily') {
+        attendanceExcelExportService.exportDailySummary(reportData.dailySummaries, filter);
+      } else if (activeTab === 'employee') {
+        attendanceExcelExportService.exportEmployeeSummary(reportData.employeeSummaries, filter);
+      } else if (activeTab === 'monthly') {
+        attendanceExcelExportService.exportMonthlySummary(reportData.monthlySummaries, filter);
+      } else if (activeTab === 'detail') {
+        // Fetch ALL details without pagination limit
+        const allDetails = await attendanceReportService.getAllAttendanceDetails(filter);
+        attendanceExcelExportService.exportAttendanceDetails(allDetails, filter);
+      }
+      setExportSuccess('Export Excel berhasil dibuat.');
+      setTimeout(() => setExportSuccess(null), 4000);
+    } catch (err: any) {
+      console.error('Export Excel error:', err);
+      setErrorMessage(err.message || 'Gagal mengekspor file Excel. Silakan coba lagi.');
+    } finally {
+      setIsExporting(false);
+      setExportingType(null);
+      setExportMessage(null);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!reportData || isExporting) return;
+    setIsExporting(true);
+    setExportingType('pdf');
+    setExportMessage('Menyiapkan file PDF...');
+    setExportSuccess(null);
+    setErrorMessage(null);
+
+    const empLabel = employees.find((e) => e.id === filter.employeeId)?.name;
+    const deptLabel = departments.find((d) => d.id === filter.departmentId)?.name;
+    const locLabel = locations.find((l) => l.id === filter.locationId)?.name;
+
+    const filterLabels = {
+      employee: empLabel,
+      department: deptLabel,
+      location: locLabel,
+    };
+
+    try {
+      if (activeTab === 'daily') {
+        attendancePdfExportService.exportDailySummary(reportData.dailySummaries, filter, filterLabels);
+      } else if (activeTab === 'employee') {
+        attendancePdfExportService.exportEmployeeSummary(reportData.employeeSummaries, filter, filterLabels);
+      } else if (activeTab === 'monthly') {
+        attendancePdfExportService.exportMonthlySummary(reportData.monthlySummaries, filter, filterLabels);
+      } else if (activeTab === 'detail') {
+        // Fetch ALL details without pagination limit
+        const allDetails = await attendanceReportService.getAllAttendanceDetails(filter);
+        attendancePdfExportService.exportAttendanceDetails(allDetails, filter, filterLabels);
+      }
+      setExportSuccess('Export PDF berhasil dibuat.');
+      setTimeout(() => setExportSuccess(null), 4000);
+    } catch (err: any) {
+      console.error('Export PDF error:', err);
+      setErrorMessage(err.message || 'Gagal mengekspor file PDF. Silakan coba lagi.');
+    } finally {
+      setIsExporting(false);
+      setExportingType(null);
+      setExportMessage(null);
+    }
+  };
+
+  const dateRangeLabel = `${formatMakassarShortDate(filter.startDate)} - ${formatMakassarShortDate(filter.endDate)}`;
+
+  const tabLabels: Record<ReportTab, string> = {
+    daily: 'Rekap Harian',
+    employee: 'Rekap Per Pegawai',
+    monthly: 'Rekap Bulanan',
+    detail: 'Detail Presensi',
+  };
+
+  const tabItems = [
+    {
+      id: 'daily' as const,
+      label: 'Rekap Harian',
+      icon: Calendar,
+      count: reportData?.dailySummaries.length || 0,
+    },
+    {
+      id: 'employee' as const,
+      label: 'Rekap Per Pegawai',
+      icon: Users,
+      count: reportData?.employeeSummaries.length || 0,
+    },
+    {
+      id: 'monthly' as const,
+      label: 'Rekap Bulanan',
+      icon: CalendarRange,
+      count: reportData?.monthlySummaries.length || 0,
+    },
+    {
+      id: 'detail' as const,
+      label: 'Detail Presensi',
+      icon: FileText,
+      count: reportData?.details.totalCount || 0,
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-5 max-w-7xl mx-auto pb-12">
+      {/* 1. Header Banner */}
+      <ReportHeader
+        onRefresh={() => loadReport(filter, detailPage, detailPageSize)}
+        isLoading={isLoading}
+        isExporting={isExporting}
+        exportingType={exportingType}
+        dateRangeLabel={dateRangeLabel}
+        activeTabLabel={tabLabels[activeTab]}
+        onExportExcel={handleExportExcel}
+        onExportPdf={handleExportPdf}
+      />
+
+      {/* 2. Export Busy / Toast Indicator */}
+      {isExporting && exportMessage && (
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex items-center gap-3 text-orange-800 shadow-2xs">
+          <Loader2 className="w-5 h-5 text-[#F97316] animate-spin shrink-0" />
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
-              Rekapitulasi Kehadiran
-            </span>
-            <h2 className="text-lg sm:text-xl font-bold text-[#111827] mt-0.5">
-              Rekap & Laporan Presensi
-            </h2>
-            <p className="text-xs text-[#6B7280] mt-1">
-              Unduh rekapitulasi kehadiran bulanan pegawai dalam format PDF dan Excel
+            <span className="text-xs font-bold">{exportMessage}</span>
+            <p className="text-[11px] text-orange-700 mt-0.5">
+              Sistem sedang memproses file untuk tab <strong>{tabLabels[activeTab]}</strong>. Harap tunggu sebentar.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="md"
-              leftIcon={<FileSpreadsheet className="w-4 h-4" />}
-              onClick={() => alert('Modul ekspor laporan akan terhubung pada Phase 2.')}
-            >
-              Ekspor Excel (XLSX)
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              leftIcon={<Download className="w-4 h-4" />}
-              onClick={() => alert('Modul ekspor laporan akan terhubung pada Phase 2.')}
-            >
-              Cetak PDF
-            </Button>
+        </div>
+      )}
+
+      {/* 3. Export Success Toast */}
+      {exportSuccess && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3 text-emerald-800 shadow-2xs">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span className="text-xs font-bold">{exportSuccess}</span>
+        </div>
+      )}
+
+      {/* 4. Filter Bar */}
+      <ReportFilterBar
+        filter={filter}
+        onApplyFilter={handleApplyFilter}
+        onResetFilter={handleResetFilter}
+        departments={departments}
+        locations={locations}
+        employees={employees}
+        isLoading={isLoading}
+      />
+
+      {/* 5. Error Banner */}
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-800">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold">Peringatan / Kendala Laporan</h4>
+              <p className="text-xs text-red-700 mt-0.5">{errorMessage}</p>
+            </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => loadReport(filter, detailPage, detailPageSize)}
+            className="border-red-300 text-red-700 hover:bg-red-100 self-start sm:self-auto shrink-0"
+            leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+          >
+            Coba Lagi
+          </Button>
+        </div>
+      )}
+
+      {/* 6. Global Summary Cards */}
+      <ReportSummaryCards metrics={reportData?.metrics || null} isLoading={isLoading} />
+
+      {/* 7. Navigation Tabs */}
+      <div className="border-b border-[#E5E7EB]">
+        <div className="flex items-center gap-2 overflow-x-auto pb-px">
+          {tabItems.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                disabled={isExporting}
+                className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors cursor-pointer disabled:opacity-60 ${
+                  isActive
+                    ? 'border-[#F97316] text-[#F97316] bg-orange-50/40 rounded-t-xl'
+                    : 'border-transparent text-[#6B7280] hover:text-[#111827] hover:border-gray-300'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#F97316]' : 'text-[#9CA3AF]'}`} />
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    isActive
+                      ? 'bg-orange-100 text-orange-800'
+                      : 'bg-gray-100 text-[#6B7280]'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-12 text-center shadow-2xs">
-        <div className="w-14 h-14 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto mb-4">
-          <BarChart3 className="w-7 h-7" />
-        </div>
-        <h4 className="text-base font-bold text-[#111827]">Siap Untuk Pengolahan Rekap</h4>
-        <p className="text-xs text-[#6B7280] max-w-sm mx-auto mt-1.5">
-          Agregasi kalkulasi persentase kehadiran, pemotongan tunjangan kinerja, dan akumulasi menit
-          keterlambatan akan aktif pada Phase 2.
-        </p>
+      {/* 8. Active Tab Content Section */}
+      <div className="pt-1">
+        {activeTab === 'daily' && (
+          <DailyReportTable
+            data={reportData?.dailySummaries || []}
+            isLoading={isLoading}
+          />
+        )}
+
+        {activeTab === 'employee' && (
+          <EmployeeReportTable
+            data={reportData?.employeeSummaries || []}
+            isLoading={isLoading}
+          />
+        )}
+
+        {activeTab === 'monthly' && (
+          <MonthlyReportTable
+            data={reportData?.monthlySummaries || []}
+            isLoading={isLoading}
+          />
+        )}
+
+        {activeTab === 'detail' && (
+          <DetailReportTable
+            data={reportData?.details || null}
+            isLoading={isLoading || isDetailLoading}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        )}
       </div>
     </div>
   );

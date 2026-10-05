@@ -31,15 +31,6 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     description: 'Pengawasan kehadiran seluruh pegawai',
   },
   {
-    id: 'attendance-recap',
-    label: 'Rekap Presensi',
-    path: '/attendance-recap',
-    iconName: 'FileSpreadsheet',
-    allowedRoles: ['super_admin', 'admin', 'headmaster'],
-    section: 'main',
-    description: 'Rekap rangkuman kehadiran pegawai',
-  },
-  {
     id: 'history',
     label: 'Riwayat Presensi',
     path: '/history',
@@ -115,12 +106,12 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
   {
     id: 'reports',
-    label: 'Rekap & Laporan',
+    label: 'Rekap dan Laporan',
     path: '/reports',
     iconName: 'BarChart3',
     allowedRoles: ['super_admin', 'admin', 'headmaster'],
     section: 'management',
-    description: 'Ekspor rekapitulasi kehadiran bulanan',
+    description: 'Rekapitulasi dan laporan presensi pegawai sekolah',
   },
 
   // SECTION: SISTEM (System)

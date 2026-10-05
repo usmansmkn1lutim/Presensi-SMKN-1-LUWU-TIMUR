@@ -44,6 +44,27 @@ class AuthService {
 
       if (emp) {
         employeeData = emp;
+      } else if (supabaseUser.email) {
+        const { data: empByEmail } = await supabase
+          .from('employees')
+          .select('*, departments(name), positions(name)')
+          .ilike('email', supabaseUser.email.trim())
+          .maybeSingle();
+
+        if (empByEmail) {
+          if (!empByEmail.profile_id) {
+            try {
+              await supabase
+                .from('employees')
+                .update({ profile_id: supabaseUser.id })
+                .eq('id', empByEmail.id);
+              empByEmail.profile_id = supabaseUser.id;
+            } catch {
+              // ignore
+            }
+          }
+          employeeData = empByEmail;
+        }
       }
     } catch {
       // Ignore if employee table row does not exist yet

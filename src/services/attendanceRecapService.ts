@@ -2,6 +2,11 @@ import { supabase } from '../lib/supabase';
 import { formatAttendanceError } from './attendanceService';
 import { DepartmentOption } from '../types/attendanceMonitoring.types';
 import {
+  iterateDateRange,
+  getMakassarTodayDateString,
+  formatMakassarShortDate,
+} from './attendanceReportService';
+import {
   DailyTrendPoint,
   DepartmentStatPoint,
   EmployeeAttendanceDetailLog,
@@ -38,19 +43,16 @@ export const attendanceRecapService = {
     endDateStr: string,
     holidaySet: Set<string>
   ): number {
+    const dates = iterateDateRange(startDateStr, endDateStr);
     let count = 0;
-    const current = new Date(startDateStr + 'T00:00:00');
-    const end = new Date(endDateStr + 'T00:00:00');
 
-    while (current <= end) {
-      const dayOfWeek = current.getDay(); // 0 = Sunday, 6 = Saturday
-      const isoDate = current.toISOString().split('T')[0];
+    for (const isoDate of dates) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay(); // 0 = Sunday, 6 = Saturday
 
       if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidaySet.has(isoDate)) {
         count++;
       }
-
-      current.setDate(current.getDate() + 1);
     }
 
     return count;
@@ -60,12 +62,7 @@ export const attendanceRecapService = {
    * Helper to format YYYY-MM-DD to "01 Okt"
    */
   formatShortDate(isoDate: string): string {
-    try {
-      const date = new Date(isoDate + 'T00:00:00');
-      return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-    } catch {
-      return isoDate;
-    }
+    return formatMakassarShortDate(isoDate);
   },
 
   /**
@@ -267,13 +264,12 @@ export const attendanceRecapService = {
     });
 
     const dailyTrend: DailyTrendPoint[] = [];
-    const currDate = new Date(startDate + 'T00:00:00');
-    const endDateObj = new Date(endDate + 'T00:00:00');
-    const todayStr = new Date().toISOString().split('T')[0];
+    const dateList = iterateDateRange(startDate, endDate);
+    const todayStr = getMakassarTodayDateString();
 
-    while (currDate <= endDateObj) {
-      const isoDate = currDate.toISOString().split('T')[0];
-      const dayOfWeek = currDate.getDay();
+    for (const isoDate of dateList) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay();
 
       // Only plot working days up to today
       if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidaySet.has(isoDate) && isoDate <= todayStr) {
@@ -289,8 +285,6 @@ export const attendanceRecapService = {
           totalPresent: stats.total,
         });
       }
-
-      currDate.setDate(currDate.getDate() + 1);
     }
 
     // Department Stats Calculation
