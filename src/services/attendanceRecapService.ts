@@ -161,9 +161,11 @@ export const attendanceRecapService = {
     // Group attendance records by employee_id
     const attendanceByEmployee = new Map<string, any[]>();
     rawAttendance.forEach((att) => {
-      const list = attendanceByEmployee.get(att.employee_id) || [];
-      list.push(att);
-      attendanceByEmployee.set(att.employee_id, list);
+      if (att.employee_id) {
+        const list = attendanceByEmployee.get(att.employee_id) || [];
+        list.push(att);
+        attendanceByEmployee.set(att.employee_id, list);
+      }
     });
 
     // 4. Build EmployeeRecapRecord array
@@ -259,7 +261,7 @@ export const attendanceRecapService = {
     const activeEmpIds = new Set(filteredRecords.map((r) => r.employeeId));
 
     rawAttendance.forEach((att) => {
-      if (!activeEmpIds.has(att.employee_id)) return;
+      if (!att.employee_id || !activeEmpIds.has(att.employee_id)) return;
 
       const dateKey = att.attendance_date;
       const current = dailyTrendMap.get(dateKey) || { onTime: 0, late: 0, total: 0 };

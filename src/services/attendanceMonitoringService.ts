@@ -92,7 +92,9 @@ export const attendanceMonitoringService = {
     // Map attendance by employee_id for fast lookup
     const attendanceMap = new Map<string, any>();
     effectiveAttendanceData.forEach((att) => {
-      attendanceMap.set(att.employee_id, att);
+      if (att.employee_id) {
+        attendanceMap.set(att.employee_id, att);
+      }
     });
 
     // 3. Combine active employees with attendance records

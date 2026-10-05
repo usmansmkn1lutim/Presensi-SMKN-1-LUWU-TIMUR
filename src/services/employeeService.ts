@@ -372,6 +372,45 @@ class EmployeeService {
 
     return (data as unknown as ProfileRow[]) || [];
   }
+
+  /**
+   * Delete an employee record permanently via atomic RPC delete_employee.
+   * Preserves all transaction history (attendance & requests) and logs audit entry.
+   */
+  async deleteEmployee(
+    employeeId: string,
+    reason?: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    employee_id: string;
+    employee_name: string;
+    preserved_attendance_count: number;
+    preserved_requests_count: number;
+  }> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase belum dikonfigurasi.');
+    }
+
+    const { data, error } = await supabase.rpc('delete_employee', {
+      p_employee_id: employeeId,
+      p_reason: reason?.trim() ? reason.trim() : null,
+    });
+
+    if (error) {
+      console.error('EmployeeService.deleteEmployee RPC error:', error);
+      throw new Error(error.message || 'Gagal menghapus data pegawai.');
+    }
+
+    return data as {
+      success: boolean;
+      message: string;
+      employee_id: string;
+      employee_name: string;
+      preserved_attendance_count: number;
+      preserved_requests_count: number;
+    };
+  }
 }
 
 export const employeeService = new EmployeeService();

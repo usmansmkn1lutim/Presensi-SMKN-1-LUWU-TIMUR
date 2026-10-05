@@ -339,7 +339,8 @@ export interface Database {
       attendance: {
         Row: {
           id: string;
-          employee_id: string;
+          employee_id: string | null;
+          employee_name_snapshot: string | null;
           attendance_date: string;
           check_in_at: string | null;
           check_out_at: string | null;
@@ -357,7 +358,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          employee_id: string;
+          employee_id?: string | null;
+          employee_name_snapshot?: string | null;
           attendance_date: string;
           check_in_at?: string | null;
           check_out_at?: string | null;
@@ -375,7 +377,8 @@ export interface Database {
         };
         Update: {
           id?: string;
-          employee_id?: string;
+          employee_id?: string | null;
+          employee_name_snapshot?: string | null;
           attendance_date?: string;
           check_in_at?: string | null;
           check_out_at?: string | null;
@@ -415,7 +418,8 @@ export interface Database {
       requests: {
         Row: {
           id: string;
-          employee_id: string;
+          employee_id: string | null;
+          employee_name_snapshot: string | null;
           request_type: 'leave' | 'sick' | 'official_duty' | 'other';
           start_date: string;
           end_date: string;
@@ -431,7 +435,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          employee_id: string;
+          employee_id?: string | null;
+          employee_name_snapshot?: string | null;
           request_type: 'leave' | 'sick' | 'official_duty' | 'other';
           start_date: string;
           end_date: string;
@@ -447,7 +452,8 @@ export interface Database {
         };
         Update: {
           id?: string;
-          employee_id?: string;
+          employee_id?: string | null;
+          employee_name_snapshot?: string | null;
           request_type?: 'leave' | 'sick' | 'official_duty' | 'other';
           start_date?: string;
           end_date?: string;
@@ -475,6 +481,51 @@ export interface Database {
             referencedColumns: ['id'];
           }
         ];
+      };
+      audit_logs: {
+        Row: {
+          id: string;
+          actor_user_id: string | null;
+          actor_email: string | null;
+          actor_role: string | null;
+          action: string;
+          target_type: string;
+          target_id: string;
+          reason: string | null;
+          metadata: Json | null;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_user_id?: string | null;
+          actor_email?: string | null;
+          actor_role?: string | null;
+          action: string;
+          target_type: string;
+          target_id: string;
+          reason?: string | null;
+          metadata?: Json | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          actor_user_id?: string | null;
+          actor_email?: string | null;
+          actor_role?: string | null;
+          action?: string;
+          target_type?: string;
+          target_id?: string;
+          reason?: string | null;
+          metadata?: Json | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: {
@@ -580,6 +631,34 @@ export interface Database {
         };
         Returns: Database['public']['Tables']['requests']['Row'];
       };
+      delete_employee: {
+        Args: {
+          p_employee_id: string;
+          p_reason?: string | null;
+        };
+        Returns: {
+          success: boolean;
+          message: string;
+          employee_id: string;
+          employee_name: string;
+          preserved_attendance_count: number;
+          preserved_requests_count: number;
+        };
+      };
+      delete_user: {
+        Args: {
+          p_user_id: string;
+          p_reason?: string | null;
+        };
+        Returns: {
+          success: boolean;
+          message: string;
+          user_id: string;
+          full_name: string | null;
+          unlinked_employee_id: string | null;
+          unlinked_employee_name: string | null;
+        };
+      };
     };
     Enums: {
       app_role: AppRole;
@@ -618,3 +697,16 @@ export type HolidayUpdate = Database['public']['Tables']['holidays']['Update'];
 export type WorkScheduleRow = Database['public']['Tables']['work_schedules']['Row'];
 export type WorkScheduleInsert = Database['public']['Tables']['work_schedules']['Insert'];
 export type WorkScheduleUpdate = Database['public']['Tables']['work_schedules']['Update'];
+
+export type AttendanceRow = Database['public']['Tables']['attendance']['Row'];
+export type AttendanceInsert = Database['public']['Tables']['attendance']['Insert'];
+export type AttendanceUpdate = Database['public']['Tables']['attendance']['Update'];
+
+export type RequestRow = Database['public']['Tables']['requests']['Row'];
+export type RequestInsert = Database['public']['Tables']['requests']['Insert'];
+export type RequestUpdate = Database['public']['Tables']['requests']['Update'];
+
+export type AuditLogRow = Database['public']['Tables']['audit_logs']['Row'];
+export type AuditLogInsert = Database['public']['Tables']['audit_logs']['Insert'];
+export type AuditLogUpdate = Database['public']['Tables']['audit_logs']['Update'];
+

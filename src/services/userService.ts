@@ -436,6 +436,46 @@ class UserService {
       position_name: emp.positions?.name || null,
     }));
   }
+
+  /**
+   * 10. Delete User Account Permanently
+   * Calls atomic SECURITY DEFINER RPC delete_user.
+   * Protects against self-deletion and last Super Admin deletion, unlinks employee, and records audit log.
+   */
+  async deleteUser(
+    userId: string,
+    reason?: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    user_id: string;
+    full_name: string | null;
+    unlinked_employee_id: string | null;
+    unlinked_employee_name: string | null;
+  }> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase belum dikonfigurasi.');
+    }
+
+    const { data, error } = await supabase.rpc('delete_user', {
+      p_user_id: userId,
+      p_reason: reason?.trim() ? reason.trim() : null,
+    });
+
+    if (error) {
+      console.error('UserService.deleteUser RPC error:', error);
+      throw new Error(error.message || 'Gagal menghapus akun pengguna.');
+    }
+
+    return data as {
+      success: boolean;
+      message: string;
+      user_id: string;
+      full_name: string | null;
+      unlinked_employee_id: string | null;
+      unlinked_employee_name: string | null;
+    };
+  }
 }
 
 export const userService = new UserService();

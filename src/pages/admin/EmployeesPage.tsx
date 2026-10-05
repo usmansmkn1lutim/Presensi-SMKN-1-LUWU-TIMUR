@@ -16,6 +16,7 @@ import {
   X,
   Building,
   Briefcase,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -33,6 +34,7 @@ import { EmployeeFormModal } from '../../components/employees/EmployeeFormModal'
 import { StatusConfirmModal } from '../../components/employees/StatusConfirmModal';
 import { DepartmentModal } from '../../components/employees/DepartmentModal';
 import { PositionModal } from '../../components/employees/PositionModal';
+import { DeleteEmployeeModal } from '../../components/employees/DeleteEmployeeModal';
 
 export const EmployeesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -68,8 +70,10 @@ export const EmployeesPage: React.FC = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isDepartmentModalOpen, setIsDepartmentModalOpen] = useState(false);
   const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRelations | null>(null);
+  const [employeeForDelete, setEmployeeForDelete] = useState<EmployeeWithRelations | null>(null);
   const [targetStatus, setTargetStatus] = useState<'active' | 'inactive'>('inactive');
 
   // Debounce search input
@@ -155,6 +159,19 @@ export const EmployeesPage: React.FC = () => {
     fetchEmployeesData();
     setSuccessToast('Status keaktifan pegawai berhasil diubah.');
     setTimeout(() => setSuccessToast(null), 4000);
+  };
+
+  const handleDeleteSuccess = (deletedEmployee: {
+    id: string;
+    full_name: string;
+    preserved_attendance_count?: number;
+    preserved_requests_count?: number;
+  }) => {
+    fetchEmployeesData();
+    setSuccessToast(
+      `Data pegawai "${deletedEmployee.full_name}" berhasil dihapus secara permanen. Riwayat presensi dan pengajuan tetap dipertahankan.`
+    );
+    setTimeout(() => setSuccessToast(null), 6000);
   };
 
   const handleResetFilter = () => {
@@ -598,6 +615,19 @@ export const EmployeesPage: React.FC = () => {
                                 >
                                   <Power className="w-3.5 h-3.5" />
                                 </Button>
+
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEmployeeForDelete(emp);
+                                    setIsDeleteModalOpen(true);
+                                  }}
+                                  title="Hapus Data Pegawai"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
                               </>
                             )}
                           </div>
@@ -716,6 +746,19 @@ export const EmployeesPage: React.FC = () => {
                           >
                             <Power className="w-3.5 h-3.5" />
                           </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEmployeeForDelete(emp);
+                              setIsDeleteModalOpen(true);
+                            }}
+                            title="Hapus Pegawai"
+                            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </>
                       )}
                     </div>
@@ -760,6 +803,16 @@ export const EmployeesPage: React.FC = () => {
         isOpen={isPositionModalOpen}
         onClose={() => setIsPositionModalOpen(false)}
         onPositionsUpdated={loadMasterFilters}
+      />
+
+      <DeleteEmployeeModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setEmployeeForDelete(null);
+        }}
+        employee={employeeForDelete}
+        onSuccess={handleDeleteSuccess}
       />
     </div>
   );

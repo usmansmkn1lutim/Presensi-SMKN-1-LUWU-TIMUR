@@ -14,6 +14,7 @@ import {
   Link2,
   Unlink,
   Power,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -30,6 +31,7 @@ import { UpdateRoleModal } from '../../components/users/UpdateRoleModal';
 import { UserStatusConfirmModal } from '../../components/users/UserStatusConfirmModal';
 import { LinkUserEmployeeModal } from '../../components/users/LinkUserEmployeeModal';
 import { UnlinkUserEmployeeModal } from '../../components/users/UnlinkUserEmployeeModal';
+import { DeleteUserModal } from '../../components/users/DeleteUserModal';
 
 const ROLE_LABELS: Record<ActiveAppRole, string> = {
   super_admin: 'Super Admin',
@@ -67,6 +69,8 @@ export const UsersPage: React.FC = () => {
   const [userForLinking, setUserForLinking] = useState<UserManagementItem | null>(null);
   const [isUnlinkModalOpen, setIsUnlinkModalOpen] = useState(false);
   const [userForUnlink, setUserForUnlink] = useState<UserManagementItem | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userForDelete, setUserForDelete] = useState<UserManagementItem | null>(null);
 
   // Fetch Users
   const fetchUsersData = useCallback(async () => {
@@ -149,6 +153,23 @@ export const UsersPage: React.FC = () => {
       `Hubungan akun dengan data pegawai "${data.employeeName}" berhasil dilepaskan.`
     );
     setTimeout(() => setSuccessToast(null), 5000);
+  };
+
+  // Handle User Deletion Success
+  const handleDeleteSuccess = (deletedUser: {
+    id: string;
+    full_name?: string;
+    unlinked_employee_id?: string | null;
+    unlinked_employee_name?: string | null;
+  }) => {
+    fetchUsersData();
+    const employeeNotice = deletedUser.unlinked_employee_name
+      ? ` Data master pegawai (${deletedUser.unlinked_employee_name}) tetap dipertahankan.`
+      : '';
+    setSuccessToast(
+      `Akun pengguna "${deletedUser.full_name || 'Pengguna'}" berhasil dihapus secara permanen.${employeeNotice}`
+    );
+    setTimeout(() => setSuccessToast(null), 6000);
   };
 
   // Filtered Users List
@@ -560,6 +581,27 @@ export const UsersPage: React.FC = () => {
                                 >
                                   {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                                 </Button>
+
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={isSelf || (!isSuperAdmin && isTargetSuperAdmin)}
+                                  title={
+                                    isSelf
+                                      ? 'Anda tidak dapat menghapus akun Anda sendiri'
+                                      : !isSuperAdmin && isTargetSuperAdmin
+                                      ? 'Admin tidak dapat menghapus akun Super Admin'
+                                      : 'Hapus akun pengguna ini secara permanen'
+                                  }
+                                  onClick={() => {
+                                    setUserForDelete(u);
+                                    setIsDeleteModalOpen(true);
+                                  }}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                                  leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                                >
+                                  Hapus
+                                </Button>
                               </>
                             )}
 
@@ -744,6 +786,28 @@ export const UsersPage: React.FC = () => {
                             {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                           </Button>
                         </div>
+
+                        {/* Delete User Button (Mobile) */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={isSelf || (!isSuperAdmin && isTargetSuperAdmin)}
+                          title={
+                            isSelf
+                              ? 'Anda tidak dapat menghapus akun Anda sendiri'
+                              : !isSuperAdmin && isTargetSuperAdmin
+                              ? 'Admin tidak dapat menghapus akun Super Admin'
+                              : 'Hapus akun pengguna ini secara permanen'
+                          }
+                          onClick={() => {
+                            setUserForDelete(u);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          className="w-full justify-center text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                          leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                        >
+                          Hapus Akun Pengguna
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -805,6 +869,16 @@ export const UsersPage: React.FC = () => {
         }}
         user={userForUnlink}
         onSuccess={handleUnlinkSuccess}
+      />
+
+      <DeleteUserModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setUserForDelete(null);
+        }}
+        user={userForDelete}
+        onSuccess={handleDeleteSuccess}
       />
     </div>
   );

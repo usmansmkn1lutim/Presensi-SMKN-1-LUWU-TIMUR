@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Clock,
   IdCard,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -21,6 +22,7 @@ import { employeeService, EmployeeWithRelations } from '../../services/employeeS
 import { EmployeeFormModal } from '../../components/employees/EmployeeFormModal';
 import { StatusConfirmModal } from '../../components/employees/StatusConfirmModal';
 import { LinkProfileModal } from '../../components/employees/LinkProfileModal';
+import { DeleteEmployeeModal } from '../../components/employees/DeleteEmployeeModal';
 
 export const EmployeeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +38,7 @@ export const EmployeeDetailPage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const canManage =
     currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
@@ -78,6 +81,10 @@ export const EmployeeDetailPage: React.FC = () => {
     loadEmployee();
     setSuccessToast('Akun pengguna berhasil dihubungkan dengan pegawai.');
     setTimeout(() => setSuccessToast(null), 4000);
+  };
+
+  const handleDeleteSuccess = (deletedEmployee: { id: string; full_name: string }) => {
+    navigate('/employees');
   };
 
   if (isLoading) {
@@ -221,6 +228,16 @@ export const EmployeeDetailPage: React.FC = () => {
                 }
               >
                 {employee.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsDeleteModalOpen(true)}
+                leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+              >
+                Hapus Pegawai
               </Button>
             </div>
           )}
@@ -477,6 +494,13 @@ export const EmployeeDetailPage: React.FC = () => {
         onSuccess={handleStatusSuccess}
         employee={employee}
         targetStatus={employee.status === 'active' ? 'inactive' : 'active'}
+      />
+
+      <DeleteEmployeeModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        employee={employee}
+        onSuccess={handleDeleteSuccess}
       />
     </div>
   );
