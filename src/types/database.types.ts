@@ -496,6 +496,19 @@ export interface Database {
           avatar_url: string | null;
         }[];
       };
+      get_managed_users: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          id: string;
+          full_name: string | null;
+          avatar_url: string | null;
+          role: AppRole;
+          is_active: boolean;
+          last_login_at: string | null;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
       is_holiday: {
         Args: {
           check_date: string;

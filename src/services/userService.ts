@@ -97,7 +97,7 @@ class UserService {
 
   /**
    * 2. Get Users for User Management
-   * Fetches profile records accessible under current RLS policies.
+   * Fetches profile records via secure SECURITY DEFINER RPC `get_managed_users`.
    * Annotates linked employee information safely if available.
    */
   async getUsers(): Promise<UserManagementItem[]> {
@@ -105,22 +105,28 @@ class UserService {
       return [];
     }
 
-    // 1. Fetch profiles accessible by caller
+    // 1. Fetch profiles accessible by caller via secure RPC
     const { data: profiles, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .rpc('get_managed_users');
 
-    if (profileError || !profiles) {
-      console.warn('UserService.getUsers profile fetch warning:', profileError?.message);
+    if (profileError) {
+      console.error('UserService.getUsers RPC error:', profileError.message);
+      throw new Error(profileError.message || 'Gagal memuat data pengguna.');
+    }
+
+    if (!profiles) {
       return [];
     }
 
     // 2. Fetch linked employees to annotate employee details
-    const { data: employees } = await supabase
+    const { data: employees, error: employeeError } = await supabase
       .from('employees')
       .select('id, full_name, profile_id')
       .not('profile_id', 'is', null);
+
+    if (employeeError) {
+      console.warn('UserService.getUsers employee annotation warning:', employeeError.message);
+    }
 
     const employeeMap = new Map<string, { id: string; name: string }>();
     if (employees) {
@@ -131,8 +137,8 @@ class UserService {
       }
     }
 
-    // 3. Format and sanitize user items
-    return profiles.map((p) => {
+    // 3. Format and sanitize user items matching UserManagementItem contract
+    return ((profiles as unknown) as ProfileRow[]).map((p) => {
       const linked = employeeMap.get(p.id);
       return {
         id: p.id,
