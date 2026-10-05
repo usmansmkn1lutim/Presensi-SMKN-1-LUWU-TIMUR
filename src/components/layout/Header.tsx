@@ -1,15 +1,15 @@
 import React from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Bell, User as UserIcon } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
+import { User as UserIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { RoleBadge } from '../ui/Badge';
 import { SchoolLogo } from '../ui/SchoolLogo';
 import { NAVIGATION_ITEMS } from '../../config/navigation';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 export const Header: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Find page title from current location
   const currentNav = NAVIGATION_ITEMS.find((item) => item.path === location.pathname);
@@ -31,15 +31,8 @@ export const Header: React.FC = () => {
 
       {/* Right: Notifications & User Profile */}
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Notification Button */}
-        <button
-          onClick={() => navigate('/notifications')}
-          className="relative p-2 text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] rounded-xl transition-colors cursor-pointer"
-          aria-label="Notifikasi"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F97316]" />
-        </button>
+        {/* Dynamic Notification Bell with Badge & Dropdown */}
+        <NotificationBell />
 
         <div className="h-6 w-px bg-[#E5E7EB] hidden sm:block" />
 

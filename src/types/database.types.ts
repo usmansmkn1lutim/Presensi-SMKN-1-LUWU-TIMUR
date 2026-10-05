@@ -527,6 +527,55 @@ export interface Database {
         };
         Relationships: [];
       };
+      notifications: {
+        Row: {
+          id: string;
+          recipient_user_id: string;
+          notification_type: string;
+          title: string;
+          message: string;
+          related_entity_type: string | null;
+          related_entity_id: string | null;
+          metadata: Json;
+          is_read: boolean;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          recipient_user_id: string;
+          notification_type: string;
+          title: string;
+          message: string;
+          related_entity_type?: string | null;
+          related_entity_id?: string | null;
+          metadata?: Json;
+          is_read?: boolean;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          recipient_user_id?: string;
+          notification_type?: string;
+          title?: string;
+          message?: string;
+          related_entity_type?: string | null;
+          related_entity_id?: string | null;
+          metadata?: Json;
+          is_read?: boolean;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -659,6 +708,36 @@ export interface Database {
           unlinked_employee_name: string | null;
         };
       };
+      mark_notification_read: {
+        Args: {
+          p_notification_id: string;
+        };
+        Returns: boolean;
+      };
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      get_unread_notification_count: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      create_notification: {
+        Args: {
+          p_recipient_user_id: string;
+          p_notification_type: string;
+          p_title: string;
+          p_message: string;
+          p_related_entity_type?: string | null;
+          p_related_entity_id?: string | null;
+          p_metadata?: Json;
+        };
+        Returns: {
+          success: boolean;
+          is_duplicate: boolean;
+          notification: Database['public']['Tables']['notifications']['Row'];
+        };
+      };
     };
     Enums: {
       app_role: AppRole;
@@ -709,4 +788,8 @@ export type RequestUpdate = Database['public']['Tables']['requests']['Update'];
 export type AuditLogRow = Database['public']['Tables']['audit_logs']['Row'];
 export type AuditLogInsert = Database['public']['Tables']['audit_logs']['Insert'];
 export type AuditLogUpdate = Database['public']['Tables']['audit_logs']['Update'];
+
+export type NotificationRow = Database['public']['Tables']['notifications']['Row'];
+export type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
+export type NotificationUpdate = Database['public']['Tables']['notifications']['Update'];
 
