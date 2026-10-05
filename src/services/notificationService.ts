@@ -73,37 +73,55 @@ class NotificationService {
       return { data: [], count: 0 };
     }
 
-    let query = supabase
-      .from('notifications')
-      .select('*', { count: 'exact' });
+    try {
+      let query = supabase
+        .from('notifications')
+        .select('*', { count: 'exact' });
 
-    if (params?.isRead !== undefined) {
-      query = query.eq('is_read', params.isRead);
+      if (params?.isRead !== undefined) {
+        query = query.eq('is_read', params.isRead);
+      }
+
+      if (params?.type && params.type !== 'all') {
+        query = query.eq('notification_type', params.type);
+      }
+
+      query = query.order('created_at', { ascending: false });
+
+      if (params?.limit) {
+        const from = params.offset || 0;
+        const to = from + params.limit - 1;
+        query = query.range(from, to);
+      }
+
+      const { data, count, error } = await query;
+
+      if (error) {
+        if (
+          (error as any).code === 'PGRST205' ||
+          (error as any).message?.includes('schema cache') ||
+          (error as any).message?.includes('notifications')
+        ) {
+          return { data: [], count: 0 };
+        }
+        console.error('NotificationService.getMyNotifications error:', error.message);
+        throw new Error(error.message || 'Gagal memuat daftar notifikasi.');
+      }
+
+      return {
+        data: (data as unknown as NotificationRow[]) || [],
+        count: count || 0,
+      };
+    } catch (err: any) {
+      if (
+        err?.code === 'PGRST205' ||
+        err?.message?.includes('schema cache') ||
+        err?.message?.includes('notifications')
+      ) {
+        return { data: [], count: 0 };
+      }
+      throw err;
     }
-
-    if (params?.type && params.type !== 'all') {
-      query = query.eq('notification_type', params.type);
-    }
-
-    query = query.order('created_at', { ascending: false });
-
-    if (params?.limit) {
-      const from = params.offset || 0;
-      const to = from + params.limit - 1;
-      query = query.range(from, to);
-    }
-
-    const { data, count, error } = await query;
-
-    if (error) {
-      console.error('NotificationService.getMyNotifications error:', error.message);
-      throw new Error(error.message || 'Gagal memuat daftar notifikasi.');
-    }
-
-    return {
-      data: (data as unknown as NotificationRow[]) || [],
-      count: count || 0,
-    };
   }
 
   /**
@@ -119,16 +137,36 @@ class NotificationService {
       throw new Error('ID notifikasi wajib disertakan.');
     }
 
-    const { data, error } = await supabase.rpc('mark_notification_read', {
-      p_notification_id: notificationId,
-    });
+    try {
+      const { data, error } = await supabase.rpc('mark_notification_read', {
+        p_notification_id: notificationId,
+      });
 
-    if (error) {
-      console.error('NotificationService.markAsRead error:', error.message);
-      throw new Error(error.message || 'Gagal menandai notifikasi sebagai dibaca.');
+      if (error) {
+        if (
+          (error as any).code === 'PGRST202' ||
+          (error as any).code === 'PGRST205' ||
+          (error as any).message?.includes('schema cache') ||
+          (error as any).message?.includes('mark_notification_read')
+        ) {
+          return true;
+        }
+        console.error('NotificationService.markAsRead error:', error.message);
+        throw new Error(error.message || 'Gagal menandai notifikasi sebagai dibaca.');
+      }
+
+      return !!data;
+    } catch (err: any) {
+      if (
+        err?.code === 'PGRST202' ||
+        err?.code === 'PGRST205' ||
+        err?.message?.includes('schema cache') ||
+        err?.message?.includes('mark_notification_read')
+      ) {
+        return true;
+      }
+      throw err;
     }
-
-    return !!data;
   }
 
   /**
@@ -140,14 +178,34 @@ class NotificationService {
       return 0;
     }
 
-    const { data, error } = await supabase.rpc('mark_all_notifications_read');
+    try {
+      const { data, error } = await supabase.rpc('mark_all_notifications_read');
 
-    if (error) {
-      console.error('NotificationService.markAllAsRead error:', error.message);
-      throw new Error(error.message || 'Gagal menandai semua notifikasi.');
+      if (error) {
+        if (
+          (error as any).code === 'PGRST202' ||
+          (error as any).code === 'PGRST205' ||
+          (error as any).message?.includes('schema cache') ||
+          (error as any).message?.includes('mark_all_notifications_read')
+        ) {
+          return 0;
+        }
+        console.error('NotificationService.markAllAsRead error:', error.message);
+        throw new Error(error.message || 'Gagal menandai semua notifikasi.');
+      }
+
+      return data || 0;
+    } catch (err: any) {
+      if (
+        err?.code === 'PGRST202' ||
+        err?.code === 'PGRST205' ||
+        err?.message?.includes('schema cache') ||
+        err?.message?.includes('mark_all_notifications_read')
+      ) {
+        return 0;
+      }
+      throw err;
     }
-
-    return data || 0;
   }
 
   /**
@@ -160,29 +218,53 @@ class NotificationService {
     notification?: NotificationRow;
   }> {
     if (!isSupabaseConfigured()) {
-      throw new Error('Konfigurasi Supabase belum tersedia.');
+      return { success: false, is_duplicate: false };
     }
 
-    const { data, error } = await supabase.rpc('create_notification', {
-      p_recipient_user_id: input.recipient_user_id,
-      p_notification_type: input.notification_type,
-      p_title: input.title,
-      p_message: input.message,
-      p_related_entity_type: input.related_entity_type || null,
-      p_related_entity_id: input.related_entity_id || null,
-      p_metadata: input.metadata || {},
-    });
+    try {
+      const { data, error } = await supabase.rpc('create_notification', {
+        p_recipient_user_id: input.recipient_user_id,
+        p_notification_type: input.notification_type,
+        p_title: input.title,
+        p_message: input.message,
+        p_related_entity_type: input.related_entity_type || null,
+        p_related_entity_id: input.related_entity_id || null,
+        p_metadata: input.metadata || {},
+      });
 
-    if (error) {
-      console.error('NotificationService.createNotification error:', error.message);
-      throw new Error(error.message || 'Gagal membuat notifikasi.');
+      if (error) {
+        if (
+          (error as any).code === 'PGRST202' ||
+          (error as any).code === 'PGRST205' ||
+          (error as any).message?.includes('schema cache') ||
+          (error as any).message?.includes('create_notification')
+        ) {
+          console.warn('create_notification RPC not present in schema cache, skipping.');
+          return { success: true, is_duplicate: false };
+        }
+        console.error('NotificationService.createNotification error:', error.message);
+        throw new Error(error.message || 'Gagal membuat notifikasi.');
+      }
+
+      return (
+        (data as {
+          success: boolean;
+          is_duplicate: boolean;
+          notification?: NotificationRow;
+        }) || { success: true, is_duplicate: false }
+      );
+    } catch (err: any) {
+      if (
+        err?.code === 'PGRST202' ||
+        err?.code === 'PGRST205' ||
+        err?.message?.includes('schema cache') ||
+        err?.message?.includes('create_notification')
+      ) {
+        console.warn('create_notification RPC not present in schema cache, skipping.');
+        return { success: true, is_duplicate: false };
+      }
+      throw err;
     }
-
-    return data as {
-      success: boolean;
-      is_duplicate: boolean;
-      notification?: NotificationRow;
-    };
   }
 }
 

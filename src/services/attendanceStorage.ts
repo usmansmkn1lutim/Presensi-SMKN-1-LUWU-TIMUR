@@ -66,3 +66,15 @@ export function saveLocalAttendance(record: AttendanceModel): void {
 
   saveLocalAttendanceRecords(records);
 }
+
+/**
+ * Deletes an attendance record from localStorage and memory (purges stale/invalid cache)
+ * Ensures non-authoritative local cache is discarded when database confirms no record exists.
+ */
+export function deleteLocalAttendance(employeeId: string, dateStr: string): void {
+  const records = getLocalAttendanceRecords();
+  const filtered = records.filter(
+    (r) => !(r.employee_id === employeeId && r.attendance_date === dateStr)
+  );
+  saveLocalAttendanceRecords(filtered);
+}

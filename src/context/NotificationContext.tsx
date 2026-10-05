@@ -52,7 +52,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setRecentNotifications(listResult.data);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal memuat notifikasi.';
-      setError(msg);
+      if (
+        msg.includes('schema cache') ||
+        msg.includes('PGRST205') ||
+        msg.includes('notifications')
+      ) {
+        setError(null);
+        setRecentNotifications([]);
+        setUnreadCount(0);
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

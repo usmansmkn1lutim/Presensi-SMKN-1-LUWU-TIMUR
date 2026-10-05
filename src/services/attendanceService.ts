@@ -14,7 +14,7 @@ import {
 import { workScheduleService } from './workScheduleService';
 import { locationService } from './locationService';
 import {
-  findLocalAttendance,
+  deleteLocalAttendance,
   saveLocalAttendance,
 } from './attendanceStorage';
 import {
@@ -108,6 +108,20 @@ export const attendanceService = {
 
   /**
    * Fetches today's attendance record for the authenticated employee.
+   *
+   * STRICT SINGLE SOURCE OF TRUTH:
+   * public.attendance in Supabase PostgreSQL is the sole authoritative source of truth.
+   *
+   * Rules:
+   * 1. If database query returns an official row (data !== null):
+   *    -> returns database record (and syncs cache).
+   * 2. If database query succeeds and returns NO row (data === null, error === null):
+   *    -> strictly returns null (employee has NOT checked in today).
+   *    -> purges any stale/phantom local cache for this employee and date.
+   *    -> NEVER reads from localStorage to determine official attendance status.
+   * 3. If database query fails (network error, timeout, database unavailable):
+   *    -> throws error.
+   *    -> NEVER converts a network/database error into "Sudah Check-in" via localStorage.
    */
   async getTodayAttendance(): Promise<AttendanceModel | null> {
     const employee = await this.getCurrentEmployee();
@@ -121,10 +135,7 @@ export const attendanceService = {
       .maybeSingle();
 
     if (error) {
-      if ((error as any).code === 'PGRST205' || (error as any).message?.includes('schema cache')) {
-        return findLocalAttendance(employee.id, todayStr);
-      }
-      console.error("Error fetching today's attendance:", error);
+      console.error("Error fetching today's attendance from database:", error);
       throw new Error(formatAttendanceError(error));
     }
 
@@ -133,7 +144,10 @@ export const attendanceService = {
       return data as AttendanceModel;
     }
 
-    return findLocalAttendance(employee.id, todayStr);
+    // Database explicitly confirmed NO RECORD exists for today (data === null, error === null)
+    // Purge any stale/phantom cache on this device
+    deleteLocalAttendance(employee.id, todayStr);
+    return null;
   },
 
   /**
@@ -171,6 +185,13 @@ export const attendanceService = {
   /**
    * Submits a Check-In record for the authenticated employee via secure Supabase RPC.
    * Server RPC enforces employee validation, schedule, holiday, radius, and time calculations.
+   *
+   * Flow:
+   * 1. Validates GPS coordinates.
+   * 2. Calls server RPC public.check_in.
+   * 3. If server returns error, throws immediately (never updates UI, never writes cache).
+   * 4. Validates server record return value.
+   * 5. Only upon verified server success, updates cache and returns authoritative record.
    */
   async checkIn(payload: CheckInPayload): Promise<AttendanceModel> {
     const latitude = payload.latitude ?? null;
@@ -191,8 +212,8 @@ export const attendanceService = {
     }
 
     const rpcResult = (Array.isArray(data) ? data[0] : data) as CheckInRpcResult;
-    if (!rpcResult || !rpcResult.attendance_id) {
-      throw new Error('Respons presensi masuk tidak valid.');
+    if (!rpcResult || !rpcResult.attendance_id || !rpcResult.check_in_at) {
+      throw new Error('Respons presensi masuk dari server tidak valid.');
     }
 
     const mappedRecord: AttendanceModel = {
@@ -243,8 +264,8 @@ export const attendanceService = {
     }
 
     const rpcResult = (Array.isArray(data) ? data[0] : data) as CheckOutRpcResult;
-    if (!rpcResult || !rpcResult.attendance_id) {
-      throw new Error('Respons presensi pulang tidak valid.');
+    if (!rpcResult || !rpcResult.attendance_id || !rpcResult.check_out_at) {
+      throw new Error('Respons presensi pulang dari server tidak valid.');
     }
 
     const mappedRecord: AttendanceModel = {

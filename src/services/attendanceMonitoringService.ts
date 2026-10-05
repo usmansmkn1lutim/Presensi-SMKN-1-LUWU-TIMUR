@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase';
 import { formatAttendanceError } from './attendanceService';
-import { getLocalAttendanceRecords } from './attendanceStorage';
 import {
   DepartmentOption,
   MonitoringDataResponse,
@@ -78,16 +77,12 @@ export const attendanceMonitoringService = {
       `)
       .eq('attendance_date', date);
 
-    let effectiveAttendanceData = attendanceData || [];
-
     if (attError) {
-      if ((attError as any).code === 'PGRST205' || (attError as any).message?.includes('schema cache')) {
-        effectiveAttendanceData = getLocalAttendanceRecords().filter((r) => r.attendance_date === date) as any;
-      } else {
-        console.error('Error fetching attendance for monitoring:', attError);
-        throw new Error(formatAttendanceError(attError));
-      }
+      console.error('Error fetching attendance for monitoring from database:', attError);
+      throw new Error(formatAttendanceError(attError));
     }
+
+    const effectiveAttendanceData = attendanceData || [];
 
     // Map attendance by employee_id for fast lookup
     const attendanceMap = new Map<string, any>();

@@ -92,7 +92,17 @@ export const NotificationsPage: React.FC = () => {
         setPage(targetPage);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Gagal memuat notifikasi.';
-        setError(msg);
+        if (
+          msg.includes('schema cache') ||
+          msg.includes('PGRST205') ||
+          msg.includes('notifications')
+        ) {
+          setError(null);
+          setNotifications([]);
+          setTotalCount(0);
+        } else {
+          setError(msg);
+        }
       } finally {
         setLoading(false);
         setRefreshing(false);

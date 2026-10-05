@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase';
 import { formatAttendanceError } from './attendanceService';
-import { getLocalAttendanceRecords } from './attendanceStorage';
 import { DepartmentOption } from '../types/attendanceMonitoring.types';
 import {
   DailyTrendPoint,
@@ -145,18 +144,12 @@ export const attendanceRecapService = {
       .gte('attendance_date', startDate)
       .lte('attendance_date', endDate);
 
-    let rawAttendance = attendanceData || [];
-
     if (attError) {
-      if ((attError as any).code === 'PGRST205' || (attError as any).message?.includes('schema cache')) {
-        rawAttendance = getLocalAttendanceRecords().filter(
-          (r) => r.attendance_date >= startDate && r.attendance_date <= endDate
-        ) as any;
-      } else {
-        console.error('Error fetching attendance for recap:', attError);
-        throw new Error(formatAttendanceError(attError));
-      }
+      console.error('Error fetching attendance for recap from database:', attError);
+      throw new Error(formatAttendanceError(attError));
     }
+
+    const rawAttendance = attendanceData || [];
 
     // Group attendance records by employee_id
     const attendanceByEmployee = new Map<string, any[]>();
