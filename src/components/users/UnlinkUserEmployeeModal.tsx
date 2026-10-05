@@ -49,13 +49,6 @@ export const UnlinkUserEmployeeModal: React.FC<UnlinkUserEmployeeModalProps> = (
       return;
     }
 
-    if (isSelf) {
-      setErrorMessage(
-        'Anda tidak dapat melepaskan hubungan akun milik Anda sendiri.'
-      );
-      return;
-    }
-
     if (!user.employee_id) {
       setErrorMessage('Akun ini tidak memiliki hubungan pegawai yang aktif.');
       return;
@@ -160,12 +153,12 @@ export const UnlinkUserEmployeeModal: React.FC<UnlinkUserEmployeeModalProps> = (
           </div>
         )}
 
-        {/* Self Account Alert */}
+        {/* Self Account Informative Note */}
         {isSelf && (
-          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center gap-2 text-xs text-amber-800">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center gap-2 text-xs text-blue-800">
+            <AlertTriangle className="w-4 h-4 text-blue-600 shrink-0" />
             <span>
-              Anda tidak dapat melepaskan hubungan data kepegawaian dari akun milik Anda sendiri.
+              Anda sedang melepaskan hubungan kepegawaian dari akun Anda sendiri. Akun login Anda akan tetap aktif.
             </span>
           </div>
         )}
@@ -208,7 +201,7 @@ export const UnlinkUserEmployeeModal: React.FC<UnlinkUserEmployeeModalProps> = (
             size="sm"
             isLoading={isLoading}
             onClick={handleConfirm}
-            disabled={isLoading || isSelf || !isAuthorized || !user.employee_id}
+            disabled={isLoading || !isAuthorized || !user.employee_id}
             leftIcon={<Unlink className="w-3.5 h-3.5" />}
           >
             {isLoading ? 'Melepaskan...' : 'Lepaskan Hubungan'}

@@ -502,12 +502,7 @@ export const UsersPage: React.FC = () => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    disabled={isSelf}
-                                    title={
-                                      isSelf
-                                        ? 'Tidak dapat melepaskan hubungan akun Anda sendiri'
-                                        : 'Lepaskan hubungan akun dengan data pegawai'
-                                    }
+                                    title="Lepaskan hubungan akun dengan data pegawai"
                                     onClick={() => {
                                       setUserForUnlink(u);
                                       setIsUnlinkModalOpen(true);
@@ -705,12 +700,7 @@ export const UsersPage: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={isSelf}
-                            title={
-                              isSelf
-                                ? 'Tidak dapat melepaskan hubungan akun Anda sendiri'
-                                : 'Lepaskan hubungan akun dengan data pegawai'
-                            }
+                            title="Lepaskan hubungan akun dengan data pegawai"
                             onClick={() => {
                               setUserForUnlink(u);
                               setIsUnlinkModalOpen(true);
