@@ -58,8 +58,16 @@ export const attendanceHistoryService = {
       .select(
         `
         *,
-        check_in_location:locations!check_in_location_id(id, name, code),
-        check_out_location:locations!check_out_location_id(id, name, code)
+        check_in_location:locations!check_in_location_id (
+          id,
+          name,
+          code
+        ),
+        check_out_location:locations!check_out_location_id (
+          id,
+          name,
+          code
+        )
       `,
         { count: 'exact' }
       )

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { attendanceHistoryService } from '../../services/attendanceHistoryService';
+import { getLocalDateString } from '../../services/attendanceService';
 import {
   AttendanceHistoryRecord,
   AttendanceHistorySummary,
@@ -25,14 +26,13 @@ export const HistoryPage: React.FC = () => {
   const navigate = useNavigate();
 
   const getTodayString = () => {
-    const d = new Date();
-    return d.toISOString().split('T')[0];
+    return getLocalDateString(new Date());
   };
 
   const getFirstDayOfMonthString = () => {
     const d = new Date();
     d.setDate(1);
-    return d.toISOString().split('T')[0];
+    return getLocalDateString(d);
   };
 
   const [startDate, setStartDate] = useState<string>(getFirstDayOfMonthString());
@@ -108,10 +108,6 @@ export const HistoryPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, 1);
-  }, []);
-
-  useEffect(() => {
     fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, currentPage);
   }, [currentPage]);
 
@@ -139,20 +135,20 @@ export const HistoryPage: React.FC = () => {
   const handleQuickFilter = (key: 'this_month' | 'last_month' | 'last_7_days') => {
     const today = new Date();
     let newStart = '';
-    let newEnd = today.toISOString().split('T')[0];
+    let newEnd = getLocalDateString(today);
 
     if (key === 'this_month') {
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-      newStart = firstDay.toISOString().split('T')[0];
+      newStart = getLocalDateString(firstDay);
     } else if (key === 'last_month') {
       const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
       const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-      newStart = firstDayLastMonth.toISOString().split('T')[0];
-      newEnd = lastDayLastMonth.toISOString().split('T')[0];
+      newStart = getLocalDateString(firstDayLastMonth);
+      newEnd = getLocalDateString(lastDayLastMonth);
     } else if (key === 'last_7_days') {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(today.getDate() - 6);
-      newStart = sevenDaysAgo.toISOString().split('T')[0];
+      newStart = getLocalDateString(sevenDaysAgo);
     }
 
     setStartDate(newStart);
