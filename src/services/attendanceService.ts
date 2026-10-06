@@ -336,12 +336,13 @@ export const attendanceService = {
 
     const rpcResult = (Array.isArray(data) ? data[0] : data) as CheckOutRpcResult;
     if (!rpcResult || !rpcResult.attendance_id || !rpcResult.check_out_at) {
+      console.error('Invalid RPC checkout response structure:', { data, rpcResult });
       throw new Error('Respons presensi pulang dari server tidak valid.');
     }
 
     const mappedRecord: AttendanceModel = {
       id: rpcResult.attendance_id,
-      employee_id: existing?.employee_id || rpcResult.employee_id || '',
+      employee_id: existing?.employee_id || '',
       attendance_date: rpcResult.attendance_date,
       check_in_at: rpcResult.check_in_at || existing?.check_in_at || null,
       check_out_at: rpcResult.check_out_at,

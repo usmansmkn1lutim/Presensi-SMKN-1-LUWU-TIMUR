@@ -70,7 +70,6 @@ export interface CheckOutRpcResult {
   location_id: string;
   location_name: string;
   distance_meters: number;
-  employee_id?: string;
 }
 
 /**
