@@ -1,6 +1,10 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { formatAttendanceError } from './attendanceService';
 import {
+  attendanceStatusService,
+  EvaluatedStatusResult,
+} from './attendanceStatusService';
+import {
   AttendanceDetailItem,
   AttendanceReportFilter,
   AttendanceReportResponse,
@@ -582,57 +586,78 @@ export const attendanceReportService = {
   },
 
   /**
-   * Generates Paginated Attendance Details
-   * Minimal fields: attendanceId, employeeId, employeeName, attendanceDate, checkInAt, checkInStatus, checkInLocation, checkOutAt, checkOutStatus, checkOutLocation, notes
+   * Generates Paginated Official Attendance Details via Centralized Status Engine
    */
   async getAttendanceDetails(
     filter: AttendanceReportFilter,
     page: number = 1,
     pageSize: number = 15
   ): Promise<PaginatedAttendanceDetailResponse> {
-    const { attendanceRows } = await this.fetchRawAttendanceRecords(filter);
+    const evaluatedMatrix = await attendanceStatusService.getEvaluatedMatrix(
+      filter.startDate,
+      filter.endDate,
+      filter.employeeId,
+      filter.departmentId
+    );
 
-    const totalCount = attendanceRows.length;
+    let filtered = evaluatedMatrix;
+
+    // Filter by official status if specified
+    if (filter.officialStatus && filter.officialStatus !== 'all') {
+      filtered = filtered.filter((r) => r.status === filter.officialStatus);
+    }
+
+    // Filter by check-in substatus if specified
+    if (filter.checkInStatus && filter.checkInStatus !== 'all') {
+      filtered = filtered.filter((r) => r.substatus === filter.checkInStatus);
+    }
+
+    // Filter by search query (name or NIP)
+    if (filter.searchQuery && filter.searchQuery.trim()) {
+      const q = filter.searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((r) => {
+        const nameMatch = r.employeeName.toLowerCase().includes(q);
+        const nipMatch = r.nip ? r.nip.toLowerCase().includes(q) : false;
+        return nameMatch || nipMatch;
+      });
+    }
+
+    // Sort by date descending, then employeeName ascending
+    filtered.sort((a, b) => {
+      const dateCmp = b.date.localeCompare(a.date);
+      if (dateCmp !== 0) return dateCmp;
+      return a.employeeName.localeCompare(b.employeeName);
+    });
+
+    const totalCount = filtered.length;
     const totalPages = Math.ceil(totalCount / pageSize) || 1;
     const from = (page - 1) * pageSize;
     const to = from + pageSize;
-    const pagedRows = attendanceRows.slice(from, to);
+    const pagedMatrix = filtered.slice(from, to);
 
-    const records: AttendanceDetailItem[] = pagedRows.map((r: any) => {
-      const emp = r.employees;
-      const employeeName = emp?.full_name || r.employee_name_snapshot || 'Pegawai Terhapus';
-      const nip = emp?.nip || null;
-      const deptObj = Array.isArray(emp?.departments) ? emp?.departments[0] : emp?.departments;
-      const departmentName = deptObj?.name || 'Umum';
-
-      let checkInStatusLabel = '-';
-      if (r.check_in_status === 'on_time') checkInStatusLabel = 'Tepat Waktu';
-      else if (r.check_status === 'late' || r.check_in_status === 'late') checkInStatusLabel = 'Terlambat';
-
-      let checkOutStatusLabel = '-';
-      if (r.check_out_status === 'operational') checkOutStatusLabel = 'Jam Operasional';
-      else if (r.check_out_status === 'after_work') checkOutStatusLabel = 'Jam Pulang';
-
-      return {
-        attendanceId: r.id,
-        employeeId: r.employee_id,
-        employeeName,
-        nip,
-        departmentName,
-        attendanceDate: r.attendance_date,
-        checkInAt: r.check_in_at,
-        checkInTimeFormatted: formatMakassarTime(r.check_in_at),
-        checkInStatus: r.check_in_status,
-        checkInStatusLabel,
-        checkInLocation: r.check_in_location?.name || null,
-        checkOutAt: r.check_out_at,
-        checkOutTimeFormatted: formatMakassarTime(r.check_out_at),
-        checkOutStatus: r.check_out_status,
-        checkOutStatusLabel,
-        checkOutLocation: r.check_out_location?.name || null,
-        notes: r.notes || null,
-      };
-    });
+    const records: AttendanceDetailItem[] = pagedMatrix.map((item) => ({
+      attendanceId: item.sourceId || `eval_${item.employeeId}_${item.date}`,
+      employeeId: item.employeeId,
+      employeeName: item.employeeName,
+      nip: item.nip,
+      departmentName: item.departmentName,
+      attendanceDate: item.date,
+      checkInAt: item.checkInAt,
+      checkInTimeFormatted: formatMakassarTime(item.checkInAt),
+      checkInStatus: item.substatus,
+      checkInStatusLabel: item.substatusLabel || '-',
+      checkInLocation: item.checkInLocation,
+      checkOutAt: item.checkOutAt,
+      checkOutTimeFormatted: formatMakassarTime(item.checkOutAt),
+      checkOutStatus: null,
+      checkOutStatusLabel: '-',
+      checkOutLocation: item.checkOutLocation,
+      notes: item.notes,
+      officialStatus: item.status,
+      officialStatusLabel: item.statusLabel,
+      substatus: item.substatus,
+      substatusLabel: item.substatusLabel,
+    }));
 
     return {
       records,

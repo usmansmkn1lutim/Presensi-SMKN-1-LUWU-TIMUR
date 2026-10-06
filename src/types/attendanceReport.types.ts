@@ -4,6 +4,13 @@
  * Strict Single Source of Truth: public.attendance in Supabase PostgreSQL
  */
 
+import {
+  OfficialAttendanceStatus,
+  AttendanceSubstatus,
+} from '../services/attendanceStatusService';
+
+export type { OfficialAttendanceStatus, AttendanceSubstatus };
+
 export interface AttendanceReportFilter {
   startDate: string; // YYYY-MM-DD (inclusive)
   endDate: string;   // YYYY-MM-DD (inclusive)
@@ -11,6 +18,7 @@ export interface AttendanceReportFilter {
   departmentId?: string | null;
   checkInStatus?: 'all' | 'on_time' | 'late' | null;
   checkOutStatus?: 'all' | 'operational' | 'after_work' | null;
+  officialStatus?: 'all' | OfficialAttendanceStatus | null;
   locationId?: string | null;
   searchQuery?: string;
 }
@@ -30,6 +38,11 @@ export interface DailyAttendanceSummary {
   totalCheckedOut: number; // check_out_at IS NOT NULL
   totalNotCheckedOut: number; // check_in_at IS NOT NULL && check_out_at IS NULL
   totalAbsent: number;    // Math.max(0, totalEmployees - totalPresent)
+  totalSick?: number;
+  totalPermit?: number;
+  totalOfficialDuty?: number;
+  totalLeave?: number;
+  totalHoliday?: number;
 }
 
 /**
@@ -49,6 +62,11 @@ export interface EmployeeAttendanceSummary {
   totalCheckedOut: number;
   totalNotCheckedOut: number;
   totalAbsent: number;
+  totalSick?: number;
+  totalPermit?: number;
+  totalOfficialDuty?: number;
+  totalLeave?: number;
+  totalHoliday?: number;
   attendancePercentage: number; // 0 - 100
 }
 
@@ -65,11 +83,16 @@ export interface MonthlyAttendanceSummary {
   totalCheckedOut: number;
   totalNotCheckedOut: number;
   effectiveWorkingDays: number;
+  totalSick?: number;
+  totalPermit?: number;
+  totalOfficialDuty?: number;
+  totalLeave?: number;
+  totalAbsent?: number;
+  totalHoliday?: number;
 }
 
 /**
  * Detail Attendance Item
- * Minimal fields: attendanceId, employeeId, employeeName, attendanceDate, checkInAt, checkInStatus, checkInLocation, checkOutAt, checkOutStatus, checkOutLocation, notes
  */
 export interface AttendanceDetailItem {
   attendanceId: string;
@@ -89,6 +112,10 @@ export interface AttendanceDetailItem {
   checkOutStatusLabel: string;
   checkOutLocation: string | null;
   notes: string | null;
+  officialStatus: OfficialAttendanceStatus;
+  officialStatusLabel: string;
+  substatus: AttendanceSubstatus;
+  substatusLabel: string | null;
 }
 
 /**
