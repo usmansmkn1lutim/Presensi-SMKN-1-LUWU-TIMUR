@@ -1,10 +1,13 @@
 import { supabase } from '../lib/supabase';
-import { attendanceService, formatAttendanceError } from './attendanceService';
+import { attendanceService, formatAttendanceError, getLocalDateString } from './attendanceService';
+import { attendanceStatusService } from './attendanceStatusService';
 import {
   AttendanceHistoryFilter,
   AttendanceHistoryRecord,
   AttendanceHistoryResponse,
   AttendanceHistorySummary,
+  OfficialMonthlyRecapSummary,
+  OfficialMonthlyRecapResponse,
 } from '../types/attendanceHistory.types';
 
 export const attendanceHistoryService = {
@@ -109,6 +112,72 @@ export const attendanceHistoryService = {
       page,
       pageSize,
       totalPages,
+    };
+  },
+
+  /**
+   * Evaluates official attendance status recap for the active calendar month
+   * using the canonical official attendance status engine.
+   */
+  async getMonthlyOfficialStatusRecap(
+    year: number,
+    month: number,
+    employeeId?: string
+  ): Promise<OfficialMonthlyRecapResponse> {
+    const empId = employeeId || (await attendanceService.getCurrentEmployee()).id;
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = getLocalDateString(firstDay);
+    const endDate = getLocalDateString(lastDay);
+
+    const matrix = await attendanceStatusService.getEvaluatedMatrix(
+      startDate,
+      endDate,
+      empId
+    );
+
+    const summary: OfficialMonthlyRecapSummary = {
+      present: matrix.filter((r) => r.status === 'present').length,
+      sick: matrix.filter((r) => r.status === 'sick').length,
+      permit: matrix.filter((r) => r.status === 'permit').length,
+      officialDuty: matrix.filter((r) => r.status === 'official_duty').length,
+      leave: matrix.filter((r) => r.status === 'leave').length,
+      absent: matrix.filter((r) => r.status === 'absent').length,
+    };
+
+    const records: AttendanceHistoryRecord[] = matrix
+      .filter((r) => r.status !== 'holiday')
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map((r) => ({
+        id: r.sourceId || `eval-${r.date}`,
+        employee_id: empId,
+        attendance_date: r.date,
+        check_in_at: r.checkInAt,
+        check_out_at: r.checkOutAt,
+        check_in_status: r.substatus,
+        check_out_status: r.checkOutAt ? 'operational' : null,
+        check_in_location_id: null,
+        check_out_location_id: null,
+        check_in_latitude: null,
+        check_in_longitude: null,
+        check_out_latitude: null,
+        check_out_longitude: null,
+        notes: r.notes,
+        check_in_location: r.checkInLocation
+          ? { id: '', name: r.checkInLocation, code: '' }
+          : null,
+        check_out_location: r.checkOutLocation
+          ? { id: '', name: r.checkOutLocation, code: '' }
+          : null,
+        official_status: r.status,
+        status_label: r.statusLabel,
+        created_at: r.date,
+        updated_at: r.date,
+      }));
+
+    return {
+      summary,
+      records,
     };
   },
 };

@@ -9,6 +9,8 @@ export interface AttendanceLocationInfo {
 export interface AttendanceHistoryRecord extends AttendanceModel {
   check_in_location?: AttendanceLocationInfo | null;
   check_out_location?: AttendanceLocationInfo | null;
+  official_status?: 'present' | 'sick' | 'permit' | 'official_duty' | 'leave' | 'absent' | string;
+  status_label?: string;
 }
 
 export interface AttendanceHistorySummary {
@@ -16,6 +18,20 @@ export interface AttendanceHistorySummary {
   onTimeCount: number;
   lateCount: number;
   checkedOutCount: number;
+}
+
+export interface OfficialMonthlyRecapSummary {
+  present: number;
+  sick: number;
+  permit: number;
+  officialDuty: number;
+  leave: number;
+  absent: number;
+}
+
+export interface OfficialMonthlyRecapResponse {
+  summary: OfficialMonthlyRecapSummary;
+  records: AttendanceHistoryRecord[];
 }
 
 export interface AttendanceHistoryFilter {

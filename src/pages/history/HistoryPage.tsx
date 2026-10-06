@@ -13,8 +13,10 @@ import { getLocalDateString } from '../../services/attendanceService';
 import {
   AttendanceHistoryRecord,
   AttendanceHistorySummary,
+  OfficialMonthlyRecapSummary,
 } from '../../types/attendanceHistory.types';
 import { HistorySummaryCards } from '../../components/history/HistorySummaryCards';
+import { HistoryMonthlyRecapMobile } from '../../components/history/HistoryMonthlyRecapMobile';
 import { HistoryFilterBar } from '../../components/history/HistoryFilterBar';
 import { HistoryTable } from '../../components/history/HistoryTable';
 import { HistoryMobileList } from '../../components/history/HistoryMobileList';
@@ -36,12 +38,23 @@ export const HistoryPage: React.FC = () => {
     return getLocalDateString(d);
   };
 
+  const getLastDayOfMonthString = () => {
+    const d = new Date();
+    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    return getLocalDateString(lastDay);
+  };
+
   const [startDate, setStartDate] = useState<string>(getFirstDayOfMonthString());
-  const [endDate, setEndDate] = useState<string>(getTodayString());
+  const [endDate, setEndDate] = useState<string>(getLastDayOfMonthString());
   
   // New state for Calendar
   const [currentCalendarDate, setCurrentCalendarDate] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  // Mobile official attendance status monthly recap and records state
+  const [monthlyOfficialSummary, setMonthlyOfficialSummary] = useState<OfficialMonthlyRecapSummary | null>(null);
+  const [monthlyOfficialRecords, setMonthlyOfficialRecords] = useState<AttendanceHistoryRecord[]>([]);
+  const [monthlyOfficialLoading, setMonthlyOfficialLoading] = useState<boolean>(true);
   
   const [statusFilter, setStatusFilter] = useState<'all' | 'on_time' | 'late'>('all');
   const [checkoutFilter, setCheckoutFilter] = useState<
@@ -113,25 +126,55 @@ export const HistoryPage: React.FC = () => {
     }
   };
 
+  const fetchMonthlyOfficialRecap = async (year: number, month: number) => {
+    setMonthlyOfficialLoading(true);
+    try {
+      const res = await attendanceHistoryService.getMonthlyOfficialStatusRecap(year, month);
+      setMonthlyOfficialSummary(res.summary);
+      setMonthlyOfficialRecords(res.records);
+    } catch (err: any) {
+      console.error('Failed to fetch monthly official status recap:', err);
+      setMonthlyOfficialSummary({
+        present: 0,
+        sick: 0,
+        permit: 0,
+        officialDuty: 0,
+        leave: 0,
+        absent: 0,
+      });
+      setMonthlyOfficialRecords([]);
+    } finally {
+      setMonthlyOfficialLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, currentPage);
   }, [currentPage]);
 
+  useEffect(() => {
+    fetchMonthlyOfficialRecap(
+      currentCalendarDate.getFullYear(),
+      currentCalendarDate.getMonth()
+    );
+  }, []);
+
   // Calendar logic
   const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
-    setStartDate(date);
-    setEndDate(date);
-    fetchHistoryData(date, date, statusFilter, checkoutFilter, 1);
+    setSelectedDate((prev) => (prev === date ? null : date));
   };
 
   const handleMonthChange = (year: number, month: number) => {
-      setCurrentCalendarDate(new Date(year, month, 1));
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      setStartDate(getLocalDateString(firstDay));
-      setEndDate(getLocalDateString(lastDay));
-      fetchHistoryData(getLocalDateString(firstDay), getLocalDateString(lastDay), statusFilter, checkoutFilter, 1);
+    setCurrentCalendarDate(new Date(year, month, 1));
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const newStart = getLocalDateString(firstDay);
+    const newEnd = getLocalDateString(lastDay);
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    setSelectedDate(null);
+    fetchHistoryData(newStart, newEnd, statusFilter, checkoutFilter, 1);
+    fetchMonthlyOfficialRecap(year, month);
   };
 
   const handleApplyFilters = (filters: {
@@ -183,16 +226,31 @@ export const HistoryPage: React.FC = () => {
 
   const handleRefresh = () => {
     fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, currentPage);
+    fetchMonthlyOfficialRecap(
+      currentCalendarDate.getFullYear(),
+      currentCalendarDate.getMonth()
+    );
   };
 
   const isAdminRole = profile && ['super_admin', 'admin'].includes(profile.role);
   const startRecordNum = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endRecordNum = Math.min(currentPage * pageSize, totalCount);
 
+  const displayedMobileRecords = selectedDate
+    ? monthlyOfficialRecords.filter((r) => r.attendance_date === selectedDate)
+    : monthlyOfficialRecords;
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
-      {/* Header Banner */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* 1. Mobile & Tablet Heading (Point 1 & 2: Intro banner removed on mobile/tablet) */}
+      <div className="md:hidden">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight font-sans">
+          Riwayat Presensi
+        </h1>
+      </div>
+
+      {/* Header Banner (Desktop Only - Untouched) */}
+      <div className="hidden md:flex bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
             <CalendarCheck className="w-3.5 h-3.5 text-[#F97316]" />
@@ -218,21 +276,9 @@ export const HistoryPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Summary Cards */}
-      <HistorySummaryCards summary={summary} loading={loading} />
-
-      {/* Calendar for Mobile/Tablet */}
-      <div className="md:hidden">
-        <HistoryCalendarMobile
-          onDateSelect={handleDateSelect}
-          onMonthChange={handleMonthChange}
-          selectedDate={selectedDate}
-          currentDate={currentCalendarDate}
-        />
-      </div>
-
-      {/* Filter Bar (Desktop only) */}
-      <div className="hidden md:block">
+      {/* Desktop View: Summary Cards & Filter Bar */}
+      <div className="hidden md:block space-y-6">
+        <HistorySummaryCards summary={summary} loading={loading} />
         <HistoryFilterBar
           startDate={startDate}
           endDate={endDate}
@@ -244,6 +290,46 @@ export const HistoryPage: React.FC = () => {
           onRefresh={handleRefresh}
           loading={loading}
         />
+      </div>
+
+      {/* Mobile & Tablet View: Calendar-First Layout */}
+      <div className="md:hidden space-y-5 sm:space-y-6">
+        {/* Card Kalender */}
+        <HistoryCalendarMobile
+          onDateSelect={handleDateSelect}
+          onMonthChange={handleMonthChange}
+          selectedDate={selectedDate || ''}
+          currentDate={currentCalendarDate}
+        />
+
+        {/* REKAP KEHADIRAN BULAN INI */}
+        <HistoryMonthlyRecapMobile
+          summary={monthlyOfficialSummary}
+          loading={monthlyOfficialLoading}
+        />
+
+        {/* LOG PRESENSI */}
+        <div className="space-y-3 font-sans">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            LOG PRESENSI
+          </h3>
+          {monthlyOfficialLoading ? (
+            <div className="space-y-3 animate-pulse">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-20 bg-gray-100 rounded-2xl" />
+              ))}
+            </div>
+          ) : displayedMobileRecords.length === 0 ? (
+            <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center text-xs text-slate-500">
+              Tidak ada catatan presensi pada periode ini.
+            </div>
+          ) : (
+            <HistoryMobileList
+              records={displayedMobileRecords}
+              onSelectRecord={setSelectedRecord}
+            />
+          )}
+        </div>
       </div>
 
       {/* UNLINKED ACCOUNT STATE (FINDING-03 Fix) */}
@@ -295,71 +381,69 @@ export const HistoryPage: React.FC = () => {
             Coba Lagi
           </Button>
         </div>
-      ) : loading ? (
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
-          <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-12 bg-[#F3F4F6] rounded-xl" />
-            ))}
-          </div>
-        </div>
-      ) : records.length === 0 ? (
-        /* Empty State */
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
-            <CalendarCheck className="w-6 h-6 text-[#9CA3AF]" />
-          </div>
-          <h4 className="text-base font-bold text-[#111827]">
-            Belum Ada Riwayat Presensi
-          </h4>
-          <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
-            Belum ada data presensi pada periode yang dipilih. Silakan pilih rentang tanggal lain.
-          </p>
-        </div>
       ) : (
-        /* Records Content */
-        <div className="space-y-4">
-          {/* Desktop Table View */}
-          <div className="hidden md:block">
-            <HistoryTable records={records} onSelectRecord={setSelectedRecord} />
-          </div>
-
-          {/* Mobile Card List View */}
-          <HistoryMobileList records={records} onSelectRecord={setSelectedRecord} />
-
-          {/* Pagination Controls */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B7280]">
-            <span>
-              Menampilkan <strong className="text-[#111827]">{startRecordNum}</strong>–
-              <strong className="text-[#111827]">{endRecordNum}</strong> dari{' '}
-              <strong className="text-[#111827]">{totalCount}</strong> presensi
-            </span>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage <= 1 || loading}
-                className="text-xs"
-              >
-                Sebelumnya
-              </Button>
-              <span className="text-[#111827] font-semibold px-2">
-                {currentPage} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage >= totalPages || loading}
-                className="text-xs"
-              >
-                Selanjutnya
-              </Button>
+        /* Desktop Records Content */
+        <div className="hidden md:block space-y-4">
+          {loading ? (
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
+              <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-12 bg-[#F3F4F6] rounded-xl" />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : records.length === 0 ? (
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
+                <CalendarCheck className="w-6 h-6 text-[#9CA3AF]" />
+              </div>
+              <h4 className="text-base font-bold text-[#111827]">
+                Belum Ada Riwayat Presensi
+              </h4>
+              <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+                Belum ada data presensi pada periode yang dipilih. Silakan pilih rentang tanggal lain.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <HistoryTable records={records} onSelectRecord={setSelectedRecord} />
+
+              {/* Desktop Pagination Controls */}
+              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B7280]">
+                <span>
+                  Menampilkan <strong className="text-[#111827]">{startRecordNum}</strong>–
+                  <strong className="text-[#111827]">{endRecordNum}</strong> dari{' '}
+                  <strong className="text-[#111827]">{totalCount}</strong> presensi
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage <= 1 || loading}
+                    className="text-xs"
+                  >
+                    Sebelumnya
+                  </Button>
+                  <span className="text-[#111827] font-semibold px-2">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage >= totalPages || loading}
+                    className="text-xs"
+                  >
+                    Selanjutnya
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 

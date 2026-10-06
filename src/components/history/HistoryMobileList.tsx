@@ -52,15 +52,64 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
     }
   };
 
+  const getStatusBadge = (row: AttendanceHistoryRecord) => {
+    const status = (row.official_status || (row.check_in_at ? 'present' : 'absent')).toLowerCase();
+
+    switch (status) {
+      case 'present':
+        return {
+          label: '✓ Hadir',
+          style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+        };
+      case 'sick':
+        return {
+          label: 'Sakit',
+          style: 'bg-blue-50 text-blue-700 border border-blue-200',
+        };
+      case 'permit':
+        return {
+          label: 'Izin',
+          style: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+        };
+      case 'official_duty':
+        return {
+          label: 'Dinas Luar',
+          style: 'bg-purple-50 text-purple-700 border border-purple-200',
+        };
+      case 'leave':
+        return {
+          label: 'Cuti',
+          style: 'bg-teal-50 text-teal-700 border border-teal-200',
+        };
+      case 'absent':
+        return {
+          label: 'Alpha',
+          style: 'bg-rose-50 text-rose-700 border border-rose-200',
+        };
+      default:
+        if (row.check_in_at) {
+          return {
+            label: '✓ Hadir',
+            style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+          };
+        }
+        return {
+          label: row.status_label || 'Alpha',
+          style: 'bg-rose-50 text-rose-700 border border-rose-200',
+        };
+    }
+  };
+
   return (
-    <div className="md:hidden space-y-3">
+    <div className="md:hidden space-y-3 font-sans">
       {records.map((row) => {
         const locationName =
           row.check_in_location?.name ||
           row.check_out_location?.name ||
-          'Kantor / TU';
+          (row.check_in_at ? 'Kantor / TU' : '—');
 
         const { dayName, dayNum } = getDayAndNumber(row.attendance_date);
+        const statusBadge = getStatusBadge(row);
 
         return (
           <div
@@ -70,7 +119,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
           >
             {/* Date Box (Square) */}
             <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] aspect-square rounded-xl bg-[#F97316] text-white shadow-2xs flex flex-col items-center justify-center text-center shrink-0">
-              <span className="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums leading-none">
+              <span className="text-xl sm:text-2xl font-bold text-white tabular-nums leading-none">
                 {dayNum}
               </span>
               <span className="text-[10px] sm:text-[11px] font-medium text-white/90 mt-1 capitalize leading-none">
@@ -84,7 +133,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
               <div className="grid grid-cols-3 divide-x divide-slate-100 text-center">
                 {/* Check-in */}
                 <div className="px-1">
-                  <div className="text-xs sm:text-sm font-semibold font-mono text-slate-900 tabular-nums">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
                     {formatTime(row.check_in_at)}
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5">
@@ -94,7 +143,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
 
                 {/* Check-out */}
                 <div className="px-1">
-                  <div className="text-xs sm:text-sm font-semibold font-mono text-slate-900 tabular-nums">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
                     {row.check_out_at ? formatTime(row.check_out_at) : '—'}
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5">
@@ -104,7 +153,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
 
                 {/* Total Jam */}
                 <div className="px-1">
-                  <div className="text-xs sm:text-sm font-semibold font-mono text-slate-900 tabular-nums">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
                     {calculateTotalHours(row.check_in_at, row.check_out_at)}
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5">
@@ -113,12 +162,24 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
                 </div>
               </div>
 
-              {/* Location Row */}
-              <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-100 text-xs text-slate-600 truncate">
-                <MapPin className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
-                <span className="truncate text-[11px] sm:text-xs font-medium text-slate-600">
-                  {locationName}
-                </span>
+              {/* Location & Status Row */}
+              <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 text-xs">
+                {/* Location */}
+                <div className="flex items-center gap-1.5 truncate min-w-0">
+                  <MapPin className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
+                  <span className="truncate text-[11px] sm:text-xs font-medium text-slate-600">
+                    {locationName}
+                  </span>
+                </div>
+
+                {/* Status Badge at bottom right */}
+                <div className="shrink-0">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold border ${statusBadge.style}`}
+                  >
+                    {statusBadge.label}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
