@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import {
   attendanceStatusService,
@@ -48,11 +50,12 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
 }) => {
   const todayStr = useMemo(() => getMakassarTodayDateString(), []);
 
-  // Filter States
+  // Filter & Sort States
   const [period, setPeriod] = useState<PeriodOption>('this_month');
   const [customStartDate, setCustomStartDate] = useState<string>(getMakassarFirstDayOfMonthString());
   const [customEndDate, setCustomEndDate] = useState<string>(todayStr);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Data & Fetching States
   const [matrixData, setMatrixData] = useState<EvaluatedStatusResult[]>([]);
@@ -233,10 +236,15 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
     });
   }, [matrixData, statusFilter]);
 
-  // Sort descending by date (most recent first)
+  // Sort by date (asc = Oldest to Newest, desc = Newest to Oldest)
   const sortedData = useMemo(() => {
-    return [...filteredData].sort((a, b) => b.date.localeCompare(a.date));
-  }, [filteredData]);
+    return [...filteredData].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.date.localeCompare(b.date);
+      }
+      return b.date.localeCompare(a.date);
+    });
+  }, [filteredData, sortOrder]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
@@ -546,7 +554,34 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[#374151] font-bold uppercase text-[11px] tracking-wider">
-                  <th className="py-3 px-4 min-w-[130px]">Tanggal & Hari</th>
+                  <th className="py-3 px-4 min-w-[150px]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+                        setCurrentPage(1);
+                      }}
+                      className="inline-flex items-center gap-1.5 hover:text-[#F97316] transition-colors focus:outline-none group text-left font-bold uppercase text-[11px] tracking-wider cursor-pointer"
+                      title={
+                        sortOrder === 'asc'
+                          ? 'Urutan: Terlama → Terbaru (Klik untuk membalik)'
+                          : 'Urutan: Terbaru → Terlama (Klik untuk membalik)'
+                      }
+                    >
+                      <span>Tanggal & Hari</span>
+                      {sortOrder === 'asc' ? (
+                        <span className="inline-flex items-center gap-0.5 text-[#F97316]">
+                          <ArrowUp className="w-3.5 h-3.5" />
+                          <span className="text-[10px] lowercase font-normal">(lama → baru)</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-0.5 text-[#F97316]">
+                          <ArrowDown className="w-3.5 h-3.5" />
+                          <span className="text-[10px] lowercase font-normal">(baru → lama)</span>
+                        </span>
+                      )}
+                    </button>
+                  </th>
                   <th className="py-3 px-4 min-w-[160px]">Status Resmi</th>
                   <th className="py-3 px-4 min-w-[160px]">Keterangan / Alasan</th>
                   <th className="py-3 px-4 min-w-[100px] text-center">Check-in</th>

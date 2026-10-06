@@ -13,6 +13,8 @@ import {
   MonthlyAttendanceSummary,
   OverallReportMetrics,
   PaginatedAttendanceDetailResponse,
+  MonthlyRecapRow,
+  MonthlyRecapReportResponse,
 } from '../types/attendanceReport.types';
 
 /**
@@ -725,4 +727,277 @@ export const attendanceReportService = {
       details,
     };
   },
+
+  /**
+   * Generates a monthly employee matrix recap dataset for a specified year and month (PHASE 9G)
+   */
+  async getMonthlyRecapReport(
+    year: number,
+    month: number,
+    filter: {
+      departmentId?: string | null;
+      employeeType?: string | null;
+      searchQuery?: string;
+    } = {}
+  ): Promise<MonthlyRecapReportResponse> {
+    if (!isSupabaseConfigured()) {
+      return {
+        year,
+        month,
+        daysInMonth: new Date(year, month, 0).getDate(),
+        rows: [],
+        summary: {
+          totalEmployees: 0,
+          totalPresent: 0,
+          totalLate: 0,
+          totalSick: 0,
+          totalPermit: 0,
+          totalOfficialDuty: 0,
+          totalLeave: 0,
+          totalAbsent: 0,
+        },
+      };
+    }
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const startDateStr = `${year}-${String(month).padStart(2, '0')}-01`;
+    const endDateStr = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+    const todayStr = getMakassarTodayDateString();
+
+    // 1. Fetch evaluated matrix for the whole month, filtered by department
+    const matrixData = await attendanceStatusService.getEvaluatedMatrix(
+      startDateStr,
+      endDateStr,
+      null,
+      filter.departmentId || null
+    );
+
+    // 2. Fetch employee types
+    const { data: employeesData, error: empError } = await supabase
+      .from('employees')
+      .select('id, employee_type');
+
+    if (empError) {
+      console.error('Error fetching employee types for recap:', empError);
+    }
+
+    const typeMap = new Map<string, string>();
+    (employeesData || []).forEach((e) => {
+      typeMap.set(e.id, e.employee_type || '');
+    });
+
+    // 3. Group evaluated status matrix by employee ID
+    const employeeRowsMap = new Map<string, {
+      employeeId: string;
+      employeeName: string;
+      nip: string | null;
+      departmentName: string;
+      dailyStatuses: { [day: number]: any };
+    }>();
+
+    matrixData.forEach((item) => {
+      const empId = item.employeeId;
+      if (!employeeRowsMap.has(empId)) {
+        employeeRowsMap.set(empId, {
+          employeeId: empId,
+          employeeName: item.employeeName,
+          nip: item.nip,
+          departmentName: item.departmentName,
+          dailyStatuses: {},
+        });
+      }
+
+      const dayNumber = Number(item.date.split('-')[2]);
+      let statusValue = item.status;
+      let codeValue: 'H' | 'T' | 'S' | 'I' | 'DL' | 'C' | 'A' | 'L' | '—' = '—';
+
+      if (item.date > todayStr) {
+        statusValue = 'future' as any;
+        codeValue = '—';
+      } else {
+        if (item.status === 'present') {
+          codeValue = item.substatus === 'late' ? 'T' : 'H';
+        } else if (item.status === 'sick') {
+          codeValue = 'S';
+        } else if (item.status === 'permit') {
+          codeValue = 'I';
+        } else if (item.status === 'official_duty') {
+          codeValue = 'DL';
+        } else if (item.status === 'leave') {
+          codeValue = 'C';
+        } else if (item.status === 'absent') {
+          codeValue = 'A';
+        } else if (item.status === 'holiday') {
+          codeValue = 'L';
+        }
+      }
+
+      employeeRowsMap.get(empId)!.dailyStatuses[dayNumber] = {
+        date: item.date,
+        status: statusValue,
+        code: codeValue,
+        notes: item.notes,
+      };
+    });
+
+    // 4. Build MonthlyRecapRow list
+    const rows: MonthlyRecapRow[] = [];
+
+    employeeRowsMap.forEach((emp) => {
+      const rawType = typeMap.get(emp.employeeId);
+      const employeeType = normalizeEmployeeType(rawType);
+
+      // Apply Employee Type Filter
+      if (
+        filter.employeeType &&
+        filter.employeeType !== 'all' &&
+        employeeType !== filter.employeeType
+      ) {
+        return;
+      }
+
+      // Apply Search Query Filter (Name or NIP)
+      if (filter.searchQuery) {
+        const query = filter.searchQuery.toLowerCase().trim();
+        const matchesName = emp.employeeName.toLowerCase().includes(query);
+        const matchesNip = emp.nip ? emp.nip.includes(query) : false;
+        if (!matchesName && !matchesNip) {
+          return;
+        }
+      }
+
+      // Calculate summaries for this employee
+      let totalPresent = 0; // H + T
+      let totalLate = 0;    // T
+      let totalSick = 0;    // S
+      let totalPermit = 0;  // I
+      let totalOfficialDuty = 0; // DL
+      let totalLeave = 0;   // C
+      let totalAbsent = 0;  // A
+      let totalHoliday = 0; // L
+      let effectiveWorkingDays = 0;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dayStatus = emp.dailyStatuses[d];
+        if (!dayStatus) {
+          // If status is missing, default to future
+          emp.dailyStatuses[d] = {
+            date: `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
+            status: 'future',
+            code: '—',
+            notes: null,
+          };
+          continue;
+        }
+
+        if (dayStatus.status !== 'future') {
+          if (dayStatus.code === 'H' || dayStatus.code === 'T') {
+            totalPresent++;
+            if (dayStatus.code === 'T') {
+              totalLate++;
+            }
+          } else if (dayStatus.code === 'S') {
+            totalSick++;
+          } else if (dayStatus.code === 'I') {
+            totalPermit++;
+          } else if (dayStatus.code === 'DL') {
+            totalOfficialDuty++;
+          } else if (dayStatus.code === 'C') {
+            totalLeave++;
+          } else if (dayStatus.code === 'A') {
+            totalAbsent++;
+          } else if (dayStatus.code === 'L') {
+            totalHoliday++;
+          }
+
+          // Effective working day: not holiday
+          if (dayStatus.status !== 'holiday') {
+            effectiveWorkingDays++;
+          }
+        }
+      }
+
+      // Compute Percentage
+      let attendancePercentage: number | null = null;
+      let attendancePercentageLabel = '—';
+
+      if (effectiveWorkingDays > 0) {
+        // (Hadir + Dinas Luar) / Hari Kerja Efektif * 100
+        const presentAndDuty = totalPresent + totalOfficialDuty;
+        const percentage = Math.min(100, (presentAndDuty / effectiveWorkingDays) * 100);
+        attendancePercentage = Math.round(percentage * 10) / 10; // 1 decimal place
+        attendancePercentageLabel = attendancePercentage.toFixed(1).replace('.', ',') + '%';
+      }
+
+      rows.push({
+        employeeId: emp.employeeId,
+        employeeName: emp.employeeName,
+        nip: emp.nip,
+        employeeType,
+        departmentName: emp.departmentName,
+        dailyStatuses: emp.dailyStatuses,
+        totalPresent,
+        totalLate,
+        totalSick,
+        totalPermit,
+        totalOfficialDuty,
+        totalLeave,
+        totalAbsent,
+        totalHoliday,
+        effectiveWorkingDays,
+        attendancePercentage,
+        attendancePercentageLabel,
+      });
+    });
+
+    // 5. Default Sorting: Employee Name A-Z
+    rows.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+
+    // 6. Calculate Global Aggregated Summaries over ALL filtered rows
+    let globalPresent = 0;
+    let globalLate = 0;
+    let globalSick = 0;
+    let globalPermit = 0;
+    let globalOfficialDuty = 0;
+    let globalLeave = 0;
+    let globalAbsent = 0;
+
+    rows.forEach((row) => {
+      globalPresent += row.totalPresent;
+      globalLate += row.totalLate;
+      globalSick += row.totalSick;
+      globalPermit += row.totalPermit;
+      globalOfficialDuty += row.totalOfficialDuty;
+      globalLeave += row.totalLeave;
+      globalAbsent += row.totalAbsent;
+    });
+
+    return {
+      year,
+      month,
+      daysInMonth,
+      rows,
+      summary: {
+        totalEmployees: rows.length,
+        totalPresent: globalPresent,
+        totalLate: globalLate,
+        totalSick: globalSick,
+        totalPermit: globalPermit,
+        totalOfficialDuty: globalOfficialDuty,
+        totalLeave: globalLeave,
+        totalAbsent: globalAbsent,
+      },
+    };
+  },
 };
+
+function normalizeEmployeeType(type: string | null | undefined): string {
+  if (!type) return 'Tidak diketahui';
+  const t = type.trim().toUpperCase();
+  if (t === 'PNS') return 'PNS';
+  if (t === 'PPPK') return 'PPPK';
+  if (t === 'GTT' || t === 'PTT' || t === 'HONORER' || t.includes('GTT') || t.includes('PTT') || t.includes('HONORER')) {
+    return 'HONORER';
+  }
+  return 'Tidak diketahui';
+}

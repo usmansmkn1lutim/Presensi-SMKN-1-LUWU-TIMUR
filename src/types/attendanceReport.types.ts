@@ -154,3 +154,47 @@ export interface AttendanceReportResponse {
   monthlySummaries: MonthlyAttendanceSummary[];
   details: PaginatedAttendanceDetailResponse;
 }
+
+export interface MonthlyRecapDailyStatus {
+  date: string; // YYYY-MM-DD
+  status: OfficialAttendanceStatus | 'future';
+  code: 'H' | 'T' | 'S' | 'I' | 'DL' | 'C' | 'A' | 'L' | '—';
+  notes: string | null;
+}
+
+export interface MonthlyRecapRow {
+  employeeId: string;
+  employeeName: string;
+  nip: string | null;
+  employeeType: string; // 'PNS' | 'PPPK' | 'HONORER' | 'Tidak diketahui'
+  departmentName: string;
+  dailyStatuses: { [day: number]: MonthlyRecapDailyStatus };
+  totalPresent: number;     // H (total of on_time + late)
+  totalLate: number;        // T
+  totalSick: number;        // S
+  totalPermit: number;      // I
+  totalOfficialDuty: number; // DL
+  totalLeave: number;       // C
+  totalAbsent: number;      // A
+  totalHoliday: number;     // L
+  effectiveWorkingDays: number;
+  attendancePercentage: number | null; // e.g. 92.3 or null
+  attendancePercentageLabel: string;   // e.g. "92,3%" or "—"
+}
+
+export interface MonthlyRecapReportResponse {
+  year: number;
+  month: number;
+  daysInMonth: number;
+  rows: MonthlyRecapRow[];
+  summary: {
+    totalEmployees: number;
+    totalPresent: number;
+    totalLate: number;
+    totalSick: number;
+    totalPermit: number;
+    totalOfficialDuty: number;
+    totalLeave: number;
+    totalAbsent: number;
+  };
+}

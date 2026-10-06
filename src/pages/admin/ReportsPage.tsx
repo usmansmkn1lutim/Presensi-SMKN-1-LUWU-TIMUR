@@ -20,6 +20,7 @@ import { attendancePdfExportService } from '../../services/attendancePdfExportSe
 import {
   AttendanceReportFilter,
   AttendanceReportResponse,
+  MonthlyRecapReportResponse,
 } from '../../types/attendanceReport.types';
 import { ReportHeader } from '../../components/reports/ReportHeader';
 import { ReportFilterBar } from '../../components/reports/ReportFilterBar';
@@ -28,9 +29,10 @@ import { DailyReportTable } from '../../components/reports/DailyReportTable';
 import { EmployeeReportTable } from '../../components/reports/EmployeeReportTable';
 import { MonthlyReportTable } from '../../components/reports/MonthlyReportTable';
 import { DetailReportTable } from '../../components/reports/DetailReportTable';
+import { MonthlyRecapReportTable } from '../../components/reports/MonthlyRecapReportTable';
 import { Button } from '../../components/ui/Button';
 
-type ReportTab = 'daily' | 'employee' | 'monthly' | 'detail';
+type ReportTab = 'daily' | 'employee' | 'monthly' | 'monthly_recap' | 'detail';
 
 export const ReportsPage: React.FC = () => {
   // Initial default filter (Current Month in Asia/Makassar)
@@ -51,7 +53,9 @@ export const ReportsPage: React.FC = () => {
   const [employees, setEmployees] = useState<{ id: string; name: string; nip: string | null }[]>([]);
 
   const [reportData, setReportData] = useState<AttendanceReportResponse | null>(null);
+  const [monthlyRecapData, setMonthlyRecapData] = useState<MonthlyRecapReportResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRecapLoading, setIsRecapLoading] = useState<boolean>(false);
   const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -123,6 +127,36 @@ export const ReportsPage: React.FC = () => {
   useEffect(() => {
     loadReport(filter, 1, detailPageSize);
   }, []);
+
+  // 2.5. Monthly Recap Loader (PHASE 9G)
+  useEffect(() => {
+    if (activeTab !== 'monthly_recap') return;
+
+    let mounted = true;
+    const loadRecap = async () => {
+      setIsRecapLoading(true);
+      try {
+        const [year, month] = filter.startDate.split('-').map(Number);
+        const data = await attendanceReportService.getMonthlyRecapReport(year, month, {
+          departmentId: filter.departmentId,
+        });
+        if (mounted) {
+          setMonthlyRecapData(data);
+        }
+      } catch (err) {
+        console.error('Failed to load monthly recap grid:', err);
+      } finally {
+        if (mounted) {
+          setIsRecapLoading(false);
+        }
+      }
+    };
+
+    loadRecap();
+    return () => {
+      mounted = false;
+    };
+  }, [activeTab, filter.startDate, filter.departmentId]);
 
   // 3. Filter Actions
   const handleApplyFilter = (newFilter: AttendanceReportFilter) => {
@@ -268,6 +302,7 @@ export const ReportsPage: React.FC = () => {
     daily: 'Rekap Harian',
     employee: 'Rekap Per Pegawai',
     monthly: 'Rekap Bulanan',
+    monthly_recap: 'Rekap Bulanan Grid',
     detail: 'Detail Presensi',
   };
 
@@ -289,6 +324,12 @@ export const ReportsPage: React.FC = () => {
       label: 'Rekap Bulanan',
       icon: CalendarRange,
       count: reportData?.monthlySummaries.length || 0,
+    },
+    {
+      id: 'monthly_recap' as const,
+      label: 'Rekap Bulanan Grid',
+      icon: CalendarRange,
+      count: monthlyRecapData?.rows.length || 0,
     },
     {
       id: 'detail' as const,
@@ -426,6 +467,13 @@ export const ReportsPage: React.FC = () => {
           <MonthlyReportTable
             data={reportData?.monthlySummaries || []}
             isLoading={isLoading}
+          />
+        )}
+
+        {activeTab === 'monthly_recap' && (
+          <MonthlyRecapReportTable
+            data={monthlyRecapData}
+            isLoading={isLoading || isRecapLoading}
           />
         )}
 
