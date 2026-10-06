@@ -18,6 +18,7 @@ import { HistorySummaryCards } from '../../components/history/HistorySummaryCard
 import { HistoryFilterBar } from '../../components/history/HistoryFilterBar';
 import { HistoryTable } from '../../components/history/HistoryTable';
 import { HistoryMobileList } from '../../components/history/HistoryMobileList';
+import { HistoryCalendarMobile } from '../../components/history/HistoryCalendarMobile';
 import { HistoryDetailModal } from '../../components/history/HistoryDetailModal';
 import { Button } from '../../components/ui/Button';
 
@@ -37,6 +38,11 @@ export const HistoryPage: React.FC = () => {
 
   const [startDate, setStartDate] = useState<string>(getFirstDayOfMonthString());
   const [endDate, setEndDate] = useState<string>(getTodayString());
+  
+  // New state for Calendar
+  const [currentCalendarDate, setCurrentCalendarDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
+  
   const [statusFilter, setStatusFilter] = useState<'all' | 'on_time' | 'late'>('all');
   const [checkoutFilter, setCheckoutFilter] = useState<
     'all' | 'checked_out' | 'not_checked_out'
@@ -110,6 +116,23 @@ export const HistoryPage: React.FC = () => {
   useEffect(() => {
     fetchHistoryData(startDate, endDate, statusFilter, checkoutFilter, currentPage);
   }, [currentPage]);
+
+  // Calendar logic
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+    setStartDate(date);
+    setEndDate(date);
+    fetchHistoryData(date, date, statusFilter, checkoutFilter, 1);
+  };
+
+  const handleMonthChange = (year: number, month: number) => {
+      setCurrentCalendarDate(new Date(year, month, 1));
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      setStartDate(getLocalDateString(firstDay));
+      setEndDate(getLocalDateString(lastDay));
+      fetchHistoryData(getLocalDateString(firstDay), getLocalDateString(lastDay), statusFilter, checkoutFilter, 1);
+  };
 
   const handleApplyFilters = (filters: {
     startDate: string;
@@ -198,18 +221,30 @@ export const HistoryPage: React.FC = () => {
       {/* Summary Cards */}
       <HistorySummaryCards summary={summary} loading={loading} />
 
-      {/* Filter Bar */}
-      <HistoryFilterBar
-        startDate={startDate}
-        endDate={endDate}
-        statusFilter={statusFilter}
-        checkoutFilter={checkoutFilter}
-        validationError={validationError}
-        onApply={handleApplyFilters}
-        onQuickFilter={handleQuickFilter}
-        onRefresh={handleRefresh}
-        loading={loading}
-      />
+      {/* Calendar for Mobile/Tablet */}
+      <div className="md:hidden">
+        <HistoryCalendarMobile
+          onDateSelect={handleDateSelect}
+          onMonthChange={handleMonthChange}
+          selectedDate={selectedDate}
+          currentDate={currentCalendarDate}
+        />
+      </div>
+
+      {/* Filter Bar (Desktop only) */}
+      <div className="hidden md:block">
+        <HistoryFilterBar
+          startDate={startDate}
+          endDate={endDate}
+          statusFilter={statusFilter}
+          checkoutFilter={checkoutFilter}
+          validationError={validationError}
+          onApply={handleApplyFilters}
+          onQuickFilter={handleQuickFilter}
+          onRefresh={handleRefresh}
+          loading={loading}
+        />
+      </div>
 
       {/* UNLINKED ACCOUNT STATE (FINDING-03 Fix) */}
       {isUnlinked ? (
@@ -286,7 +321,9 @@ export const HistoryPage: React.FC = () => {
         /* Records Content */
         <div className="space-y-4">
           {/* Desktop Table View */}
-          <HistoryTable records={records} onSelectRecord={setSelectedRecord} />
+          <div className="hidden md:block">
+            <HistoryTable records={records} onSelectRecord={setSelectedRecord} />
+          </div>
 
           {/* Mobile Card List View */}
           <HistoryMobileList records={records} onSelectRecord={setSelectedRecord} />
