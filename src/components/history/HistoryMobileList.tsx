@@ -69,11 +69,11 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
             className="bg-white border border-[#E5E7EB] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex items-center gap-3.5 sm:gap-4 hover:border-slate-300 transition-all cursor-pointer group"
           >
             {/* Date Box (Square) */}
-            <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] aspect-square rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center justify-center text-center shrink-0">
-              <span className="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums leading-none">
+            <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] aspect-square rounded-xl bg-[#F97316] text-white shadow-2xs flex flex-col items-center justify-center text-center shrink-0">
+              <span className="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums leading-none">
                 {dayNum}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 mt-1 capitalize leading-none">
+              <span className="text-[10px] sm:text-[11px] font-medium text-white/90 mt-1 capitalize leading-none">
                 {dayName}
               </span>
             </div>
