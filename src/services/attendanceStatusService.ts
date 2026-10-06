@@ -312,8 +312,10 @@ export const attendanceStatusService = {
       throw new Error(formatAttendanceError(empError));
     }
 
-    const activeEmployees: MinimalEmployee[] = (employeesData || [])
-      .filter((e) => e.status === 'active')
+    const isSingleEmployee = !!(employeeIdFilter && employeeIdFilter !== 'all');
+
+    const targetEmployees: MinimalEmployee[] = (employeesData || [])
+      .filter((e) => isSingleEmployee || e.status === 'active')
       .map((e) => {
         const deptObj = Array.isArray(e.departments) ? e.departments[0] : e.departments;
         return {
@@ -324,11 +326,11 @@ export const attendanceStatusService = {
         };
       });
 
-    if (activeEmployees.length === 0) {
+    if (targetEmployees.length === 0) {
       return [];
     }
 
-    const employeeIds = activeEmployees.map((e) => e.id);
+    const employeeIds = targetEmployees.map((e) => e.id);
 
     // 3. Fetch attendance records
     const { data: attendanceData, error: attError } = await supabase
@@ -398,7 +400,7 @@ export const attendanceStatusService = {
     const datesInRange = iterateDateRange(startDate, endDate);
     const results: EvaluatedStatusResult[] = [];
 
-    for (const emp of activeEmployees) {
+    for (const emp of targetEmployees) {
       for (const dStr of datesInRange) {
         const key = `${emp.id}:${dStr}`;
         const att = attendanceMap.get(key) || null;

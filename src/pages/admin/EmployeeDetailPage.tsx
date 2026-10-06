@@ -23,6 +23,7 @@ import { EmployeeFormModal } from '../../components/employees/EmployeeFormModal'
 import { StatusConfirmModal } from '../../components/employees/StatusConfirmModal';
 import { LinkProfileModal } from '../../components/employees/LinkProfileModal';
 import { DeleteEmployeeModal } from '../../components/employees/DeleteEmployeeModal';
+import { EmployeeAttendanceHistoryCard } from '../../components/employees/EmployeeAttendanceHistoryCard';
 
 export const EmployeeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -472,6 +473,9 @@ export const EmployeeDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Card 6: Riwayat Kehadiran (Phase 9F) */}
+      <EmployeeAttendanceHistoryCard employeeId={employee.id} />
 
       {/* Modals */}
       <EmployeeFormModal
