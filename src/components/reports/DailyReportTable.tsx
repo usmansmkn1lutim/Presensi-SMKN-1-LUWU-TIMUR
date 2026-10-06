@@ -1,5 +1,5 @@
-import React from 'react';
-import { Calendar, Users, CheckCircle2, Clock, LogOut, AlertCircle, Info, FileSpreadsheet, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Users, CheckCircle2, Clock, LogOut, AlertCircle, Info, FileSpreadsheet, Download, ArrowUpDown } from 'lucide-react';
 import { DailyAttendanceSummary } from '../../types/attendanceReport.types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -21,6 +21,9 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({
   isExporting,
   exportingType,
 }) => {
+  // Default sorting: Newest -> Oldest (descending by attendanceDate)
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
+
   if (isLoading) {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
@@ -45,6 +48,16 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({
       </div>
     );
   }
+
+  // Sort data chronologically by attendanceDate
+  const sortedData = [...data].sort((a, b) => {
+    const cmp = a.attendanceDate.localeCompare(b.attendanceDate);
+    return sortAsc ? cmp : -cmp;
+  });
+
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+  };
 
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
@@ -91,7 +104,20 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
-              <th className="py-3 px-4">Tanggal</th>
+              <th
+                className="py-3 px-4 cursor-pointer hover:text-[#111827] select-none"
+                onClick={toggleSort}
+                title="Klik untuk mengubah urutan tanggal"
+                aria-sort={sortAsc ? 'ascending' : 'descending'}
+              >
+                <div className="inline-flex items-center gap-1.5">
+                  <span>Tanggal</span>
+                  <ArrowUpDown className="w-3 h-3 text-[#9CA3AF]" />
+                  <span className="text-[10px] text-gray-500 font-normal">
+                    ({sortAsc ? 'Terlama → Terbaru' : 'Terbaru → Terlama'})
+                  </span>
+                </div>
+              </th>
               <th className="py-3 px-3">Hari</th>
               <th className="py-3 px-3">Status Hari</th>
               <th className="py-3 px-3 text-center">Hadir</th>
@@ -103,7 +129,7 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F3F4F6]">
-            {data.map((row) => {
+            {sortedData.map((row) => {
               // Check if weekend (0 = Sunday, 6 = Saturday)
               const [y, m, d] = row.attendanceDate.split('-').map(Number);
               const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay();

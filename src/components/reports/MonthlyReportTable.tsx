@@ -1,5 +1,5 @@
-import React from 'react';
-import { CalendarRange, Info, FileSpreadsheet, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { CalendarRange, Info, FileSpreadsheet, Download, ArrowUpDown } from 'lucide-react';
 import { MonthlyAttendanceSummary } from '../../types/attendanceReport.types';
 import { Button } from '../ui/Button';
 
@@ -20,6 +20,9 @@ export const MonthlyReportTable: React.FC<MonthlyReportTableProps> = ({
   isExporting,
   exportingType,
 }) => {
+  // Default sorting: Newest -> Oldest (descending by month YYYY-MM)
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
+
   if (isLoading) {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
@@ -44,6 +47,16 @@ export const MonthlyReportTable: React.FC<MonthlyReportTableProps> = ({
       </div>
     );
   }
+
+  // Sort data chronologically by month (YYYY-MM)
+  const sortedData = [...data].sort((a, b) => {
+    const cmp = a.month.localeCompare(b.month);
+    return sortAsc ? cmp : -cmp;
+  });
+
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+  };
 
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
@@ -90,7 +103,20 @@ export const MonthlyReportTable: React.FC<MonthlyReportTableProps> = ({
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
-              <th className="py-3 px-4">Bulan</th>
+              <th
+                className="py-3 px-4 cursor-pointer hover:text-[#111827] select-none"
+                onClick={toggleSort}
+                title="Klik untuk mengubah urutan bulan"
+                aria-sort={sortAsc ? 'ascending' : 'descending'}
+              >
+                <div className="inline-flex items-center gap-1.5">
+                  <span>Bulan</span>
+                  <ArrowUpDown className="w-3 h-3 text-[#9CA3AF]" />
+                  <span className="text-[10px] text-gray-500 font-normal">
+                    ({sortAsc ? 'Terlama → Terbaru' : 'Terbaru → Terlama'})
+                  </span>
+                </div>
+              </th>
               <th className="py-3 px-3 text-center">Hari Kerja Efektif</th>
               <th className="py-3 px-3 text-center">Total Hadir</th>
               <th className="py-3 px-3 text-center">Tepat Waktu</th>
@@ -100,7 +126,7 @@ export const MonthlyReportTable: React.FC<MonthlyReportTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F3F4F6]">
-            {data.map((row) => (
+            {sortedData.map((row) => (
               <tr key={row.month} className="hover:bg-[#F9FAFB]/70 transition-colors">
                 <td className="py-3 px-4 font-semibold text-[#111827] whitespace-nowrap">
                   {row.monthLabel}

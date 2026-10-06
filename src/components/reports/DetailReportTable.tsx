@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FileText,
   MapPin,
@@ -9,6 +9,7 @@ import {
   Building2,
   FileSpreadsheet,
   Download,
+  ArrowUpDown,
 } from 'lucide-react';
 import {
   AttendanceDetailItem,
@@ -38,6 +39,9 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   isExporting,
   exportingType,
 }) => {
+  // Default sorting: Newest -> Oldest (descending by timestamp)
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
+
   if (isLoading) {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
@@ -64,6 +68,18 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   }
 
   const { records, totalCount, page, pageSize, totalPages } = data;
+
+  // Sort records chronologically based on checkInAt / attendanceDate
+  const sortedRecords = [...records].sort((a, b) => {
+    const timeA = a.checkInAt || `${a.attendanceDate}T00:00:00`;
+    const timeB = b.checkInAt || `${b.attendanceDate}T00:00:00`;
+    const cmp = timeA.localeCompare(timeB);
+    return sortAsc ? cmp : -cmp;
+  });
+
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+  };
 
   const renderCheckInBadge = (status: 'on_time' | 'late' | null) => {
     if (status === 'on_time') {
@@ -177,7 +193,20 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
-              <th className="py-3 px-4">Tanggal</th>
+              <th
+                className="py-3 px-4 cursor-pointer hover:text-[#111827] select-none"
+                onClick={toggleSort}
+                title="Klik untuk mengubah urutan tanggal & waktu presensi"
+                aria-sort={sortAsc ? 'ascending' : 'descending'}
+              >
+                <div className="inline-flex items-center gap-1.5">
+                  <span>Tanggal & Waktu</span>
+                  <ArrowUpDown className="w-3 h-3 text-[#9CA3AF]" />
+                  <span className="text-[10px] text-gray-500 font-normal">
+                    ({sortAsc ? 'Terlama → Terbaru' : 'Terbaru → Terlama'})
+                  </span>
+                </div>
+              </th>
               <th className="py-3 px-3">Pegawai</th>
               <th className="py-3 px-3">Departemen</th>
               <th className="py-3 px-3">Jam Masuk</th>
@@ -190,7 +219,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F3F4F6]">
-            {records.map((row) => {
+            {sortedRecords.map((row) => {
               const isHistorical = !row.employeeId || row.employeeName.includes('(Arsip)');
 
               return (
