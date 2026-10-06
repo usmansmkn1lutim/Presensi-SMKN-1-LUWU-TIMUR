@@ -10,8 +10,15 @@ import {
   ChevronRight,
   ShieldCheck,
   Info,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import {
+  dashboardAttendanceService,
+  DashboardAttendanceSummary,
+} from '../../services/dashboardAttendanceService';
+import { Button } from '../../components/ui/Button';
 
 export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
@@ -20,6 +27,29 @@ export const DashboardPage: React.FC = () => {
   // Current real-time clock & formatted date
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDateFormatted, setCurrentDateFormatted] = useState<string>('');
+
+  // Dashboard monthly summary state
+  const [summary, setSummary] = useState<DashboardAttendanceSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState<boolean>(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  const fetchSummaryData = async () => {
+    setSummaryLoading(true);
+    setSummaryError(null);
+    try {
+      const res = await dashboardAttendanceService.getMonthlySummary();
+      setSummary(res);
+    } catch (err: any) {
+      console.error('Failed to load dashboard monthly summary:', err);
+      setSummaryError(err?.message || 'Gagal memuat ringkasan kehadiran bulan ini.');
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSummaryData();
+  }, []);
 
   // Real-time time & Indonesian date formatting (DDDD, D MMMM YYYY without "Hari ini")
   useEffect(() => {
@@ -145,31 +175,77 @@ export const DashboardPage: React.FC = () => {
           <span className="text-xs text-[#9CA3AF]">Periode Aktif</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
-            <span className="text-xs font-medium text-[#6B7280]">Hadir Tepat Waktu</span>
-            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
-            <span className="text-[11px] text-[#9CA3AF]">hari</span>
+        {summaryError ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 flex items-center justify-between gap-3 text-xs sm:text-sm">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+              <span>{summaryError}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchSummaryData}
+              className="text-xs shrink-0"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1" />
+              Coba Lagi
+            </Button>
           </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {/* Hadir Tepat Waktu */}
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
+              <span className="text-xs font-medium text-[#6B7280]">Hadir Tepat Waktu</span>
+              <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+                {summaryLoading ? (
+                  <span className="animate-pulse inline-block w-8 h-6 bg-[#E5E7EB] rounded-md" />
+                ) : (
+                  summary?.onTimeCount ?? 0
+                )}
+              </p>
+              <span className="text-[11px] text-[#9CA3AF]">hari</span>
+            </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
-            <span className="text-xs font-medium text-[#6B7280]">Terlambat</span>
-            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
-            <span className="text-[11px] text-[#9CA3AF]">kali</span>
-          </div>
+            {/* Terlambat */}
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
+              <span className="text-xs font-medium text-[#6B7280]">Terlambat</span>
+              <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+                {summaryLoading ? (
+                  <span className="animate-pulse inline-block w-8 h-6 bg-[#E5E7EB] rounded-md" />
+                ) : (
+                  summary?.lateCount ?? 0
+                )}
+              </p>
+              <span className="text-[11px] text-[#9CA3AF]">kali</span>
+            </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
-            <span className="text-xs font-medium text-[#6B7280]">Izin / Sakit / Dinas</span>
-            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
-            <span className="text-[11px] text-[#9CA3AF]">hari</span>
-          </div>
+            {/* Izin / Sakit / Dinas */}
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
+              <span className="text-xs font-medium text-[#6B7280]">Izin / Sakit / Dinas</span>
+              <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+                {summaryLoading ? (
+                  <span className="animate-pulse inline-block w-8 h-6 bg-[#E5E7EB] rounded-md" />
+                ) : (
+                  summary?.approvedRequestDays ?? 0
+                )}
+              </p>
+              <span className="text-[11px] text-[#9CA3AF]">hari</span>
+            </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
-            <span className="text-xs font-medium text-[#6B7280]">Tanpa Keterangan</span>
-            <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">—</p>
-            <span className="text-[11px] text-[#9CA3AF]">hari</span>
+            {/* Tanpa Keterangan */}
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3.5 sm:p-4 text-center shadow-2xs">
+              <span className="text-xs font-medium text-[#6B7280]">Tanpa Keterangan</span>
+              <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+                {summaryLoading ? (
+                  <span className="animate-pulse inline-block w-8 h-6 bg-[#E5E7EB] rounded-md" />
+                ) : (
+                  summary?.absentCount ?? 0
+                )}
+              </p>
+              <span className="text-[11px] text-[#9CA3AF]">hari</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Quick Action Navigation Cards */}
