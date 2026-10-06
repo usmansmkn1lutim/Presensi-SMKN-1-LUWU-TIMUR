@@ -6,6 +6,7 @@ import {
   EmployeeAttendanceSummary,
   MonthlyAttendanceSummary,
   AttendanceDetailItem,
+  MonthlyRecapReportResponse,
 } from '../types/attendanceReport.types';
 import { formatMakassarShortDate } from './attendanceReportService';
 
@@ -353,6 +354,123 @@ export const attendancePdfExportService = {
     this.attachFooter(doc, printTs);
 
     doc.save(`Laporan_Presensi_Detail_${filter.startDate}_${filter.endDate}.pdf`);
+    return true;
+  },
+
+  /**
+   * Export Monthly Grid Matrix Recap to PDF (PHASE 9G-EXPORT)
+   */
+  exportMonthlyRecapToPdf(
+    data: MonthlyRecapReportResponse,
+    year: number,
+    month: number,
+    filter: AttendanceReportFilter,
+    filterLabels?: { employee?: string; department?: string; location?: string }
+  ): boolean {
+    if (!data || data.rows.length === 0) {
+      throw new Error('Tidak ada data rekap bulanan grid untuk diekspor.');
+    }
+
+    // A4 Landscape is 297mm x 210mm
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const startY = this.drawPdfHeader(doc, `Rekap Bulanan Grid - ${year}/${String(month).padStart(2, '0')}`, filter, filterLabels);
+
+    const dayNumbers = Array.from({ length: data.daysInMonth }, (_, i) => i + 1);
+
+    // Build Table Headers
+    const head = [
+      [
+        'No',
+        'Nama Pegawai',
+        'Status',
+        ...dayNumbers.map(String),
+        'H',
+        'T',
+        'S',
+        'I',
+        'DL',
+        'C',
+        'A',
+        '%',
+      ],
+    ];
+
+    // Build Table Body Rows
+    const body = data.rows.map((row, index) => {
+      const dailyCodes = dayNumbers.map((d) => row.dailyStatuses[d]?.code || '—');
+
+      return [
+        String(index + 1),
+        row.employeeName,
+        row.employeeType,
+        ...dailyCodes,
+        String(row.totalPresent),
+        String(row.totalLate),
+        String(row.totalSick),
+        String(row.totalPermit),
+        String(row.totalOfficialDuty),
+        String(row.totalLeave),
+        String(row.totalAbsent),
+        row.attendancePercentageLabel,
+      ];
+    });
+
+    autoTable(doc, {
+      startY,
+      head,
+      body,
+      theme: 'grid',
+      styles: {
+        fontSize: 5.5,
+        cellPadding: 0.8,
+        valign: 'middle',
+        halign: 'center',
+        overflow: 'visible',
+      },
+      headStyles: {
+        fillColor: [249, 115, 22],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 5.5,
+      },
+      alternateRowStyles: { fillColor: [249, 250, 251] },
+      columnStyles: {
+        0: { cellWidth: 6, halign: 'center', fontStyle: 'bold' }, // No
+        1: { cellWidth: 26, halign: 'left' },                      // Nama Pegawai
+        2: { cellWidth: 12, halign: 'center' },                    // Status
+      },
+      didParseCell: (dataCell) => {
+        if (dataCell.section === 'body') {
+          const val = dataCell.cell.text[0];
+          if (val === 'H') {
+            dataCell.cell.styles.textColor = [16, 124, 65]; // green
+            dataCell.cell.styles.fontStyle = 'bold';
+          } else if (val === 'T') {
+            dataCell.cell.styles.textColor = [180, 83, 9];  // amber
+            dataCell.cell.styles.fontStyle = 'bold';
+          } else if (val === 'S') {
+            dataCell.cell.styles.textColor = [29, 78, 216]; // blue
+          } else if (val === 'I') {
+            dataCell.cell.styles.textColor = [79, 70, 229]; // indigo
+          } else if (val === 'DL') {
+            dataCell.cell.styles.textColor = [126, 34, 206]; // purple
+          } else if (val === 'C') {
+            dataCell.cell.styles.textColor = [15, 118, 110]; // teal
+          } else if (val === 'A') {
+            dataCell.cell.styles.textColor = [220, 38, 38]; // red
+            dataCell.cell.styles.fontStyle = 'bold';
+          } else if (val === 'L') {
+            dataCell.cell.styles.textColor = [107, 114, 128]; // gray
+          }
+        }
+      }
+    });
+
+    const printTs = this.getPrintTimestamp();
+    this.attachFooter(doc, printTs);
+
+    const formattedPeriod = `${year}${String(month).padStart(2, '0')}`;
+    doc.save(`Laporan_Matriks_Bulanan_${formattedPeriod}.pdf`);
     return true;
   },
 };

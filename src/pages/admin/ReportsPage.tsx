@@ -223,7 +223,13 @@ export const ReportsPage: React.FC = () => {
 
   // 5. Export Actions
   const handleExportExcel = async () => {
-    if (!reportData || isExporting) return;
+    if (isExporting) return;
+    if (activeTab === 'monthly_recap') {
+      if (!monthlyRecapData) return;
+    } else {
+      if (!reportData) return;
+    }
+
     setIsExporting(true);
     setExportingType('excel');
     setExportMessage('Menyiapkan file Excel...');
@@ -231,16 +237,19 @@ export const ReportsPage: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      if (activeTab === 'daily') {
+      if (activeTab === 'daily' && reportData) {
         attendanceExcelExportService.exportDailySummary(reportData.dailySummaries, filter);
-      } else if (activeTab === 'employee') {
+      } else if (activeTab === 'employee' && reportData) {
         attendanceExcelExportService.exportEmployeeSummary(reportData.employeeSummaries, filter);
-      } else if (activeTab === 'monthly') {
+      } else if (activeTab === 'monthly' && reportData) {
         attendanceExcelExportService.exportMonthlySummary(reportData.monthlySummaries, filter);
-      } else if (activeTab === 'detail') {
+      } else if (activeTab === 'detail' && reportData) {
         // Fetch ALL details without pagination limit
         const allDetails = await attendanceReportService.getAllAttendanceDetails(filter);
         attendanceExcelExportService.exportAttendanceDetails(allDetails, filter);
+      } else if (activeTab === 'monthly_recap' && monthlyRecapData) {
+        const [year, month] = filter.startDate.split('-').map(Number);
+        attendanceExcelExportService.exportMonthlyRecapToExcel(monthlyRecapData, year, month);
       }
       setExportSuccess('Export Excel berhasil dibuat.');
       setTimeout(() => setExportSuccess(null), 4000);
@@ -255,7 +264,13 @@ export const ReportsPage: React.FC = () => {
   };
 
   const handleExportPdf = async () => {
-    if (!reportData || isExporting) return;
+    if (isExporting) return;
+    if (activeTab === 'monthly_recap') {
+      if (!monthlyRecapData) return;
+    } else {
+      if (!reportData) return;
+    }
+
     setIsExporting(true);
     setExportingType('pdf');
     setExportMessage('Menyiapkan file PDF...');
@@ -273,16 +288,19 @@ export const ReportsPage: React.FC = () => {
     };
 
     try {
-      if (activeTab === 'daily') {
+      if (activeTab === 'daily' && reportData) {
         attendancePdfExportService.exportDailySummary(reportData.dailySummaries, filter, filterLabels);
-      } else if (activeTab === 'employee') {
+      } else if (activeTab === 'employee' && reportData) {
         attendancePdfExportService.exportEmployeeSummary(reportData.employeeSummaries, filter, filterLabels);
-      } else if (activeTab === 'monthly') {
+      } else if (activeTab === 'monthly' && reportData) {
         attendancePdfExportService.exportMonthlySummary(reportData.monthlySummaries, filter, filterLabels);
-      } else if (activeTab === 'detail') {
+      } else if (activeTab === 'detail' && reportData) {
         // Fetch ALL details without pagination limit
         const allDetails = await attendanceReportService.getAllAttendanceDetails(filter);
         attendancePdfExportService.exportAttendanceDetails(allDetails, filter, filterLabels);
+      } else if (activeTab === 'monthly_recap' && monthlyRecapData) {
+        const [year, month] = filter.startDate.split('-').map(Number);
+        attendancePdfExportService.exportMonthlyRecapToPdf(monthlyRecapData, year, month, filter, filterLabels);
       }
       setExportSuccess('Export PDF berhasil dibuat.');
       setTimeout(() => setExportSuccess(null), 4000);

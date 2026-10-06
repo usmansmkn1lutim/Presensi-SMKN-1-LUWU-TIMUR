@@ -92,4 +92,12 @@ console.assert(dates.length === 3, '5. range should have 3 dates');
 console.assert(dates[0] === '2026-10-06' && dates[1] === '2026-10-07' && dates[2] === '2026-10-08', '5. dates incorrect');
 console.log('✓ 5. Inclusive multi-day request date array iteration verified successfully.');
 
+// 6. Monthly recap export contracts
+import { attendanceExcelExportService } from '../services/attendanceExcelExportService';
+import { attendancePdfExportService } from '../services/attendancePdfExportService';
+
+console.assert(typeof attendanceExcelExportService.exportMonthlyRecapToExcel === 'function', '6. exportMonthlyRecapToExcel should be a function');
+console.assert(typeof attendancePdfExportService.exportMonthlyRecapToPdf === 'function', '6. exportMonthlyRecapToPdf should be a function');
+console.log('✓ 6. Monthly recap export service contracts verified successfully.');
+
 console.log('\n=== ALL MONTHLY RECAP BUSINESS RULE TESTS PASSED! ===');

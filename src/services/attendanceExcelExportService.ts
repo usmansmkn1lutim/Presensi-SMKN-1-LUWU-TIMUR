@@ -5,6 +5,7 @@ import {
   EmployeeAttendanceSummary,
   MonthlyAttendanceSummary,
   AttendanceDetailItem,
+  MonthlyRecapReportResponse,
 } from '../types/attendanceReport.types';
 import { formatMakassarShortDate } from './attendanceReportService';
 
@@ -223,6 +224,72 @@ export const attendanceExcelExportService = {
 
     const filename = this.getFilename('detail', filter);
     XLSX.writeFile(workbook, filename);
+    return true;
+  },
+
+  /**
+   * Export Monthly Grid Matrix Recap (PHASE 9G-EXPORT)
+   */
+  exportMonthlyRecapToExcel(data: MonthlyRecapReportResponse, year: number, month: number): boolean {
+    if (!data || data.rows.length === 0) {
+      throw new Error('Tidak ada data rekap bulanan grid untuk diekspor.');
+    }
+
+    const rows = data.rows.map((row, index) => {
+      const rowData: any = {
+        'No': index + 1,
+        'Nama Pegawai': row.employeeName,
+        'NIP': row.nip ? String(row.nip) : '-',
+        'Status Pegawai': row.employeeType,
+      };
+
+      for (let d = 1; d <= data.daysInMonth; d++) {
+        rowData[String(d)] = row.dailyStatuses[d]?.code || '—';
+      }
+
+      rowData['Hadir'] = row.totalPresent;
+      rowData['Terlambat'] = row.totalLate;
+      rowData['Sakit'] = row.totalSick;
+      rowData['Izin'] = row.totalPermit;
+      rowData['Dinas Luar'] = row.totalOfficialDuty;
+      rowData['Cuti'] = row.totalLeave;
+      rowData['Alpha'] = row.totalAbsent;
+      rowData['Persentase'] = row.attendancePercentageLabel;
+
+      return rowData;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    const colWidths = [
+      { wch: 6 },  // No
+      { wch: 26 }, // Nama
+      { wch: 18 }, // NIP
+      { wch: 15 }, // Status Pegawai
+    ];
+
+    for (let d = 1; d <= data.daysInMonth; d++) {
+      colWidths.push({ wch: 4 });
+    }
+
+    colWidths.push(
+      { wch: 8 },  // Hadir
+      { wch: 11 }, // Terlambat
+      { wch: 8 },  // Sakit
+      { wch: 8 },  // Izin
+      { wch: 12 }, // Dinas Luar
+      { wch: 8 },  // Cuti
+      { wch: 8 },  // Alpha
+      { wch: 13 }  // Persentase
+    );
+
+    worksheet['!cols'] = colWidths;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Rekap Bulanan');
+
+    const formattedPeriod = `${year}${String(month).padStart(2, '0')}`;
+    XLSX.writeFile(workbook, `Laporan_Matriks_Bulanan_${formattedPeriod}.xlsx`);
     return true;
   },
 };
