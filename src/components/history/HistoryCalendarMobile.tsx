@@ -48,11 +48,11 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs">
       <div className="flex items-center justify-between mb-4">
-        <button type="button" onClick={() => onMonthChange(currentDate.getFullYear(), currentDate.getMonth())} aria-label="Bulan sebelumnya" className="p-2 hover:bg-gray-100 rounded-full">
+        <button type="button" onClick={() => onMonthChange(currentDate.getFullYear(), currentDate.getMonth() - 1)} aria-label="Bulan sebelumnya" className="p-2 hover:bg-gray-100 rounded-full">
           <ChevronLeft className="w-5 h-5" />
         </button>
         <span className="text-sm font-bold capitalize">{monthName}</span>
-        <button type="button" onClick={() => onMonthChange(currentDate.getFullYear(), currentDate.getMonth() + 2)} aria-label="Bulan berikutnya" className="p-2 hover:bg-gray-100 rounded-full">
+        <button type="button" onClick={() => onMonthChange(currentDate.getFullYear(), currentDate.getMonth() + 1)} aria-label="Bulan berikutnya" className="p-2 hover:bg-gray-100 rounded-full">
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
