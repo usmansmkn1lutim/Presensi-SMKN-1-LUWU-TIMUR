@@ -308,10 +308,10 @@ export const HistoryPage: React.FC = () => {
           loading={monthlyOfficialLoading}
         />
 
-        {/* LOG PRESENSI */}
+        {/* RIWAYAT KEHADIRAN ANDA */}
         <div className="space-y-3 font-sans">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            LOG PRESENSI
+            RIWAYAT KEHADIRAN ANDA
           </h3>
           {monthlyOfficialLoading ? (
             <div className="space-y-3 animate-pulse">

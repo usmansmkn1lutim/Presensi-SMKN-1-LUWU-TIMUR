@@ -75,15 +75,15 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
               Presensi Masuk (Check-in)
             </span>
             {record.check_in_status === 'on_time' ? (
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-xs font-semibold text-[#F97316]">
                 Tepat Waktu
               </span>
             ) : record.check_in_status === 'late' ? (
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="text-xs font-semibold text-[#F97316]">
                 Terlambat
               </span>
             ) : (
-              <span className="text-xs text-[#9CA3AF]">-</span>
+              <span className="text-xs text-[#9CA3AF]">—</span>
             )}
           </div>
 
@@ -112,15 +112,15 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
               Presensi Pulang (Check-out)
             </span>
             {record.check_out_status === 'operational' ? (
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-xs font-semibold text-[#F97316]">
                 Jam Operasional
               </span>
             ) : record.check_out_status === 'after_work' ? (
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-xs font-semibold text-[#F97316]">
                 Setelah Jam Kerja
               </span>
             ) : (
-              <span className="px-2 py-0.5 rounded text-xs text-[#6B7280] bg-[#E5E7EB]">
+              <span className="text-xs text-[#6B7280]">
                 Belum Check-out
               </span>
             )}

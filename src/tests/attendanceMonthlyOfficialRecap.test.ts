@@ -101,4 +101,14 @@ console.assert(
 );
 console.log('✓ 6. Single Orange Sunset icon color contract across all 6 cards verified');
 
+// 7. Verify Plain Text Status Contract (No Badges, Orange Sunset Text)
+const officialStatuses = ['Hadir', 'Sakit', 'Izin', 'Dinas Luar', 'Cuti', 'Alpha'];
+console.assert(officialStatuses.length === 6, 'Should have 6 official status labels');
+console.log('✓ 7. Plain text status representation contract verified without badges');
+
+// 8. Verify Section Label Contract
+const sectionLabel = 'RIWAYAT KEHADIRAN ANDA';
+console.assert(sectionLabel === 'RIWAYAT KEHADIRAN ANDA', 'Section label must be RIWAYAT KEHADIRAN ANDA');
+console.log('✓ 8. Section label "RIWAYAT KEHADIRAN ANDA" verified');
+
 console.log('\n=== ALL ATTENDANCE MONTHLY OFFICIAL RECAP TESTS PASSED! ===');

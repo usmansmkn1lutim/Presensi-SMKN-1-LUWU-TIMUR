@@ -52,51 +52,27 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
     }
   };
 
-  const getStatusBadge = (row: AttendanceHistoryRecord) => {
+  const getStatusLabel = (row: AttendanceHistoryRecord) => {
     const status = (row.official_status || (row.check_in_at ? 'present' : 'absent')).toLowerCase();
 
     switch (status) {
       case 'present':
-        return {
-          label: '✓ Hadir',
-          style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-        };
+        return 'Hadir';
       case 'sick':
-        return {
-          label: 'Sakit',
-          style: 'bg-blue-50 text-blue-700 border border-blue-200',
-        };
+        return 'Sakit';
       case 'permit':
-        return {
-          label: 'Izin',
-          style: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
-        };
+        return 'Izin';
       case 'official_duty':
-        return {
-          label: 'Dinas Luar',
-          style: 'bg-purple-50 text-purple-700 border border-purple-200',
-        };
+        return 'Dinas Luar';
       case 'leave':
-        return {
-          label: 'Cuti',
-          style: 'bg-teal-50 text-teal-700 border border-teal-200',
-        };
+        return 'Cuti';
       case 'absent':
-        return {
-          label: 'Alpha',
-          style: 'bg-rose-50 text-rose-700 border border-rose-200',
-        };
+        return 'Alpha';
       default:
         if (row.check_in_at) {
-          return {
-            label: '✓ Hadir',
-            style: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-          };
+          return 'Hadir';
         }
-        return {
-          label: row.status_label || 'Alpha',
-          style: 'bg-rose-50 text-rose-700 border border-rose-200',
-        };
+        return row.status_label || 'Alpha';
     }
   };
 
@@ -109,7 +85,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
           (row.check_in_at ? 'Kantor / TU' : '—');
 
         const { dayName, dayNum } = getDayAndNumber(row.attendance_date);
-        const statusBadge = getStatusBadge(row);
+        const statusLabel = getStatusLabel(row);
 
         return (
           <div
@@ -172,12 +148,10 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
                   </span>
                 </div>
 
-                {/* Status Badge at bottom right */}
+                {/* Status Plain Text in Orange Sunset at bottom right */}
                 <div className="shrink-0">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold border ${statusBadge.style}`}
-                  >
-                    {statusBadge.label}
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#F97316]">
+                    {statusLabel}
                   </span>
                 </div>
               </div>
