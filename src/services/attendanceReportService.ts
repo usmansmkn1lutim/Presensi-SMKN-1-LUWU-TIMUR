@@ -693,24 +693,25 @@ export const attendanceReportService = {
       this.getAttendanceDetails(filter, page, pageSize),
     ]);
 
-    const totalRecords = details.totalCount;
-    const totalOnTime = employeeSummaries.reduce((sum, e) => sum + e.totalOnTime, 0);
-    const totalLate = employeeSummaries.reduce((sum, e) => sum + e.totalLate, 0);
-    const totalCheckedOut = employeeSummaries.reduce((sum, e) => sum + e.totalCheckedOut, 0);
-    const totalNotCheckedOut = employeeSummaries.reduce((sum, e) => sum + e.totalNotCheckedOut, 0);
-    const effectiveWorkingDays =
-      employeeSummaries.length > 0 ? employeeSummaries[0].totalWorkDays : 0;
+    // Canonical Single Source of Truth: Aggregate metrics from dailySummaries
+    const totalPresentSum = dailySummaries.reduce((sum, d) => sum + d.totalPresent, 0);
+    const totalOnTime = dailySummaries.reduce((sum, d) => sum + d.totalOnTime, 0);
+    const totalLate = dailySummaries.reduce((sum, d) => sum + d.totalLate, 0);
+    const totalCheckedOut = dailySummaries.reduce((sum, d) => sum + d.totalCheckedOut, 0);
+    const totalNotCheckedOut = dailySummaries.reduce((sum, d) => sum + d.totalNotCheckedOut, 0);
+    const totalEmployeesCount = dailySummaries.length > 0 ? dailySummaries[0].totalEmployees : (employeeSummaries.length || 0);
+    const effectiveWorkingDays = dailySummaries.length;
 
-    const totalPossibleAttendances = employeeSummaries.length * effectiveWorkingDays;
+    const totalPossibleAttendances = totalEmployeesCount * effectiveWorkingDays;
     const overallAttendancePercentage =
       totalPossibleAttendances > 0
-        ? Math.round((totalRecords / totalPossibleAttendances) * 1000) / 10
+        ? Math.round((totalPresentSum / totalPossibleAttendances) * 1000) / 10
         : 0;
 
     const metrics: OverallReportMetrics = {
-      totalEmployees: employeeSummaries.length,
+      totalEmployees: totalEmployeesCount,
       effectiveWorkingDays,
-      totalAttendanceRecords: totalRecords,
+      totalAttendanceRecords: totalPresentSum,
       totalOnTime,
       totalLate,
       totalCheckedOut,
