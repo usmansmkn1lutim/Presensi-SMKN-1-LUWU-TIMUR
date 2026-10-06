@@ -1,27 +1,21 @@
 import React from 'react';
-import { RefreshCw, FileText, Calendar, FileSpreadsheet, Download, Loader2 } from 'lucide-react';
+import { RefreshCw, FileText, Calendar } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 interface ReportHeaderProps {
   onRefresh: () => void;
   isLoading: boolean;
   isExporting: boolean;
-  exportingType: 'excel' | 'pdf' | null;
   dateRangeLabel: string;
   activeTabLabel: string;
-  onExportExcel: () => void;
-  onExportPdf: () => void;
 }
 
 export const ReportHeader: React.FC<ReportHeaderProps> = ({
   onRefresh,
   isLoading,
   isExporting,
-  exportingType,
   dateRangeLabel,
   activeTabLabel,
-  onExportExcel,
-  onExportPdf,
 }) => {
   return (
     <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -56,30 +50,6 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
           leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
         >
           Muat Ulang
-        </Button>
-
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onExportExcel}
-          disabled={isLoading || isExporting}
-          isLoading={isExporting && exportingType === 'excel'}
-          leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />}
-          className="border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-semibold"
-        >
-          Export Excel
-        </Button>
-
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onExportPdf}
-          disabled={isLoading || isExporting}
-          isLoading={isExporting && exportingType === 'pdf'}
-          leftIcon={<Download className="w-3.5 h-3.5 text-rose-600" />}
-          className="border border-rose-200 hover:bg-rose-50 text-rose-800 font-semibold"
-        >
-          Export PDF
         </Button>
       </div>
     </div>

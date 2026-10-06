@@ -7,6 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  FileSpreadsheet,
+  Download,
 } from 'lucide-react';
 import {
   AttendanceDetailItem,
@@ -20,6 +22,10 @@ interface DetailReportTableProps {
   isLoading: boolean;
   onPageChange: (newPage: number) => void;
   onPageSizeChange: (newPageSize: number) => void;
+  onExportExcel: () => void;
+  onExportPdf: () => void;
+  isExporting: boolean;
+  exportingType: 'excel' | 'pdf' | null;
 }
 
 export const DetailReportTable: React.FC<DetailReportTableProps> = ({
@@ -27,6 +33,10 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   isLoading,
   onPageChange,
   onPageSizeChange,
+  onExportExcel,
+  onExportPdf,
+  isExporting,
+  exportingType,
 }) => {
   if (isLoading) {
     return (
@@ -109,7 +119,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
       {/* Table Header and Counter */}
-      <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h3 className="text-sm sm:text-base font-bold text-[#111827] flex items-center gap-2">
             <FileText className="w-4 h-4 text-[#F97316]" />
@@ -120,7 +130,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs text-[#6B7280]">
             <span>Baris per halaman:</span>
             <select
@@ -133,9 +143,32 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
               <option value={50}>50</option>
             </select>
           </div>
-          <span className="text-xs font-semibold text-[#111827]">
+          <span className="text-xs font-semibold text-[#111827] mr-1">
             Total {totalCount} log
           </span>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onExportExcel}
+            disabled={isLoading || isExporting}
+            isLoading={isExporting && exportingType === 'excel'}
+            leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />}
+            className="border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs py-1.5"
+          >
+            Excel
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onExportPdf}
+            disabled={isLoading || isExporting}
+            isLoading={isExporting && exportingType === 'pdf'}
+            leftIcon={<Download className="w-3.5 h-3.5 text-rose-600" />}
+            className="border border-rose-200 hover:bg-rose-50 text-rose-800 font-semibold text-xs py-1.5"
+          >
+            PDF
+          </Button>
         </div>
       </div>
 

@@ -6,21 +6,32 @@ import {
   ChevronRight,
   HelpCircle,
   TrendingUp,
+  FileSpreadsheet,
+  Download,
 } from 'lucide-react';
 import {
   MonthlyRecapReportResponse,
   MonthlyRecapRow,
 } from '../../types/attendanceReport.types';
 import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 interface MonthlyRecapReportTableProps {
   data: MonthlyRecapReportResponse | null;
   isLoading: boolean;
+  onExportExcel: () => void;
+  onExportPdf: () => void;
+  isExporting: boolean;
+  exportingType: 'excel' | 'pdf' | null;
 }
 
 export const MonthlyRecapReportTable: React.FC<MonthlyRecapReportTableProps> = ({
   data,
   isLoading,
+  onExportExcel,
+  onExportPdf,
+  isExporting,
+  exportingType,
 }) => {
   const [localSearch, setLocalSearch] = useState<string>('');
   const [employeeTypeFilter, setEmployeeTypeFilter] = useState<string>('all');
@@ -246,53 +257,77 @@ export const MonthlyRecapReportTable: React.FC<MonthlyRecapReportTableProps> = (
         </div>
       </div>
 
-      {/* 2. Main Table & Toolbar */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
-        {/* Toolbar */}
-        <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white">
-          <div>
-            <h3 className="text-sm sm:text-base font-bold text-[#111827] flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#F97316]" />
-              Matriks Kehadiran Bulanan Pegawai
-            </h3>
-            <p className="text-xs text-[#6B7280] mt-0.5">
-              Rincian kehadiran harian tanggal 1–{data.daysInMonth} beserta rangkuman status administratif pegawai
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Local NIP/Name search */}
-            <div className="relative w-full sm:w-48">
-              <Search className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Cari nama / NIP..."
-                value={localSearch}
+        {/* 2. Main Table & Toolbar */}
+        <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+          {/* Toolbar */}
+          <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-[#111827] flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-[#F97316]" />
+                Matriks Kehadiran Bulanan Pegawai
+              </h3>
+              <p className="text-xs text-[#6B7280] mt-0.5">
+                Rincian kehadiran harian tanggal 1–{data.daysInMonth} beserta rangkuman status administratif pegawai
+              </p>
+            </div>
+  
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Local NIP/Name search */}
+              <div className="relative w-full sm:w-40">
+                <Search className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Cari nama / NIP..."
+                  value={localSearch}
+                  onChange={(e) => {
+                    setLocalSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                />
+              </div>
+  
+              {/* Local Employee Type Filter */}
+              <select
+                value={employeeTypeFilter}
                 onChange={(e) => {
-                  setLocalSearch(e.target.value);
+                  setEmployeeTypeFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
-              />
-            </div>
+                className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              >
+                <option value="all">Semua Tipe</option>
+                <option value="PNS">PNS</option>
+                <option value="PPPK">PPPK</option>
+                <option value="HONORER">HONORER</option>
+                <option value="Tidak diketahui">Tidak diketahui</option>
+              </select>
 
-            {/* Local Employee Type Filter */}
-            <select
-              value={employeeTypeFilter}
-              onChange={(e) => {
-                setEmployeeTypeFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
-            >
-              <option value="all">Semua Tipe</option>
-              <option value="PNS">PNS</option>
-              <option value="PPPK">PPPK</option>
-              <option value="HONORER">HONORER</option>
-              <option value="Tidak diketahui">Tidak diketahui</option>
-            </select>
+              {/* Export Buttons */}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onExportExcel}
+                disabled={isLoading || isExporting}
+                isLoading={isExporting && exportingType === 'excel'}
+                leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />}
+                className="border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs py-1.5"
+              >
+                Excel
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onExportPdf}
+                disabled={isLoading || isExporting}
+                isLoading={isExporting && exportingType === 'pdf'}
+                leftIcon={<Download className="w-3.5 h-3.5 text-rose-600" />}
+                className="border border-rose-200 hover:bg-rose-50 text-rose-800 font-semibold text-xs py-1.5"
+              >
+                PDF
+              </Button>
+            </div>
           </div>
-        </div>
 
         {/* Legend Panel */}
         <div className="bg-gray-50 border-b border-[#F3F4F6] px-4 py-2.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-[#6B7280] font-medium leading-none">

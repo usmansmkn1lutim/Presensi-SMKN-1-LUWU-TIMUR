@@ -1,14 +1,26 @@
 import React from 'react';
-import { Calendar, Users, CheckCircle2, Clock, LogOut, AlertCircle, Info } from 'lucide-react';
+import { Calendar, Users, CheckCircle2, Clock, LogOut, AlertCircle, Info, FileSpreadsheet, Download } from 'lucide-react';
 import { DailyAttendanceSummary } from '../../types/attendanceReport.types';
 import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 interface DailyReportTableProps {
   data: DailyAttendanceSummary[];
   isLoading: boolean;
+  onExportExcel: () => void;
+  onExportPdf: () => void;
+  isExporting: boolean;
+  exportingType: 'excel' | 'pdf' | null;
 }
 
-export const DailyReportTable: React.FC<DailyReportTableProps> = ({ data, isLoading }) => {
+export const DailyReportTable: React.FC<DailyReportTableProps> = ({
+  data,
+  isLoading,
+  onExportExcel,
+  onExportPdf,
+  isExporting,
+  exportingType,
+}) => {
   if (isLoading) {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
@@ -36,7 +48,7 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({ data, isLoad
 
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
-      <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 className="text-sm sm:text-base font-bold text-[#111827] flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#F97316]" />
@@ -46,8 +58,32 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({ data, isLoad
             Daftar distribusi status kehadiran per tanggal dalam periode
           </p>
         </div>
-        <div className="text-xs text-[#6B7280]">
-          Total <span className="font-semibold text-[#111827]">{data.length}</span> hari dalam rentang
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="text-xs text-[#6B7280] mr-1.5 hidden sm:block">
+            Total <span className="font-semibold text-[#111827]">{data.length}</span> hari
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onExportExcel}
+            disabled={isLoading || isExporting}
+            isLoading={isExporting && exportingType === 'excel'}
+            leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />}
+            className="border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs py-1.5"
+          >
+            Excel
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onExportPdf}
+            disabled={isLoading || isExporting}
+            isLoading={isExporting && exportingType === 'pdf'}
+            leftIcon={<Download className="w-3.5 h-3.5 text-rose-600" />}
+            className="border border-rose-200 hover:bg-rose-50 text-rose-800 font-semibold text-xs py-1.5"
+          >
+            PDF
+          </Button>
         </div>
       </div>
 

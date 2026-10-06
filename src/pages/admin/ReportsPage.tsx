@@ -364,11 +364,8 @@ export const ReportsPage: React.FC = () => {
         onRefresh={() => loadReport(filter, detailPage, detailPageSize)}
         isLoading={isLoading}
         isExporting={isExporting}
-        exportingType={exportingType}
         dateRangeLabel={dateRangeLabel}
         activeTabLabel={tabLabels[activeTab]}
-        onExportExcel={handleExportExcel}
-        onExportPdf={handleExportPdf}
       />
 
       {/* 2. Export Busy / Toast Indicator */}
@@ -471,6 +468,10 @@ export const ReportsPage: React.FC = () => {
           <DailyReportTable
             data={reportData?.dailySummaries || []}
             isLoading={isLoading}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportingType={exportingType}
           />
         )}
 
@@ -478,6 +479,10 @@ export const ReportsPage: React.FC = () => {
           <EmployeeReportTable
             data={reportData?.employeeSummaries || []}
             isLoading={isLoading}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportingType={exportingType}
           />
         )}
 
@@ -485,6 +490,10 @@ export const ReportsPage: React.FC = () => {
           <MonthlyReportTable
             data={reportData?.monthlySummaries || []}
             isLoading={isLoading}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportingType={exportingType}
           />
         )}
 
@@ -492,6 +501,10 @@ export const ReportsPage: React.FC = () => {
           <MonthlyRecapReportTable
             data={monthlyRecapData}
             isLoading={isLoading || isRecapLoading}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportingType={exportingType}
           />
         )}
 
@@ -501,6 +514,10 @@ export const ReportsPage: React.FC = () => {
             isLoading={isLoading || isDetailLoading}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportingType={exportingType}
           />
         )}
       </div>
