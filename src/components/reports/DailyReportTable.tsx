@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Users, CheckCircle2, Clock, LogOut, AlertCircle, Info, FileSpreadsheet, Download, ArrowUpDown } from 'lucide-react';
+import { Calendar, Users, CheckCircle2, Clock, LogOut, AlertCircle, Info, FileSpreadsheet, Download, ArrowUp, ArrowDown } from 'lucide-react';
 import { DailyAttendanceSummary } from '../../types/attendanceReport.types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -105,18 +105,27 @@ export const DailyReportTable: React.FC<DailyReportTableProps> = ({
           <thead>
             <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
               <th
-                className="py-3 px-4 cursor-pointer hover:text-[#111827] select-none"
-                onClick={toggleSort}
-                title="Klik untuk mengubah urutan tanggal"
+                scope="col"
                 aria-sort={sortAsc ? 'ascending' : 'descending'}
+                className="py-2 px-4 select-none"
               >
-                <div className="inline-flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={toggleSort}
+                  className="group inline-flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[11px] text-[#4B5563] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] rounded transition-colors py-1 cursor-pointer"
+                  aria-label={
+                    sortAsc
+                      ? 'Tanggal, urutan terlama ke terbaru. Klik untuk mengubah ke terbaru ke terlama.'
+                      : 'Tanggal, urutan terbaru ke terlama. Klik untuk mengubah ke terlama ke terbaru.'
+                  }
+                >
                   <span>Tanggal</span>
-                  <ArrowUpDown className="w-3 h-3 text-[#9CA3AF]" />
-                  <span className="text-[10px] text-gray-500 font-normal">
-                    ({sortAsc ? 'Terlama → Terbaru' : 'Terbaru → Terlama'})
-                  </span>
-                </div>
+                  {sortAsc ? (
+                    <ArrowUp className="w-3.5 h-3.5 text-[#F97316] transition-transform" />
+                  ) : (
+                    <ArrowDown className="w-3.5 h-3.5 text-[#F97316] transition-transform" />
+                  )}
+                </button>
               </th>
               <th className="py-3 px-3">Hari</th>
               <th className="py-3 px-3">Status Hari</th>
