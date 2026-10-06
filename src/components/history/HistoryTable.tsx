@@ -40,7 +40,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   };
 
   return (
-    <div className="hidden md:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>

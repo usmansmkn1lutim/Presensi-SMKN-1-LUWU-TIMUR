@@ -27,6 +27,8 @@ import {
 } from '../../components/requests/RequestHistoryFilters';
 import { RequestHistoryTable } from '../../components/requests/RequestHistoryTable';
 import { RequestHistoryCard } from '../../components/requests/RequestHistoryCard';
+import { RequestMobileCard } from '../../components/requests/RequestMobileCard';
+import { RequestMobileSearchFilter } from '../../components/requests/RequestMobileSearchFilter';
 import { Button } from '../../components/ui/Button';
 
 export const RequestsPage: React.FC = () => {
@@ -183,8 +185,26 @@ export const RequestsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
-      {/* Header Banner */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* 1. Mobile & Tablet Heading & Primary Action (< 1024px) */}
+      <div className="lg:hidden space-y-4 font-sans">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          Pengajuan
+        </h1>
+
+        {(!isReviewer || activeTab === 'personal') && !isUnlinked && (
+          <button
+            type="button"
+            onClick={() => setIsFormOpen(true)}
+            className="w-full h-12 px-4 bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white font-bold rounded-2xl shadow-2xs inline-flex items-center justify-center gap-2 transition-colors cursor-pointer text-sm"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5] text-white shrink-0" />
+            <span className="leading-none">Pengajuan baru</span>
+          </button>
+        )}
+      </div>
+
+      {/* Header Banner (Desktop Only >= 1024px - Untouched) */}
+      <div className="hidden lg:flex bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
             <FileText className="w-3.5 h-3.5 text-[#F97316]" />
@@ -372,35 +392,56 @@ export const RequestsPage: React.FC = () => {
         /* VIEW 2: PERSONAL REQUESTS VIEW (Employee History view)                    */
         /* ========================================================================= */
         <div className="space-y-4">
-          {/* Status Summary Cards */}
+          {/* Desktop Only: Status Summary Cards (>= 1024px) */}
           {!isUnlinked && (
-            <RequestSummaryCards
-              requests={myRequests}
-              selectedStatus={myFilterValues.status}
-              onSelectStatus={(st) =>
-                setMyFilterValues((prev) => ({ ...prev, status: st }))
-              }
-            />
+            <div className="hidden lg:block">
+              <RequestSummaryCards
+                requests={myRequests}
+                selectedStatus={myFilterValues.status}
+                onSelectStatus={(st) =>
+                  setMyFilterValues((prev) => ({ ...prev, status: st }))
+                }
+              />
+            </div>
           )}
 
-          {/* Search & Filters */}
+          {/* Desktop Only: Full Search & Filters (>= 1024px) */}
           {!isUnlinked && (
-            <RequestHistoryFilters
-              values={myFilterValues}
-              onChange={setMyFilterValues}
-              onReset={() =>
-                setMyFilterValues({
-                  status: 'all',
-                  requestType: 'all',
-                  datePreset: 'all',
-                  customStartDate: '',
-                  customEndDate: '',
-                  search: '',
-                })
-              }
-              showSearch={true}
-              searchPlaceholder="Cari jenis pengajuan atau alasan..."
-            />
+            <div className="hidden lg:block">
+              <RequestHistoryFilters
+                values={myFilterValues}
+                onChange={setMyFilterValues}
+                onReset={() =>
+                  setMyFilterValues({
+                    status: 'all',
+                    requestType: 'all',
+                    datePreset: 'all',
+                    customStartDate: '',
+                    customEndDate: '',
+                    search: '',
+                  })
+                }
+                showSearch={true}
+                searchPlaceholder="Cari jenis pengajuan atau alasan..."
+              />
+            </div>
+          )}
+
+          {/* Mobile & Tablet Only: Unified Search + Filter Bar (< 1024px) */}
+          {!isUnlinked && (
+            <div className="lg:hidden">
+              <RequestMobileSearchFilter
+                search={myFilterValues.search}
+                onSearchChange={(search) =>
+                  setMyFilterValues((prev) => ({ ...prev, search }))
+                }
+                status={myFilterValues.status}
+                onStatusChange={(status) =>
+                  setMyFilterValues((prev) => ({ ...prev, status }))
+                }
+                placeholder="Cari pengajuan..."
+              />
+            </div>
           )}
 
           {/* UNLINKED ACCOUNT STATE */}
@@ -460,17 +501,17 @@ export const RequestsPage: React.FC = () => {
             </div>
           ) : myRequests.length === 0 ? (
             /* Empty State: No requests at all */
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto border border-[#E5E7EB]">
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-4 font-sans">
+              <div className="w-14 h-14 rounded-2xl bg-[#F9FAFB] text-[#9CA3AF] flex items-center justify-center mx-auto border border-[#E5E7EB]">
                 <FileText className="w-7 h-7 text-[#9CA3AF]" />
               </div>
 
               <div className="space-y-1">
                 <h4 className="text-base font-bold text-[#111827]">
-                  Belum Ada Pengajuan Permohonan
+                  Belum Ada Pengajuan
                 </h4>
                 <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
-                  Anda belum pernah mengajukan permohonan ketidakhadiran. Klik tombol di bawah untuk membuat pengajuan baru.
+                  Anda belum pernah mengajukan permohonan. Klik tombol di bawah untuk membuat pengajuan baru.
                 </p>
               </div>
 
@@ -486,7 +527,7 @@ export const RequestsPage: React.FC = () => {
             </div>
           ) : filteredMyRequests.length === 0 ? (
             /* Filtered Empty State */
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-8 text-center shadow-2xs space-y-3">
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-8 text-center shadow-2xs space-y-3 font-sans">
               <div className="w-12 h-12 rounded-2xl bg-[#F9FAFB] text-[#9CA3AF] flex items-center justify-center mx-auto border border-[#E5E7EB]">
                 <SearchX className="w-6 h-6 text-[#9CA3AF]" />
               </div>
@@ -515,23 +556,33 @@ export const RequestsPage: React.FC = () => {
               </Button>
             </div>
           ) : (
-            /* Personal Request List Content (Desktop Table + Mobile Cards) */
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
-              <div className="hidden lg:block">
+            /* Personal Request List Content */
+            <>
+              {/* Desktop Table View (>= 1024px) */}
+              <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
                 <RequestHistoryTable
                   requests={filteredMyRequests}
                   mode="employee"
                   onSelect={(req) => setSelectedMyRequest(req)}
                 />
               </div>
-              <div className="lg:hidden">
-                <RequestHistoryCard
-                  requests={filteredMyRequests}
-                  mode="employee"
-                  onSelect={(req) => setSelectedMyRequest(req)}
-                />
+
+              {/* Mobile & Tablet Card List View (< 1024px) */}
+              <div className="lg:hidden space-y-3 font-sans">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  DAFTAR PENGAJUAN
+                </h3>
+                <div className="space-y-3">
+                  {filteredMyRequests.map((req) => (
+                    <RequestMobileCard
+                      key={req.id}
+                      request={req}
+                      onSelect={(r) => setSelectedMyRequest(r)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* Form Modal for Personal Request */}

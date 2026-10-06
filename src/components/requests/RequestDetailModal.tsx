@@ -10,17 +10,21 @@ import {
   Hourglass,
   CheckCircle2,
   XCircle,
+  HeartPulse,
+  FileText,
+  Briefcase,
+  HelpCircle,
 } from 'lucide-react';
 import {
   RequestRow,
   RequestWithRelations,
   RequestDetailModel,
+  REQUEST_STATUS_LABELS,
   formatRequestDate,
   formatRequestDateTime,
   formatRequestDuration,
   normalizeRequestDetail,
 } from '../../types/request.types';
-import { RequestStatusBadge, RequestTypeBadge } from './RequestStatusBadge';
 import { requestService, formatRequestError } from '../../services/requestService';
 import { Button } from '../ui/Button';
 
@@ -29,6 +33,81 @@ interface RequestDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccessCancel: () => void;
+}
+
+/**
+ * Return appropriate label & single Orange Sunset icon for each request type
+ */
+function getRequestTypeDisplay(type: string): { label: string; icon: React.ReactNode } {
+  const normalized = type?.toLowerCase() || '';
+
+  switch (normalized) {
+    case 'sick':
+      return {
+        label: 'Sakit',
+        icon: <HeartPulse className="w-4 h-4 text-[#F97316] shrink-0" />,
+      };
+    case 'permit':
+      return {
+        label: 'Izin',
+        icon: <FileText className="w-4 h-4 text-[#F97316] shrink-0" />,
+      };
+    case 'official_duty':
+      return {
+        label: 'Dinas Luar',
+        icon: <Briefcase className="w-4 h-4 text-[#F97316] shrink-0" />,
+      };
+    case 'leave':
+      return {
+        label: 'Cuti',
+        icon: <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />,
+      };
+    case 'other':
+    default:
+      return {
+        label: 'Lainnya',
+        icon: <HelpCircle className="w-4 h-4 text-[#F97316] shrink-0" />,
+      };
+  }
+}
+
+/**
+ * Format range e.g.:
+ * Single day: '6 Okt 2026'
+ * Multi day: '6 Okt – 9 Okt 2026' (or '28 Sep – 2 Okt 2026')
+ */
+function formatShortDateRange(startStr: string, endStr: string): string {
+  if (!startStr) return '—';
+  try {
+    const parse = (s: string) => {
+      const parts = s.split('-');
+      return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    };
+
+    const d1 = parse(startStr);
+    const day1 = d1.getDate();
+    const m1 = d1.toLocaleDateString('id-ID', { month: 'short' });
+    const y1 = d1.getFullYear();
+
+    if (!endStr || startStr === endStr) {
+      return `${day1} ${m1} ${y1}`;
+    }
+
+    const d2 = parse(endStr);
+    const day2 = d2.getDate();
+    const m2 = d2.toLocaleDateString('id-ID', { month: 'short' });
+    const y2 = d2.getFullYear();
+
+    if (y1 === y2 && m1 === m2) {
+      return `${day1} ${m1} – ${day2} ${m2} ${y2}`;
+    }
+    if (y1 === y2) {
+      return `${day1} ${m1} – ${day2} ${m2} ${y2}`;
+    }
+    return `${day1} ${m1} ${y1} – ${day2} ${m2} ${y2}`;
+  } catch {
+    return `${startStr} – ${endStr}`;
+  }
 }
 
 export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
@@ -92,6 +171,9 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   const submittedAt = detail?.submitted_at || request.submitted_at;
   const reason = detail?.reason || request.reason;
 
+  const { label: typeLabel, icon: typeIcon } = getRequestTypeDisplay(requestType);
+  const statusLabel = REQUEST_STATUS_LABELS[currentStatus] || currentStatus;
+
   const handleCancelRequest = async () => {
     setErrorMsg(null);
     setCancelling(true);
@@ -110,14 +192,13 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 font-sans">
       <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Modal Header */}
-        <div className="p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F9FAFB]">
-          <div className="flex items-center gap-3">
-            <RequestTypeBadge type={requestType} />
-            <RequestStatusBadge status={currentStatus} />
-          </div>
+        {/* 1. Modal Header: Judul modal dan tombol tutup X */}
+        <div className="p-5 border-b border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between">
+          <h3 className="text-base font-bold text-[#111827]">
+            Rincian Pengajuan
+          </h3>
           <button
             onClick={() => {
               setConfirmCancel(false);
@@ -125,9 +206,10 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
               onClose();
             }}
             disabled={cancelling}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors"
+            className="w-8 h-8 rounded-xl bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280] hover:text-[#111827] flex items-center justify-center transition-colors cursor-pointer"
+            aria-label="Tutup modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -148,34 +230,49 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
             </div>
           )}
 
-          {/* Rentang Tanggal & Durasi */}
-          <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl p-3.5 space-y-2 text-xs">
-            <div className="flex items-center justify-between font-semibold text-[#111827]">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#F97316]" />
-                <span>Periode Permohonan</span>
-              </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF7ED] text-[#EA580C] border border-[#F97316]/30">
+          {/* 2. Baris Identitas Pengajuan di Body: [Icon Jenis] Sakit • Disetujui */}
+          <div className="flex items-center gap-2 text-sm font-bold text-[#F97316]">
+            {typeIcon}
+            <span>{typeLabel}</span>
+            <span className="text-[#F97316]/70">•</span>
+            <span className="font-semibold">{statusLabel}</span>
+          </div>
+
+          {/* 3. Card Khusus Periode Permohonan */}
+          <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 space-y-3 text-xs font-sans">
+            {/* Header Card: [Icon Calendar] Periode Permohonan • [durasi] */}
+            <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-[#111827]">
+              <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
+              <span>Periode Permohonan</span>
+              <span className="text-[#9CA3AF]">•</span>
+              <span className="text-[#F97316] font-semibold">
                 {formatRequestDuration(startDate, endDate)}
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[#4B5563] pt-2 border-t border-[#E5E7EB]">
+
+            {/* Tanggal Mulai & Tanggal Selesai */}
+            <div className="space-y-2.5 pt-2.5 border-t border-[#E5E7EB]">
               <div>
-                <span className="text-[#9CA3AF] block text-[11px]">Tanggal Mulai</span>
-                <span className="font-bold text-[#111827]">
+                <span className="text-[11px] font-medium text-[#6B7280] block">
+                  Tanggal Mulai
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-[#111827] mt-0.5 block">
                   {formatRequestDate(startDate)}
                 </span>
               </div>
+
               <div>
-                <span className="text-[#9CA3AF] block text-[11px]">Tanggal Selesai</span>
-                <span className="font-bold text-[#111827]">
+                <span className="text-[11px] font-medium text-[#6B7280] block">
+                  Tanggal Selesai
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-[#111827] mt-0.5 block">
                   {formatRequestDate(endDate)}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Tanggal Pengajuan */}
+          {/* 4. Tanggal Pengajuan */}
           <div className="text-xs text-[#6B7280] flex items-center gap-2 bg-[#F9FAFB] p-2.5 rounded-xl border border-[#E5E7EB]">
             <Clock className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
             <span>
@@ -183,7 +280,7 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
             </span>
           </div>
 
-          {/* Alasan */}
+          {/* 5. Alasan */}
           <div>
             <span className="block text-xs font-semibold text-[#111827] mb-1">
               Alasan Permohonan:
@@ -193,48 +290,38 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Bagian Status Review */}
+          {/* 6. Bagian Status Review */}
           <div className="space-y-1.5">
             <span className="block text-xs font-semibold text-[#111827]">
               Informasi Peninjauan:
             </span>
 
             {currentStatus === 'pending' ? (
-              <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-[#374151] flex items-start gap-2.5">
+                <Clock className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold block">Menunggu review</span>
-                  <p className="text-[11px] text-amber-800 mt-0.5">
+                  <span className="font-bold text-[#111827] block">Menunggu review</span>
+                  <p className="text-[11px] text-[#6B7280] mt-0.5">
                     Permohonan sedang menunggu tinjauan dan keputusan dari pimpinan sekolah atau administrator.
                   </p>
                 </div>
               </div>
             ) : currentStatus === 'cancelled' ? (
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 flex items-start gap-2.5">
-                <Ban className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-[#374151] flex items-start gap-2.5">
+                <Ban className="w-4 h-4 text-[#9CA3AF] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold block">Permohonan Dibatalkan</span>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
+                  <span className="font-bold text-[#111827] block">Permohonan Dibatalkan</span>
+                  <p className="text-[11px] text-[#6B7280] mt-0.5">
                     Pengajuan ini telah dibatalkan oleh pemohon.
                   </p>
                 </div>
               </div>
             ) : (
               /* Approved / Rejected */
-              <div
-                className={`p-3.5 rounded-xl border space-y-2 text-xs ${
-                  currentStatus === 'approved'
-                    ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950'
-                    : 'bg-red-50/50 border-red-200 text-red-950'
-                }`}
-              >
+              <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold flex items-center gap-1.5">
-                    {currentStatus === 'approved' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    ) : (
-                      <XCircle className="w-4 h-4 text-red-600" />
-                    )}
+                  <span className="font-bold text-[#111827] flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#F97316]" />
                     {currentStatus === 'approved'
                       ? 'Permohonan Disetujui'
                       : 'Permohonan Ditolak'}
@@ -256,9 +343,9 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                   </div>
                 )}
 
-                <div className="pt-1 border-t border-black/5">
+                <div className="pt-1 border-t border-[#E5E7EB]">
                   <span className="text-[11px] font-semibold text-[#6B7280] block mb-0.5 flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
+                    <MessageSquare className="w-3 h-3 text-[#9CA3AF]" />
                     Catatan Peninjau:
                   </span>
                   <p className="italic text-[#374151]">
@@ -309,7 +396,7 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between">
+        <div className="p-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between font-sans">
           <div>
             {currentStatus === 'pending' && !confirmCancel && (
               <Button

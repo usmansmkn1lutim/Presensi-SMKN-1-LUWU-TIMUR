@@ -243,14 +243,14 @@ export const HistoryPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
       {/* 1. Mobile & Tablet Heading (Point 1 & 2: Intro banner removed on mobile/tablet) */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight font-sans">
           Riwayat Presensi
         </h1>
       </div>
 
       {/* Header Banner (Desktop Only - Untouched) */}
-      <div className="hidden md:flex bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="hidden lg:flex bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
             <CalendarCheck className="w-3.5 h-3.5 text-[#F97316]" />
@@ -277,7 +277,7 @@ export const HistoryPage: React.FC = () => {
       </div>
 
       {/* Desktop View: Summary Cards & Filter Bar */}
-      <div className="hidden md:block space-y-6">
+      <div className="hidden lg:block space-y-6">
         <HistorySummaryCards summary={summary} loading={loading} />
         <HistoryFilterBar
           startDate={startDate}
@@ -293,7 +293,7 @@ export const HistoryPage: React.FC = () => {
       </div>
 
       {/* Mobile & Tablet View: Calendar-First Layout */}
-      <div className="md:hidden space-y-5 sm:space-y-6">
+      <div className="lg:hidden space-y-5 sm:space-y-6">
         {/* Card Kalender */}
         <HistoryCalendarMobile
           onDateSelect={handleDateSelect}
@@ -383,7 +383,7 @@ export const HistoryPage: React.FC = () => {
         </div>
       ) : (
         /* Desktop Records Content */
-        <div className="hidden md:block space-y-4">
+        <div className="hidden lg:block space-y-4">
           {loading ? (
             <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
               <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />

@@ -77,7 +77,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
   };
 
   return (
-    <div className="md:hidden space-y-3 font-sans">
+    <div className="space-y-3 font-sans">
       {records.map((row) => {
         const locationName =
           row.check_in_location?.name ||
