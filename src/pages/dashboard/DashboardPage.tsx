@@ -563,18 +563,21 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Row 2: Tanggal Hari Ini */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-orange-100 relative z-10">
-          <Calendar className="w-4 h-4 text-white shrink-0" />
-          <span>{currentDateFormatted || 'Memuat tanggal...'}</span>
-        </div>
+        {/* Row 2: Status Header (PRESENSI HARI INI & Tanggal) + Status Display */}
+        <div className="pt-0.5 pb-0.5 relative z-10 space-y-1">
+          {/* Baris 1: PRESENSI HARI INI (Kiri) & Tanggal (Kanan) */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-2xs">
+              PRESENSI HARI INI
+            </span>
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-orange-100/95 shrink-0">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+              <span>{currentDateFormatted || 'Memuat tanggal...'}</span>
+            </div>
+          </div>
 
-        {/* Row 3: Status Section (PRESENSI HARI INI) */}
-        <div className="pt-1 pb-0.5 relative z-10 space-y-1">
-          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-orange-100/90">
-            PRESENSI HARI INI
-          </p>
-          <p className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+          {/* Baris 2: Status / Reminder */}
+          <p className="text-base sm:text-lg font-extrabold text-white tracking-tight drop-shadow-2xs">
             {getTodayDisplayStatus()}
           </p>
         </div>
