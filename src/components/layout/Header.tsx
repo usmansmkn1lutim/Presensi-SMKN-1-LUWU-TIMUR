@@ -7,13 +7,51 @@ import { SchoolLogo } from '../ui/SchoolLogo';
 import { NAVIGATION_ITEMS } from '../../config/navigation';
 import { NotificationBell } from '../notifications/NotificationBell';
 
+const ROUTE_MENU_MAP: Record<string, string> = {
+  '/dashboard': 'Beranda',
+  '/': 'Beranda',
+  '/history': 'Riwayat',
+  '/attendance': 'Presensi',
+  '/requests': 'Pengajuan',
+  '/profile': 'Profil',
+  '/employees': 'Pegawai',
+  '/reports': 'Laporan',
+  '/attendance-monitoring': 'Monitoring Presensi',
+  '/schedules': 'Jadwal Kerja',
+  '/locations': 'Lokasi',
+  '/holidays': 'Hari Libur',
+  '/users': 'Pengguna',
+  '/settings': 'Pengaturan',
+  '/notifications': 'Notifikasi',
+  '/audit-logs': 'Audit Log',
+};
+
+export const getFriendlyMenuTitle = (pathname: string): string => {
+  const cleanPath = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
+
+  if (ROUTE_MENU_MAP[cleanPath]) {
+    return ROUTE_MENU_MAP[cleanPath];
+  }
+
+  if (cleanPath.startsWith('/employees/')) return 'Detail Pegawai';
+  if (cleanPath.startsWith('/requests/')) return 'Pengajuan';
+  if (cleanPath.startsWith('/history/')) return 'Riwayat';
+  if (cleanPath.startsWith('/notifications/')) return 'Notifikasi';
+
+  const navItem = NAVIGATION_ITEMS.find((item) => item.path === cleanPath);
+  if (navItem) {
+    return navItem.label;
+  }
+
+  return 'Beranda';
+};
+
 export const Header: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  // Find page title from current location
-  const currentNav = NAVIGATION_ITEMS.find((item) => item.path === location.pathname);
-  const pageTitle = currentNav ? currentNav.label : 'Presensi Pegawai';
+  // Header always displays friendly menu label instead of technical route/name
+  const pageTitle = getFriendlyMenuTitle(location.pathname);
 
   return (
     <header className="h-16 bg-[#FFFFFF] border-b border-[#E5E7EB] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">

@@ -5,7 +5,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   // SECTION: UTAMA (Main)
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'Beranda',
     path: '/dashboard',
     iconName: 'Home',
     allowedRoles: ['super_admin', 'admin', 'headmaster', 'employee'],
@@ -32,7 +32,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
   {
     id: 'history',
-    label: 'Riwayat Presensi',
+    label: 'Riwayat',
     path: '/history',
     iconName: 'CalendarCheck',
     allowedRoles: ['super_admin', 'admin', 'headmaster', 'employee'],
@@ -59,7 +59,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
   {
     id: 'profile',
-    label: 'Profil Saya',
+    label: 'Profil',
     path: '/profile',
     iconName: 'User',
     allowedRoles: ['super_admin', 'admin', 'headmaster', 'employee'],
@@ -70,7 +70,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   // SECTION: MANAJEMEN SEKOLAH (Management)
   {
     id: 'employees',
-    label: 'Data Pegawai',
+    label: 'Pegawai',
     path: '/employees',
     iconName: 'Users',
     allowedRoles: ['super_admin', 'admin', 'headmaster'],
@@ -97,7 +97,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
   {
     id: 'holidays',
-    label: 'Kalender & Hari Libur',
+    label: 'Hari Libur',
     path: '/holidays',
     iconName: 'CalendarOff',
     allowedRoles: ['super_admin', 'admin', 'headmaster', 'employee'],
@@ -106,7 +106,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   },
   {
     id: 'reports',
-    label: 'Rekap dan Laporan',
+    label: 'Laporan',
     path: '/reports',
     iconName: 'BarChart3',
     allowedRoles: ['super_admin', 'admin', 'headmaster'],
@@ -117,7 +117,7 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   // SECTION: SISTEM (System)
   {
     id: 'users',
-    label: 'Manajemen Pengguna',
+    label: 'Pengguna',
     path: '/users',
     iconName: 'UserCheck',
     allowedRoles: ['super_admin', 'admin'],
