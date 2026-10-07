@@ -501,29 +501,42 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* 2. Mobile & Tablet Card Presensi Hari Ini (< 1024px) */}
-      <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 font-sans">
+      <div className="lg:hidden relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3 sm:space-y-3.5 font-sans">
+        {/* Geometric Minimalist Background Pattern */}
+        <div className="absolute inset-0 opacity-12 pointer-events-none overflow-hidden rounded-2xl">
+          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+              <pattern id="geometric-pattern-personal-mobile" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="currentColor" strokeWidth="1" />
+                <circle cx="20" cy="20" r="2" fill="currentColor" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#geometric-pattern-personal-mobile)" className="text-white" />
+          </svg>
+        </div>
+
         {/* Row 1: Nama Sekolah & Lokasi */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-3 border-b border-[#F3F4F6]">
-          <h3 className="font-bold text-base sm:text-lg text-[#111827] tracking-tight">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2.5 border-b border-white/20 relative z-10">
+          <h3 className="font-bold text-base sm:text-lg text-white tracking-tight drop-shadow-2xs">
             {schoolName}
           </h3>
-          <div className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]">
-            <MapPin className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-white/95">
+            <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Malili, Luwu Timur</span>
           </div>
         </div>
 
         {/* Row 2: Tanggal Hari Ini */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#111827]">
-          <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-orange-100 relative z-10">
+          <Calendar className="w-4 h-4 text-white shrink-0" />
           <span>{currentDateFormatted || 'Memuat tanggal...'}</span>
         </div>
 
         {/* Row 3: Check-in & Check-out DISPLAY-ONLY (NO BUTTON, NO ONCLICK, NO CURSOR-POINTER) */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-2 gap-3 pt-1 relative z-10">
           {/* Check-in Display-only Box */}
-          <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
+          <div className="bg-white rounded-xl p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs text-[#111827]">
+            <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
               <LogIn className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -537,8 +550,8 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {/* Check-out Display-only Box */}
-          <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#FEF2F2] border border-[#FEE2E2] text-[#EF4444] flex items-center justify-center shrink-0">
+          <div className="bg-white rounded-xl p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs text-[#111827]">
+            <div className="w-9 h-9 rounded-lg bg-red-50 text-[#EF4444] flex items-center justify-center shrink-0">
               <LogOut className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div className="min-w-0 flex-1">
