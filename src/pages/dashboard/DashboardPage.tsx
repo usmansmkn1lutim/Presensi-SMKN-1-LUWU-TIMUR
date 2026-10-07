@@ -28,7 +28,10 @@ import {
   DashboardAttendanceSummary,
 } from '../../services/dashboardAttendanceService';
 import { attendanceService } from '../../services/attendanceService';
-import { attendanceStatusService } from '../../services/attendanceStatusService';
+import {
+  attendanceStatusService,
+  EvaluatedStatusResult,
+} from '../../services/attendanceStatusService';
 import { getMakassarTodayDateString } from '../../services/attendanceReportService';
 import { AttendanceModel } from '../../types/attendance.types';
 import { AttendanceHistoryRecord } from '../../types/attendanceHistory.types';
@@ -67,6 +70,7 @@ export const DashboardPage: React.FC = () => {
 
   // Today's actual attendance record
   const [todayAttendance, setTodayAttendance] = useState<AttendanceModel | null>(null);
+  const [todayEvaluatedRecord, setTodayEvaluatedRecord] = useState<EvaluatedStatusResult | null>(null);
 
   // Weekly attendance status recap & records (Monday to Today)
   const [weeklySummary, setWeeklySummary] = useState<OfficialWeeklySummary | null>(null);
@@ -108,6 +112,8 @@ export const DashboardPage: React.FC = () => {
         todayStr,
         employee.id
       );
+      const todayRec = matrix.find((r) => r.date === todayStr) || null;
+      setTodayEvaluatedRecord(todayRec);
 
       // 4. Calculate 3x2 weekly official summary
       const summary: OfficialWeeklySummary = {
@@ -263,6 +269,40 @@ export const DashboardPage: React.FC = () => {
       return '--:-- WITA';
     }
   };
+
+  // Determine canonical status title for Hero Card
+  const getTodayDisplayStatus = (): string => {
+    // 1. Approved Request active for today (Sick, Other/Izin, Official Duty, Leave)
+    if (todayEvaluatedRecord?.source === 'request') {
+      if (todayEvaluatedRecord.status === 'sick') return 'Sakit';
+      if (todayEvaluatedRecord.status === 'permit') return 'Izin';
+      if (todayEvaluatedRecord.status === 'official_duty') return 'Dinas Luar';
+      if (todayEvaluatedRecord.status === 'leave') return 'Cuti';
+      return todayEvaluatedRecord.statusLabel || 'Izin';
+    }
+
+    // 2. Physical Check-in present
+    if (todayAttendance?.check_in_at || todayEvaluatedRecord?.status === 'present') {
+      return 'Hadir';
+    }
+
+    // 3. Holiday / Weekend
+    if (todayEvaluatedRecord?.status === 'holiday') {
+      return todayEvaluatedRecord.notes || 'Libur';
+    }
+
+    // 4. Default condition before attendance on a running work day:
+    // "Jika hari kerja sedang berjalan, belum ada check-in, tidak ada approved request yang berlaku, maka tampilkan: Anda belum melakukan presensi"
+    return 'Anda belum melakukan presensi';
+  };
+
+  const isApprovedRequestActive = todayEvaluatedRecord?.source === 'request';
+  const displayCheckInTime = isApprovedRequestActive
+    ? '--:-- WITA'
+    : formatAttendanceTime(todayAttendance?.check_in_at);
+  const displayCheckOutTime = isApprovedRequestActive
+    ? '--:-- WITA'
+    : formatAttendanceTime(todayAttendance?.check_out_at);
 
   // Weekly summary items in exact 3x2 matrix order
   const weeklyItems = [
@@ -495,13 +535,10 @@ export const DashboardPage: React.FC = () => {
         <h2 className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight">
           {fullName}
         </h2>
-        <p className="text-xs font-medium text-[#F97316]">
-          {positionTitle}
-        </p>
       </div>
 
       {/* 2. Mobile & Tablet Card Presensi Hari Ini (< 1024px) */}
-      <div className="lg:hidden relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3 sm:space-y-3.5 font-sans">
+      <div className="lg:hidden relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3.5 font-sans">
         {/* Geometric Minimalist Background Pattern */}
         <div className="absolute inset-0 opacity-12 pointer-events-none overflow-hidden rounded-2xl">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -532,35 +569,37 @@ export const DashboardPage: React.FC = () => {
           <span>{currentDateFormatted || 'Memuat tanggal...'}</span>
         </div>
 
-        {/* Row 3: Check-in & Check-out DISPLAY-ONLY (NO BUTTON, NO ONCLICK, NO CURSOR-POINTER) */}
-        <div className="grid grid-cols-2 gap-3 pt-1 relative z-10">
-          {/* Check-in Display-only Box */}
-          <div className="bg-white rounded-xl p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs text-[#111827]">
-            <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
-              <LogIn className="w-4 h-4 stroke-[2.2]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
-                Check-in
-              </p>
-              <p className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-0.5 tabular-nums">
-                {formatAttendanceTime(todayAttendance?.check_in_at)}
-              </p>
-            </div>
-          </div>
+        {/* Row 3: Status Section (PRESENSI HARI INI) */}
+        <div className="pt-1 pb-0.5 relative z-10 space-y-1">
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-orange-100/90">
+            PRESENSI HARI INI
+          </p>
+          <p className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+            {getTodayDisplayStatus()}
+          </p>
+        </div>
 
-          {/* Check-out Display-only Box */}
-          <div className="bg-white rounded-xl p-3 sm:p-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs text-[#111827]">
-            <div className="w-9 h-9 rounded-lg bg-red-50 text-[#EF4444] flex items-center justify-center shrink-0">
-              <LogOut className="w-4 h-4 stroke-[2.2]" />
+        {/* Row 4: Check-in & Check-out COMBINED SINGLE CARD DISPLAY-ONLY (CENTER ALIGNED, NO ICONS, VERTICAL SEPARATOR) */}
+        <div className="bg-white rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] relative z-10">
+          <div className="grid grid-cols-2 divide-x divide-slate-200">
+            {/* Kolom Kiri: Check-in */}
+            <div className="flex flex-col items-center justify-center text-center px-2">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
+                Check-in
+              </span>
+              <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
+                {displayCheckInTime}
+              </span>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
+
+            {/* Kolom Kanan: Check-out */}
+            <div className="flex flex-col items-center justify-center text-center px-2">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
                 Check-out
-              </p>
-              <p className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-0.5 tabular-nums">
-                {formatAttendanceTime(todayAttendance?.check_out_at)}
-              </p>
+              </span>
+              <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
+                {displayCheckOutTime}
+              </span>
             </div>
           </div>
         </div>
