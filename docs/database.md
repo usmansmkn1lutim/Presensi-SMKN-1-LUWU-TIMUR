@@ -240,7 +240,7 @@ Tabel `public.attendance` menyimpan data transaksi harian presensi pegawai (1 pe
 
 Arsitektur penyimpanan berkas dipersiapkan untuk bucket berikut di Supabase Storage:
 1. `avatars` (Publik terbatas): Foto profil pengguna.
-2. `attendance-selfies` (Privat): Swafoto verifikasi presensi (Phase 2 belum mengaktifkan alur unggah).
+2. `attendance-selfies` (Privat): Swafoto verifikasi presensi (Batas 1,5 MB, format JPEG/WebP, path kanonis `{employee_id}/*`, RLS append-only).
 3. `request-attachments` (Privat): Lampiran surat dokter, surat tugas dinas, atau berkas cuti.
 4. `school-assets` (Publik): Logo sekolah, stempel digital, dan aset publik.
 

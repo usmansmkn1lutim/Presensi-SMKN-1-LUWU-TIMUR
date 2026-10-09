@@ -352,6 +352,8 @@ export interface Database {
           check_in_longitude: number | null;
           check_out_latitude: number | null;
           check_out_longitude: number | null;
+          check_in_photo_path: string | null;
+          check_out_photo_path: string | null;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -371,6 +373,8 @@ export interface Database {
           check_in_longitude?: number | null;
           check_out_latitude?: number | null;
           check_out_longitude?: number | null;
+          check_in_photo_path?: string | null;
+          check_out_photo_path?: string | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -390,6 +394,8 @@ export interface Database {
           check_in_longitude?: number | null;
           check_out_latitude?: number | null;
           check_out_longitude?: number | null;
+          check_in_photo_path?: string | null;
+          check_out_photo_path?: string | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
