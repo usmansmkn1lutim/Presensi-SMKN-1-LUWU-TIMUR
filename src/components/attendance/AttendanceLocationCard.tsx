@@ -46,7 +46,7 @@ export const AttendanceLocationCard: React.FC<AttendanceLocationCardProps> = ({
   const displayLocation =
     validation?.status === 'in_radius' && validation.matchedLocation
       ? validation.matchedLocation
-      : validation?.status === 'out_of_radius' && validation.nearestLocation
+      : (validation?.status === 'out_of_radius' || validation?.status === 'uncertain') && validation.nearestLocation
       ? validation.nearestLocation
       : location || effectiveLocations[0];
 
@@ -75,11 +75,19 @@ export const AttendanceLocationCard: React.FC<AttendanceLocationCardProps> = ({
         </span>
       );
     }
-    if (validation?.status === 'error') {
+    if (validation?.status === 'uncertain') {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[11px] font-semibold border border-amber-200">
           <AlertCircle className="w-3 h-3 text-amber-600" />
-          GPS Belum Aktif
+          Akurasi Rendah
+        </span>
+      );
+    }
+    if (validation?.status === 'error') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 text-[11px] font-semibold border border-rose-200">
+          <AlertCircle className="w-3 h-3 text-rose-600" />
+          GPS Gagal
         </span>
       );
     }

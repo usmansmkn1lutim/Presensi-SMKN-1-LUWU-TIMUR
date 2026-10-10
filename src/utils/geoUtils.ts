@@ -1,7 +1,7 @@
 import { LocationModel } from '../types/location.types';
 
 export interface LocationValidationState {
-  status: 'idle' | 'detecting' | 'in_radius' | 'out_of_radius' | 'error' | 'no_locations';
+  status: 'idle' | 'detecting' | 'in_radius' | 'out_of_radius' | 'uncertain' | 'error' | 'no_locations';
   matchedLocation: LocationModel | null;
   nearestLocation: LocationModel | null;
   nearestDistanceMeters: number | null;
@@ -35,12 +35,16 @@ export function calculateDistanceMeters(
 }
 
 /**
- * Validates user GPS coordinates against all active attendance-enabled locations.
- * Follows the exact logic of Supabase RPC check_in / check_out:
- * - Iterates over all active, attendance-enabled locations with valid coordinates
- * - Calculates distance using Haversine formula
- * - If distance <= radiusMeters, selects the best (closest) matched location
- * - If not in radius, finds the nearest location for informative distance feedback
+ * Validates user GPS coordinates against all active attendance-enabled locations,
+ * strictly factoring in GPS measurement uncertainty (coords.accuracy).
+ *
+ * Evaluation principles:
+ * - 'in_radius': At least one location satisfies (distance + accuracy <= radiusMeters).
+ *   The entire uncertainty circle falls strictly inside the geofence.
+ * - 'out_of_radius': For ALL active locations, (distance - accuracy > radiusMeters).
+ *   The entire uncertainty circle falls strictly outside all geofences.
+ * - 'uncertain': If neither condition is met (e.g. uncertainty circle overlaps boundary,
+ *   or accuracy is too coarse to decide with confidence).
  */
 export function evaluateLocationRadius(
   userLat: number,
@@ -69,24 +73,51 @@ export function evaluateLocationRadius(
     };
   }
 
+  // 1. Calculate Haversine distance to all valid locations
+  const locationDistances = validLocations.map((loc) => {
+    const dist = calculateDistanceMeters(userLat, userLng, loc.latitude!, loc.longitude!);
+    return { loc, dist };
+  });
+
+  // Track the nearest location overall for user information
+  let nearestLocation: LocationModel = locationDistances[0].loc;
+  let nearestDistance: number = locationDistances[0].dist;
+
+  for (const item of locationDistances) {
+    if (item.dist < nearestDistance) {
+      nearestDistance = item.dist;
+      nearestLocation = item.loc;
+    }
+  }
+
+  // Check if accuracy is available and valid
+  const isAccuracyValid =
+    typeof accuracy === 'number' && !isNaN(accuracy) && accuracy >= 0;
+
+  if (!isAccuracyValid) {
+    return {
+      status: 'uncertain',
+      matchedLocation: null,
+      nearestLocation,
+      nearestDistanceMeters: Math.round(nearestDistance),
+      userCoords: { latitude: userLat, longitude: userLng, accuracy },
+      errorMessage: 'Akurasi GPS tidak valid — perbarui lokasi',
+      checkedAt: new Date(),
+    };
+  }
+
+  const acc = accuracy as number;
+
+  // Condition 1: 'in_radius'
+  // At least one location satisfies: (distance + accuracy <= radiusMeters)
   let bestMatchedLocation: LocationModel | null = null;
   let bestMatchedDistance: number | null = null;
 
-  let nearestLocation: LocationModel | null = null;
-  let nearestDistance: number | null = null;
-
-  for (const loc of validLocations) {
-    const dist = calculateDistanceMeters(userLat, userLng, loc.latitude!, loc.longitude!);
-
-    if (nearestDistance === null || dist < nearestDistance) {
-      nearestDistance = dist;
-      nearestLocation = loc;
-    }
-
-    if (dist <= loc.radiusMeters) {
-      if (bestMatchedDistance === null || dist < bestMatchedDistance) {
-        bestMatchedDistance = dist;
-        bestMatchedLocation = loc;
+  for (const item of locationDistances) {
+    if (item.dist + acc <= item.loc.radiusMeters) {
+      if (bestMatchedDistance === null || item.dist < bestMatchedDistance) {
+        bestMatchedDistance = item.dist;
+        bestMatchedLocation = item.loc;
       }
     }
   }
@@ -97,17 +128,36 @@ export function evaluateLocationRadius(
       matchedLocation: bestMatchedLocation,
       nearestLocation,
       nearestDistanceMeters: Math.round(bestMatchedDistance!),
-      userCoords: { latitude: userLat, longitude: userLng, accuracy },
+      userCoords: { latitude: userLat, longitude: userLng, accuracy: acc },
       checkedAt: new Date(),
     };
   }
 
+  // Condition 2: 'out_of_radius'
+  // For ALL valid active locations: (distance - accuracy > radiusMeters)
+  const allConfidentlyOutOfRadius = locationDistances.every(
+    (item) => item.dist - acc > item.loc.radiusMeters
+  );
+
+  if (allConfidentlyOutOfRadius) {
+    return {
+      status: 'out_of_radius',
+      matchedLocation: null,
+      nearestLocation,
+      nearestDistanceMeters: Math.round(nearestDistance),
+      userCoords: { latitude: userLat, longitude: userLng, accuracy: acc },
+      checkedAt: new Date(),
+    };
+  }
+
+  // Condition 3: 'uncertain' (Posisi belum dapat dipastikan)
   return {
-    status: 'out_of_radius',
+    status: 'uncertain',
     matchedLocation: null,
     nearestLocation,
-    nearestDistanceMeters: Math.round(nearestDistance!),
-    userCoords: { latitude: userLat, longitude: userLng, accuracy },
+    nearestDistanceMeters: Math.round(nearestDistance),
+    userCoords: { latitude: userLat, longitude: userLng, accuracy: acc },
+    errorMessage: `Akurasi GPS (±${formatDistanceDisplay(acc)}) belum memadai — lokasi belum dapat dipastikan`,
     checkedAt: new Date(),
   };
 }

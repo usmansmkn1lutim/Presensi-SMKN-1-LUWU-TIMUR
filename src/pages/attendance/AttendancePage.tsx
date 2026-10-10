@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Clock,
@@ -54,6 +54,7 @@ export const AttendancePage: React.FC = () => {
   const [schedule, setSchedule] = useState<WorkScheduleModel | null>(null);
   const [location, setLocation] = useState<LocationModel | null>(null);
   const [activeLocations, setActiveLocations] = useState<LocationModel[]>([]);
+  const geoRequestIdRef = useRef<number>(0);
   const [geoValidation, setGeoValidation] = useState<LocationValidationState>({
     status: 'idle',
     matchedLocation: null,
@@ -188,6 +189,8 @@ export const AttendancePage: React.FC = () => {
   const detectUserLocation = useCallback(
     (targetLocations?: LocationModel[]) => {
       const locsToCheck = targetLocations || activeLocations;
+      const currentRequestId = ++geoRequestIdRef.current;
+
       if (!navigator.geolocation) {
         setGeoValidation({
           status: 'error',
@@ -204,6 +207,8 @@ export const AttendancePage: React.FC = () => {
       setGeoDetecting(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          if (currentRequestId !== geoRequestIdRef.current) return;
+
           const evalResult = evaluateLocationRadius(
             pos.coords.latitude,
             pos.coords.longitude,
@@ -214,6 +219,8 @@ export const AttendancePage: React.FC = () => {
           setGeoDetecting(false);
         },
         (err) => {
+          if (currentRequestId !== geoRequestIdRef.current) return;
+
           let errMsg = 'Gagal mendeteksi lokasi GPS.';
           if (err.code === err.PERMISSION_DENIED) {
             errMsg = 'Izin akses lokasi ditolak oleh browser.';
@@ -239,43 +246,24 @@ export const AttendancePage: React.FC = () => {
     [activeLocations]
   );
 
-  // Real-time location watching: updates validation state when user moves or enters/exits radius
-  useEffect(() => {
-    if (!navigator.geolocation || activeLocations.length === 0) return;
-
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        const evalResult = evaluateLocationRadius(
-          pos.coords.latitude,
-          pos.coords.longitude,
-          activeLocations,
-          pos.coords.accuracy
-        );
-        setGeoValidation(evalResult);
-      },
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          setGeoValidation((prev) => ({
-            ...prev,
-            status: 'error',
-            errorMessage: 'Akses lokasi ditolak browser.',
-          }));
-        }
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
-
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    };
-  }, [activeLocations]);
-
   const getGeolocation = (): Promise<{ latitude: number; longitude: number } | null> => {
+    const currentRequestId = ++geoRequestIdRef.current;
+
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
+        const errorMsg = 'Perangkat atau browser Anda tidak mendukung layanan lokasi.';
         setBanner({
           type: 'error',
-          message: 'Perangkat atau browser Anda tidak mendukung layanan lokasi.',
+          message: errorMsg,
+        });
+        setGeoValidation({
+          status: 'error',
+          matchedLocation: null,
+          nearestLocation: null,
+          nearestDistanceMeters: null,
+          userCoords: null,
+          errorMessage: errorMsg,
+          checkedAt: new Date(),
         });
         resolve(null);
         return;
@@ -283,14 +271,15 @@ export const AttendancePage: React.FC = () => {
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          // Immediately synchronize latest validation state with fresh coords
-          const evalResult = evaluateLocationRadius(
-            pos.coords.latitude,
-            pos.coords.longitude,
-            activeLocations,
-            pos.coords.accuracy
-          );
-          setGeoValidation(evalResult);
+          if (currentRequestId === geoRequestIdRef.current) {
+            const evalResult = evaluateLocationRadius(
+              pos.coords.latitude,
+              pos.coords.longitude,
+              activeLocations,
+              pos.coords.accuracy
+            );
+            setGeoValidation(evalResult);
+          }
 
           resolve({
             latitude: pos.coords.latitude,
@@ -308,6 +297,20 @@ export const AttendancePage: React.FC = () => {
             msg = 'Waktu pengambilan lokasi habis. Silakan coba lagi.';
           }
           setBanner({ type: 'error', message: msg });
+
+          // Reset card validation state immediately upon failure so old status is never retained
+          if (currentRequestId === geoRequestIdRef.current) {
+            setGeoValidation({
+              status: 'error',
+              matchedLocation: null,
+              nearestLocation: null,
+              nearestDistanceMeters: null,
+              userCoords: null,
+              errorMessage: msg,
+              checkedAt: new Date(),
+            });
+          }
+
           resolve(null);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -605,8 +608,10 @@ export const AttendancePage: React.FC = () => {
                       <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
                     ) : geoValidation.status === 'out_of_radius' ? (
                       <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
-                    ) : geoValidation.status === 'error' ? (
+                    ) : geoValidation.status === 'uncertain' ? (
                       <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                    ) : geoValidation.status === 'error' ? (
+                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
                     ) : (
                       <MapPin className="w-4 h-4 text-[#F97316] shrink-0" />
                     )}
@@ -616,7 +621,7 @@ export const AttendancePage: React.FC = () => {
                         'Mendeteksi posisi GPS...'
                       ) : geoValidation.status === 'in_radius' && geoValidation.matchedLocation ? (
                         geoValidation.matchedLocation.name
-                      ) : geoValidation.status === 'out_of_radius' && geoValidation.nearestLocation ? (
+                      ) : (geoValidation.status === 'out_of_radius' || geoValidation.status === 'uncertain') && geoValidation.nearestLocation ? (
                         geoValidation.nearestLocation.name
                       ) : activeLocations.length > 0 ? (
                         `${activeLocations.length} Titik Presensi Sekolah`
@@ -634,6 +639,10 @@ export const AttendancePage: React.FC = () => {
                       <span className="text-[11px] text-[#6B7280] font-normal">
                         (Radius {geoValidation.nearestLocation.radiusMeters}m · Jarak ±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)})
                       </span>
+                    ) : geoValidation.status === 'uncertain' && geoValidation.nearestLocation ? (
+                      <span className="text-[11px] text-[#6B7280] font-normal">
+                        (Radius {geoValidation.nearestLocation.radiusMeters}m · Jarak ±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)}{geoValidation.userCoords?.accuracy ? ` · Akurasi ±${formatDistanceDisplay(geoValidation.userCoords.accuracy)}` : ''})
+                      </span>
                     ) : null}
                   </div>
 
@@ -646,8 +655,10 @@ export const AttendancePage: React.FC = () => {
                         ? 'text-emerald-700'
                         : geoValidation.status === 'out_of_radius'
                         ? 'text-rose-600'
-                        : geoValidation.status === 'error'
+                        : geoValidation.status === 'uncertain'
                         ? 'text-amber-700'
+                        : geoValidation.status === 'error'
+                        ? 'text-rose-700'
                         : 'text-[#6B7280]'
                     }`}
                   >
@@ -663,10 +674,15 @@ export const AttendancePage: React.FC = () => {
                         <XCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                         <span>Di luar radius presensi (±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)} dari {geoValidation.nearestLocation?.name || 'sekolah'})</span>
                       </>
-                    ) : geoValidation.status === 'error' ? (
+                    ) : geoValidation.status === 'uncertain' ? (
                       <>
                         <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                        <span>{geoValidation.errorMessage || 'Izin GPS belum aktif'}</span>
+                        <span>{geoValidation.errorMessage || 'Akurasi GPS rendah — perbarui lokasi'}</span>
+                      </>
+                    ) : geoValidation.status === 'error' ? (
+                      <>
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                        <span>{geoValidation.errorMessage || 'Lokasi gagal dideteksi'}</span>
                       </>
                     ) : activeLocations.length === 0 ? (
                       <span>Titik presensi belum dikonfigurasi</span>
