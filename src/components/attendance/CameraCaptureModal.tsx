@@ -24,61 +24,70 @@ type CameraStatus = 'idle' | 'requesting' | 'streaming' | 'captured' | 'error';
 const MAX_SELFIE_SIZE_BYTES = 1572864; // 1.5 MB strict limit (1024 * 1024 * 1.5)
 
 /**
- * Helper to encode an HTMLCanvasElement into a JPEG Blob with a specific quality
+ * Safely encodes an HTMLCanvasElement into a JPEG Blob with a specific quality,
+ * catching any internal DOM or canvas exceptions to prevent unhandled rejections.
  */
 const canvasToJpegBlob = (
   canvas: HTMLCanvasElement,
   quality: number
 ): Promise<Blob | null> => {
   return new Promise((resolve) => {
-    canvas.toBlob(
-      (blob) => {
-        resolve(blob);
-      },
-      'image/jpeg',
-      quality
-    );
+    try {
+      canvas.toBlob(
+        (blob) => {
+          resolve(blob);
+        },
+        'image/jpeg',
+        quality
+      );
+    } catch {
+      resolve(null);
+    }
   });
 };
 
 /**
- * Rescales from a single master source canvas to a target dimension
+ * Rescales from a single master source canvas to a target dimension safely.
  */
 const scaleCanvasFromSource = (
   sourceCanvas: HTMLCanvasElement,
   maxDimension: number
 ): HTMLCanvasElement | null => {
-  const sWidth = sourceCanvas.width;
-  const sHeight = sourceCanvas.height;
+  try {
+    const sWidth = sourceCanvas.width;
+    const sHeight = sourceCanvas.height;
 
-  if (!sWidth || !sHeight) {
-    return null;
-  }
-
-  let tWidth = sWidth;
-  let tHeight = sHeight;
-
-  if (tWidth > maxDimension || tHeight > maxDimension) {
-    if (tWidth >= tHeight) {
-      tHeight = Math.round((tHeight / tWidth) * maxDimension);
-      tWidth = maxDimension;
-    } else {
-      tWidth = Math.round((tWidth / tHeight) * maxDimension);
-      tHeight = maxDimension;
+    if (!sWidth || !sHeight) {
+      return null;
     }
-  }
 
-  const canvas = document.createElement('canvas');
-  canvas.width = tWidth;
-  canvas.height = tHeight;
-  const ctx = canvas.getContext('2d');
+    let tWidth = sWidth;
+    let tHeight = sHeight;
 
-  if (!ctx) {
+    if (tWidth > maxDimension || tHeight > maxDimension) {
+      if (tWidth >= tHeight) {
+        tHeight = Math.round((tHeight / tWidth) * maxDimension);
+        tWidth = maxDimension;
+      } else {
+        tWidth = Math.round((tWidth / tHeight) * maxDimension);
+        tHeight = maxDimension;
+      }
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = tWidth;
+    canvas.height = tHeight;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      return null;
+    }
+
+    ctx.drawImage(sourceCanvas, 0, 0, tWidth, tHeight);
+    return canvas;
+  } catch {
     return null;
   }
-
-  ctx.drawImage(sourceCanvas, 0, 0, tWidth, tHeight);
-  return canvas;
 };
 
 export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
@@ -92,6 +101,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isProcessingCapture, setIsProcessingCapture] = useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -101,10 +111,10 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   const isMountedRef = useRef<boolean>(true);
   const isOpenRef = useRef<boolean>(isOpen);
   const requestIdRef = useRef<number>(0);
-  const isStartingRef = useRef<boolean>(false);
+  const activeLockRequestIdRef = useRef<number | null>(null);
   const isFallbackAttemptedRef = useRef<boolean>(false);
 
-  // Sync isOpenRef on every render
+  // Synchronize isOpenRef on every render
   isOpenRef.current = isOpen;
 
   /**
@@ -167,190 +177,236 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   }, []);
 
   /**
-   * Requests camera stream with explicit ownership registration,
-   * synchronous in-flight lock, and safe video attachment.
+   * Invalidates any active/in-flight camera request and conditionally releases its lock
+   * based on the ACTUAL owner ID stored in activeLockRequestIdRef.current.
+   * If there is no active lock, does not alter lock ownership.
    */
-  const startCamera = useCallback(
-    async (isFallback = false) => {
-      // Synchronous in-flight lock: prevent parallel requests
-      if (isStartingRef.current && !isFallback) {
-        return;
-      }
+  const cancelActiveRequestAndReleaseLock = useCallback(() => {
+    // 1. Read actual lock owner ID before invalidating requests
+    const currentLockOwnerId = activeLockRequestIdRef.current;
 
-      if (!isOpenRef.current || !isMountedRef.current) {
-        return;
-      }
+    // 2. Increment requestIdRef to invalidate in-flight/old requests
+    requestIdRef.current += 1;
 
-      // Check Secure Context & MediaDevices API Support
-      if (typeof window === 'undefined' || !window.isSecureContext) {
-        setCameraStatus('error');
-        setErrorMessage(
-          'Akses kamera memerlukan koneksi aman (HTTPS). Pastikan situs diakses melalui protokol HTTPS yang valid.'
-        );
-        return;
-      }
+    // 3. Release lock only if an active lock existed and matches the recorded owner ID
+    if (
+      currentLockOwnerId !== null &&
+      activeLockRequestIdRef.current === currentLockOwnerId
+    ) {
+      activeLockRequestIdRef.current = null;
+    }
+  }, []);
 
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraStatus('error');
-        setErrorMessage(
-          'Peramban atau perangkat Anda tidak mendukung API kamera web (MediaDevices).'
-        );
-        return;
-      }
+  /**
+   * Requests camera stream with strict request ownership, synchronous lock isolation,
+   * single-lifecycle fallback handling, and verified video playback synchronization.
+   */
+  const startCamera = useCallback(async () => {
+    // 1. Synchronous lock check: only one active camera start request at a time
+    if (activeLockRequestIdRef.current !== null) {
+      return;
+    }
 
-      // Lock acquisition & Request ID generation
-      isStartingRef.current = true;
-      const currentRequestId = ++requestIdRef.current;
+    if (!isOpenRef.current || !isMountedRef.current) {
+      return;
+    }
 
-      setCameraStatus('requesting');
-      setErrorMessage(null);
+    // 2. Secure Context & MediaDevices verification
+    if (typeof window === 'undefined' || !window.isSecureContext) {
+      setCameraStatus('error');
+      setErrorMessage(
+        'Akses kamera memerlukan koneksi aman (HTTPS). Pastikan situs diakses melalui protokol HTTPS yang valid.'
+      );
+      return;
+    }
 
-      // Stop any existing stream before requesting a new one
-      stopCameraStream();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraStatus('error');
+      setErrorMessage(
+        'Peramban atau perangkat Anda tidak mendukung API kamera web (MediaDevices).'
+      );
+      return;
+    }
 
-      const constraints: MediaStreamConstraints = isFallback
-        ? { video: true, audio: false }
-        : {
-            video: {
-              facingMode: 'user',
-              width: { ideal: 1280 },
-              height: { ideal: 960 },
-            },
-            audio: false,
-          };
+    // 3. Acquire lock with unique currentRequestId
+    const currentRequestId = ++requestIdRef.current;
+    activeLockRequestIdRef.current = currentRequestId;
 
+    setCameraStatus('requesting');
+    setErrorMessage(null);
+
+    // Stop existing stream before starting a new one
+    stopCameraStream();
+
+    const idealConstraints: MediaStreamConstraints = {
+      video: {
+        facingMode: 'user',
+        width: { ideal: 1280 },
+        height: { ideal: 960 },
+      },
+      audio: false,
+    };
+
+    try {
+      let stream: MediaStream | null = null;
+
+      // 4. Request stream with single-lifecycle fallback for OverconstrainedError
       try {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-        // Lifecycle check 1: If modal closed, unmounted, or superseded by a newer request
+        stream = await navigator.mediaDevices.getUserMedia(idealConstraints);
+      } catch (primaryErr: unknown) {
+        // Re-check cancellation and lock ownership before initiating fallback
         if (
           !isMountedRef.current ||
           !isOpenRef.current ||
-          requestIdRef.current !== currentRequestId
-        ) {
-          stopAndDetachStream(stream);
-          return;
-        }
-
-        const videoEl = videoRef.current;
-        if (!videoEl) {
-          stopAndDetachStream(stream);
-          setCameraStatus('error');
-          setErrorMessage('Elemen pemutar video tidak tersedia.');
-          return;
-        }
-
-        // 1. REGISTER STREAM OWNERSHIP BEFORE WAITING FOR video.play()
-        if (streamRef.current && streamRef.current !== stream) {
-          stopAndDetachStream(streamRef.current);
-        }
-        streamRef.current = stream;
-        videoEl.srcObject = stream;
-
-        // 2. Await video.play() to ensure playback readiness
-        try {
-          await videoEl.play();
-        } catch {
-          // Playback rejected or interrupted: stop stream and detach safely
-          stopAndDetachStream(stream);
-          if (streamRef.current === stream) {
-            streamRef.current = null;
-          }
-
-          if (
-            isMountedRef.current &&
-            isOpenRef.current &&
-            requestIdRef.current === currentRequestId
-          ) {
-            setCameraStatus('error');
-            setErrorMessage(
-              'Gagal memulai pemutaran pratinjau kamera pada perangkat Anda. Silakan coba kembali.'
-            );
-          }
-          return;
-        }
-
-        // Lifecycle check 2: Post video.play() verification
-        if (
-          !isMountedRef.current ||
-          !isOpenRef.current ||
-          requestIdRef.current !== currentRequestId
-        ) {
-          stopAndDetachStream(stream);
-          if (streamRef.current === stream) {
-            streamRef.current = null;
-          }
-          return;
-        }
-
-        setCameraStatus('streaming');
-      } catch (err: unknown) {
-        // If request was superseded or cancelled, discard error silently
-        if (
-          !isMountedRef.current ||
-          !isOpenRef.current ||
-          requestIdRef.current !== currentRequestId
+          requestIdRef.current !== currentRequestId ||
+          activeLockRequestIdRef.current !== currentRequestId
         ) {
           return;
         }
 
-        // Check for OverconstrainedError: attempt limited single fallback
         if (
-          err instanceof DOMException &&
-          err.name === 'OverconstrainedError' &&
-          !isFallback &&
+          primaryErr instanceof DOMException &&
+          primaryErr.name === 'OverconstrainedError' &&
           !isFallbackAttemptedRef.current
         ) {
           isFallbackAttemptedRef.current = true;
-          // Release lock before recursive fallback call
-          isStartingRef.current = false;
-          await startCamera(true);
-          return;
-        }
-
-        stopCameraStream();
-        setCameraStatus('error');
-
-        if (err instanceof DOMException) {
-          switch (err.name) {
-            case 'NotAllowedError':
-            case 'PermissionDeniedError':
-              setErrorMessage(
-                'Izin akses kamera ditolak. Mohon izinkan akses kamera pada setelan peramban Anda untuk melakukan presensi.'
-              );
-              break;
-            case 'NotFoundError':
-            case 'DevicesNotFoundError':
-              setErrorMessage(
-                'Perangkat kamera tidak ditemukan. Pastikan kamera terpasang dan berfungsi dengan baik.'
-              );
-              break;
-            case 'NotReadableError':
-            case 'TrackStartError':
-              setErrorMessage(
-                'Kamera sedang digunakan oleh aplikasi lain atau mengalami kendala perangkat keras. Tutup aplikasi lain dan coba lagi.'
-              );
-              break;
-            case 'OverconstrainedError':
-              setErrorMessage(
-                'Konfigurasi resolusi kamera tidak didukung oleh perangkat keras Anda.'
-              );
-              break;
-            default:
-              setErrorMessage(
-                `Gagal mengaktifkan kamera (${err.name || 'Kesalahan Sistem'}). Silakan muat ulang atau periksa izin perangkat.`
-              );
-              break;
-          }
+          // Retry within the exact SAME request lifecycle without releasing lock or creating new request ID
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          });
         } else {
-          setErrorMessage('Terjadi kendala saat membuka kamera perangkat.');
+          throw primaryErr;
         }
-      } finally {
-        isStartingRef.current = false;
       }
-    },
-    [stopCameraStream, stopAndDetachStream]
-  );
+
+      // Lifecycle check 1: If modal closed, unmounted, or request superseded while waiting getUserMedia (including fallback)
+      if (
+        !isMountedRef.current ||
+        !isOpenRef.current ||
+        requestIdRef.current !== currentRequestId ||
+        activeLockRequestIdRef.current !== currentRequestId
+      ) {
+        stopAndDetachStream(stream);
+        return;
+      }
+
+      const videoEl = videoRef.current;
+      if (!videoEl) {
+        stopAndDetachStream(stream);
+        if (
+          requestIdRef.current === currentRequestId &&
+          isMountedRef.current &&
+          isOpenRef.current &&
+          activeLockRequestIdRef.current === currentRequestId
+        ) {
+          setCameraStatus('error');
+          setErrorMessage('Elemen pemutar video tidak tersedia.');
+        }
+        return;
+      }
+
+      // 5. Register ownership before awaiting video.play()
+      if (streamRef.current && streamRef.current !== stream) {
+        stopAndDetachStream(streamRef.current);
+      }
+      streamRef.current = stream;
+      videoEl.srcObject = stream;
+
+      // 6. Await video.play() to guarantee stream playback readiness
+      try {
+        await videoEl.play();
+      } catch {
+        // Playback rejected or interrupted: stop stream and detach safely
+        stopAndDetachStream(stream);
+        if (streamRef.current === stream) {
+          streamRef.current = null;
+        }
+
+        if (
+          isMountedRef.current &&
+          isOpenRef.current &&
+          requestIdRef.current === currentRequestId &&
+          activeLockRequestIdRef.current === currentRequestId
+        ) {
+          setCameraStatus('error');
+          setErrorMessage(
+            'Gagal memulai pemutaran pratinjau kamera pada perangkat Anda. Silakan coba kembali.'
+          );
+        }
+        return;
+      }
+
+      // Lifecycle check 2: Post video.play() verification
+      if (
+        !isMountedRef.current ||
+        !isOpenRef.current ||
+        requestIdRef.current !== currentRequestId ||
+        activeLockRequestIdRef.current !== currentRequestId
+      ) {
+        stopAndDetachStream(stream);
+        if (streamRef.current === stream) {
+          streamRef.current = null;
+        }
+        return;
+      }
+
+      setCameraStatus('streaming');
+    } catch (err: unknown) {
+      // Discard error silently if request was cancelled or superseded
+      if (
+        !isMountedRef.current ||
+        !isOpenRef.current ||
+        requestIdRef.current !== currentRequestId ||
+        activeLockRequestIdRef.current !== currentRequestId
+      ) {
+        return;
+      }
+
+      stopCameraStream();
+      setCameraStatus('error');
+
+      if (err instanceof DOMException) {
+        switch (err.name) {
+          case 'NotAllowedError':
+          case 'PermissionDeniedError':
+            setErrorMessage(
+              'Izin akses kamera ditolak. Mohon izinkan akses kamera pada setelan peramban Anda untuk melakukan presensi.'
+            );
+            break;
+          case 'NotFoundError':
+          case 'DevicesNotFoundError':
+            setErrorMessage(
+              'Perangkat kamera tidak ditemukan. Pastikan kamera terpasang dan berfungsi dengan baik.'
+            );
+            break;
+          case 'NotReadableError':
+          case 'TrackStartError':
+            setErrorMessage(
+              'Kamera sedang digunakan oleh aplikasi lain atau mengalami kendala perangkat keras. Tutup aplikasi lain dan coba lagi.'
+            );
+            break;
+          case 'OverconstrainedError':
+            setErrorMessage(
+              'Konfigurasi resolusi kamera tidak didukung oleh perangkat keras Anda.'
+            );
+            break;
+          default:
+            setErrorMessage(
+              `Gagal mengaktifkan kamera (${err.name || 'Kesalahan Sistem'}). Silakan muat ulang atau periksa izin perangkat.`
+            );
+            break;
+        }
+      } else {
+        setErrorMessage('Terjadi kendala saat membuka kamera perangkat.');
+      }
+    } finally {
+      // 7. Strictly release lock ONLY if this request is still the owner
+      if (activeLockRequestIdRef.current === currentRequestId) {
+        activeLockRequestIdRef.current = null;
+      }
+    }
+  }, [stopCameraStream, stopAndDetachStream]);
 
   /**
    * Synchronizes camera state with modal open/close lifecycle
@@ -362,26 +418,25 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       isFallbackAttemptedRef.current = false;
       setCapturedBlob(null);
       clearPreviewUrl();
-      startCamera(false);
+      startCamera();
     } else {
-      // Invalidate in-flight requests and stop hardware
-      isStartingRef.current = false;
-      requestIdRef.current += 1;
+      // Invalidate in-flight requests and conditionally release lock if held by that request
+      cancelActiveRequestAndReleaseLock();
       stopCameraStream();
       clearPreviewUrl();
       setCameraStatus('idle');
       setErrorMessage(null);
       setCapturedBlob(null);
+      setIsProcessingCapture(false);
     }
 
     return () => {
-      // Invalidate in-flight requests
-      isStartingRef.current = false;
-      requestIdRef.current += 1;
+      // Invalidate in-flight requests on dependency change and conditionally release lock
+      cancelActiveRequestAndReleaseLock();
       stopCameraStream();
       clearPreviewUrl();
     };
-  }, [isOpen, startCamera, stopCameraStream, clearPreviewUrl]);
+  }, [isOpen, startCamera, stopCameraStream, clearPreviewUrl, cancelActiveRequestAndReleaseLock]);
 
   /**
    * Component unmount cleanup
@@ -389,8 +444,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
-      isStartingRef.current = false;
-      requestIdRef.current += 1;
+      cancelActiveRequestAndReleaseLock();
       stopCameraStream();
       if (previewUrlRef.current) {
         try {
@@ -401,108 +455,169 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         previewUrlRef.current = null;
       }
     };
-  }, [stopCameraStream]);
+  }, [stopCameraStream, cancelActiveRequestAndReleaseLock]);
 
   /**
    * Captures a SINGLE video frame as the source of truth,
    * then applies progressive multi-tier compression (1080/0.85 -> 900/0.65 -> 720/0.50)
-   * on the exact same frame until a valid Blob <= 1.5 MB is obtained.
+   * on the exact same frame within a comprehensive error-handling wrapper.
    */
   const handleCaptureFrame = async () => {
     const video = videoRef.current;
-    if (!video || cameraStatus !== 'streaming') return;
+    if (!video || cameraStatus !== 'streaming' || isProcessingCapture) return;
 
-    const sourceWidth = video.videoWidth;
-    const sourceHeight = video.videoHeight;
-
-    if (!sourceWidth || !sourceHeight) {
-      setErrorMessage('Frame kamera belum siap. Tunggu beberapa saat dan coba kembali.');
-      return;
-    }
+    setIsProcessingCapture(true);
+    setErrorMessage(null);
 
     // Invalidate any camera start requests during capture
     const captureRequestId = ++requestIdRef.current;
 
-    // STEP 1: Freeze EXACTLY ONE master frame from the active video stream
-    const masterCanvas = document.createElement('canvas');
-    masterCanvas.width = sourceWidth;
-    masterCanvas.height = sourceHeight;
-    const masterCtx = masterCanvas.getContext('2d');
+    try {
+      const sourceWidth = video.videoWidth;
+      const sourceHeight = video.videoHeight;
 
-    if (!masterCtx) {
-      setErrorMessage('Gagal menginisialisasi kanvas render citra.');
-      return;
-    }
+      if (!sourceWidth || !sourceHeight) {
+        if (
+          isMountedRef.current &&
+          isOpenRef.current &&
+          requestIdRef.current === captureRequestId
+        ) {
+          setErrorMessage('Frame kamera belum siap. Tunggu beberapa saat dan coba kembali.');
+        }
+        return;
+      }
 
-    // Mirror context horizontally to match mirrored live preview
-    masterCtx.save();
-    masterCtx.translate(masterCanvas.width, 0);
-    masterCtx.scale(-1, 1);
-    masterCtx.drawImage(video, 0, 0, masterCanvas.width, masterCanvas.height);
-    masterCtx.restore();
+      // STEP 1: Freeze EXACTLY ONE master frame from the active video stream
+      const masterCanvas = document.createElement('canvas');
+      masterCanvas.width = sourceWidth;
+      masterCanvas.height = sourceHeight;
+      const masterCtx = masterCanvas.getContext('2d');
 
-    // STEP 2: Multi-tier compression from the SINGLE master frame
-    const compressionTiers = [
-      { maxDimension: 1080, quality: 0.85 },
-      { maxDimension: 900, quality: 0.65 },
-      { maxDimension: 720, quality: 0.50 },
-    ];
+      if (!masterCtx) {
+        if (
+          isMountedRef.current &&
+          isOpenRef.current &&
+          requestIdRef.current === captureRequestId
+        ) {
+          setErrorMessage('Gagal menginisialisasi kanvas render kamera.');
+        }
+        return;
+      }
 
-    let validatedBlob: Blob | null = null;
+      // Mirror context horizontally to match mirrored live preview
+      masterCtx.save();
+      masterCtx.translate(masterCanvas.width, 0);
+      masterCtx.scale(-1, 1);
+      masterCtx.drawImage(video, 0, 0, masterCanvas.width, masterCanvas.height);
+      masterCtx.restore();
 
-    for (const tier of compressionTiers) {
-      const scaledCanvas = scaleCanvasFromSource(masterCanvas, tier.maxDimension);
-      if (!scaledCanvas) continue;
+      // STEP 2: Multi-tier compression from the SINGLE master frame
+      const compressionTiers = [
+        { maxDimension: 1080, quality: 0.85 },
+        { maxDimension: 900, quality: 0.65 },
+        { maxDimension: 720, quality: 0.50 },
+      ];
 
-      const candidateBlob = await canvasToJpegBlob(scaledCanvas, tier.quality);
+      let hasCanvasRenderSucceeded = false;
+      let hasSuccessfulEncoding = false;
+      let validatedBlob: Blob | null = null;
 
-      // Verify criteria: not null, size > 0, type image/jpeg, size <= 1,572,864 bytes
+      for (const tier of compressionTiers) {
+        const scaledCanvas = scaleCanvasFromSource(masterCanvas, tier.maxDimension);
+        if (!scaledCanvas) continue;
+
+        hasCanvasRenderSucceeded = true;
+        const candidateBlob = await canvasToJpegBlob(scaledCanvas, tier.quality);
+
+        if (
+          candidateBlob &&
+          candidateBlob.size > 0 &&
+          candidateBlob.type === 'image/jpeg'
+        ) {
+          hasSuccessfulEncoding = true;
+          if (candidateBlob.size <= MAX_SELFIE_SIZE_BYTES) {
+            validatedBlob = candidateBlob;
+            break; // Stop iterations immediately upon finding first conforming Blob
+          }
+        }
+      }
+
+      // Check cancellation or unmount before committing state
       if (
-        candidateBlob &&
-        candidateBlob.size > 0 &&
-        candidateBlob.type === 'image/jpeg' &&
-        candidateBlob.size <= MAX_SELFIE_SIZE_BYTES
+        !isMountedRef.current ||
+        !isOpenRef.current ||
+        requestIdRef.current !== captureRequestId
       ) {
-        validatedBlob = candidateBlob;
-        break; // Stop iterations immediately upon finding first conforming Blob
+        return;
+      }
+
+      // STEP 3: Differentiate encoding failure vs size overflow failure vs canvas failure
+      if (!validatedBlob) {
+        if (!hasCanvasRenderSucceeded) {
+          setErrorMessage('Gagal memproses kanvas render kamera. Silakan coba kembali.');
+        } else if (!hasSuccessfulEncoding) {
+          setErrorMessage(
+            'Gagal mengompresi frame foto selfie ke format JPEG. Silakan coba kembali.'
+          );
+        } else {
+          setErrorMessage(
+            'Ukuran berkas foto selfie melebihi batas maksimum 1.5 MB setelah seluruh upaya kompresi. Silakan coba kembali.'
+          );
+        }
+        return;
+      }
+
+      // Safely generate Object URL first
+      let url = '';
+      try {
+        url = URL.createObjectURL(validatedBlob);
+      } catch {
+        // Transition to consistent error state to avoid broken streaming view
+        stopCameraStream();
+        clearPreviewUrl();
+        setCapturedBlob(null);
+        setCameraStatus('error');
+        setErrorMessage('Gagal menghasilkan pratinjau citra foto. Silakan coba kembali.');
+        return;
+      }
+
+      // Stop hardware camera stream upon successful frame acceptance and URL creation
+      stopCameraStream();
+
+      clearPreviewUrl();
+      previewUrlRef.current = url;
+      setPreviewUrl(url);
+      setCapturedBlob(validatedBlob);
+      setCameraStatus('captured');
+    } catch {
+      if (
+        isMountedRef.current &&
+        isOpenRef.current &&
+        requestIdRef.current === captureRequestId
+      ) {
+        setErrorMessage(
+          'Terjadi kesalahan saat memproses gambar dari kamera. Silakan coba kembali.'
+        );
+      }
+    } finally {
+      if (
+        isMountedRef.current &&
+        isOpenRef.current &&
+        requestIdRef.current === captureRequestId
+      ) {
+        setIsProcessingCapture(false);
       }
     }
-
-    // Check cancellation or unmount before committing state
-    if (
-      !isMountedRef.current ||
-      !isOpenRef.current ||
-      requestIdRef.current !== captureRequestId
-    ) {
-      return;
-    }
-
-    // STEP 3: Handle encoding failure or size overflow
-    if (!validatedBlob) {
-      setErrorMessage(
-        'Ukuran berkas foto selfie melebihi batas maksimum 1.5 MB setelah seluruh upaya kompresi. Silakan coba kembali.'
-      );
-      return;
-    }
-
-    // Stop hardware camera stream upon successful frame acceptance
-    stopCameraStream();
-
-    // Safely create and track new preview URL
-    clearPreviewUrl();
-    const url = URL.createObjectURL(validatedBlob);
-    previewUrlRef.current = url;
-    setPreviewUrl(url);
-    setCapturedBlob(validatedBlob);
-    setCameraStatus('captured');
   };
 
   /**
    * Safe retry handler preventing concurrent camera requests
    */
   const handleRetry = () => {
-    if (isStartingRef.current || cameraStatus === 'requesting') return;
-    startCamera(false);
+    if (activeLockRequestIdRef.current !== null || cameraStatus === 'requesting') {
+      return;
+    }
+    startCamera();
   };
 
   /**
@@ -511,11 +626,12 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   const handleRetake = () => {
     clearPreviewUrl();
     setCapturedBlob(null);
-    startCamera(false);
+    startCamera();
   };
 
   /**
-   * Emits the strictly validated Blob to caller without uploading or calling RPC
+   * Emits the strictly validated Blob to caller without uploading or calling RPC.
+   * Preserves preview and displays safe generic error if onCapture callback throws.
    */
   const handleConfirmUse = () => {
     if (
@@ -524,19 +640,29 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       capturedBlob.type !== 'image/jpeg' ||
       capturedBlob.size > MAX_SELFIE_SIZE_BYTES
     ) {
+      setErrorMessage('Berkas foto selfie tidak valid atau melebihi batas ukuran.');
       return;
     }
-    onCapture(capturedBlob);
-    stopCameraStream();
-    clearPreviewUrl();
+
+    try {
+      // Execute capture consumer callback
+      onCapture(capturedBlob);
+
+      // On callback success: clean up stream and preview
+      stopCameraStream();
+      clearPreviewUrl();
+    } catch {
+      // Generic safe message; do not leak err.message internal details to UI
+      setErrorMessage('Terjadi kesalahan saat memproses hasil presensi. Silakan coba kembali.');
+      // Preview URL is preserved so user can retry or retake
+    }
   };
 
   /**
    * Handles user cancellation or closing modal
    */
   const handleCancel = () => {
-    isStartingRef.current = false;
-    requestIdRef.current += 1;
+    cancelActiveRequestAndReleaseLock();
     stopCameraStream();
     clearPreviewUrl();
     onClose();
@@ -650,6 +776,13 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
             )}
           </div>
 
+          {/* Feedback / Error Message Banner (When in captured or streaming state) */}
+          {errorMessage && cameraStatus !== 'error' && (
+            <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-[11px] text-red-700">
+              <p className="font-medium">{errorMessage}</p>
+            </div>
+          )}
+
           {/* Micro-copy information banner */}
           <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-2 text-[11px] text-[#6B7280]">
             <Info className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
@@ -678,6 +811,8 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
               variant="primary"
               size="md"
               onClick={handleCaptureFrame}
+              disabled={isProcessingCapture}
+              isLoading={isProcessingCapture}
               className="text-xs font-semibold"
             >
               <Camera className="w-4 h-4 mr-1.5" />
