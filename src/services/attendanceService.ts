@@ -164,6 +164,13 @@ export const attendanceService = {
   },
 
   /**
+   * Fetches all active attendance locations (multi-location support).
+   */
+  async getActiveAttendanceLocations(): Promise<LocationModel[]> {
+    return locationService.getActiveAttendanceLocations();
+  },
+
+  /**
    * Fetches the primary active attendance location.
    * STRICT: Only returns a location that is active and attendance-enabled.
    * Never falls back to non-attendance enabled locations.
