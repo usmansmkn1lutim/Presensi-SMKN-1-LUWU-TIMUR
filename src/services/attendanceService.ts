@@ -274,6 +274,7 @@ export const attendanceService = {
   async checkIn(payload: CheckInPayload): Promise<AttendanceModel> {
     const latitude = payload.latitude ?? null;
     const longitude = payload.longitude ?? null;
+    const photoPath = (payload.photoPath || payload.photo_path || '').trim() || null;
 
     if (latitude === null || longitude === null) {
       throw new Error('Koordinat lokasi tidak valid. Pastikan GPS perangkat Anda aktif.');
@@ -282,6 +283,7 @@ export const attendanceService = {
     const { data, error } = await supabase.rpc('check_in', {
       user_latitude: latitude,
       user_longitude: longitude,
+      user_photo_path: photoPath,
     });
 
     if (error) {
@@ -308,6 +310,8 @@ export const attendanceService = {
       check_in_longitude: longitude,
       check_out_latitude: null,
       check_out_longitude: null,
+      check_in_photo_path: photoPath,
+      check_out_photo_path: null,
       notes: payload.notes ? payload.notes.trim() : null,
       created_at: rpcResult.check_in_at,
       updated_at: rpcResult.check_in_at,
@@ -324,6 +328,7 @@ export const attendanceService = {
   async checkOut(payload: CheckOutPayload): Promise<AttendanceModel> {
     const latitude = payload.latitude ?? null;
     const longitude = payload.longitude ?? null;
+    const photoPath = (payload.photoPath || payload.photo_path || '').trim() || null;
 
     if (latitude === null || longitude === null) {
       throw new Error('Koordinat lokasi tidak valid. Pastikan GPS perangkat Anda aktif.');
@@ -334,6 +339,7 @@ export const attendanceService = {
     const { data, error } = await supabase.rpc('check_out', {
       user_latitude: latitude,
       user_longitude: longitude,
+      user_photo_path: photoPath,
     });
 
     if (error) {
@@ -361,6 +367,8 @@ export const attendanceService = {
       check_in_longitude: existing?.check_in_longitude ?? null,
       check_out_latitude: latitude,
       check_out_longitude: longitude,
+      check_in_photo_path: existing?.check_in_photo_path ?? null,
+      check_out_photo_path: photoPath,
       notes: payload.notes ? payload.notes.trim() : existing?.notes || null,
       created_at: existing?.created_at || rpcResult.check_in_at,
       updated_at: rpcResult.check_out_at,

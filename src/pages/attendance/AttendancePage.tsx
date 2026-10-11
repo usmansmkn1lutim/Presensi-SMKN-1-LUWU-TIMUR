@@ -41,20 +41,36 @@ import { CheckInCard } from '../../components/attendance/CheckInCard';
 import { CheckOutCard } from '../../components/attendance/CheckOutCard';
 import { WorkScheduleCard } from '../../components/attendance/WorkScheduleCard';
 import { AttendanceLocationCard } from '../../components/attendance/AttendanceLocationCard';
+import { CameraCaptureModal } from '../../components/attendance/CameraCaptureModal';
 import { Button } from '../../components/ui/Button';
+import { NotificationBell } from '../../components/notifications/NotificationBell';
+import {
+  generateSelfieStoragePath,
+  uploadAttendanceSelfie,
+} from '../../services/attendancePhotoService';
+import {
+  attendanceStatusService,
+  EvaluatedStatusResult,
+} from '../../services/attendanceStatusService';
 
 export const AttendancePage: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
+  const [pendingAttendanceType, setPendingAttendanceType] = useState<
+    'check_in' | 'check_out' | null
+  >(null);
 
   const [employee, setEmployee] = useState<EmployeeRow | null>(null);
   const [schedule, setSchedule] = useState<WorkScheduleModel | null>(null);
   const [location, setLocation] = useState<LocationModel | null>(null);
   const [activeLocations, setActiveLocations] = useState<LocationModel[]>([]);
+  const [weeklyMatrix, setWeeklyMatrix] = useState<EvaluatedStatusResult[]>([]);
   const geoRequestIdRef = useRef<number>(0);
+  const isActionLockedRef = useRef<boolean>(false);
   const [geoValidation, setGeoValidation] = useState<LocationValidationState>({
     status: 'idle',
     matchedLocation: null,
@@ -95,6 +111,50 @@ export const AttendancePage: React.FC = () => {
     year: 'numeric',
   });
 
+  const getWitaGreeting = () => {
+    const now = new Date();
+    const hourStr = now.toLocaleString('en-US', { timeZone: 'Asia/Makassar', hour: 'numeric', hour12: false });
+    const hour = parseInt(hourStr, 10) || now.getHours();
+    if (hour >= 5 && hour < 11) return 'Selamat Pagi';
+    if (hour >= 11 && hour < 15) return 'Selamat Siang';
+    if (hour >= 15 && hour < 18) return 'Selamat Sore';
+    return 'Selamat Malam';
+  };
+
+  const getWeeklyDatesAndLabels = () => {
+    const now = new Date();
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+
+    const dayNamesShort = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MING'];
+    const dayNamesFull = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dateStr = getLocalDateString(d);
+      const dayNum = d.getDate();
+      const isWeekend = i === 5 || i === 6;
+      dates.push({
+        dateStr,
+        dayNum,
+        dayNameShort: dayNamesShort[i],
+        dayNameFull: dayNamesFull[i],
+        isWeekend,
+      });
+    }
+
+    const monthYearLabel = monday.toLocaleDateString('id-ID', {
+      month: 'long',
+      year: 'numeric',
+    });
+
+    return { weeklyDates: dates, monthYearLabel, startDate: dates[0].dateStr, endDate: dates[6].dateStr };
+  };
+
   const loadData = async () => {
     setLoading(true);
     setBanner(null);
@@ -106,6 +166,11 @@ export const AttendancePage: React.FC = () => {
       // 1. Resolve personal employee record
       const emp = await attendanceService.getCurrentEmployee();
       setEmployee(emp);
+
+      // Fetch weekly matrix for current week
+      const { startDate, endDate } = getWeeklyDatesAndLabels();
+      const matrix = await attendanceStatusService.getEvaluatedMatrix(startDate, endDate, emp.id);
+      setWeeklyMatrix(matrix);
 
       // 2. Fetch active work schedule
       const sched = await attendanceService.getActiveWorkSchedule();
@@ -246,17 +311,24 @@ export const AttendancePage: React.FC = () => {
     [activeLocations]
   );
 
-  const getGeolocation = (): Promise<{ latitude: number; longitude: number } | null> => {
+  interface LocationValidationCheck {
+    valid: boolean;
+    coords?: { latitude: number; longitude: number };
+    errorMessage?: string;
+  }
+
+  /**
+   * Fetches fresh device GPS position and evaluates radius against all active locations.
+   * Updates LocationValidationCard state and returns deterministic validation status.
+   */
+  const getAndValidateLocation = (): Promise<LocationValidationCheck> => {
     const currentRequestId = ++geoRequestIdRef.current;
+    setGeoDetecting(true);
 
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
         const errorMsg = 'Perangkat atau browser Anda tidak mendukung layanan lokasi.';
-        setBanner({
-          type: 'error',
-          message: errorMsg,
-        });
-        setGeoValidation({
+        const failureState: LocationValidationState = {
           status: 'error',
           matchedLocation: null,
           nearestLocation: null,
@@ -264,29 +336,59 @@ export const AttendancePage: React.FC = () => {
           userCoords: null,
           errorMessage: errorMsg,
           checkedAt: new Date(),
+        };
+        setGeoValidation(failureState);
+        setGeoDetecting(false);
+        resolve({
+          valid: false,
+          errorMessage: errorMsg,
         });
-        resolve(null);
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          setGeoDetecting(false);
+          const evalResult = evaluateLocationRadius(
+            pos.coords.latitude,
+            pos.coords.longitude,
+            activeLocations,
+            pos.coords.accuracy
+          );
+
           if (currentRequestId === geoRequestIdRef.current) {
-            const evalResult = evaluateLocationRadius(
-              pos.coords.latitude,
-              pos.coords.longitude,
-              activeLocations,
-              pos.coords.accuracy
-            );
             setGeoValidation(evalResult);
           }
 
-          resolve({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-          });
+          if (evalResult.status === 'in_radius') {
+            resolve({
+              valid: true,
+              coords: {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+              },
+            });
+          } else {
+            let msg = 'Lokasi berada di luar radius presensi yang ditentukan.';
+            if (evalResult.status === 'out_of_radius') {
+              msg = `Anda berada di luar radius presensi (jarak ±${formatDistanceDisplay(
+                evalResult.nearestDistanceMeters ?? 0
+              )} dari ${evalResult.nearestLocation?.name || 'sekolah'}).`;
+            } else if (evalResult.status === 'uncertain') {
+              msg =
+                evalResult.errorMessage ||
+                'Akurasi GPS belum memadai untuk memastikan lokasi Anda. Silakan coba lagi di area terbuka.';
+            } else if (evalResult.status === 'no_locations') {
+              msg = 'Titik presensi belum dikonfigurasi atau tidak aktif.';
+            }
+            resolve({
+              valid: false,
+              errorMessage: msg,
+            });
+          }
         },
         (err) => {
+          setGeoDetecting(false);
           let msg = 'Lokasi diperlukan untuk melakukan presensi.';
           if (err.code === err.PERMISSION_DENIED) {
             msg =
@@ -296,105 +398,230 @@ export const AttendancePage: React.FC = () => {
           } else if (err.code === err.TIMEOUT) {
             msg = 'Waktu pengambilan lokasi habis. Silakan coba lagi.';
           }
-          setBanner({ type: 'error', message: msg });
 
-          // Reset card validation state immediately upon failure so old status is never retained
+          const failureState: LocationValidationState = {
+            status: 'error',
+            matchedLocation: null,
+            nearestLocation: null,
+            nearestDistanceMeters: null,
+            userCoords: null,
+            errorMessage: msg,
+            checkedAt: new Date(),
+          };
+
           if (currentRequestId === geoRequestIdRef.current) {
-            setGeoValidation({
-              status: 'error',
-              matchedLocation: null,
-              nearestLocation: null,
-              nearestDistanceMeters: null,
-              userCoords: null,
-              errorMessage: msg,
-              checkedAt: new Date(),
-            });
+            setGeoValidation(failureState);
           }
 
-          resolve(null);
+          resolve({
+            valid: false,
+            errorMessage: msg,
+          });
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     });
   };
 
+  /**
+   * Langkah 1 & 2: Initiates Check-In with preliminary GPS validation, then opens selfie camera.
+   * Guarded synchronously by isActionLockedRef to block rapid double-clicks.
+   */
   const handleCheckIn = async () => {
-    if (submitting || loading || approvedRequest) return;
+    if (isActionLockedRef.current || submitting || loading || isCameraOpen || approvedRequest) {
+      return;
+    }
+    isActionLockedRef.current = true;
     setSubmitting(true);
     setBanner(null);
 
     try {
-      const coords = await getGeolocation();
-      if (!coords) {
-        setSubmitting(false);
+      const initialGps = await getAndValidateLocation();
+      if (!initialGps.valid || !initialGps.coords) {
+        setBanner({
+          type: 'error',
+          message: initialGps.errorMessage || 'Verifikasi lokasi awal gagal.',
+        });
         return;
       }
 
-      const newAtt = await attendanceService.checkIn({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        notes: notes.trim() || undefined,
-      });
-
-      setTodayAttendance(newAtt);
-      setNotes('');
-      setBanner({
-        type: 'success',
-        title: 'Presensi Masuk Berhasil',
-        message: `${formatTimeOnly(newAtt.check_in_at)}`,
-      });
-
-      const now = new Date();
-      setEvalCheckIn(attendanceService.evaluateCheckIn(now, schedule));
-      setEvalCheckOut(attendanceService.evaluateCheckOut(now, schedule, newAtt));
-    } catch (err: any) {
-      console.error('Check-in error:', err);
+      setPendingAttendanceType('check_in');
+      setIsCameraOpen(true);
+    } catch (err: unknown) {
+      console.error('Check-in initial location error:', err);
+      const msg = err instanceof Error ? err.message : 'Gagal memverifikasi lokasi.';
       setBanner({
         type: 'error',
-        message: err?.message || 'Gagal melakukan presensi masuk.',
+        message: msg,
       });
     } finally {
+      // Phase 1 finished: release lock and reset submitting state so user can interact with camera modal
       setSubmitting(false);
+      isActionLockedRef.current = false;
     }
   };
 
+  /**
+   * Langkah 1 & 2: Initiates Check-Out with preliminary GPS validation, then opens selfie camera.
+   * Guarded synchronously by isActionLockedRef to block rapid double-clicks.
+   */
   const handleCheckOut = async () => {
-    if (submitting || loading || approvedRequest) return;
+    if (isActionLockedRef.current || submitting || loading || isCameraOpen || approvedRequest) {
+      return;
+    }
+    isActionLockedRef.current = true;
     setSubmitting(true);
     setBanner(null);
 
     try {
-      const coords = await getGeolocation();
-      if (!coords) {
-        setSubmitting(false);
+      const initialGps = await getAndValidateLocation();
+      if (!initialGps.valid || !initialGps.coords) {
+        setBanner({
+          type: 'error',
+          message: initialGps.errorMessage || 'Verifikasi lokasi awal gagal.',
+        });
         return;
       }
 
-      const updatedAtt = await attendanceService.checkOut({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        notes: notes.trim() || undefined,
-      });
-
-      setTodayAttendance(updatedAtt);
-      setNotes('');
-      setBanner({
-        type: 'success',
-        title: 'Presensi Pulang Berhasil',
-        message: `${formatTimeOnly(updatedAtt.check_out_at)}`,
-      });
-
-      const now = new Date();
-      setEvalCheckIn(attendanceService.evaluateCheckIn(now, schedule));
-      setEvalCheckOut(attendanceService.evaluateCheckOut(now, schedule, updatedAtt));
-    } catch (err: any) {
-      console.error('Check-out error:', err);
+      setPendingAttendanceType('check_out');
+      setIsCameraOpen(true);
+    } catch (err: unknown) {
+      console.error('Check-out initial location error:', err);
+      const msg = err instanceof Error ? err.message : 'Gagal memverifikasi lokasi.';
       setBanner({
         type: 'error',
-        message: err?.message || 'Gagal melakukan presensi pulang.',
+        message: msg,
       });
     } finally {
+      // Phase 1 finished: release lock and reset submitting state so user can interact with camera modal
       setSubmitting(false);
+      isActionLockedRef.current = false;
+    }
+  };
+
+  /**
+   * Safe cancellation handler for CameraCaptureModal.
+   */
+  const handleCameraClose = () => {
+    setIsCameraOpen(false);
+    setPendingAttendanceType(null);
+    setSubmitting(false);
+    isActionLockedRef.current = false;
+  };
+
+  /**
+   * Langkah 3-8: Pipeline automatically executed upon selfie confirmation (Gunakan Foto).
+   * Guarded synchronously by isActionLockedRef to prevent duplicate confirmation executions.
+   * Validates fresh GPS, resolves employee ID, uploads selfie photo, submits RPC, and updates UI.
+   */
+  const handlePhotoConfirmed = async (photoBlob: Blob) => {
+    // Synchronous lock check: blocks duplicate callback executions immediately
+    if (isActionLockedRef.current) {
+      return;
+    }
+
+    const actionType = pendingAttendanceType;
+    if (!actionType) {
+      handleCameraClose();
+      return;
+    }
+
+    // Synchronously acquire lock for Phase 2
+    isActionLockedRef.current = true;
+
+    // Modal closes; automatically proceed into transaction pipeline without second submit button
+    setIsCameraOpen(false);
+    setSubmitting(true);
+    setBanner(null);
+
+    try {
+      // Langkah 4 — Validasi GPS terbaru setelah foto dikonfirmasi
+      const freshGps = await getAndValidateLocation();
+      if (!freshGps.valid || !freshGps.coords) {
+        setBanner({
+          type: 'error',
+          message:
+            freshGps.errorMessage ||
+            'Lokasi terbaru tidak valid atau berada di luar radius setelah pengambilan foto.',
+        });
+        return;
+      }
+
+      // Langkah 5 — Identitas pegawai dan pembuatan path kanonis (WITA)
+      let activeEmpId = employee?.id;
+      if (!activeEmpId) {
+        const currentEmp = await attendanceService.getCurrentEmployee();
+        activeEmpId = currentEmp?.id;
+        if (currentEmp) {
+          setEmployee(currentEmp);
+        }
+      }
+
+      if (!activeEmpId) {
+        throw new Error(
+          'Identitas pegawai tidak ditemukan. Pastikan akun Anda telah terhubung dengan data pegawai.'
+        );
+      }
+
+      const photoPath = generateSelfieStoragePath(activeEmpId, actionType);
+
+      // Langkah 6 — Unggah foto selfie ke private Supabase Storage
+      const uploadedPath = await uploadAttendanceSelfie(photoPath, photoBlob);
+
+      // Langkah 7 — Transaksi backend RPC via attendanceService
+      if (actionType === 'check_in') {
+        const newAtt = await attendanceService.checkIn({
+          latitude: freshGps.coords.latitude,
+          longitude: freshGps.coords.longitude,
+          photoPath: uploadedPath,
+          notes: notes.trim() || undefined,
+        });
+
+        // Langkah 8 — Hasil dan pembaruan UI
+        setTodayAttendance(newAtt);
+        setNotes('');
+        setBanner({
+          type: 'success',
+          title: 'Presensi Masuk Berhasil',
+          message: `${formatTimeOnly(newAtt.check_in_at)}`,
+        });
+
+        const now = new Date();
+        setEvalCheckIn(attendanceService.evaluateCheckIn(now, schedule));
+        setEvalCheckOut(attendanceService.evaluateCheckOut(now, schedule, newAtt));
+      } else {
+        const updatedAtt = await attendanceService.checkOut({
+          latitude: freshGps.coords.latitude,
+          longitude: freshGps.coords.longitude,
+          photoPath: uploadedPath,
+          notes: notes.trim() || undefined,
+        });
+
+        // Langkah 8 — Hasil dan pembaruan UI
+        setTodayAttendance(updatedAtt);
+        setNotes('');
+        setBanner({
+          type: 'success',
+          title: 'Presensi Pulang Berhasil',
+          message: `${formatTimeOnly(updatedAtt.check_out_at)}`,
+        });
+
+        const now = new Date();
+        setEvalCheckIn(attendanceService.evaluateCheckIn(now, schedule));
+        setEvalCheckOut(attendanceService.evaluateCheckOut(now, schedule, updatedAtt));
+      }
+    } catch (err: unknown) {
+      console.error('Attendance selfie transaction error:', err);
+      const msg = err instanceof Error ? err.message : 'Gagal memproses transaksi presensi.';
+      setBanner({
+        type: 'error',
+        message: msg,
+      });
+    } finally {
+      // Phase 2 finished: release lock and restore processing states across all terminal paths
+      setSubmitting(false);
+      setPendingAttendanceType(null);
+      isActionLockedRef.current = false;
     }
   };
 
@@ -531,17 +758,48 @@ export const AttendancePage: React.FC = () => {
           {/* MOBILE & TABLET LAYOUT (< 1024px): STREAMLINED STATUS -> VALIDASI LOKASI -> SATU AKSI */}
           {/* ==================================================================== */}
           <div className="lg:hidden space-y-4">
-            {/* 1. Status & Tanggal Hari Ini */}
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
-              {/* Tanggal Hari Ini */}
-              <div className="pb-3 border-b border-[#E5E7EB]">
-                <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
-                  <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
-                  <span>{formattedTodayDate}</span>
+            {/* 0. Mobile & Tablet Header (No Card Container) */}
+            <div className="flex items-center justify-between py-2 px-1">
+              <div className="flex items-center gap-3">
+                {employee?.photo_url || profile?.avatar_url ? (
+                  <img
+                    src={employee?.photo_url || profile?.avatar_url || ''}
+                    alt="Foto Profil"
+                    className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                  />
+                ) : (
+                  <div className="w-11 h-11 rounded-full bg-[#FFEDD5] text-[#C2410C] font-bold flex items-center justify-center text-sm border border-[#FDBA74] shrink-0">
+                    {(employee?.full_name || profile?.full_name || user?.name || 'P')
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  <p className="text-xs font-semibold text-[#F97316]">
+                    {getWitaGreeting()},
+                  </p>
+                  <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate max-w-[200px] sm:max-w-xs">
+                    {employee?.full_name || profile?.full_name || user?.name || 'Pegawai Sekolah'}
+                  </h2>
                 </div>
               </div>
+              <div className="shrink-0">
+                <NotificationBell />
+              </div>
+            </div>
 
-              {/* PRESENSI HARI INI & Status Typography (NO BADGES, NO PILLS, NO CHECKMARKS) */}
+            {/* 1. Status & Tanggal Hari Ini */}
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+              {/* Tanggal Hari Ini (Clean & Prominent, No School/Location labels) */}
+              <div className="pb-3 border-b border-[#E5E7EB] flex items-center gap-2 text-xs sm:text-sm font-bold text-[#111827]">
+                <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
+                <span>{formattedTodayDate}</span>
+              </div>
+
+              {/* PRESENSI HARI INI & Status Typography */}
               <div>
                 <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider block">
                   PRESENSI HARI INI
@@ -568,6 +826,132 @@ export const AttendancePage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* 1.5 Riwayat Minggu Ini (7 Capsules) */}
+            {(() => {
+              const { weeklyDates, monthYearLabel } = getWeeklyDatesAndLabels();
+              const todayStr = getLocalDateString(new Date());
+              return (
+                <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                      Riwayat Minggu Ini
+                    </h3>
+                    <span className="text-[11px] font-semibold text-[#6B7280]">
+                      {monthYearLabel}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-1 sm:gap-2 overflow-x-auto pb-1">
+                    {weeklyDates.map((dateObj) => {
+                      const match = weeklyMatrix.find((r) => r.date === dateObj.dateStr);
+                      const isToday = dateObj.dateStr === todayStr;
+                      const isWeekendOrHoliday = dateObj.isWeekend || match?.status === 'holiday';
+
+                      let statusBarColor = 'bg-[#E5E7EB]';
+                      if (match) {
+                        if (match.status === 'present') {
+                          statusBarColor = match.substatus === 'late' ? 'bg-[#F97316]' : 'bg-[#16A34A]';
+                        } else if (match.status === 'sick') {
+                          statusBarColor = 'bg-[#7C3AED]';
+                        } else if (match.status === 'permit') {
+                          statusBarColor = 'bg-[#CA8A04]';
+                        } else if (match.status === 'leave') {
+                          statusBarColor = 'bg-[#CA8A04]';
+                        } else if (match.status === 'official_duty') {
+                          statusBarColor = 'bg-[#0284C7]';
+                        } else if (match.status === 'absent') {
+                          statusBarColor = 'bg-[#DC2626]';
+                        }
+                      }
+
+                      let capsuleBg = 'bg-[#FFFFFF] shadow-2xs border border-[#E5E7EB]';
+                      let textColor = 'text-[#111827]';
+                      let subTextColor = 'text-[#6B7280]';
+
+                      if (isToday) {
+                        capsuleBg = 'bg-[#F97316] text-white shadow-sm border border-[#F97316]';
+                        textColor = 'text-white';
+                        subTextColor = 'text-white/90';
+                      } else if (isWeekendOrHoliday) {
+                        textColor = 'text-[#DC2626]';
+                        subTextColor = 'text-[#DC2626]/80';
+                      }
+
+                      return (
+                        <div
+                          key={dateObj.dateStr}
+                          className={`flex flex-col items-center justify-between py-2.5 px-0.5 rounded-full text-center transition-all ${capsuleBg} min-h-[76px]`}
+                          title={`${dateObj.dayNameFull}, ${dateObj.dateStr}: ${match?.statusLabel || 'Belum ada data'}`}
+                        >
+                          <span className={`text-[11px] sm:text-xs font-bold ${textColor}`}>
+                            {dateObj.dayNum}
+                          </span>
+                          <div className={`w-1.5 h-3.5 sm:h-5 rounded-full my-1 ${statusBarColor}`} />
+                          <span className={`text-[9px] sm:text-[11px] font-semibold uppercase tracking-tight ${subTextColor}`}>
+                            {dateObj.dayNameShort}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* 1.6 Rekap Presensi Minggu Ini (6 Categories 3x2 grid) */}
+            {(() => {
+              const todayStr = getLocalDateString(new Date());
+              const pastOrTodayMatrix = weeklyMatrix.filter((r) => r.date <= todayStr);
+              const recapCounts = {
+                present: pastOrTodayMatrix.filter((r) => r.status === 'present').length,
+                sick: pastOrTodayMatrix.filter((r) => r.status === 'sick').length,
+                permit: pastOrTodayMatrix.filter((r) => r.status === 'permit').length,
+                official_duty: pastOrTodayMatrix.filter((r) => r.status === 'official_duty').length,
+                leave: pastOrTodayMatrix.filter((r) => r.status === 'leave').length,
+                absent: pastOrTodayMatrix.filter((r) => r.status === 'absent').length,
+              };
+
+              return (
+                <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+                  <div>
+                    <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                      Rekap Presensi Minggu Ini
+                    </h3>
+                    <p className="text-[11px] text-[#6B7280] mt-0.5">
+                      Senin s.d. Hari Ini
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Hadir</span>
+                      <span className="text-base sm:text-lg font-bold text-[#16A34A] block">{recapCounts.present}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Sakit</span>
+                      <span className="text-base sm:text-lg font-bold text-[#7C3AED] block">{recapCounts.sick}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Izin</span>
+                      <span className="text-base sm:text-lg font-bold text-[#CA8A04] block">{recapCounts.permit}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Dinas Luar</span>
+                      <span className="text-base sm:text-lg font-bold text-[#0284C7] block">{recapCounts.official_duty}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Cuti</span>
+                      <span className="text-base sm:text-lg font-bold text-[#CA8A04] block">{recapCounts.leave}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Alpha</span>
+                      <span className="text-base sm:text-lg font-bold text-[#DC2626] block">{recapCounts.absent}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* 2. STATE E: Approved Request Message (If approved request exists) */}
             {approvedRequest ? (
@@ -724,7 +1108,7 @@ export const AttendancePage: React.FC = () => {
                         <button
                           type="button"
                           onClick={handleCheckIn}
-                          disabled={loading || submitting || !evalCheckIn.allowed}
+                          disabled={loading || submitting || isCameraOpen || !evalCheckIn.allowed}
                           className="w-full h-12 text-xs font-bold rounded-xl transition-all shadow-2xs flex flex-row items-center justify-center gap-2 whitespace-nowrap bg-[#F97316] hover:bg-[#EA580C] text-white disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                         >
                           {submitting ? (
@@ -746,7 +1130,7 @@ export const AttendancePage: React.FC = () => {
                         <button
                           type="button"
                           onClick={handleCheckOut}
-                          disabled={loading || submitting || !evalCheckOut.allowed}
+                          disabled={loading || submitting || isCameraOpen || !evalCheckOut.allowed}
                           className={`w-full h-12 text-xs font-bold rounded-xl transition-all shadow-2xs flex flex-row items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer ${
                             evalCheckOut.allowed
                               ? 'bg-[#F97316] hover:bg-[#EA580C] text-white'
@@ -822,7 +1206,7 @@ export const AttendancePage: React.FC = () => {
                 todayAttendance={todayAttendance}
                 evalCheckIn={evalCheckIn}
                 loading={loading}
-                submitting={submitting}
+                submitting={submitting || isCameraOpen}
                 onCheckIn={handleCheckIn}
               />
 
@@ -831,7 +1215,7 @@ export const AttendancePage: React.FC = () => {
                 todayAttendance={todayAttendance}
                 evalCheckOut={evalCheckOut}
                 loading={loading}
-                submitting={submitting}
+                submitting={submitting || isCameraOpen}
                 onCheckOut={handleCheckOut}
               />
             </div>
@@ -861,6 +1245,19 @@ export const AttendancePage: React.FC = () => {
           </div>
         </>
       )}
+
+      {/* Camera Capture Modal for Attendance Selfie */}
+      <CameraCaptureModal
+        isOpen={isCameraOpen}
+        onClose={handleCameraClose}
+        onCapture={handlePhotoConfirmed}
+        title={
+          pendingAttendanceType === 'check_in'
+            ? 'Foto Selfie Presensi Masuk'
+            : 'Foto Selfie Presensi Pulang'
+        }
+        description="Posisikan wajah Anda tepat di dalam area panduan foto"
+      />
     </div>
   );
 };

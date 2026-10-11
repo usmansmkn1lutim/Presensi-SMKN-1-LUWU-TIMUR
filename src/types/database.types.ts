@@ -629,6 +629,7 @@ export interface Database {
         Args: {
           user_latitude: number;
           user_longitude: number;
+          user_photo_path?: string | null;
         };
         Returns: {
           attendance_id: string;
@@ -644,6 +645,7 @@ export interface Database {
         Args: {
           user_latitude: number;
           user_longitude: number;
+          user_photo_path?: string | null;
         };
         Returns: {
           attendance_id: string;

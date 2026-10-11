@@ -102,6 +102,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isProcessingCapture, setIsProcessingCapture] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -418,6 +419,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       isFallbackAttemptedRef.current = false;
       setCapturedBlob(null);
       clearPreviewUrl();
+      setIsConfirming(false);
       startCamera();
     } else {
       // Invalidate in-flight requests and conditionally release lock if held by that request
@@ -428,6 +430,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       setErrorMessage(null);
       setCapturedBlob(null);
       setIsProcessingCapture(false);
+      setIsConfirming(false);
     }
 
     return () => {
@@ -624,6 +627,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
    * Resets capture state and restarts camera stream for retake
    */
   const handleRetake = () => {
+    setIsConfirming(false);
     clearPreviewUrl();
     setCapturedBlob(null);
     startCamera();
@@ -631,9 +635,14 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 
   /**
    * Emits the strictly validated Blob to caller without uploading or calling RPC.
+   * Guarded against duplicate concurrent confirmation calls.
    * Preserves preview and displays safe generic error if onCapture callback throws.
    */
   const handleConfirmUse = () => {
+    if (isConfirming) {
+      return;
+    }
+
     if (
       !capturedBlob ||
       capturedBlob.size === 0 ||
@@ -643,6 +652,8 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
       setErrorMessage('Berkas foto selfie tidak valid atau melebihi batas ukuran.');
       return;
     }
+
+    setIsConfirming(true);
 
     try {
       // Execute capture consumer callback
@@ -654,6 +665,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
     } catch {
       // Generic safe message; do not leak err.message internal details to UI
       setErrorMessage('Terjadi kesalahan saat memproses hasil presensi. Silakan coba kembali.');
+      setIsConfirming(false);
       // Preview URL is preserved so user can retry or retake
     }
   };
@@ -662,9 +674,13 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
    * Handles user cancellation or closing modal
    */
   const handleCancel = () => {
+    if (isConfirming) {
+      return;
+    }
     cancelActiveRequestAndReleaseLock();
     stopCameraStream();
     clearPreviewUrl();
+    setIsConfirming(false);
     onClose();
   };
 
@@ -691,8 +707,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
           <button
             type="button"
             onClick={handleCancel}
+            disabled={isConfirming}
             aria-label="Tutup modal kamera"
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" />
           </button>
@@ -799,6 +816,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
             variant="outline"
             size="md"
             onClick={handleCancel}
+            disabled={isConfirming}
             className="text-xs"
           >
             Batal
@@ -828,6 +846,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 variant="secondary"
                 size="md"
                 onClick={handleRetake}
+                disabled={isConfirming}
                 className="text-xs font-medium"
               >
                 <RotateCcw className="w-4 h-4 mr-1.5" />
@@ -838,6 +857,8 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 variant="primary"
                 size="md"
                 onClick={handleConfirmUse}
+                disabled={isConfirming}
+                isLoading={isConfirming}
                 className="text-xs font-semibold"
               >
                 <Check className="w-4 h-4 mr-1.5" />

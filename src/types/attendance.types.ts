@@ -81,6 +81,8 @@ export interface CheckInPayload {
   latitude?: number | null;
   longitude?: number | null;
   location_id?: string | null;
+  photoPath?: string | null;
+  photo_path?: string | null;
   notes?: string | null;
 }
 
@@ -91,5 +93,7 @@ export interface CheckOutPayload {
   latitude?: number | null;
   longitude?: number | null;
   location_id?: string | null;
+  photoPath?: string | null;
+  photo_path?: string | null;
   notes?: string | null;
 }
