@@ -55,7 +55,7 @@ export const Header: React.FC = () => {
   const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
 
   return (
-    <header className={`h-16 bg-[#FFFFFF] border-b border-[#E5E7EB] px-4 sm:px-6 items-center justify-between sticky top-0 z-20 ${isDashboard ? 'hidden lg:flex' : 'flex'}`}>
+    <header className="h-16 bg-[#FFFFFF] border-b border-[#E5E7EB] px-4 sm:px-6 items-center justify-between sticky top-0 z-20 hidden lg:flex">
       {/* Left: Mobile Brand & Page Title */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         <div className="lg:hidden flex items-center">
