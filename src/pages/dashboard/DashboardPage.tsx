@@ -169,6 +169,10 @@ export const DashboardPage: React.FC = () => {
     } catch (err: any) {
       console.error('Failed to load employee dashboard data:', err);
       const msg = err?.message || 'Gagal memuat data presensi pegawai.';
+      if (msg === 'Sesi telah berakhir. Silakan login kembali.') {
+        navigate('/login');
+        return;
+      }
       setError(msg);
       if (
         msg.includes('belum terhubung') ||

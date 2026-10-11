@@ -4,6 +4,9 @@ import {
   getMakassarTodayDateString,
   iterateDateRange,
 } from './attendanceReportService';
+import { WorkScheduleModel } from '../types/workSchedule.types';
+import { parseTimeToMinutes, dateToMinutes } from './attendanceBusinessRules';
+import { workScheduleService } from './workScheduleService';
 
 export type OfficialAttendanceStatus =
   | 'present'       // Hadir
@@ -96,7 +99,9 @@ export function evaluateDailyStatus(
   attendance: MinimalAttendance | null,
   approvedRequest: MinimalRequest | null,
   holiday: MinimalHoliday | null,
-  todayStr: string = getMakassarTodayDateString()
+  todayStr: string = getMakassarTodayDateString(),
+  schedule: WorkScheduleModel | null = null,
+  currentTime: Date = new Date()
 ): EvaluatedStatusResult {
   const deptName = employee.departmentName || 'Satuan Pendidikan';
 
@@ -203,7 +208,34 @@ export function evaluateDailyStatus(
     };
   }
 
-  // PRIORITAS 5: ALPHA / TANPA KETERANGAN (Only for working days up to today)
+  // PRIORITAS 5: PREMATURE ALPHA PREVENTION (Today's operational check)
+  if (date === todayStr) {
+    const endMins = schedule ? parseTimeToMinutes(schedule.check_in_end_time) : -1;
+    const currentMins = dateToMinutes(currentTime);
+
+    if (endMins !== -1 && currentMins < endMins) {
+      return {
+        date,
+        employeeId: employee.id,
+        employeeName: employee.full_name,
+        nip: employee.nip,
+        departmentName: deptName,
+        status: 'holiday', // Using 'holiday' to effectively block Alpha status
+        statusLabel: 'Menunggu Presensi',
+        substatus: null,
+        substatusLabel: null,
+        notes: 'Menunggu Presensi',
+        checkInAt: null,
+        checkOutAt: null,
+        checkInLocation: null,
+        checkOutLocation: null,
+        source: 'calendar',
+        sourceId: null,
+      };
+    }
+  }
+
+  // PRIORITAS 6: ALPHA / TANPA KETERANGAN (Only for working days up to today)
   if (date <= todayStr) {
     return {
       date,
@@ -399,6 +431,8 @@ export const attendanceStatusService = {
     // 5. Build full evaluated matrix
     const datesInRange = iterateDateRange(startDate, endDate);
     const results: EvaluatedStatusResult[] = [];
+    const schedule = await workScheduleService.getActiveWorkSchedule();
+    const now = new Date();
 
     for (const emp of targetEmployees) {
       for (const dStr of datesInRange) {
@@ -407,7 +441,7 @@ export const attendanceStatusService = {
         const req = requestMap.get(key) || null;
         const hol = holidayMap.get(dStr) || null;
 
-        const evaluated = evaluateDailyStatus(dStr, emp, att, req, hol, todayStr);
+        const evaluated = evaluateDailyStatus(dStr, emp, att, req, hol, todayStr, schedule, now);
         results.push(evaluated);
       }
     }

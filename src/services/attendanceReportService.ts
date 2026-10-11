@@ -374,34 +374,45 @@ export const attendanceReportService = {
 
   /**
    * Generates Daily Summary
-   * Minimal fields: attendanceDate, totalEmployees, totalPresent, totalLate, totalCheckedOut, totalNotCheckedOut
    */
   async getDailySummary(filter: AttendanceReportFilter): Promise<DailyAttendanceSummary[]> {
-    const { attendanceRows, activeEmployees } = await this.fetchRawAttendanceRecords(filter);
-    const dateList = iterateDateRange(filter.startDate, filter.endDate);
-
-    const rowsByDate = new Map<string, any[]>();
-    attendanceRows.forEach((r) => {
-      const list = rowsByDate.get(r.attendance_date) || [];
+    const { startDate, endDate, departmentId } = filter;
+    
+    // Fetch evaluated matrix for accurate status
+    const evaluatedMatrix = await attendanceStatusService.getEvaluatedMatrix(
+      startDate,
+      endDate,
+      null,
+      departmentId
+    );
+    
+    const dateList = iterateDateRange(startDate, endDate);
+    const dateMap = new Map<string, EvaluatedStatusResult[]>();
+    
+    evaluatedMatrix.forEach((r) => {
+      const list = dateMap.get(r.date) || [];
       list.push(r);
-      rowsByDate.set(r.attendance_date, list);
+      dateMap.set(r.date, list);
     });
 
-    const totalActiveCount = activeEmployees.length;
+    // Count active employees (unique IDs)
+    const activeEmployeeIds = new Set(evaluatedMatrix.map(e => e.employeeId));
+    const totalActiveCount = activeEmployeeIds.size;
 
     // Build summaries for all dates in range descending
     const dailySummaries: DailyAttendanceSummary[] = dateList
       .reverse()
       .map((dateStr) => {
-        const rowsForDate = rowsByDate.get(dateStr) || [];
-        const totalPresent = rowsForDate.length;
-        const totalLate = rowsForDate.filter((r) => r.check_in_status === 'late').length;
-        const totalOnTime = rowsForDate.filter((r) => r.check_in_status === 'on_time').length;
-        const totalCheckedOut = rowsForDate.filter((r) => r.check_out_at !== null).length;
+        const rowsForDate = dateMap.get(dateStr) || [];
+        const totalPresent = rowsForDate.filter(r => r.status === 'present').length;
+        const totalLate = rowsForDate.filter((r) => r.status === 'present' && r.substatus === 'late').length;
+        const totalOnTime = rowsForDate.filter((r) => r.status === 'present' && r.substatus === 'on_time').length;
+        const totalCheckedOut = rowsForDate.filter((r) => r.checkOutAt !== null).length;
         const totalNotCheckedOut = rowsForDate.filter(
-          (r) => r.check_in_at !== null && r.check_out_at === null
+          (r) => r.status === 'present' && r.checkInAt !== null && r.checkOutAt === null
         ).length;
-        const totalAbsent = Math.max(0, totalActiveCount - totalPresent);
+        // Count only TRUE Alpha
+        const totalAbsent = rowsForDate.filter(r => r.status === 'absent').length;
 
         return {
           attendanceDate: dateStr,
@@ -422,51 +433,49 @@ export const attendanceReportService = {
 
   /**
    * Generates Per-Employee Summary
-   * Minimal fields: employeeId, employeeName, totalAttendance, totalLate, totalCheckedOut, totalNotCheckedOut
    */
   async getEmployeeSummary(filter: AttendanceReportFilter): Promise<EmployeeAttendanceSummary[]> {
-    const { attendanceRows, activeEmployees, holidaySet } =
-      await this.fetchRawAttendanceRecords(filter);
+    const { startDate, endDate, employeeId, departmentId } = filter;
 
-    const totalWorkDays = this.calculateWorkingDays(
-      filter.startDate,
-      filter.endDate,
-      holidaySet
+    const evaluatedMatrix = await attendanceStatusService.getEvaluatedMatrix(
+      startDate,
+      endDate,
+      employeeId,
+      departmentId
     );
 
-    const attendanceByEmployee = new Map<string, any[]>();
-    attendanceRows.forEach((r) => {
-      const empId = r.employee_id || `hist_${r.employee_name_snapshot}`;
-      const list = attendanceByEmployee.get(empId) || [];
+    // Get unique employees from matrix
+    const employeesMap = new Map<string, EvaluatedStatusResult[]>();
+    evaluatedMatrix.forEach(r => {
+      const list = employeesMap.get(r.employeeId) || [];
       list.push(r);
-      attendanceByEmployee.set(empId, list);
+      employeesMap.set(r.employeeId, list);
     });
 
-    // 1. Process active employees
-    const activeSummaries: EmployeeAttendanceSummary[] = activeEmployees.map((emp) => {
-      const records = attendanceByEmployee.get(emp.id) || [];
-      const totalAttendance = records.length;
-      const totalOnTime = records.filter((r) => r.check_in_status === 'on_time').length;
-      const totalLate = records.filter((r) => r.check_in_status === 'late').length;
-      const totalCheckedOut = records.filter((r) => r.check_out_at !== null).length;
+    // Count actual work days in the range to be fair
+    const holData = await supabase.from('holidays').select('holiday_date').eq('is_active', true).gte('holiday_date', startDate).lte('holiday_date', endDate);
+    const holidaySet = new Set(holData.data?.map(h => h.holiday_date) || []);
+    const totalWorkDays = this.calculateWorkingDays(startDate, endDate, holidaySet);
+
+    return Array.from(employeesMap.entries()).map(([employeeId, records]) => {
+      const totalAttendance = records.filter(r => r.status === 'present').length;
+      const totalOnTime = records.filter((r) => r.status === 'present' && r.substatus === 'on_time').length;
+      const totalLate = records.filter((r) => r.status === 'present' && r.substatus === 'late').length;
+      const totalCheckedOut = records.filter((r) => r.checkOutAt !== null).length;
       const totalNotCheckedOut = records.filter(
-        (r) => r.check_in_at !== null && r.check_out_at === null
+        (r) => r.status === 'present' && r.checkInAt !== null && r.checkOutAt === null
       ).length;
-      const totalAbsent = Math.max(0, totalWorkDays - totalAttendance);
+      const totalAbsent = records.filter(r => r.status === 'absent').length;
+      
       const attendancePercentage =
         totalWorkDays > 0 ? Math.round((totalAttendance / totalWorkDays) * 1000) / 10 : 0;
 
-      const deptObj = Array.isArray(emp.departments)
-        ? emp.departments[0]
-        : emp.departments;
-      const departmentName = deptObj?.name || 'Belum Ditentukan';
-
       return {
-        employeeId: emp.id,
-        employeeName: emp.full_name,
-        nip: emp.nip || null,
-        departmentId: emp.department_id || null,
-        departmentName,
+        employeeId: employeeId,
+        employeeName: records[0].employeeName,
+        nip: records[0].nip,
+        departmentId: null, // Simplified
+        departmentName: records[0].departmentName,
         totalWorkDays,
         totalAttendance,
         totalOnTime,
@@ -477,53 +486,6 @@ export const attendanceReportService = {
         attendancePercentage,
       };
     });
-
-    // 2. Include historical employees whose records exist in this period but employee_id was set to NULL
-    const activeEmpIdSet = new Set(activeEmployees.map((e) => e.id));
-    const historicalRows = attendanceRows.filter(
-      (r) => !r.employee_id || !activeEmpIdSet.has(r.employee_id)
-    );
-
-    const historicalGroups = new Map<string, any[]>();
-    historicalRows.forEach((r) => {
-      const key = r.employee_name_snapshot || 'Pegawai Terhapus';
-      const list = historicalGroups.get(key) || [];
-      list.push(r);
-      historicalGroups.set(key, list);
-    });
-
-    const historicalSummaries: EmployeeAttendanceSummary[] = Array.from(
-      historicalGroups.entries()
-    ).map(([name, records]) => {
-      const totalAttendance = records.length;
-      const totalOnTime = records.filter((r) => r.check_in_status === 'on_time').length;
-      const totalLate = records.filter((r) => r.check_in_status === 'late').length;
-      const totalCheckedOut = records.filter((r) => r.check_out_at !== null).length;
-      const totalNotCheckedOut = records.filter(
-        (r) => r.check_in_at !== null && r.check_out_at === null
-      ).length;
-      const totalAbsent = Math.max(0, totalWorkDays - totalAttendance);
-      const attendancePercentage =
-        totalWorkDays > 0 ? Math.round((totalAttendance / totalWorkDays) * 1000) / 10 : 0;
-
-      return {
-        employeeId: records[0]?.employee_id || `hist_${name}`,
-        employeeName: `${name} (Arsip)`,
-        nip: null,
-        departmentId: null,
-        departmentName: 'Pegawai Non-aktif / Terhapus',
-        totalWorkDays,
-        totalAttendance,
-        totalOnTime,
-        totalLate,
-        totalCheckedOut,
-        totalNotCheckedOut,
-        totalAbsent,
-        attendancePercentage,
-      };
-    });
-
-    return [...activeSummaries, ...historicalSummaries];
   },
 
   /**

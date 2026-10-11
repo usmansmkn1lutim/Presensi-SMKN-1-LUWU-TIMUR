@@ -54,7 +54,7 @@ export const Header: React.FC = () => {
   const pageTitle = getFriendlyMenuTitle(location.pathname);
 
   return (
-    <header className="h-16 bg-[#FFFFFF] border-b border-[#E5E7EB] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+    <header className="hidden lg:flex h-16 bg-[#FFFFFF] border-b border-[#E5E7EB] px-4 sm:px-6 items-center justify-between sticky top-0 z-20">
       {/* Left: Mobile Brand & Page Title */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         <div className="lg:hidden flex items-center">

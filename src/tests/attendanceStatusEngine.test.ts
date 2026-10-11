@@ -34,7 +34,9 @@ const res1 = evaluateDailyStatus(
   },
   null,
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(res1.status === 'present', '1. Status should be present');
 console.assert(res1.substatus === 'on_time', '1. Substatus should be on_time');
@@ -57,7 +59,9 @@ const res2 = evaluateDailyStatus(
   },
   null,
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T09:00:00+08:00')
 );
 console.assert(res2.status === 'present', '2. Status should be present');
 console.assert(res2.substatus === 'late', '2. Substatus should be late');
@@ -79,7 +83,9 @@ const res3 = evaluateDailyStatus(
     status: 'approved',
   },
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(res3.status === 'sick', '3. Status should be sick');
 console.assert(res3.statusLabel === 'Sakit', '3. Status label Sakit');
@@ -101,7 +107,9 @@ const res4 = evaluateDailyStatus(
     status: 'approved',
   },
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(res4.status === 'permit', '4. Status should be permit');
 console.assert(res4.statusLabel === 'Izin', '4. Status label Izin');
@@ -122,7 +130,9 @@ const res5 = evaluateDailyStatus(
     status: 'approved',
   },
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(res5.status === 'official_duty', '5. Status should be official_duty');
 console.assert(res5.statusLabel === 'Dinas Luar', '5. Status label Dinas Luar');
@@ -143,21 +153,23 @@ const res6 = evaluateDailyStatus(
     status: 'approved',
   },
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(res6.status === 'leave', '6. Status should be leave');
 console.assert(res6.statusLabel === 'Cuti', '6. Status label Cuti');
 console.log('✓ 6. Approved leave verified: Cuti');
 
 // 7. Alpha / Unexcused Absence
-const res7 = evaluateDailyStatus('2026-10-05', testEmployee, null, null, null, todayStr);
+const res7 = evaluateDailyStatus('2026-10-05', testEmployee, null, null, null, todayStr, null, new Date('2026-10-05T15:00:00+08:00'));
 console.assert(res7.status === 'absent', '7. Status should be absent');
 console.assert(res7.statusLabel === 'Alpha', '7. Status label Alpha');
 console.assert(res7.notes === 'Tanpa Keterangan', '7. Notes should be Tanpa Keterangan');
 console.log('✓ 7. Alpha verified: Alpha (Tanpa Keterangan)');
 
 // 8. Weekend (Sunday 2026-10-04)
-const res8 = evaluateDailyStatus('2026-10-04', testEmployee, null, null, null, todayStr);
+const res8 = evaluateDailyStatus('2026-10-04', testEmployee, null, null, null, todayStr, null, new Date('2026-10-04T08:00:00+08:00'));
 console.assert(res8.status === 'holiday', '8. Status should be holiday');
 console.assert(res8.notes === 'Akhir Pekan', '8. Notes Akhir Pekan');
 console.log('✓ 8. Weekend verified: Libur (Akhir Pekan)');
@@ -174,7 +186,9 @@ const res9 = evaluateDailyStatus(
     name: 'Hari Kesaktian Pancasila',
     is_active: true,
   },
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(res9.status === 'holiday', '9. Status should be holiday');
 console.assert(res9.notes === 'Hari Kesaktian Pancasila', '9. Holiday name preserved');
@@ -204,7 +218,9 @@ const res10 = evaluateDailyStatus(
     status: 'approved',
   },
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(
   res10.status === 'present',
@@ -237,7 +253,9 @@ const res11 = evaluateDailyStatus(
     status: 'approved',
   },
   null,
-  todayStr
+  todayStr,
+  null,
+  new Date('2026-10-05T08:00:00+08:00')
 );
 console.assert(
   res11.status === 'present',
