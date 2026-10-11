@@ -731,7 +731,7 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div
                   key={dateStr}
-                  className={`flex flex-col items-center justify-center w-full py-3 px-0.5 rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.06)] transition-all ${
+                  className={`flex flex-col items-center justify-center w-full py-4 sm:py-5 px-0.5 rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.06)] transition-all ${
                     isTodayCapsule
                       ? 'bg-[#F97316] text-white'
                       : isHolidayCapsule
