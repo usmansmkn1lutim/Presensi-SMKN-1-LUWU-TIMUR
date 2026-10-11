@@ -43,13 +43,18 @@ import { WorkScheduleCard } from '../../components/attendance/WorkScheduleCard';
 import { AttendanceLocationCard } from '../../components/attendance/AttendanceLocationCard';
 import { CameraCaptureModal } from '../../components/attendance/CameraCaptureModal';
 import { Button } from '../../components/ui/Button';
+import { NotificationBell } from '../../components/notifications/NotificationBell';
 import {
   generateSelfieStoragePath,
   uploadAttendanceSelfie,
 } from '../../services/attendancePhotoService';
+import {
+  attendanceStatusService,
+  EvaluatedStatusResult,
+} from '../../services/attendanceStatusService';
 
 export const AttendancePage: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -63,6 +68,7 @@ export const AttendancePage: React.FC = () => {
   const [schedule, setSchedule] = useState<WorkScheduleModel | null>(null);
   const [location, setLocation] = useState<LocationModel | null>(null);
   const [activeLocations, setActiveLocations] = useState<LocationModel[]>([]);
+  const [weeklyMatrix, setWeeklyMatrix] = useState<EvaluatedStatusResult[]>([]);
   const geoRequestIdRef = useRef<number>(0);
   const isActionLockedRef = useRef<boolean>(false);
   const [geoValidation, setGeoValidation] = useState<LocationValidationState>({
@@ -105,6 +111,50 @@ export const AttendancePage: React.FC = () => {
     year: 'numeric',
   });
 
+  const getWitaGreeting = () => {
+    const now = new Date();
+    const hourStr = now.toLocaleString('en-US', { timeZone: 'Asia/Makassar', hour: 'numeric', hour12: false });
+    const hour = parseInt(hourStr, 10) || now.getHours();
+    if (hour >= 5 && hour < 11) return 'Selamat Pagi';
+    if (hour >= 11 && hour < 15) return 'Selamat Siang';
+    if (hour >= 15 && hour < 18) return 'Selamat Sore';
+    return 'Selamat Malam';
+  };
+
+  const getWeeklyDatesAndLabels = () => {
+    const now = new Date();
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+
+    const dayNamesShort = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MING'];
+    const dayNamesFull = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dateStr = getLocalDateString(d);
+      const dayNum = d.getDate();
+      const isWeekend = i === 5 || i === 6;
+      dates.push({
+        dateStr,
+        dayNum,
+        dayNameShort: dayNamesShort[i],
+        dayNameFull: dayNamesFull[i],
+        isWeekend,
+      });
+    }
+
+    const monthYearLabel = monday.toLocaleDateString('id-ID', {
+      month: 'long',
+      year: 'numeric',
+    });
+
+    return { weeklyDates: dates, monthYearLabel, startDate: dates[0].dateStr, endDate: dates[6].dateStr };
+  };
+
   const loadData = async () => {
     setLoading(true);
     setBanner(null);
@@ -116,6 +166,11 @@ export const AttendancePage: React.FC = () => {
       // 1. Resolve personal employee record
       const emp = await attendanceService.getCurrentEmployee();
       setEmployee(emp);
+
+      // Fetch weekly matrix for current week
+      const { startDate, endDate } = getWeeklyDatesAndLabels();
+      const matrix = await attendanceStatusService.getEvaluatedMatrix(startDate, endDate, emp.id);
+      setWeeklyMatrix(matrix);
 
       // 2. Fetch active work schedule
       const sched = await attendanceService.getActiveWorkSchedule();
@@ -703,17 +758,48 @@ export const AttendancePage: React.FC = () => {
           {/* MOBILE & TABLET LAYOUT (< 1024px): STREAMLINED STATUS -> VALIDASI LOKASI -> SATU AKSI */}
           {/* ==================================================================== */}
           <div className="lg:hidden space-y-4">
-            {/* 1. Status & Tanggal Hari Ini */}
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
-              {/* Tanggal Hari Ini */}
-              <div className="pb-3 border-b border-[#E5E7EB]">
-                <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280]">
-                  <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
-                  <span>{formattedTodayDate}</span>
+            {/* 0. Mobile & Tablet Header (No Card Container) */}
+            <div className="flex items-center justify-between py-2 px-1">
+              <div className="flex items-center gap-3">
+                {employee?.photo_url || profile?.avatar_url ? (
+                  <img
+                    src={employee?.photo_url || profile?.avatar_url || ''}
+                    alt="Foto Profil"
+                    className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                  />
+                ) : (
+                  <div className="w-11 h-11 rounded-full bg-[#FFEDD5] text-[#C2410C] font-bold flex items-center justify-center text-sm border border-[#FDBA74] shrink-0">
+                    {(employee?.full_name || profile?.full_name || user?.name || 'P')
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  <p className="text-xs font-semibold text-[#F97316]">
+                    {getWitaGreeting()},
+                  </p>
+                  <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate max-w-[200px] sm:max-w-xs">
+                    {employee?.full_name || profile?.full_name || user?.name || 'Pegawai Sekolah'}
+                  </h2>
                 </div>
               </div>
+              <div className="shrink-0">
+                <NotificationBell />
+              </div>
+            </div>
 
-              {/* PRESENSI HARI INI & Status Typography (NO BADGES, NO PILLS, NO CHECKMARKS) */}
+            {/* 1. Status & Tanggal Hari Ini */}
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+              {/* Tanggal Hari Ini (Clean & Prominent, No School/Location labels) */}
+              <div className="pb-3 border-b border-[#E5E7EB] flex items-center gap-2 text-xs sm:text-sm font-bold text-[#111827]">
+                <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
+                <span>{formattedTodayDate}</span>
+              </div>
+
+              {/* PRESENSI HARI INI & Status Typography */}
               <div>
                 <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider block">
                   PRESENSI HARI INI
@@ -740,6 +826,132 @@ export const AttendancePage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* 1.5 Riwayat Minggu Ini (7 Capsules) */}
+            {(() => {
+              const { weeklyDates, monthYearLabel } = getWeeklyDatesAndLabels();
+              const todayStr = getLocalDateString(new Date());
+              return (
+                <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                      Riwayat Minggu Ini
+                    </h3>
+                    <span className="text-[11px] font-semibold text-[#6B7280]">
+                      {monthYearLabel}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-1 sm:gap-2 overflow-x-auto pb-1">
+                    {weeklyDates.map((dateObj) => {
+                      const match = weeklyMatrix.find((r) => r.date === dateObj.dateStr);
+                      const isToday = dateObj.dateStr === todayStr;
+                      const isWeekendOrHoliday = dateObj.isWeekend || match?.status === 'holiday';
+
+                      let statusBarColor = 'bg-[#E5E7EB]';
+                      if (match) {
+                        if (match.status === 'present') {
+                          statusBarColor = match.substatus === 'late' ? 'bg-[#F97316]' : 'bg-[#16A34A]';
+                        } else if (match.status === 'sick') {
+                          statusBarColor = 'bg-[#7C3AED]';
+                        } else if (match.status === 'permit') {
+                          statusBarColor = 'bg-[#CA8A04]';
+                        } else if (match.status === 'leave') {
+                          statusBarColor = 'bg-[#CA8A04]';
+                        } else if (match.status === 'official_duty') {
+                          statusBarColor = 'bg-[#0284C7]';
+                        } else if (match.status === 'absent') {
+                          statusBarColor = 'bg-[#DC2626]';
+                        }
+                      }
+
+                      let capsuleBg = 'bg-[#FFFFFF] shadow-2xs border border-[#E5E7EB]';
+                      let textColor = 'text-[#111827]';
+                      let subTextColor = 'text-[#6B7280]';
+
+                      if (isToday) {
+                        capsuleBg = 'bg-[#F97316] text-white shadow-sm border border-[#F97316]';
+                        textColor = 'text-white';
+                        subTextColor = 'text-white/90';
+                      } else if (isWeekendOrHoliday) {
+                        textColor = 'text-[#DC2626]';
+                        subTextColor = 'text-[#DC2626]/80';
+                      }
+
+                      return (
+                        <div
+                          key={dateObj.dateStr}
+                          className={`flex flex-col items-center justify-between py-2.5 px-0.5 rounded-full text-center transition-all ${capsuleBg} min-h-[76px]`}
+                          title={`${dateObj.dayNameFull}, ${dateObj.dateStr}: ${match?.statusLabel || 'Belum ada data'}`}
+                        >
+                          <span className={`text-[11px] sm:text-xs font-bold ${textColor}`}>
+                            {dateObj.dayNum}
+                          </span>
+                          <div className={`w-1.5 h-3.5 sm:h-5 rounded-full my-1 ${statusBarColor}`} />
+                          <span className={`text-[9px] sm:text-[11px] font-semibold uppercase tracking-tight ${subTextColor}`}>
+                            {dateObj.dayNameShort}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* 1.6 Rekap Presensi Minggu Ini (6 Categories 3x2 grid) */}
+            {(() => {
+              const todayStr = getLocalDateString(new Date());
+              const pastOrTodayMatrix = weeklyMatrix.filter((r) => r.date <= todayStr);
+              const recapCounts = {
+                present: pastOrTodayMatrix.filter((r) => r.status === 'present').length,
+                sick: pastOrTodayMatrix.filter((r) => r.status === 'sick').length,
+                permit: pastOrTodayMatrix.filter((r) => r.status === 'permit').length,
+                official_duty: pastOrTodayMatrix.filter((r) => r.status === 'official_duty').length,
+                leave: pastOrTodayMatrix.filter((r) => r.status === 'leave').length,
+                absent: pastOrTodayMatrix.filter((r) => r.status === 'absent').length,
+              };
+
+              return (
+                <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+                  <div>
+                    <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                      Rekap Presensi Minggu Ini
+                    </h3>
+                    <p className="text-[11px] text-[#6B7280] mt-0.5">
+                      Senin s.d. Hari Ini
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Hadir</span>
+                      <span className="text-base sm:text-lg font-bold text-[#16A34A] block">{recapCounts.present}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Sakit</span>
+                      <span className="text-base sm:text-lg font-bold text-[#7C3AED] block">{recapCounts.sick}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Izin</span>
+                      <span className="text-base sm:text-lg font-bold text-[#CA8A04] block">{recapCounts.permit}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Dinas Luar</span>
+                      <span className="text-base sm:text-lg font-bold text-[#0284C7] block">{recapCounts.official_duty}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Cuti</span>
+                      <span className="text-base sm:text-lg font-bold text-[#CA8A04] block">{recapCounts.leave}</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-0.5">
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Alpha</span>
+                      <span className="text-base sm:text-lg font-bold text-[#DC2626] block">{recapCounts.absent}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* 2. STATE E: Approved Request Message (If approved request exists) */}
             {approvedRequest ? (

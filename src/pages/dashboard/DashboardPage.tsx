@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Clock,
   MapPin,
@@ -21,8 +21,10 @@ import {
   Eye,
   HeartPulse,
   Briefcase,
+  User as UserIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { NotificationBell } from '../../components/notifications/NotificationBell';
 import {
   dashboardAttendanceService,
   DashboardAttendanceSummary,
@@ -80,6 +82,9 @@ export const DashboardPage: React.FC = () => {
   // Monthly summary state (for desktop view compatibility)
   const [monthlySummary, setMonthlySummary] = useState<DashboardAttendanceSummary | null>(null);
 
+  // Weekly evaluated matrix for 7 capsules
+  const [weeklyMatrix, setWeeklyMatrix] = useState<EvaluatedStatusResult[]>([]);
+
   const fetchPersonalDashboardData = async () => {
     if (isAdmin) return;
     setLoading(true);
@@ -93,7 +98,7 @@ export const DashboardPage: React.FC = () => {
       const todayAtt = await attendanceService.getTodayAttendance();
       setTodayAttendance(todayAtt);
 
-      // 2. Compute weekly bounds: Monday up to Today (Asia/Makassar)
+      // 2. Compute weekly bounds: Monday up to Sunday (Asia/Makassar)
       const todayStr = getMakassarTodayDateString();
       const [year, month, day] = todayStr.split('-').map(Number);
       const todayDate = new Date(year, month - 1, day);
@@ -106,29 +111,39 @@ export const DashboardPage: React.FC = () => {
         String(mondayDate.getDate()).padStart(2, '0'),
       ].join('-');
 
-      // 3. Evaluate official matrix for Monday to Today
+      const sundayDate = new Date(mondayDate.getFullYear(), mondayDate.getMonth(), mondayDate.getDate() + 6);
+      const sundayStr = [
+        sundayDate.getFullYear(),
+        String(sundayDate.getMonth() + 1).padStart(2, '0'),
+        String(sundayDate.getDate()).padStart(2, '0'),
+      ].join('-');
+
+      // 3. Evaluate official matrix for Monday to Sunday
       const matrix = await attendanceStatusService.getEvaluatedMatrix(
         mondayStr,
-        todayStr,
+        sundayStr,
         employee.id
       );
+      setWeeklyMatrix(matrix);
+
       const todayRec = matrix.find((r) => r.date === todayStr) || null;
       setTodayEvaluatedRecord(todayRec);
 
-      // 4. Calculate 3x2 weekly official summary
+      // 4. Calculate 3x2 weekly official summary (Monday up to Today)
+      const pastOrTodayMatrix = matrix.filter((r) => r.date <= todayStr);
       const summary: OfficialWeeklySummary = {
-        present: matrix.filter((r) => r.status === 'present').length,
-        sick: matrix.filter((r) => r.status === 'sick').length,
-        permit: matrix.filter((r) => r.status === 'permit').length,
-        officialDuty: matrix.filter((r) => r.status === 'official_duty').length,
-        leave: matrix.filter((r) => r.status === 'leave').length,
-        absent: matrix.filter((r) => r.status === 'absent').length,
+        present: pastOrTodayMatrix.filter((r) => r.status === 'present').length,
+        sick: pastOrTodayMatrix.filter((r) => r.status === 'sick').length,
+        permit: pastOrTodayMatrix.filter((r) => r.status === 'permit').length,
+        officialDuty: pastOrTodayMatrix.filter((r) => r.status === 'official_duty').length,
+        leave: pastOrTodayMatrix.filter((r) => r.status === 'leave').length,
+        absent: pastOrTodayMatrix.filter((r) => r.status === 'absent').length,
       };
       setWeeklySummary(summary);
 
       // 5. Map weekly records sorted newest to oldest (terbaru -> terlama)
       // Excludes holidays from attendance history cards per domain rule
-      const records: AttendanceHistoryRecord[] = matrix
+      const records: AttendanceHistoryRecord[] = pastOrTodayMatrix
         .filter((r) => r.status !== 'holiday')
         .sort((a, b) => b.date.localeCompare(a.date))
         .map((r) => ({
@@ -350,6 +365,36 @@ export const DashboardPage: React.FC = () => {
   if (isAdmin) {
     return (
       <div className="space-y-6 pb-8 font-sans max-w-5xl mx-auto">
+        {/* Mobile & Tablet Profile Photo, Role/Identity & NotificationBell (< 1024px) */}
+        <div className="lg:hidden flex items-center justify-between font-sans">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link to="/profile" className="shrink-0">
+              {profile?.avatar_url || (user as any)?.avatarUrl ? (
+                <img
+                  src={profile?.avatar_url || (user as any)?.avatarUrl || ''}
+                  alt={fullName}
+                  className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB]"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center font-bold text-xs text-[#374151]">
+                  {fullName ? fullName.charAt(0) : <UserIcon className="w-4 h-4 text-[#6B7280]" />}
+                </div>
+              )}
+            </Link>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-[#6B7280] leading-tight">
+                Panel Administrator
+              </p>
+              <h2 className="text-base sm:text-lg font-bold text-[#111827] tracking-tight truncate">
+                {fullName}
+              </h2>
+            </div>
+          </div>
+          <div className="shrink-0">
+            <NotificationBell />
+          </div>
+        </div>
+
         {/* Admin Hero Banner */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-md space-y-3 sm:space-y-3.5">
           {/* Geometric Minimalist Background Pattern */}
@@ -527,14 +572,34 @@ export const DashboardPage: React.FC = () => {
   // =========================================================================
   return (
     <div className="space-y-5 pb-8 font-sans max-w-5xl mx-auto">
-      {/* 1. Mobile & Tablet Dynamic Greeting & User Identity (< 1024px) */}
-      <div className="lg:hidden space-y-0.5 font-sans">
-        <p className="text-xs sm:text-sm font-medium text-[#6B7280]">
-          {greeting},
-        </p>
-        <h2 className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight">
-          {fullName}
-        </h2>
+      {/* 1. Mobile & Tablet Profile Photo, Greeting, Name & NotificationBell (< 1024px) */}
+      <div className="lg:hidden flex items-center justify-between font-sans">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link to="/profile" className="shrink-0">
+            {profile?.avatar_url || (user as any)?.avatarUrl ? (
+              <img
+                src={profile?.avatar_url || (user as any)?.avatarUrl || ''}
+                alt={fullName}
+                className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB]"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center font-bold text-xs text-[#374151]">
+                {fullName ? fullName.charAt(0) : <UserIcon className="w-4 h-4 text-[#6B7280]" />}
+              </div>
+            )}
+          </Link>
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-medium text-[#6B7280] leading-tight">
+              {greeting},
+            </p>
+            <h2 className="text-base sm:text-lg font-bold text-[#111827] tracking-tight truncate">
+              {fullName}
+            </h2>
+          </div>
+        </div>
+        <div className="shrink-0">
+          <NotificationBell />
+        </div>
       </div>
 
       {/* 2. Mobile & Tablet Card Presensi Hari Ini (< 1024px) */}
@@ -605,6 +670,89 @@ export const DashboardPage: React.FC = () => {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile & Tablet: Riwayat Minggu Ini - 7 Kapsul Tanggal dan Hari (< 1024px) */}
+      <div className="lg:hidden space-y-2 sm:space-y-2.5 font-sans">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          Riwayat Minggu Ini
+        </h2>
+
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2 w-full">
+          {(() => {
+            const todayStr = getMakassarTodayDateString();
+            const [year, month, day] = (todayStr && todayStr.split('-').length === 3) ? todayStr.split('-').map(Number) : [new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()];
+            const todayDate = new Date(year, month - 1, day);
+            const dayOfWeek = todayDate.getDay();
+            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const mondayDate = new Date(year, month - 1, day - diffToMonday);
+
+            const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+            return dayNames.map((dayName, index) => {
+              const d = new Date(mondayDate.getFullYear(), mondayDate.getMonth(), mondayDate.getDate() + index);
+              const dateStr = [
+                d.getFullYear(),
+                String(d.getMonth() + 1).padStart(2, '0'),
+                String(d.getDate()).padStart(2, '0'),
+              ].join('-');
+
+              const dateNum = d.getDate();
+              const isToday = dateStr === todayStr;
+              const isWeekend = index === 5 || index === 6;
+
+              const record = weeklyMatrix.find((r) => r.date === dateStr);
+              const status = record?.status;
+              const substatus = record?.substatus;
+
+              const isTodayCapsule = isToday;
+              const isHolidayCapsule = (isWeekend || status === 'holiday') && !isToday;
+
+              let dashColor = '#9CA3AF'; // neutral
+              if (status === 'present') {
+                dashColor = substatus === 'late' ? '#F97316' : '#16A34A';
+              } else if (status === 'sick') {
+                dashColor = '#7C3AED';
+              } else if (status === 'permit') {
+                dashColor = '#CA8A04';
+              } else if (status === 'leave') {
+                dashColor = '#CA8A04';
+              } else if (status === 'official_duty') {
+                dashColor = '#0284C7';
+              } else if (status === 'absent') {
+                dashColor = '#DC2626';
+              }
+
+              if (isTodayCapsule && dashColor === '#9CA3AF') {
+                dashColor = 'rgba(255,255,255,0.85)';
+              }
+
+              return (
+                <div
+                  key={dateStr}
+                  className={`flex flex-col items-center justify-center w-full py-4 sm:py-5 px-0.5 rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.06)] transition-all ${
+                    isTodayCapsule
+                      ? 'bg-[#F97316] text-white'
+                      : isHolidayCapsule
+                      ? 'bg-white text-[#DC2626]'
+                      : 'bg-white text-[#111827]'
+                  }`}
+                >
+                  <span className="text-xs sm:text-sm font-bold tracking-tight">
+                    {dateNum}
+                  </span>
+                  <span className="text-[11px] sm:text-xs font-semibold mt-0.5">
+                    {dayName}
+                  </span>
+                  <div
+                    className="w-4 h-0.5 rounded-full mt-2"
+                    style={{ backgroundColor: dashColor }}
+                  />
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
 
@@ -755,31 +903,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 4. Mobile & Tablet: RIWAYAT MINGGU INI (< 1024px) */}
-          <div className="lg:hidden space-y-2.5 sm:space-y-3 font-sans">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              RIWAYAT MINGGU INI
-            </h2>
 
-            {loading ? (
-              <div className="space-y-3 animate-pulse">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-20 bg-slate-100 rounded-2xl" />
-                ))}
-              </div>
-            ) : weeklyRecords.length === 0 ? (
-              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 text-center shadow-2xs font-sans">
-                <p className="text-xs text-[#6B7280]">
-                  Belum ada catatan kehadiran untuk minggu ini.
-                </p>
-              </div>
-            ) : (
-              <HistoryMobileList
-                records={weeklyRecords}
-                onSelectRecord={(rec) => setSelectedHistoryRecord(rec)}
-              />
-            )}
-          </div>
 
           {/* Desktop Only: Rekap Kehadiran Bulan Ini (>= 1024px) */}
           <div className="hidden lg:block space-y-3 font-sans">
@@ -892,13 +1016,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Information Note */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start sm:items-center gap-3 text-xs sm:text-sm text-[#6B7280]">
-        <Clock className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5 sm:mt-0" />
-        <div>
-          <span className="font-semibold text-[#111827]">Waktu Sistem Aktual:</span> Jam operasional presensi mengikuti zona waktu Indonesia Tengah (WITA). Saat ini: <span className="font-mono font-bold text-[#111827]">{currentTime || '--:--:--'} WITA</span>.
-        </div>
-      </div>
+
     </div>
   );
 };
