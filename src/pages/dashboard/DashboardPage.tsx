@@ -679,7 +679,7 @@ export const DashboardPage: React.FC = () => {
           Riwayat Minggu Ini
         </h2>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2 w-full">
           {(() => {
             const todayStr = getMakassarTodayDateString();
             const [year, month, day] = (todayStr && todayStr.split('-').length === 3) ? todayStr.split('-').map(Number) : [new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()];
@@ -731,7 +731,7 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div
                   key={dateStr}
-                  className={`flex flex-col items-center justify-center w-11 sm:w-12 py-3 px-1 rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.06)] shrink-0 transition-all ${
+                  className={`flex flex-col items-center justify-center w-full py-3 px-0.5 rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.06)] transition-all ${
                     isTodayCapsule
                       ? 'bg-[#F97316] text-white'
                       : isHolidayCapsule
