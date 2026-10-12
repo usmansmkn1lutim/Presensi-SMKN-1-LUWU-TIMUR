@@ -49,6 +49,71 @@ interface OfficialWeeklySummary {
   absent: number;
 }
 
+
+const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ records }) => {
+  const todayStr = getMakassarTodayDateString();
+  const [year, month, day] = todayStr.split('-').map(Number);
+  const todayDate = new Date(year, month - 1, day);
+  const dayOfWeek = todayDate.getDay();
+  const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const mondayDate = new Date(year, month - 1, day - diffToMonday);
+
+  const days = [0, 1, 2, 3, 4, 5, 6].map((i) => {
+    const d = new Date(mondayDate);
+    d.setDate(mondayDate.getDate() + i);
+    return {
+      dateStr: [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, '0'),
+        String(d.getDate()).padStart(2, '0'),
+      ].join('-'),
+      dayName: ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'][i],
+      dayNum: d.getDate(),
+      isWeekend: i === 5 || i === 6,
+    };
+  });
+
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'present': return 'bg-green-600';
+      case 'sick':
+      case 'permit':
+      case 'official_duty':
+      case 'leave': return 'bg-amber-500';
+      case 'absent': return 'bg-red-600';
+      default: return 'bg-slate-300';
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-7 gap-1.5 pb-2">
+      {days.map((day) => {
+        const record = records.find((r) => r.attendance_date === day.dateStr);
+        const isToday = day.dateStr === todayStr;
+        const isHoliday = record?.official_status === 'holiday';
+        const isSpecialDay = isHoliday || day.isWeekend;
+
+        const bgColor = isToday ? 'bg-[#F97316]' : 'bg-white';
+        const textColor = isToday ? 'text-white' : (isSpecialDay ? 'text-[#DC2626]' : 'text-[#111827]');
+        const shadow = isToday ? '' : 'shadow-[0_2px_8px_rgba(15,23,42,0.06)]';
+
+        return (
+          <div
+            key={day.dateStr}
+            className={`rounded-full h-[72px] flex flex-col items-center justify-center ${bgColor} ${shadow} border border-[#E5E7EB]`}
+          >
+            <span className={`text-[10px] font-bold ${textColor}`}>{day.dayName}</span>
+            <span className={`text-sm sm:text-base font-bold mt-0.5 ${textColor}`}>{day.dayNum}</span>
+            {(!isSpecialDay && record && record.official_status !== 'holiday') && (
+              <div className={`w-3 h-1 mt-1 rounded-full ${getStatusColor(record.official_status)}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -745,6 +810,8 @@ export const DashboardPage: React.FC = () => {
           )}
 
           {/* 3. Mobile & Tablet: REKAP PRESENSI MINGGU INI (3 x 2 Matrix) (< 1024px) */}
+          <WeeklyDateCapsules records={weeklyRecords} />
+          
           <div className="lg:hidden space-y-2.5 sm:space-y-3 font-sans">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
