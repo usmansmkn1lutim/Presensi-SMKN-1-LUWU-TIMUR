@@ -100,10 +100,10 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
         return (
           <div
             key={day.dateStr}
-            className={`rounded-full h-[72px] flex flex-col items-center justify-center ${bgColor} ${shadow} border border-[#E5E7EB]`}
+            className={`rounded-full h-[144px] flex flex-col items-center justify-center gap-1 ${bgColor} ${shadow} border border-[#E5E7EB]`}
           >
             <span className={`text-[10px] font-bold ${textColor}`}>{day.dayName}</span>
-            <span className={`text-sm sm:text-base font-bold mt-0.5 ${textColor}`}>{day.dayNum}</span>
+            <span className={`text-sm sm:text-base font-bold ${textColor}`}>{day.dayNum}</span>
             {(!isSpecialDay && record && record.official_status !== 'holiday') && (
               <div className={`w-3 h-1 mt-1 rounded-full ${getStatusColor(record.official_status)}`} />
             )}
