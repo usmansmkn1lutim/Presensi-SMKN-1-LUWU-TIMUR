@@ -35,9 +35,9 @@ import {
 import { getMakassarTodayDateString } from '../../services/attendanceReportService';
 import { AttendanceModel } from '../../types/attendance.types';
 import { AttendanceHistoryRecord } from '../../types/attendanceHistory.types';
-import { HistoryMobileList } from '../../components/history/HistoryMobileList';
 import { HistoryDetailModal } from '../../components/history/HistoryDetailModal';
 import { APP_CONFIG } from '../../config/appConfig';
+import { NotificationBell } from '../../components/notifications/NotificationBell';
 import { Button } from '../../components/ui/Button';
 
 interface OfficialWeeklySummary {
@@ -532,13 +532,36 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-5 pb-8 font-sans max-w-5xl mx-auto">
       {/* 1. Mobile & Tablet Dynamic Greeting & User Identity (< 1024px) */}
-      <div className="lg:hidden space-y-0.5 font-sans">
-        <p className="text-xs sm:text-sm font-medium text-[#6B7280]">
-          {greeting},
-        </p>
-        <h2 className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight">
-          {fullName}
-        </h2>
+      <div className="lg:hidden flex items-center justify-between py-2 px-1 font-sans">
+        <div className="flex items-center gap-3">
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt="Foto Profil"
+              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+            />
+          ) : (
+            <div className="w-11 h-11 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center text-sm border border-gray-200 shrink-0">
+              {fullName
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+          )}
+          <div className="space-y-0.5">
+            <p className="text-xs font-semibold text-[#111827]">
+              {greeting},
+            </p>
+            <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate max-w-[200px] sm:max-w-xs">
+              {fullName}
+            </h2>
+          </div>
+        </div>
+        <div className="shrink-0">
+          <NotificationBell />
+        </div>
       </div>
 
       {/* 2. Mobile & Tablet Card Presensi Hari Ini (< 1024px) */}
@@ -757,32 +780,6 @@ export const DashboardPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* 4. Mobile & Tablet: RIWAYAT MINGGU INI (< 1024px) */}
-          <div className="lg:hidden space-y-2.5 sm:space-y-3 font-sans">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              RIWAYAT MINGGU INI
-            </h2>
-
-            {loading ? (
-              <div className="space-y-3 animate-pulse">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-20 bg-slate-100 rounded-2xl" />
-                ))}
-              </div>
-            ) : weeklyRecords.length === 0 ? (
-              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 text-center shadow-2xs font-sans">
-                <p className="text-xs text-[#6B7280]">
-                  Belum ada catatan kehadiran untuk minggu ini.
-                </p>
-              </div>
-            ) : (
-              <HistoryMobileList
-                records={weeklyRecords}
-                onSelectRecord={(rec) => setSelectedHistoryRecord(rec)}
-              />
-            )}
           </div>
 
           {/* Desktop Only: Rekap Kehadiran Bulan Ini (>= 1024px) */}
