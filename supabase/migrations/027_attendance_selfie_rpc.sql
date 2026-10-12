@@ -211,9 +211,9 @@ BEGIN
     -- 10. Validasi Duplikasi Check-in Hari Ini
     IF EXISTS (
         SELECT 1
-        FROM public.attendance
-        WHERE employee_id = v_employee_id
-          AND attendance_date = v_local_date
+        FROM public.attendance AS a
+        WHERE a.employee_id = v_employee_id
+          AND a.attendance_date = v_local_date
     ) THEN
         RAISE EXCEPTION 'Presensi masuk hari ini sudah tercatat.';
     END IF;
