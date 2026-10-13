@@ -158,6 +158,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   headmaster: [
     '/dashboard',
     '/attendance',
+    '/attendance-monitoring',
     '/employees',
     '/schedules',
     '/locations',
@@ -170,6 +171,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   admin: [
     '/dashboard',
     '/attendance',
+    '/attendance-monitoring',
     '/employees',
     '/requests',
     '/schedules',
@@ -185,6 +187,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   super_admin: [
     '/dashboard',
     '/attendance',
+    '/attendance-monitoring',
     '/history',
     '/requests',
     '/notifications',

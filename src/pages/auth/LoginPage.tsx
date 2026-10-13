@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SchoolLogo } from '../../components/ui/SchoolLogo';
 import { Button } from '../../components/ui/Button';
@@ -134,12 +134,26 @@ export const LoginPage: React.FC = () => {
             {/* Remember Me & Forgot Password Link */}
             <div className="flex items-center justify-between text-xs pt-1">
               <label className="flex items-center gap-2 cursor-pointer select-none text-[#4B5563]">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-[#D1D5DB] text-[#F97316] focus:ring-[#F97316]"
-                />
+                <span className="relative flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    id="remember-me"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={isLoading}
+                    className="sr-only peer"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`w-4 h-4 rounded border transition-colors flex items-center justify-center peer-focus-visible:ring-2 peer-focus-visible:ring-[#F97316] peer-focus-visible:ring-offset-1 ${
+                      rememberMe
+                        ? 'bg-[#F97316] border-[#F97316]'
+                        : 'bg-white border-[#D1D5DB]'
+                    }`}
+                  >
+                    {rememberMe && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                  </span>
+                </span>
                 <span>Ingat saya di perangkat ini</span>
               </label>
 

@@ -18,6 +18,7 @@ import {
   LogOut,
   LucideIcon,
   ChevronRight,
+  Eye,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getNavItemsForRole } from '../../config/navigation';
@@ -41,6 +42,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   BarChart3,
   ShieldAlert,
   Settings,
+  Eye,
 };
 
 interface SidebarProps {
