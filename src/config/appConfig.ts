@@ -1,6 +1,7 @@
 export const APP_CONFIG = {
-  appName: 'Presensi Digital GTK',
-  shortName: 'Presensi SMKN 1',
+  appName: 'Tamaki',
+  appTitle: 'Presensi Digital GTK',
+  shortName: 'Tamaki',
   schoolName: 'SMK Negeri 1 Luwu Timur',
   schoolAddress: 'Jl. Trans Sulawesi, Luwu Timur, Sulawesi Selatan',
   version: '1.0.0 (Phase 1)',

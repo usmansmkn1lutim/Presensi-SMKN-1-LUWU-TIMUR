@@ -1,7 +1,16 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Casual-Regular';
+  src: url('./assets/fonts/Casual-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-casual: 'Casual-Regular', sans-serif;
   --color-primary: #F97316;
   --color-primary-hover: #EA580C;
   --color-primary-light: #FFF7ED;

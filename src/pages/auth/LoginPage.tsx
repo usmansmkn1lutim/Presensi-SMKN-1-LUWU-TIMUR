@@ -74,10 +74,13 @@ export const LoginPage: React.FC = () => {
             <div className="flex justify-center mb-3">
               <SchoolLogo size="lg" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
-              {APP_CONFIG.appName}
+            <h1 className="text-2xl sm:text-3xl font-normal text-[#F97316] tracking-tight font-casual">
+              Tamaki
             </h1>
-            <p className="text-xs sm:text-sm font-medium text-[#6B7280] mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-[#111827] mt-1">
+              Presensi Digital GTK
+            </p>
+            <p className="text-xs sm:text-sm font-medium text-[#6B7280] mt-0.5">
               {APP_CONFIG.schoolName}
             </p>
           </div>
@@ -186,7 +189,7 @@ export const LoginPage: React.FC = () => {
       {/* Footer */}
       <footer className="text-center text-xs text-[#9CA3AF] py-4">
         <p>
-          © {APP_CONFIG.copyrightYear} {APP_CONFIG.appName} · {APP_CONFIG.schoolName}
+          © {APP_CONFIG.copyrightYear} Tamaki · Presensi Digital GTK · {APP_CONFIG.schoolName}
         </p>
         <p className="text-[11px] mt-1 text-[#9CA3AF]">
           Versi {APP_CONFIG.version} · Terintegrasi Supabase Auth
