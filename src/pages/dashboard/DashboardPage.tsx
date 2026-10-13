@@ -14,11 +14,7 @@ import {
   AlertCircle,
   CheckCircle2,
   UserX,
-  Users,
-  BarChart3,
   Calendar,
-  Settings,
-  Eye,
   HeartPulse,
   Briefcase,
 } from 'lucide-react';
@@ -39,6 +35,14 @@ import { HistoryDetailModal } from '../../components/history/HistoryDetailModal'
 import { APP_CONFIG } from '../../config/appConfig';
 import { NotificationBell } from '../../components/notifications/NotificationBell';
 import { Button } from '../../components/ui/Button';
+import { ExecutiveStatCards } from '../../components/dashboard/ExecutiveStatCards';
+import { AttendanceTrendChart } from '../../components/dashboard/AttendanceTrendChart';
+import { AttendanceDonutChart } from '../../components/dashboard/AttendanceDonutChart';
+import { DisciplineLeaderboard } from '../../components/dashboard/DisciplineLeaderboard';
+import {
+  dashboardExecutiveService,
+  ExecutiveDashboardData,
+} from '../../services/dashboardExecutiveService';
 
 interface OfficialWeeklySummary {
   present: number;
@@ -119,17 +123,26 @@ export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
   // Role separation:
-  // - employee & headmaster: Personal Attendance Dashboard
-  // - admin & super_admin: Administrative Management Portal
-  const isAdmin = profile?.role === 'super_admin' || profile?.role === 'admin';
+  // - employee: Personal Attendance Dashboard
+  // - super_admin, admin, headmaster: Managerial Executive Dashboard
+  const isManagerial =
+    profile?.role === 'super_admin' ||
+    profile?.role === 'admin' ||
+    profile?.role === 'headmaster';
 
   // Current real-time clock & formatted date (WITA)
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDateFormatted, setCurrentDateFormatted] = useState<string>('');
   const [greeting, setGreeting] = useState<string>('Selamat Pagi');
 
+  // Managerial / Executive dashboard state
+  const [execData, setExecData] = useState<ExecutiveDashboardData | null>(null);
+  const [execLoading, setExecLoading] = useState<boolean>(isManagerial);
+  const [execError, setExecError] = useState<string | null>(null);
+  const [execRefreshing, setExecRefreshing] = useState<boolean>(false);
+
   // Employee personal state
-  const [loading, setLoading] = useState<boolean>(!isAdmin);
+  const [loading, setLoading] = useState<boolean>(!isManagerial);
   const [error, setError] = useState<string | null>(null);
   const [isUnlinked, setIsUnlinked] = useState<boolean>(false);
 
@@ -145,8 +158,33 @@ export const DashboardPage: React.FC = () => {
   // Monthly summary state (for desktop view compatibility)
   const [monthlySummary, setMonthlySummary] = useState<DashboardAttendanceSummary | null>(null);
 
+  const fetchExecutiveData = async (isManualRefresh = false) => {
+    if (!isManagerial) return;
+    if (isManualRefresh) {
+      setExecRefreshing(true);
+    } else {
+      setExecLoading(true);
+    }
+    setExecError(null);
+
+    try {
+      const data = await dashboardExecutiveService.getExecutiveDashboardData();
+      setExecData(data);
+    } catch (err: any) {
+      console.error('Failed to load executive dashboard data:', err);
+      setExecError(err?.message || 'Gagal memuat data ringkasan eksekutif.');
+    } finally {
+      setExecLoading(false);
+      setExecRefreshing(false);
+    }
+  };
+
+  const handleRefreshExecutive = () => {
+    fetchExecutiveData(true);
+  };
+
   const fetchPersonalDashboardData = async () => {
-    if (isAdmin) return;
+    if (isManagerial) return;
     setLoading(true);
     setError(null);
     setIsUnlinked(false);
@@ -252,10 +290,33 @@ export const DashboardPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isAdmin) {
+    let isMounted = true;
+    if (isManagerial) {
+      setExecLoading(true);
+      setExecError(null);
+      dashboardExecutiveService
+        .getExecutiveDashboardData()
+        .then((data) => {
+          if (isMounted) {
+            setExecData(data);
+            setExecLoading(false);
+          }
+        })
+        .catch((err: any) => {
+          if (isMounted) {
+            console.error('Failed to load executive dashboard data:', err);
+            setExecError(err?.message || 'Gagal memuat data ringkasan eksekutif.');
+            setExecLoading(false);
+          }
+        });
+    } else {
       fetchPersonalDashboardData();
     }
-  }, [isAdmin]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isManagerial]);
 
   // Real-time clock & dynamic greeting in Asia/Makassar (WITA)
   useEffect(() => {
@@ -414,185 +475,108 @@ export const DashboardPage: React.FC = () => {
   ];
 
   // =========================================================================
-  // VIEW 1: ADMINISTRATOR MANAGEMENT PORTAL (Admin & Super Admin)
+  // VIEW 1: MANAGERIAL EXECUTIVE DASHBOARD (Super Admin, Admin & Headmaster)
   // =========================================================================
-  if (isAdmin) {
+  if (isManagerial) {
     return (
-      <div className="space-y-6 pb-8 font-sans max-w-5xl mx-auto">
-        {/* Admin Hero Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-md space-y-3 sm:space-y-3.5">
-          {/* Geometric Minimalist Background Pattern */}
-          <div className="absolute inset-0 opacity-12 pointer-events-none overflow-hidden rounded-2xl">
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <defs>
-                <pattern id="geometric-pattern-admin" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="currentColor" strokeWidth="1" />
-                  <circle cx="20" cy="20" r="2" fill="currentColor" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#geometric-pattern-admin)" className="text-white" />
-            </svg>
-          </div>
-
-          <div className="min-w-0 relative z-10">
-            <span className="inline-block text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-white mb-1.5">
-              Panel Administrator
-            </span>
-            <h1 className="text-[22px] sm:text-[26px] md:text-[32px] font-extrabold text-white tracking-tight truncate drop-shadow-2xs">
-              {fullName}
+      <div className="space-y-6 pb-8 font-sans max-w-7xl mx-auto">
+        {/* Header Bar Manajerial Ringkas */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#111827] tracking-tight">
+              Dashboard Eksekutif
             </h1>
-            <p className="text-sm sm:text-base font-medium text-orange-100/95 tracking-wide truncate mt-0.5">
-              {positionTitle}
+            <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
+              {currentDateFormatted || 'Memuat tanggal...'} • Malili, Luwu Timur
             </p>
           </div>
 
-          {/* Date & Location Bar */}
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/20 text-xs sm:text-sm relative z-10">
-            <div className="text-left font-medium text-orange-100 truncate">
-              {currentDateFormatted || 'Memuat tanggal...'}
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+            <button
+              onClick={handleRefreshExecutive}
+              disabled={execLoading || execRefreshing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 active:bg-slate-100 text-[#374151] text-xs sm:text-sm font-medium transition-colors border border-[#D1D5DB] disabled:opacity-50 cursor-pointer shadow-2xs"
+              title="Segarkan data ringkasan eksekutif"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 text-[#4B5563] ${execRefreshing ? 'animate-spin' : ''}`}
+              />
+              <span>{execRefreshing ? 'Menyegarkan...' : 'Segarkan Data'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Global Error Banner if Executive Fetch Fails */}
+        {execError && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+              <div>
+                <p className="font-semibold text-amber-950">Terjadi Kendala Memuat Data Manajerial</p>
+                <p className="text-amber-800 text-xs mt-0.5">{execError}</p>
+              </div>
             </div>
-            <div className="text-right flex items-center justify-end gap-1.5 shrink-0 font-semibold text-white">
-              <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
-              <span>Malili, Luwu Timur</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefreshExecutive}
+              className="text-xs shrink-0 self-end sm:self-auto bg-white border-amber-300 hover:bg-amber-50"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Coba Lagi
+            </Button>
+          </div>
+        )}
+
+        {/* 1. EXECUTIVE STAT CARDS (5 KARTU INDIKATOR AGREGAT) */}
+        <section aria-label="Ringkasan Statistik Eksekutif">
+          <ExecutiveStatCards
+            summary={execData?.summary ?? null}
+            loading={execLoading}
+          />
+        </section>
+
+        {/* 2. CHARTS SECTION (TREN & DISTRIBUSI PRESENSI) */}
+        <section aria-label="Visualisasi Tren dan Distribusi Presensi">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            <div className="lg:col-span-7 w-full flex flex-col">
+              <AttendanceTrendChart
+                weeklyTrend={execData?.weeklyTrend}
+                monthlyTrend={execData?.monthlyTrend}
+                totalActiveGtk={execData?.summary?.totalActiveGtk}
+                loading={execLoading}
+                className="h-full flex flex-col"
+              />
+            </div>
+            <div className="lg:col-span-5 w-full flex flex-col">
+              <AttendanceDonutChart
+                distribution={execData?.donutDistribution}
+                loading={execLoading}
+                dateLabel={execData?.dateLabel}
+                isNonWorkingDay={
+                  execData?.summary?.isWeekendToday || execData?.summary?.isHolidayToday
+                }
+                holidayName={execData?.summary?.holidayNameToday}
+                className="h-full flex flex-col"
+              />
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Administrator Primary Management Tools */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            MENU UTAMA ADMINISTRATOR
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {/* 1. Monitoring Presensi */}
-            <button
-              onClick={() => navigate('/attendance-monitoring')}
-              className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
-                  <Eye className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
-                    Monitoring Presensi
-                  </p>
-                  <p className="text-xs text-[#6B7280] truncate">Pantau presensi masuk & pulang hari ini</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
-            </button>
-
-            {/* 2. Verifikasi Pengajuan */}
-            <button
-              onClick={() => navigate('/requests')}
-              className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
-                    Verifikasi Pengajuan
-                  </p>
-                  <p className="text-xs text-[#6B7280] truncate">Review izin, sakit, dinas & cuti</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
-            </button>
-
-            {/* 3. Data Pegawai */}
-            <button
-              onClick={() => navigate('/employees')}
-              className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
-                  <Users className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
-                    Master Data Pegawai
-                  </p>
-                  <p className="text-xs text-[#6B7280] truncate">Kelola pegawai, NIP & akun</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
-            </button>
-
-            {/* 4. Laporan & Rekapitulasi */}
-            <button
-              onClick={() => navigate('/reports')}
-              className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
-                  <BarChart3 className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
-                    Laporan Presensi
-                  </p>
-                  <p className="text-xs text-[#6B7280] truncate">Rekap bulanan & ekspor Excel/PDF</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
-            </button>
-
-            {/* 5. Hari Libur Sekolah */}
-            <button
-              onClick={() => navigate('/holidays')}
-              className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
-                    Hari Libur Sekolah
-                  </p>
-                  <p className="text-xs text-[#6B7280] truncate">Kalender libur & cuti bersama</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
-            </button>
-
-            {/* 6. Pengaturan Sistem */}
-            <button
-              onClick={() => navigate('/settings')}
-              className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
-                  <Settings className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
-                    Pengaturan Sistem
-                  </p>
-                  <p className="text-xs text-[#6B7280] truncate">Konfigurasi jadwal & radius lokasi</p>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
-            </button>
-          </div>
-        </div>
-
-        {/* Information Note */}
-        <div className="p-4 rounded-2xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start sm:items-center gap-3 text-xs sm:text-sm text-[#6B7280]">
-          <Clock className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5 sm:mt-0" />
-          <div>
-            <span className="font-semibold text-[#111827]">Waktu Sistem Aktual:</span> Jam operasional presensi mengikuti zona waktu Indonesia Tengah (WITA). Saat ini: <span className="font-mono font-bold text-[#111827]">{currentTime || '--:--:--'} WITA</span>.
-          </div>
-        </div>
+        {/* 3. DISCIPLINE LEADERBOARD */}
+        <section aria-label="Papan Peringkat Kedisiplinan GTK">
+          <DisciplineLeaderboard
+            leaderboard={execData?.leaderboard ?? null}
+            loading={execLoading}
+            error={execError}
+          />
+        </section>
       </div>
     );
   }
 
   // =========================================================================
-  // VIEW 2: PERSONAL ATTENDANCE DASHBOARD (Employee & Headmaster)
+  // VIEW 2: PERSONAL ATTENDANCE DASHBOARD (Employee)
   // =========================================================================
   return (
     <div className="space-y-5 pb-8 font-sans max-w-5xl mx-auto">

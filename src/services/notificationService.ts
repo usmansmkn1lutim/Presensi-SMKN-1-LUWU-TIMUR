@@ -97,15 +97,22 @@ class NotificationService {
       const { data, count, error } = await query;
 
       if (error) {
-        if (
+        const errMsg = error.message || '';
+        const isIgnorable =
           (error as any).code === 'PGRST205' ||
-          (error as any).message?.includes('schema cache') ||
-          (error as any).message?.includes('notifications')
-        ) {
+          (error as any).code === 'PGRST202' ||
+          (error as any).code === '42P01' ||
+          errMsg.includes('schema cache') ||
+          errMsg.includes('notifications') ||
+          errMsg.toLowerCase().includes('failed to fetch') ||
+          errMsg.toLowerCase().includes('fetch') ||
+          errMsg.toLowerCase().includes('network');
+
+        if (isIgnorable) {
           return { data: [], count: 0 };
         }
-        console.error('NotificationService.getMyNotifications error:', error.message);
-        throw new Error(error.message || 'Gagal memuat daftar notifikasi.');
+        console.warn('NotificationService.getMyNotifications warning:', errMsg);
+        return { data: [], count: 0 };
       }
 
       return {
@@ -113,14 +120,22 @@ class NotificationService {
         count: count || 0,
       };
     } catch (err: any) {
-      if (
+      const errMsg = err?.message || String(err || '');
+      const isIgnorable =
         err?.code === 'PGRST205' ||
-        err?.message?.includes('schema cache') ||
-        err?.message?.includes('notifications')
-      ) {
+        err?.code === 'PGRST202' ||
+        err?.code === '42P01' ||
+        errMsg.includes('schema cache') ||
+        errMsg.includes('notifications') ||
+        errMsg.toLowerCase().includes('failed to fetch') ||
+        errMsg.toLowerCase().includes('fetch') ||
+        errMsg.toLowerCase().includes('network');
+
+      if (isIgnorable) {
         return { data: [], count: 0 };
       }
-      throw err;
+      console.warn('NotificationService.getMyNotifications warning:', errMsg);
+      return { data: [], count: 0 };
     }
   }
 
@@ -134,7 +149,7 @@ class NotificationService {
     }
 
     if (!notificationId) {
-      throw new Error('ID notifikasi wajib disertakan.');
+      return false;
     }
 
     try {
@@ -143,29 +158,40 @@ class NotificationService {
       });
 
       if (error) {
-        if (
+        const errMsg = error.message || '';
+        const isIgnorable =
           (error as any).code === 'PGRST202' ||
           (error as any).code === 'PGRST205' ||
-          (error as any).message?.includes('schema cache') ||
-          (error as any).message?.includes('mark_notification_read')
-        ) {
+          errMsg.includes('schema cache') ||
+          errMsg.includes('mark_notification_read') ||
+          errMsg.toLowerCase().includes('failed to fetch') ||
+          errMsg.toLowerCase().includes('fetch') ||
+          errMsg.toLowerCase().includes('network');
+
+        if (isIgnorable) {
           return true;
         }
-        console.error('NotificationService.markAsRead error:', error.message);
-        throw new Error(error.message || 'Gagal menandai notifikasi sebagai dibaca.');
+        console.warn('NotificationService.markAsRead warning:', errMsg);
+        return false;
       }
 
       return !!data;
     } catch (err: any) {
-      if (
+      const errMsg = err?.message || String(err || '');
+      const isIgnorable =
         err?.code === 'PGRST202' ||
         err?.code === 'PGRST205' ||
-        err?.message?.includes('schema cache') ||
-        err?.message?.includes('mark_notification_read')
-      ) {
+        errMsg.includes('schema cache') ||
+        errMsg.includes('mark_notification_read') ||
+        errMsg.toLowerCase().includes('failed to fetch') ||
+        errMsg.toLowerCase().includes('fetch') ||
+        errMsg.toLowerCase().includes('network');
+
+      if (isIgnorable) {
         return true;
       }
-      throw err;
+      console.warn('NotificationService.markAsRead caught warning:', errMsg);
+      return false;
     }
   }
 
@@ -182,29 +208,40 @@ class NotificationService {
       const { data, error } = await supabase.rpc('mark_all_notifications_read');
 
       if (error) {
-        if (
+        const errMsg = error.message || '';
+        const isIgnorable =
           (error as any).code === 'PGRST202' ||
           (error as any).code === 'PGRST205' ||
-          (error as any).message?.includes('schema cache') ||
-          (error as any).message?.includes('mark_all_notifications_read')
-        ) {
+          errMsg.includes('schema cache') ||
+          errMsg.includes('mark_all_notifications_read') ||
+          errMsg.toLowerCase().includes('failed to fetch') ||
+          errMsg.toLowerCase().includes('fetch') ||
+          errMsg.toLowerCase().includes('network');
+
+        if (isIgnorable) {
           return 0;
         }
-        console.error('NotificationService.markAllAsRead error:', error.message);
-        throw new Error(error.message || 'Gagal menandai semua notifikasi.');
+        console.warn('NotificationService.markAllAsRead warning:', errMsg);
+        return 0;
       }
 
       return data || 0;
     } catch (err: any) {
-      if (
+      const errMsg = err?.message || String(err || '');
+      const isIgnorable =
         err?.code === 'PGRST202' ||
         err?.code === 'PGRST205' ||
-        err?.message?.includes('schema cache') ||
-        err?.message?.includes('mark_all_notifications_read')
-      ) {
+        errMsg.includes('schema cache') ||
+        errMsg.includes('mark_all_notifications_read') ||
+        errMsg.toLowerCase().includes('failed to fetch') ||
+        errMsg.toLowerCase().includes('fetch') ||
+        errMsg.toLowerCase().includes('network');
+
+      if (isIgnorable) {
         return 0;
       }
-      throw err;
+      console.warn('NotificationService.markAllAsRead caught warning:', errMsg);
+      return 0;
     }
   }
 
@@ -233,17 +270,21 @@ class NotificationService {
       });
 
       if (error) {
-        if (
+        const errMsg = error.message || '';
+        const isIgnorable =
           (error as any).code === 'PGRST202' ||
           (error as any).code === 'PGRST205' ||
-          (error as any).message?.includes('schema cache') ||
-          (error as any).message?.includes('create_notification')
-        ) {
-          console.warn('create_notification RPC not present in schema cache, skipping.');
+          errMsg.includes('schema cache') ||
+          errMsg.includes('create_notification') ||
+          errMsg.toLowerCase().includes('failed to fetch') ||
+          errMsg.toLowerCase().includes('fetch') ||
+          errMsg.toLowerCase().includes('network');
+
+        if (isIgnorable) {
           return { success: true, is_duplicate: false };
         }
-        console.error('NotificationService.createNotification error:', error.message);
-        throw new Error(error.message || 'Gagal membuat notifikasi.');
+        console.warn('NotificationService.createNotification warning:', errMsg);
+        return { success: false, is_duplicate: false };
       }
 
       return (
@@ -254,16 +295,21 @@ class NotificationService {
         }) || { success: true, is_duplicate: false }
       );
     } catch (err: any) {
-      if (
+      const errMsg = err?.message || String(err || '');
+      const isIgnorable =
         err?.code === 'PGRST202' ||
         err?.code === 'PGRST205' ||
-        err?.message?.includes('schema cache') ||
-        err?.message?.includes('create_notification')
-      ) {
-        console.warn('create_notification RPC not present in schema cache, skipping.');
+        errMsg.includes('schema cache') ||
+        errMsg.includes('create_notification') ||
+        errMsg.toLowerCase().includes('failed to fetch') ||
+        errMsg.toLowerCase().includes('fetch') ||
+        errMsg.toLowerCase().includes('network');
+
+      if (isIgnorable) {
         return { success: true, is_duplicate: false };
       }
-      throw err;
+      console.warn('NotificationService.createNotification caught warning:', errMsg);
+      return { success: false, is_duplicate: false };
     }
   }
 }

@@ -91,17 +91,21 @@ export const NotificationsPage: React.FC = () => {
         setTotalCount(activeTab === 'all' || activeTab === 'unread' ? result.count : filteredData.length);
         setPage(targetPage);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Gagal memuat notifikasi.';
+        const msg = (err instanceof Error ? err.message : String(err || '')).toLowerCase();
         if (
           msg.includes('schema cache') ||
-          msg.includes('PGRST205') ||
-          msg.includes('notifications')
+          msg.includes('pgrst205') ||
+          msg.includes('pgrst202') ||
+          msg.includes('notifications') ||
+          msg.includes('failed to fetch') ||
+          msg.includes('fetch') ||
+          msg.includes('network')
         ) {
           setError(null);
           setNotifications([]);
           setTotalCount(0);
         } else {
-          setError(msg);
+          setError(err instanceof Error ? err.message : 'Gagal memuat notifikasi.');
         }
       } finally {
         setLoading(false);

@@ -72,11 +72,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
     return (
       <div className="space-y-1">
         {title && (
-          <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+          <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-orange-200/90">
             {title}
           </p>
         )}
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {items.map((item) => {
             const Icon = ICON_MAP[item.iconName] || LayoutDashboard;
 
@@ -88,25 +88,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
                 className={({ isActive }) =>
                   `group flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-[#FFF7ED] text-[#F97316] font-semibold shadow-xs'
-                      : 'text-[#6B7280] hover:bg-[#E5E7EB]/60 hover:text-[#111827]'
+                      ? 'bg-white text-[#EA580C] font-semibold shadow-xs'
+                      : 'text-white/85 hover:bg-white/10 hover:text-white'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <Icon
-                        className={`w-4 h-4 transition-colors ${
-                          isActive ? 'text-[#F97316]' : 'text-[#6B7280] group-hover:text-[#111827]'
+                        className={`w-4 h-4 transition-colors shrink-0 ${
+                          isActive ? 'text-[#EA580C]' : 'text-orange-100 group-hover:text-white'
                         }`}
                       />
                       <span className="truncate">{item.label}</span>
                     </div>
                     {isActive ? (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#EA580C] shrink-0" />
                     ) : (
-                      <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-60 transition-opacity text-[#9CA3AF]" />
+                      <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-75 transition-opacity text-orange-200 shrink-0" />
                     )}
                   </>
                 )}
@@ -119,34 +119,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   };
 
   return (
-    <aside className="w-64 h-full flex flex-col bg-[#F3F4F6] border-r border-[#E5E7EB]">
+    <aside className="w-64 h-full flex flex-col bg-[#EA580C] text-white select-none">
       {/* Brand Header */}
-      <div className="p-4 border-b border-[#E5E7EB]/80 flex items-center gap-3 bg-[#F3F4F6]">
-        <SchoolLogo size="sm" />
+      <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-[#EA580C]">
+        <div className="p-1 rounded-xl bg-white/15 backdrop-blur-xs shrink-0 shadow-2xs">
+          <SchoolLogo size="sm" />
+        </div>
         <div className="min-w-0">
-          <h1 className="text-sm font-bold text-[#111827] truncate leading-tight">
+          <h1 className="text-sm font-bold text-white truncate leading-tight tracking-tight">
             {APP_CONFIG.appName}
           </h1>
-          <p className="text-xs text-[#6B7280] truncate">{APP_CONFIG.schoolName}</p>
+          <p className="text-xs text-orange-100/90 truncate font-medium">{APP_CONFIG.schoolName}</p>
         </div>
       </div>
 
       {/* Navigation List */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {renderNavGroup(null, mainItems)}
         {renderNavGroup('Manajemen Sekolah', managementItems)}
         {renderNavGroup('Sistem Presensi', systemItems)}
       </div>
 
       {/* User Footer Profile & Logout */}
-      <div className="p-3 border-t border-[#E5E7EB] bg-[#F3F4F6]">
-        <div className="p-2.5 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-between gap-2 shadow-2xs">
+      <div className="p-3 border-t border-white/10 bg-[#EA580C] shrink-0">
+        <div className="p-2.5 rounded-2xl bg-white border border-white/20 flex items-center justify-between gap-2 shadow-sm">
           <div className="min-w-0 flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#FFF7ED] border border-orange-200 flex items-center justify-center font-bold text-xs text-[#F97316] shrink-0">
+            <div className="w-8 h-8 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center font-bold text-xs text-[#EA580C] shrink-0">
               {user.name.charAt(0)}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-[#111827] truncate">{user.name}</p>
+              <p className="text-xs font-semibold text-slate-900 truncate">{user.name}</p>
               <div className="mt-0.5">
                 <RoleBadge role={user.role} size="sm" />
               </div>
@@ -156,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
             onClick={handleLogout}
             title="Keluar"
             aria-label="Keluar"
-            className="p-1.5 text-[#6B7280] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer shrink-0"
           >
             <LogOut className="w-4 h-4" />
           </button>
