@@ -1,5 +1,6 @@
-import React from 'react';
 import { AttendanceHistoryRecord } from '../../types/attendanceHistory.types';
+import { ATTENDANCE_STATUS_TOKENS } from '../../config/statusColors';
+import { StatusBadge } from '../ui/StatusBadge';
 import { MapPin, Info } from 'lucide-react';
 
 interface HistoryTableProps {
@@ -79,13 +80,13 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                   {/* Check-in Status Badge */}
                   <td className="py-3.5 px-4">
                     {row.check_in_status === 'on_time' ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <StatusBadge statusKey="onTime" size="sm">
                         Tepat Waktu
-                      </span>
+                      </StatusBadge>
                     ) : row.check_in_status === 'late' ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                      <StatusBadge statusKey="late" size="sm">
                         Terlambat
-                      </span>
+                      </StatusBadge>
                     ) : (
                       <span className="text-[#9CA3AF]">-</span>
                     )}

@@ -15,6 +15,8 @@ import {
 } from '../../types/attendanceReport.types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { StatusBadge } from '../ui/StatusBadge';
+import { ATTENDANCE_STATUS_TOKENS, AttendanceStatusTokenKey } from '../../config/statusColors';
 
 interface MonthlyRecapReportTableProps {
   data: MonthlyRecapReportResponse | null;
@@ -122,93 +124,46 @@ export const MonthlyRecapReportTable: React.FC<MonthlyRecapReportTableProps> = (
 
   // Render Status cell code badge
   const renderCellBadge = (code: string, notes: string | null) => {
-    const base =
-      'w-6 h-6 flex items-center justify-center font-bold text-[10px] rounded-md transition-all select-none';
+    const statusMap: Record<string, AttendanceStatusTokenKey> = {
+      'H': 'onTime',
+      'T': 'late',
+      'S': 'sick',
+      'I': 'permit',
+      'DL': 'officialDuty',
+      'C': 'leave',
+      'A': 'absent'
+    };
 
-    switch (code) {
-      case 'H':
-        return (
-          <span
-            className={`${base} bg-emerald-50 text-emerald-700 border border-emerald-200`}
-            title="Hadir — Tepat Waktu"
-          >
-            H
-          </span>
-        );
-      case 'T':
-        return (
-          <span
-            className={`${base} bg-amber-50 text-amber-700 border border-amber-200`}
-            title={`Hadir — Terlambat${notes ? `: ${notes}` : ''}`}
-          >
-            T
-          </span>
-        );
-      case 'S':
-        return (
-          <span
-            className={`${base} bg-blue-50 text-blue-700 border border-blue-200`}
-            title={`Sakit${notes ? `: ${notes}` : ''}`}
-          >
-            S
-          </span>
-        );
-      case 'I':
-        return (
-          <span
-            className={`${base} bg-indigo-50 text-indigo-700 border border-indigo-200`}
-            title={`Izin${notes ? `: ${notes}` : ''}`}
-          >
-            I
-          </span>
-        );
-      case 'DL':
-        return (
-          <span
-            className={`${base} bg-purple-50 text-purple-700 border border-purple-200`}
-            title={`Dinas Luar${notes ? `: ${notes}` : ''}`}
-          >
-            DL
-          </span>
-        );
-      case 'C':
-        return (
-          <span
-            className={`${base} bg-teal-50 text-teal-700 border border-teal-200`}
-            title={`Cuti${notes ? `: ${notes}` : ''}`}
-          >
-            C
-          </span>
-        );
-      case 'A':
-        return (
-          <span
-            className={`${base} bg-red-50 text-red-700 border border-red-200`}
-            title="Alpha (Tanpa Keterangan)"
-          >
-            A
-          </span>
-        );
-      case 'L':
-        return (
-          <span
-            className={`${base} bg-gray-50 text-gray-500 border border-gray-200`}
-            title={`Libur / Akhir Pekan${notes ? `: ${notes}` : ''}`}
-          >
-            L
-          </span>
-        );
-      case '—':
-      default:
-        return (
-          <span
-            className={`${base} bg-gray-50/50 text-gray-300 border border-gray-100`}
-            title="Masa Depan / Belum Terjadi"
-          >
-            —
-          </span>
-        );
+    if (code === 'L') {
+       return <span className="w-6 h-6 flex items-center justify-center font-bold text-[10px] rounded-md bg-gray-50 text-gray-500 border border-gray-200" title={`Libur / Akhir Pekan${notes ? `: ${notes}` : ''}`}>L</span>;
     }
+    if (code === '—') {
+       return <span className="w-6 h-6 flex items-center justify-center font-bold text-[10px] rounded-md bg-gray-50/50 text-gray-300 border border-gray-100" title="Masa Depan / Belum Terjadi">—</span>;
+    }
+
+    const tokenKey = statusMap[code];
+    if (!tokenKey) return <span className="w-6 h-6 flex items-center justify-center font-bold text-[10px] rounded-md bg-gray-50/50 text-gray-300 border border-gray-100">—</span>;
+
+    const labelMap: Record<string, string> = {
+      'H': 'Hadir — Tepat Waktu',
+      'T': 'Hadir — Terlambat',
+      'S': 'Sakit',
+      'I': 'Izin',
+      'DL': 'Dinas Luar',
+      'C': 'Cuti',
+      'A': 'Alpha (Tanpa Keterangan)'
+    };
+
+    return (
+      <StatusBadge 
+        statusKey={tokenKey} 
+        size="sm" 
+        className="w-6 h-6 flex items-center justify-center font-bold text-[10px] rounded-md border"
+        title={`${labelMap[code] || ''}${notes ? `: ${notes}` : ''}`}
+      >
+        {code}
+      </StatusBadge>
+    );
   };
 
   return (

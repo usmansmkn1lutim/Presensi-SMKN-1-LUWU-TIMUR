@@ -17,7 +17,9 @@ import {
   PaginatedAttendanceDetailResponse,
 } from '../../types/attendanceReport.types';
 import { Badge } from '../ui/Badge';
+import { StatusBadge } from '../ui/StatusBadge';
 import { Button } from '../ui/Button';
+import { ATTENDANCE_STATUS_TOKENS, AttendanceStatusTokenKey } from '../../config/statusColors';
 
 interface DetailReportTableProps {
   data: PaginatedAttendanceDetailResponse | null;
@@ -85,16 +87,16 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   const renderCheckInBadge = (status: 'on_time' | 'late' | null) => {
     if (status === 'on_time') {
       return (
-        <Badge variant="success" size="sm">
+        <StatusBadge statusKey="onTime" size="sm">
           Tepat Waktu
-        </Badge>
+        </StatusBadge>
       );
     }
     if (status === 'late') {
       return (
-        <Badge variant="warning" size="sm">
+        <StatusBadge statusKey="late" size="sm">
           Terlambat
-        </Badge>
+        </StatusBadge>
       );
     }
     return (

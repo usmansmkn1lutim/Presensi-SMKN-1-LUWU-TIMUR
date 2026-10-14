@@ -1,6 +1,7 @@
 import React, { useState, useId } from 'react';
 import { PieChart, Calendar, AlertCircle } from 'lucide-react';
 import { TodayDonutDistribution } from '../../services/dashboardExecutiveService';
+import { ATTENDANCE_STATUS_TOKENS } from '../../config/statusColors';
 
 export interface AttendanceDonutChartProps {
   /**
@@ -122,9 +123,9 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: 'Tepat Waktu',
       count: onTime,
       percentage: pctOnTime,
-      color: '#10B981', // Emerald
-      hoverColor: '#059669',
-      dotClass: 'bg-[#10B981]',
+      color: ATTENDANCE_STATUS_TOKENS.onTime.hex,
+      hoverColor: '#65230E',
+      dotClass: 'bg-[#7C2D12]',
     },
     {
       key: 'late',
@@ -132,9 +133,9 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: 'Terlambat',
       count: late,
       percentage: pctLate,
-      color: '#F59E0B', // Amber
-      hoverColor: '#D97706',
-      dotClass: 'bg-[#F59E0B]',
+      color: ATTENDANCE_STATUS_TOKENS.late.hex,
+      hoverColor: '#A3360A',
+      dotClass: 'bg-[#C2410C]',
     },
     {
       key: 'excused',
@@ -142,9 +143,9 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: 'Izin / Sakit / Dinas',
       count: excused,
       percentage: pctExcused,
-      color: '#3B82F6', // Blue
-      hoverColor: '#2563EB',
-      dotClass: 'bg-[#3B82F6]',
+      color: ATTENDANCE_STATUS_TOKENS.officialDuty.hex,
+      hoverColor: '#C2410C',
+      dotClass: 'bg-[#EA580C]',
     },
     {
       key: 'absent',
@@ -154,9 +155,9 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: isNonWorkingDay ? 'Libur' : 'Belum / Alpa',
       count: absent,
       percentage: pctAbsent,
-      color: '#CBD5E1', // Slate 300
-      hoverColor: '#94A3B8',
-      dotClass: 'bg-[#CBD5E1]',
+      color: ATTENDANCE_STATUS_TOKENS.absent.hex,
+      hoverColor: '#FED7AA',
+      dotClass: 'bg-[#FFEDD5] border border-[#FED7AA]',
     },
   ];
 

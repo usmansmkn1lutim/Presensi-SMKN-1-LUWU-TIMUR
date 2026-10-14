@@ -1,6 +1,7 @@
 import React, { useState, useId } from 'react';
 import { BarChart3, Calendar, Info } from 'lucide-react';
 import { TrendPoint } from '../../services/dashboardExecutiveService';
+import { ATTENDANCE_STATUS_TOKENS } from '../../config/statusColors';
 
 export type TrendRange = '1W' | '4W';
 
@@ -226,19 +227,19 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600 pt-0.5">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#10B981]" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#7C2D12]" aria-hidden="true" />
           <span>Tepat Waktu</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#F59E0B]" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#C2410C]" aria-hidden="true" />
           <span>Terlambat</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#3B82F6]" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#EA580C]" aria-hidden="true" />
           <span>Izin / Cuti / Dinas</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#CBD5E1]" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#FFEDD5] border border-[#FED7AA]" aria-hidden="true" />
           <span>Belum / Alpa</span>
         </div>
       </div>
@@ -394,50 +395,50 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                   {/* Stack Segments with Rounded Outer Corners via SVG clipPath */}
                   {totalBarHeight > 0 && (
                     <g clipPath={`url(#${safeChartId}-bar-clip-${index})`}>
-                      {/* 1. Tepat Waktu (Emerald #10B981) */}
+                      {/* 1. Tepat Waktu (Orange 900 #7C2D12) */}
                       {onTimeH > 0 && (
                         <rect
                           x={barX}
                           y={onTimeY}
                           width={barWidth}
                           height={onTimeH}
-                          fill="#10B981"
+                          fill={ATTENDANCE_STATUS_TOKENS.onTime.hex}
                           className="transition-all duration-150"
                         />
                       )}
 
-                      {/* 2. Terlambat (Amber #F59E0B) */}
+                      {/* 2. Terlambat (Orange 700 #C2410C) */}
                       {lateH > 0 && (
                         <rect
                           x={barX}
                           y={lateY}
                           width={barWidth}
                           height={lateH}
-                          fill="#F59E0B"
+                          fill={ATTENDANCE_STATUS_TOKENS.late.hex}
                           className="transition-all duration-150"
                         />
                       )}
 
-                      {/* 3. Izin/Cuti/Dinas (Blue #3B82F6) */}
+                      {/* 3. Izin/Cuti/Dinas (Orange 600 #EA580C) */}
                       {excusedH > 0 && (
                         <rect
                           x={barX}
                           y={excusedY}
                           width={barWidth}
                           height={excusedH}
-                          fill="#3B82F6"
+                          fill={ATTENDANCE_STATUS_TOKENS.officialDuty.hex}
                           className="transition-all duration-150"
                         />
                       )}
 
-                      {/* 4. Belum/Alpa (Slate #CBD5E1) */}
+                      {/* 4. Belum/Alpa (Orange 100 #FFEDD5) */}
                       {absentH > 0 && (
                         <rect
                           x={barX}
                           y={absentY}
                           width={barWidth}
                           height={absentH}
-                          fill="#CBD5E1"
+                          fill={ATTENDANCE_STATUS_TOKENS.absent.hex}
                           className="transition-all duration-150"
                         />
                       )}
