@@ -62,7 +62,7 @@ export const Header: React.FC = () => {
   const shouldShowLogoImage = Boolean(schoolLogo && !logoLoadFailed);
 
   return (
-    <header className="flex h-16 bg-[#F2F2F2] lg:rounded-tl-[32px] lg:rounded-tr-none border-b border-[#E5E7EB] px-3.5 sm:px-6 items-center justify-between sticky top-0 z-20 shrink-0">
+    <header className="hidden lg:flex h-16 bg-[#F2F2F2] lg:rounded-tl-[32px] lg:rounded-tr-none border-b border-[#E5E7EB] px-3.5 sm:px-6 items-center justify-between sticky top-0 z-20 shrink-0">
       {/* Left: Identitas Sekolah */}
       <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
         {/* Logo Sekolah */}
