@@ -66,13 +66,13 @@ export const Header: React.FC = () => {
       {/* Left: Identitas Sekolah */}
       <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
         {/* Logo Sekolah */}
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden shrink-0">
           {shouldShowLogoImage ? (
             <img
               src={schoolLogo}
               alt={schoolName}
               onError={() => setLogoLoadFailed(true)}
-              className="w-full h-full object-contain p-1"
+              className="w-full h-full object-contain"
             />
           ) : (
             <Building2 className="w-5 h-5 text-slate-400" />
@@ -82,7 +82,7 @@ export const Header: React.FC = () => {
         {/* Nama Sekolah (Hanya nama sekolah, tanpa sub-label menu) */}
         <div className="min-w-0">
           <h2
-            className="text-xs sm:text-sm font-bold text-[#111827] tracking-tight truncate max-w-[140px] xs:max-w-[190px] sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg leading-tight"
+            className="text-base sm:text-xl font-bold text-[#111827] tracking-tight truncate max-w-[140px] xs:max-w-[190px] sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg leading-tight"
             title={schoolName}
           >
             {schoolName}

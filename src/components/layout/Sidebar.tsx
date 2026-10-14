@@ -177,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {!isCollapsed ? (
         <div className="p-4 border-b border-white/10 flex items-center justify-between gap-2 bg-[#F97316] shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-1 rounded-xl bg-white/15 backdrop-blur-xs shrink-0 shadow-2xs">
+            <div className="shrink-0">
               <SchoolLogo size="sm" />
             </div>
             <div className="min-w-0">
@@ -191,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ) : (
         <div className="p-4 border-b border-white/10 flex flex-col items-center justify-center bg-[#F97316] shrink-0">
           <div
-            className="p-1 rounded-xl bg-white/15 backdrop-blur-xs shrink-0 shadow-2xs"
+            className="shrink-0"
             title="Tamaki • Presensi Digital GTK • SMK Negeri 1 Luwu Timur"
           >
             <SchoolLogo size="sm" />

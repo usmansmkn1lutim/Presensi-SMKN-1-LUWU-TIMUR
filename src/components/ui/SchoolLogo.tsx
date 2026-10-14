@@ -5,7 +5,10 @@ interface SchoolLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export const SchoolLogo: React.FC<SchoolLogoProps> = ({ className = '', size = 'md' }) => {
+export const SchoolLogo: React.FC<SchoolLogoProps> = ({
+  className = '',
+  size = 'md',
+}) => {
   const sizeMap = {
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
@@ -17,8 +20,13 @@ export const SchoolLogo: React.FC<SchoolLogoProps> = ({ className = '', size = '
     <img
       src="/logo.svg"
       alt="Logo Sekolah"
-      className={`object-contain ${sizeMap[size]} ${className}`.trim()}
+      className={`block border-0 outline-none ring-0 shadow-none bg-transparent object-contain ${sizeMap[size]} ${className}`.trim()}
+      style={{
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        background: 'transparent',
+      }}
     />
   );
 };
-
