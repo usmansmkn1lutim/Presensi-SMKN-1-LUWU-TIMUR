@@ -13,73 +13,64 @@ import {
   Check,
   RefreshCw,
   AlertTriangle,
+  AlertCircle,
   Building2,
   Globe,
   Sliders,
-  X
+  X,
+  Lock
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { SystemSettingsState, SettingsCategory } from '../../types/settings.types';
 import { APP_CONFIG } from '../../config/appConfig';
-import { supabase } from '../../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import {
+  systemSettingsService,
+  DEFAULT_SYSTEM_SETTINGS,
+  SYSTEM_SETTINGS_STORAGE_KEY,
+} from '../../services/systemSettingsService';
+import {
+  institutionAssetService,
+  validateLogoFile,
+  MAX_LOGO_FILE_SIZE_BYTES,
+} from '../../services/institutionAssetService';
+import { useAuth } from '../../context/AuthContext';
 
 // Default initial state matching official configs
-const DEFAULT_SETTINGS: SystemSettingsState = {
-  general: {
-    appName: 'Presensi Pegawai Sekolah',
-    appDesc: 'Sistem presensi pegawai sekolah SMK Negeri 1 Luwu Timur',
-    schoolName: 'SMK NEGERI 1 LUWU TIMUR',
-    schoolAddress: 'Jl. Trans Sulawesi No. 12, Luwu Timur, Sulawesi Selatan',
-    schoolLogo: null,
-  },
-  attendance: {
-    timezone: 'Asia/Makassar (WITA)',
-    lateTolerance: 0,
-    gpsValidation: true,
-    defaultRadius: 50,
-  },
-  appearance: {
-    theme: 'light',
-    accentColor: 'orange',
-    displayDensity: 'standard',
-  },
-  notification: {
-    attendanceNotif: true,
-    requestNotif: true,
-    systemNotif: true,
-  },
-  system: {
-    appVersion: APP_CONFIG.version, // Unified single source of truth
-    environment: 'Production',
-    sysTimezone: 'Asia/Makassar',
-    backendStatus: 'Tidak diperiksa',
-    database: 'Supabase',
-  },
-  security: {
-    auditLogStatus: 'Aktif - Aktivitas penting sistem dicatat pada Audit Log.',
-    sessionSec: 'Sesi diamankan menggunakan otentikasi JWT Supabase Auth.',
-    roleMgmt: 'Pengelolaan pengguna dan role tersedia pada menu Manajemen Pengguna.',
-  }
-};
-
-const LOCAL_STORAGE_KEY = 'presensi_client_system_settings';
+const DEFAULT_SETTINGS: SystemSettingsState = DEFAULT_SYSTEM_SETTINGS;
+const LOCAL_STORAGE_KEY = SYSTEM_SETTINGS_STORAGE_KEY;
 
 export const SettingsPage: React.FC = () => {
+  const { user } = useAuth();
+  const canManageSettings = user?.role === 'admin' || user?.role === 'super_admin';
+
   // Navigation & Category States
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('umum');
   const [pendingCategory, setPendingCategory] = useState<SettingsCategory | null>(null);
 
-  // Core Form States
-  const [savedSettings, setSavedSettings] = useState<SystemSettingsState>(DEFAULT_SETTINGS);
-  const [formSettings, setFormSettings] = useState<SystemSettingsState>(DEFAULT_SETTINGS);
+  // Core Form States: Membaca langsung dari cache lokal untuk initial render instan
+  const [savedSettings, setSavedSettings] = useState<SystemSettingsState>(() => systemSettingsService.getSettings());
+  const [formSettings, setFormSettings] = useState<SystemSettingsState>(() => systemSettingsService.getSettings());
+
+  // Cloud & Remote Sync States
+  const [isLoadingRemote, setIsLoadingRemote] = useState<boolean>(true);
+  const [remoteFetchError, setRemoteFetchError] = useState<string | null>(null);
+
+  // Saving States
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // File Upload State
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState<boolean>(false);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [logoSuccessMsg, setLogoSuccessMsg] = useState<string | null>(null);
 
   // Toast / Feedback State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
   // Unsaved Warning Dialog State
   const [isGuardOpen, setIsUnsavedGuardOpen] = useState<boolean>(false);
@@ -87,36 +78,38 @@ export const SettingsPage: React.FC = () => {
   // Connectivity Checking State
   const [connStatus, setConnStatus] = useState<'checking' | 'connected' | 'disconnected' | 'unavailable'>('checking');
 
-  const showToast = (message: string) => {
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToastMessage(message);
+    setToastType(type);
     setTimeout(() => {
       setToastMessage(null);
-    }, 4000);
+    }, 4500);
   };
 
-  // 1. Load settings from LocalStorage or session on Mount
-  useEffect(() => {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        // Force AppVersion to match official source even if cached state was outdated
-        parsed.system = {
-          ...parsed.system,
-          appVersion: APP_CONFIG.version
-        };
-        setSavedSettings(parsed);
-        setFormSettings(parsed);
-      } catch (err) {
-        console.warn('Failed to parse cached settings, defaulting.', err);
-        setSavedSettings(DEFAULT_SETTINGS);
-        setFormSettings(DEFAULT_SETTINGS);
-      }
-    } else {
-      setSavedSettings(DEFAULT_SETTINGS);
-      setFormSettings(DEFAULT_SETTINGS);
+  // 1. Sinkronisasi data remote dari Supabase database saat komponen dimount
+  const loadRemoteSettings = useCallback(async () => {
+    setIsLoadingRemote(true);
+    setRemoteFetchError(null);
+
+    try {
+      const remote = await systemSettingsService.fetchSettingsFromRemote();
+      setSavedSettings(remote);
+      // Hanya perbarui formSettings jika user belum melakukan modifikasi form
+      setFormSettings((current) => {
+        const isCurrentDirty = JSON.stringify(current) !== JSON.stringify(systemSettingsService.getSettings());
+        return isCurrentDirty ? current : remote;
+      });
+    } catch (err: any) {
+      console.warn('SettingsPage: Gagal mengambil data remote dari Supabase:', err);
+      setRemoteFetchError(err?.message || 'Gagal menyinkronkan data dari cloud database.');
+    } finally {
+      setIsLoadingRemote(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadRemoteSettings();
+  }, [loadRemoteSettings]);
 
   // 2. Connectivity check (lightweight read-only probe)
   const checkConnectivity = useCallback(async () => {
@@ -142,7 +135,19 @@ export const SettingsPage: React.FC = () => {
   // 3. Check if form is dirty compared to saved state
   const isDirty = JSON.stringify(formSettings) !== JSON.stringify(savedSettings);
 
-  // 4. Handle Category Transitions with Unsaved Changes Guard
+  // 4. Konfirmasi navigasi browser saat ada perubahan yang belum disimpan (beforeunload)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  // 5. Handle Category Transitions with Unsaved Changes Guard
   const handleCategoryClick = (cat: SettingsCategory) => {
     if (cat === activeCategory) return;
     if (isDirty) {
@@ -164,59 +169,115 @@ export const SettingsPage: React.FC = () => {
     setIsUnsavedGuardOpen(false);
   };
 
-  // 5. Save form settings to client-side localStorage
-  const handleSaveSettings = () => {
+  // 6. Menyimpan pengaturan form ke Cloud Supabase & memperbarui cache lokal
+  const handleSaveSettings = async () => {
+    if (!canManageSettings) {
+      showToast('Hanya Administrator atau Super Admin yang berwenang menyimpan konfigurasi.', 'error');
+      return;
+    }
+
+    const trimmedSchoolName = formSettings.general.schoolName?.trim();
+    if (!trimmedSchoolName) {
+      showToast('Nama sekolah tidak boleh kosong.', 'error');
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveStatus('idle');
+
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formSettings));
-      setSavedSettings(formSettings);
-      showToast('Perubahan diterapkan pada sesi ini.');
-    } catch (err) {
-      showToast('Gagal menyimpan konfigurasi sesi.');
+      const result = await systemSettingsService.saveSettingsToRemote(formSettings);
+      if (result.success && result.data) {
+        setSavedSettings(result.data);
+        setFormSettings(result.data);
+        setSaveStatus('success');
+        setLogoSuccessMsg(null);
+        showToast('Pengaturan instansi berhasil disimpan ke database Supabase.', 'success');
+      } else {
+        const errorMsg = result.error || 'Gagal menyimpan konfigurasi ke database Supabase.';
+        setSaveError(errorMsg);
+        setSaveStatus('error');
+        showToast(errorMsg, 'error');
+        // Catatan: formSettings tetap dipertahankan, tidak ada isian yang hilang
+      }
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Terjadi kesalahan sistem saat menghubungi database Supabase.';
+      setSaveError(errorMsg);
+      setSaveStatus('error');
+      showToast(errorMsg, 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  // 6. Reset changes in form state
+  // 7. Reset changes in form state
   const handleResetSettings = () => {
     setFormSettings(savedSettings);
     setLogoError(null);
-    showToast('Konformasi isian berhasil di-reset.');
+    setLogoSuccessMsg(null);
+    setSaveError(null);
+    setSaveStatus('idle');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    showToast('Perubahan dibatalkan. Formulir dikembalikan ke pengaturan tersimpan.', 'success');
   };
 
-  // 7. Handle File/Logo Upload Preview (Local Only)
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 8. Handle Upload Logo ke Supabase Storage (bucket school-assets)
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setLogoError(null);
+    setLogoSuccessMsg(null);
     if (!file) return;
 
-    // Validate type
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      setLogoError('Format file tidak valid. Gunakan PNG, JPG, atau WebP.');
+    // A. Validasi client-side
+    const validation = validateLogoFile(file);
+    if (!validation.valid) {
+      setLogoError(validation.error);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
     }
 
-    // Validate size (2MB)
-    const maxSize = 2 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setLogoError('Ukuran gambar tidak boleh melebihi 2 MB.');
+    if (!canManageSettings) {
+      setLogoError('Hanya Administrator yang memiliki izin mengunggah logo instansi.');
       return;
     }
 
-    // Create safe Object URL
-    const previewUrl = URL.createObjectURL(file);
-    setFormSettings((prev) => ({
-      ...prev,
-      general: {
-        ...prev.general,
-        schoolLogo: previewUrl,
-      },
-    }));
+    // B. Unggah ke Supabase Storage bucket school-assets
+    setIsUploadingLogo(true);
+    try {
+      const uploadResult = await institutionAssetService.uploadSchoolLogo(file);
+      if (uploadResult.success && uploadResult.publicUrl) {
+        setFormSettings((prev) => ({
+          ...prev,
+          general: {
+            ...prev.general,
+            schoolLogo: uploadResult.publicUrl,
+          },
+        }));
+        setLogoSuccessMsg('Logo berhasil diunggah ke Supabase Storage (school-assets).');
+        showToast('Logo berhasil diunggah ke Cloud Storage.', 'success');
+      } else {
+        const errorMsg = uploadResult.error || 'Gagal mengunggah logo ke Supabase Storage.';
+        setLogoError(errorMsg);
+        showToast(errorMsg, 'error');
+      }
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Terjadi kesalahan saat mengunggah file logo.';
+      setLogoError(errorMsg);
+      showToast(errorMsg, 'error');
+    } finally {
+      setIsUploadingLogo(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleRemoveLogo = () => {
-    if (formSettings.general.schoolLogo && formSettings.general.schoolLogo.startsWith('blob:')) {
-      URL.revokeObjectURL(formSettings.general.schoolLogo);
-    }
     setFormSettings((prev) => ({
       ...prev,
       general: {
@@ -224,9 +285,12 @@ export const SettingsPage: React.FC = () => {
         schoolLogo: null,
       },
     }));
+    setLogoSuccessMsg(null);
+    setLogoError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    showToast('Logo dihapus dari konfigurasi. Klik Simpan Perubahan untuk menyimpan ke cloud.', 'success');
   };
 
   // Clean up Object URL to prevent memory leaks on unmount
@@ -252,9 +316,85 @@ export const SettingsPage: React.FC = () => {
     <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-[100] bg-[#1F2937] text-white px-4 py-3 rounded-xl shadow-lg border border-[#374151] flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <Check className="w-4 h-4 text-emerald-400" />
+        <div
+          className={`fixed bottom-5 right-5 z-[100] text-white px-4 py-3 rounded-xl shadow-lg border flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200 ${
+            toastType === 'error'
+              ? 'bg-[#991B1B] border-[#B91C1C]'
+              : 'bg-[#1F2937] border-[#374151]'
+          }`}
+        >
+          {toastType === 'error' ? (
+            <AlertCircle className="w-4 h-4 text-red-300" />
+          ) : (
+            <Check className="w-4 h-4 text-emerald-400" />
+          )}
           <span className="text-xs font-semibold">{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Permission Restriction Banner */}
+      {!canManageSettings && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-amber-900 shadow-2xs">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4 text-amber-700" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold">Mode Hanya Lihat (Read-Only)</p>
+            <p className="text-[11px] text-amber-700 mt-0.5">
+              Akun Anda ({user?.role || 'Pengguna'}) tidak memiliki hak akses administrator. Pengaturan sistem hanya dapat diubah dan disimpan oleh Administrator atau Super Admin.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Remote Sync Warning Banner (Offline / Cloud Error) */}
+      {remoteFetchError && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-3 text-amber-900 shadow-2xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-4 h-4 text-amber-700" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold">Sinkronisasi Cloud Terkendala</p>
+              <p className="text-[11px] text-amber-700 truncate mt-0.5">
+                {remoteFetchError}. Menampilkan konfigurasi dari penyimpanan lokal.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadRemoteSettings}
+            disabled={isLoadingRemote}
+            className="shrink-0 text-xs h-8"
+            leftIcon={<RefreshCw className={`w-3 h-3 ${isLoadingRemote ? 'animate-spin' : ''}`} />}
+          >
+            Coba Lagi
+          </Button>
+        </div>
+      )}
+
+      {/* Save Error Dismissible Banner */}
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start justify-between gap-3 text-red-900 shadow-2xs">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertCircle className="w-4 h-4 text-red-700" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold">Gagal Menyimpan ke Supabase Database</p>
+              <p className="text-[11px] text-red-700 mt-0.5 leading-relaxed">
+                {saveError}. Formulir Anda tetap aman dan tidak di-reset. Silakan periksa koneksi lalu coba simpan kembali.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveError(null)}
+            className="text-red-400 hover:text-red-700 p-1 rounded-lg transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
@@ -267,7 +407,22 @@ export const SettingsPage: React.FC = () => {
                 Konfigurasi Sistem
               </span>
               <span className="w-1 h-1 rounded-full bg-slate-300" />
-              {isDirty ? (
+              {isLoadingRemote ? (
+                <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  Menyinkronkan Cloud...
+                </span>
+              ) : isSaving ? (
+                <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  Menyimpan ke Database...
+                </span>
+              ) : saveStatus === 'error' ? (
+                <span className="inline-flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Penyimpanan Cloud Gagal
+                </span>
+              ) : isDirty ? (
                 <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 font-semibold animate-pulse">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Ada perubahan yang belum disimpan
@@ -275,7 +430,7 @@ export const SettingsPage: React.FC = () => {
               ) : (
                 <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
                   <Check className="w-3.5 h-3.5" />
-                  Semua perubahan tersimpan
+                  Tersimpan di Cloud Supabase
                 </span>
               )}
             </div>
@@ -283,7 +438,7 @@ export const SettingsPage: React.FC = () => {
               Pengaturan Sistem
             </h2>
             <p className="text-xs text-[#6B7280] mt-1">
-              Kelola konfigurasi dan preferensi aplikasi sekolah. <span className="font-semibold text-slate-500">Perubahan sementara pada sesi ini.</span>
+              Kelola konfigurasi dan preferensi aplikasi sekolah. <span className="font-semibold text-slate-700">Tersinkronisasi terpusat via Cloud Database Supabase.</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -291,7 +446,7 @@ export const SettingsPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={handleResetSettings}
-              disabled={!isDirty}
+              disabled={!isDirty || isSaving || isUploadingLogo}
               className="h-9"
             >
               Reset
@@ -300,11 +455,17 @@ export const SettingsPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={handleSaveSettings}
-              disabled={!isDirty}
+              disabled={!isDirty || isSaving || isUploadingLogo || !canManageSettings}
               className="h-9"
-              leftIcon={<Save className="w-3.5 h-3.5" />}
+              leftIcon={
+                isSaving ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Save className="w-3.5 h-3.5" />
+                )
+              }
             >
-              Simpan Perubahan
+              {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
           </div>
         </div>
@@ -412,13 +573,16 @@ export const SettingsPage: React.FC = () => {
                       ...prev,
                       general: { ...prev.general, appName: e.target.value }
                     }))}
-                    className="w-full h-11 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors"
+                    disabled={!canManageSettings || isSaving}
+                    className="w-full h-11 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* School Name */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">Nama Sekolah</label>
+                  <label className="block text-xs font-bold text-slate-700">
+                    Nama Sekolah <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     value={formSettings.general.schoolName}
@@ -426,7 +590,9 @@ export const SettingsPage: React.FC = () => {
                       ...prev,
                       general: { ...prev.general, schoolName: e.target.value }
                     }))}
-                    className="w-full h-11 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors"
+                    disabled={!canManageSettings || isSaving}
+                    placeholder="Contoh: SMK NEGERI 1 LUWU TIMUR"
+                    className="w-full h-11 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -440,7 +606,8 @@ export const SettingsPage: React.FC = () => {
                       ...prev,
                       general: { ...prev.general, appDesc: e.target.value }
                     }))}
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none"
+                    disabled={!canManageSettings || isSaving}
+                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -454,29 +621,42 @@ export const SettingsPage: React.FC = () => {
                       ...prev,
                       general: { ...prev.general, schoolAddress: e.target.value }
                     }))}
+                    disabled={!canManageSettings || isSaving}
                     placeholder="Masukkan alamat sekolah secara lengkap..."
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none"
+                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* School Logo */}
                 <div className="col-span-1 md:col-span-2 space-y-2">
-                  <label className="block text-xs font-bold text-slate-700">Logo Sekolah (Preview Sesi)</label>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700">Logo Resmi Sekolah</label>
+                    {formSettings.general.schoolLogo?.includes('school-assets') && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        <Check className="w-3 h-3 text-emerald-600" /> Supabase Storage (school-assets)
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4.5 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                    <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                      {formSettings.general.schoolLogo ? (
+                    <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                      {isUploadingLogo ? (
+                        <div className="w-full h-full bg-orange-50 flex flex-col items-center justify-center text-[#EA580C]">
+                          <RefreshCw className="w-5 h-5 animate-spin" />
+                          <span className="text-[9px] font-bold mt-1">Upload...</span>
+                        </div>
+                      ) : formSettings.general.schoolLogo ? (
                         <img 
                           src={formSettings.general.schoolLogo} 
                           alt="School logo preview" 
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-contain p-1"
                           referrerPolicy="no-referrer"
                         />
                       ) : (
                         <Building2 className="w-8 h-8 text-slate-300" />
                       )}
                     </div>
-                    <div className="space-y-1.5">
-                      <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
                         <input
                           type="file"
                           ref={fileInputRef}
@@ -484,20 +664,27 @@ export const SettingsPage: React.FC = () => {
                           accept="image/png, image/jpeg, image/jpg, image/webp"
                           className="hidden"
                           id="settings-logo-upload"
+                          disabled={isUploadingLogo || isSaving || !canManageSettings}
                         />
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="h-9 px-3 text-xs font-bold rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 bg-white flex items-center gap-1.5 shadow-3xs"
+                          disabled={isUploadingLogo || isSaving || !canManageSettings}
+                          className="h-9 px-3.5 text-xs font-bold rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 bg-white flex items-center gap-1.5 shadow-3xs disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                          <Upload className="w-3.5 h-3.5" />
-                          Pilih Gambar
+                          {isUploadingLogo ? (
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#EA580C]" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5" />
+                          )}
+                          {isUploadingLogo ? 'Mengunggah Logo...' : 'Pilih Logo'}
                         </button>
                         {formSettings.general.schoolLogo && (
                           <button
                             type="button"
                             onClick={handleRemoveLogo}
-                            className="h-9 px-3 text-xs font-bold rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 flex items-center gap-1.5"
+                            disabled={isUploadingLogo || isSaving || !canManageSettings}
+                            className="h-9 px-3 text-xs font-bold rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             Hapus
@@ -505,10 +692,22 @@ export const SettingsPage: React.FC = () => {
                         )}
                       </div>
                       <p className="text-[10px] text-slate-500">
-                        Mendukung format PNG, JPG, JPEG atau WebP. Maksimal ukuran file 2 MB.
+                        Format: PNG, JPG, JPEG, atau WebP. Maksimal ukuran: 2 MB. Logo disimpan di bucket <code className="text-[#EA580C] font-mono">school-assets</code>.
                       </p>
-                      {logoError && (
-                        <p className="text-[11px] text-red-600 font-semibold mt-1">{logoError}</p>
+                      {isUploadingLogo && (
+                        <p className="text-[11px] text-orange-600 font-semibold animate-pulse flex items-center gap-1">
+                          <RefreshCw className="w-3 h-3 animate-spin" /> Sedang mengunggah file ke Supabase Storage...
+                        </p>
+                      )}
+                      {logoSuccessMsg && !isUploadingLogo && (
+                        <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                          <Check className="w-3 h-3 text-emerald-600" /> {logoSuccessMsg}
+                        </p>
+                      )}
+                      {logoError && !isUploadingLogo && (
+                        <p className="text-[11px] text-red-600 font-semibold flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3 text-red-600 shrink-0" /> {logoError}
+                        </p>
                       )}
                     </div>
                   </div>

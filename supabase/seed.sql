@@ -107,3 +107,23 @@ WHERE NOT EXISTS (
 )
 ON CONFLICT (code) DO NOTHING;
 
+-- 4. Seed Institution Settings (Identitas Resmi Sekolah & Konfigurasi Sistem)
+INSERT INTO public.institution_settings (
+    school_name,
+    school_address,
+    school_logo_url,
+    app_name,
+    app_desc,
+    is_active
+)
+SELECT
+    'SMK NEGERI 1 LUWU TIMUR',
+    'Jl. Trans Sulawesi No. 12, Luwu Timur, Sulawesi Selatan',
+    NULL,
+    'Presensi Pegawai Sekolah',
+    'Sistem presensi pegawai sekolah SMK Negeri 1 Luwu Timur',
+    true
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.institution_settings WHERE is_active = true
+);
+

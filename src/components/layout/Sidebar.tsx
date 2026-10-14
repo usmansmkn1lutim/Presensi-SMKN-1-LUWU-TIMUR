@@ -19,8 +19,6 @@ import {
   LucideIcon,
   ChevronRight,
   Eye,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getNavItemsForRole } from '../../config/navigation';
@@ -156,7 +154,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-full h-full flex flex-col bg-[#F97316] text-white select-none transition-all duration-300 ease-in-out">
+    <aside className="relative w-full h-full flex flex-col bg-[#F97316] text-white select-none transition-all duration-300 ease-in-out">
+      {/* Floating Sidebar Toggle Button */}
+      {onToggleCollapse && (
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          aria-label={isCollapsed ? 'Perluas bilah samping' : 'Ciutkan bilah samping'}
+          title={isCollapsed ? 'Perluas bilah samping' : 'Ciutkan bilah samping'}
+          className="absolute top-6 right-0 translate-x-1/2 z-40 w-6 h-6 rounded-full bg-[#F97316] border border-white text-white flex items-center justify-center shadow-md hover:bg-[#EA580C] cursor-pointer transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F97316]"
+        >
+          <ChevronRight
+            size={14}
+            className={`transition-transform duration-200 ease-in-out text-white ${
+              !isCollapsed ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
+        </button>
+      )}
+
       {/* Brand Header */}
       {!isCollapsed ? (
         <div className="p-4 border-b border-white/10 flex items-center justify-between gap-2 bg-[#F97316] shrink-0">
@@ -171,37 +187,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <p className="text-xs text-orange-100/90 truncate font-medium">Presensi Digital GTK</p>
             </div>
           </div>
-          {onToggleCollapse && (
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              aria-label="Ciutkan bilah samping"
-              title="Ciutkan bilah samping"
-              className="p-1.5 text-white/80 hover:text-white hover:bg-white/15 rounded-lg transition-colors cursor-pointer shrink-0 focus:outline-hidden focus:ring-2 focus:ring-white/40"
-            >
-              <PanelLeftClose className="w-4 h-4" />
-            </button>
-          )}
         </div>
       ) : (
-        <div className="py-3.5 px-2 border-b border-white/10 flex flex-col items-center gap-2.5 bg-[#F97316] shrink-0">
+        <div className="p-4 border-b border-white/10 flex flex-col items-center justify-center bg-[#F97316] shrink-0">
           <div
             className="p-1 rounded-xl bg-white/15 backdrop-blur-xs shrink-0 shadow-2xs"
             title="Tamaki • Presensi Digital GTK • SMK Negeri 1 Luwu Timur"
           >
             <SchoolLogo size="sm" />
           </div>
-          {onToggleCollapse && (
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              aria-label="Perluas bilah samping"
-              title="Perluas bilah samping"
-              className="p-1.5 text-white/80 hover:text-white hover:bg-white/15 rounded-lg transition-colors cursor-pointer shrink-0 focus:outline-hidden focus:ring-2 focus:ring-white/40"
-            >
-              <PanelLeftOpen className="w-4 h-4" />
-            </button>
-          )}
         </div>
       )}
 

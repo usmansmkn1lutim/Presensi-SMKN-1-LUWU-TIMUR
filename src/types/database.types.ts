@@ -582,6 +582,55 @@ export interface Database {
           }
         ];
       };
+      institution_settings: {
+        Row: {
+          id: string;
+          school_name: string;
+          school_address: string | null;
+          school_logo_url: string | null;
+          app_name: string;
+          app_desc: string | null;
+          is_active: boolean;
+          extra_settings: Json;
+          created_at: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          school_name: string;
+          school_address?: string | null;
+          school_logo_url?: string | null;
+          app_name?: string;
+          app_desc?: string | null;
+          is_active?: boolean;
+          extra_settings?: Json;
+          created_at?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          school_name?: string;
+          school_address?: string | null;
+          school_logo_url?: string | null;
+          app_name?: string;
+          app_desc?: string | null;
+          is_active?: boolean;
+          extra_settings?: Json;
+          created_at?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'institution_settings_updated_by_fkey';
+            columns: ['updated_by'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -624,6 +673,20 @@ export interface Database {
       get_active_work_schedule: {
         Args: Record<PropertyKey, never>;
         Returns: Database['public']['Tables']['work_schedules']['Row'][];
+      };
+      get_active_institution_settings: {
+        Args: Record<PropertyKey, never>;
+        Returns: Database['public']['Tables']['institution_settings']['Row'][];
+      };
+      get_public_institution_identity: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          school_name: string;
+          school_address: string | null;
+          school_logo_url: string | null;
+          app_name: string;
+          app_desc: string | null;
+        }[];
       };
       check_in: {
         Args: {
@@ -800,4 +863,16 @@ export type AuditLogUpdate = Database['public']['Tables']['audit_logs']['Update'
 export type NotificationRow = Database['public']['Tables']['notifications']['Row'];
 export type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
 export type NotificationUpdate = Database['public']['Tables']['notifications']['Update'];
+
+export type InstitutionSettingsRow = Database['public']['Tables']['institution_settings']['Row'];
+export type InstitutionSettingsInsert = Database['public']['Tables']['institution_settings']['Insert'];
+export type InstitutionSettingsUpdate = Database['public']['Tables']['institution_settings']['Update'];
+
+export type PublicInstitutionIdentity = {
+  school_name: string;
+  school_address: string | null;
+  school_logo_url: string | null;
+  app_name: string;
+  app_desc: string | null;
+};
 

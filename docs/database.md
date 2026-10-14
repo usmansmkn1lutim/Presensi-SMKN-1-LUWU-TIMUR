@@ -219,6 +219,30 @@ Tabel `public.attendance` menyimpan data transaksi harian presensi pegawai (1 pe
   * Inactive user: Diblokir sepenuhnya dari mutasi.
   * Hard Delete: Diblokir (tidak ada policy DELETE).
 
+### 9. `public.institution_settings` (Phase SETTINGS-PERSIST-02A — Pengaturan Identitas Instansi)
+Menyimpan konfigurasi identitas resmi sekolah dan pengaturan sistem terpusat:
+* `id` (`UUID PRIMARY KEY DEFAULT gen_random_uuid()`): Identifier pengaturan instansi.
+* `school_name` (`TEXT NOT NULL`): Nama resmi satuan pendidikan / instansi (CHECK: `length(trim(school_name)) > 0`).
+* `school_address` (`TEXT`): Alamat fisik lengkap sekolah.
+* `school_logo_url` (`TEXT`): URL publik aset logo sekolah di bucket `school-assets`.
+* `app_name` (`TEXT NOT NULL DEFAULT 'Presensi Pegawai Sekolah'`): Nama sistem aplikasi.
+* `app_desc` (`TEXT`): Deskripsi aplikasi.
+* `is_active` (`BOOLEAN NOT NULL DEFAULT true`): Status aktif konfigurasi.
+* `extra_settings` (`JSONB NOT NULL DEFAULT '{}'::jsonb`): Ekstensi konfigurasi terstruktur (presensi, tampilan, notifikasi internal).
+* `created_at`, `updated_at` (`TIMESTAMPTZ`): Otomatis diperbarui via `enforce_institution_settings_audit_fields()`.
+* `updated_by` (`UUID REFERENCES auth.users(id) ON DELETE SET NULL`): Audit user yang melakukan pembaruan terakhir, dipaksa server-side via `auth.uid()`.
+* **Single Active Protection**:
+  * `idx_institution_settings_single_active`: Partial unique index `UNIQUE (is_active) WHERE is_active = true` menjamin tepat 1 konfigurasi instansi aktif.
+  * Invariant trigger mencegah penonaktifan baris aktif menjadi nonaktif tanpa pengganti.
+* **Fungsi Pembantu & RPC**:
+  * `public.get_public_institution_identity() RETURNS TABLE(...)`: RPC publik (`SECURITY DEFINER`, granted ke `anon` dan `authenticated`) yang mengekspos HANYA kolom identitas publik (`school_name`, `school_address`, `school_logo_url`, `app_name`, `app_desc`) untuk keperluan header dan halaman login, tanpa mengekspos `updated_by` maupun `extra_settings`.
+  * `public.get_active_institution_settings() RETURNS SETOF public.institution_settings`: Fungsi internal (`SECURITY DEFINER`, granted HANYA ke `authenticated`) dengan verifikasi akun aktif untuk memuat konfigurasi lengkap.
+* **RLS & Security (Hardened)**:
+  * `anon`: Hak akses langsung ke tabel di-REVOKE (`REVOKE ALL ON TABLE public.institution_settings FROM anon`). Akses publik diwajibkan melalui `get_public_institution_identity()`.
+  * `authenticated`: `SELECT` diperbolehkan untuk pengguna aktif (`profiles.is_active = true`).
+  * Admin & Super Admin: `INSERT`, `UPDATE` dengan verifikasi role terpercaya di `public.profiles`.
+  * Hard Delete: Diblokir berlapis via ketiadaan policy DELETE, REVOKE privilege DELETE, dan trigger `prevent_institution_settings_delete()`.
+
 ---
 
 ## 4. Keamanan & Row Level Security (RLS)
@@ -242,7 +266,7 @@ Arsitektur penyimpanan berkas dipersiapkan untuk bucket berikut di Supabase Stor
 1. `avatars` (Publik terbatas): Foto profil pengguna.
 2. `attendance-selfies` (Privat): Swafoto verifikasi presensi (Batas 1,5 MB, format JPEG/WebP, path kanonis `{employee_id}/*`, RLS append-only).
 3. `request-attachments` (Privat): Lampiran surat dokter, surat tugas dinas, atau berkas cuti.
-4. `school-assets` (Publik): Logo sekolah, stempel digital, dan aset publik.
+4. `school-assets` (Publik): Logo sekolah, stempel digital, dan aset publik (Batas 2 MB, format PNG/JPEG/WebP, akses baca publik anon & authenticated, upload/update/delete khusus admin & super_admin).
 
 ---
 
@@ -267,8 +291,13 @@ Jika menggunakan **Supabase Dashboard**:
    * `supabase/migrations/013_work_schedules.sql` (Phase 5C-1: Tabel work_schedules, validasi working_days, time sequence constraint V1, RLS, no delete)
    * `supabase/migrations/014_default_work_schedule.sql` (Phase 5C-2: Index single active schedule, default seed Jadwal Kerja Sekolah, helper get_active_work_schedule)
    * `supabase/migrations/015_attendance.sql` (Phase 6A-1: Tabel attendance, unique employee+date, check_in_status/check_out_status constraints, RLS, no delete)
+   * ...
+   * `supabase/migrations/026_attendance_selfie_storage.sql` (Bucket private attendance-selfies & RLS)
+   * `supabase/migrations/027_attendance_selfie_rpc.sql` (Integrasi selfie RPC check_in/check_out)
+   * `supabase/migrations/028_institution_settings_and_storage.sql` (Phase SETTINGS-PERSIST-02A: Tabel institution_settings, single-active constraint, trigger updated_at, helper get_active_institution_settings, RLS policies, bucket public school-assets & storage policies)
+   * `supabase/migrations/029_institution_settings_security_hardening.sql` (Phase SETTINGS-PERSIST-02A: Security hardening — revoke direct anon table access, public RPC get_public_institution_identity, audit spoofing prevention trigger, anti-delete trigger, hardened storage policies)
 4. Jalankan seed master data:
-   * `supabase/seed.sql` (Departments, Positions, Locations, dan Default Work Schedule)
+   * `supabase/seed.sql` (Departments, Positions, Locations, Default Work Schedule, dan Default Institution Settings)
 
 Jika menggunakan **Supabase CLI**:
 ```bash

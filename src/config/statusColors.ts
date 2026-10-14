@@ -28,55 +28,55 @@ export const ATTENDANCE_STATUS_TOKENS = {
   late: {
     key: 'late',
     label: 'Terlambat',
-    hex: '#C2410C', // Orange 700
+    hex: '#9A3412', // Orange 800
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
-    textHex: '#C2410C',
+    textHex: '#9A3412',
     description: 'Hadir melebihi jam mulai kerja namun dalam jendela toleransi.',
   },
   officialDuty: {
     key: 'official_duty',
     label: 'Dinas Luar',
-    hex: '#EA580C', // Orange 600
+    hex: '#C2410C', // Orange 700
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
-    textHex: '#EA580C',
+    textHex: '#C2410C',
     description: 'Melaksanakan tugas kedinasan di luar lingkungan sekolah.',
   },
   sick: {
     key: 'sick',
     label: 'Sakit',
-    hex: '#F97316', // Orange 500 (Brand primary)
+    hex: '#EA580C', // Orange 600
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
-    textHex: '#9A3412', // Darker text for contrast on light bg
+    textHex: '#C2410C', // Orange 700
     description: 'Berhalangan hadir karena sakit dengan/tanpa surat dokter.',
   },
   permit: {
     key: 'permit',
     label: 'Izin',
-    hex: '#FB923C', // Orange 400
+    hex: '#9A3412', // Orange 800
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
-    textHex: '#9A3412',
+    textHex: '#9A3412', // Orange 800
     description: 'Berhalangan hadir dengan izin resmi yang disetujui.',
   },
   leave: {
     key: 'leave',
     label: 'Cuti',
-    hex: '#FDBA74', // Orange 300
+    hex: '#C2410C', // Orange 700
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
-    textHex: '#7C2D12',
+    textHex: '#C2410C', // Orange 700
     description: 'Mengambil hak cuti tahunan atau cuti khusus.',
   },
   absent: {
     key: 'absent',
     label: 'Belum Presensi / Alpha',
-    hex: '#FFEDD5', // Orange 100 / Brand 100
+    hex: '#7C2D12', // Orange 900
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
-    textHex: '#9A3412',
+    textHex: '#7C2D12', // Orange 900
     description: 'Belum melakukan presensi atau tanpa keterangan (alpha).',
   },
   neutral: {
