@@ -33,41 +33,22 @@ class AuthService {
       throw new Error('Role pengguna tidak valid. Hubungi administrator.');
     }
 
-    // 3. Fetch employee details if linked
+    // 3. Fetch employee details if linked (Strictly via profile_id. super_admin and admin never have employee records)
     let employeeData = null;
-    try {
-      const { data: emp } = await supabase
-        .from('employees')
-        .select('*, departments(name), positions(name)')
-        .eq('profile_id', supabaseUser.id)
-        .maybeSingle();
-
-      if (emp) {
-        employeeData = emp;
-      } else if (supabaseUser.email) {
-        const { data: empByEmail } = await supabase
+    if (profile.role !== 'super_admin' && profile.role !== 'admin') {
+      try {
+        const { data: emp } = await supabase
           .from('employees')
           .select('*, departments(name), positions(name)')
-          .ilike('email', supabaseUser.email.trim())
+          .eq('profile_id', supabaseUser.id)
           .maybeSingle();
 
-        if (empByEmail) {
-          if (!empByEmail.profile_id) {
-            try {
-              await supabase
-                .from('employees')
-                .update({ profile_id: supabaseUser.id })
-                .eq('id', empByEmail.id);
-              empByEmail.profile_id = supabaseUser.id;
-            } catch {
-              // ignore
-            }
-          }
-          employeeData = empByEmail;
+        if (emp) {
+          employeeData = emp;
         }
+      } catch {
+        // Ignore if employee table row does not exist yet
       }
-    } catch {
-      // Ignore if employee table row does not exist yet
     }
 
     const deptName = (employeeData?.departments as { name?: string } | null)?.name || 'Satuan Pendidikan';

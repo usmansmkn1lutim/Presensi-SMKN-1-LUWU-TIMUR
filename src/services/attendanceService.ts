@@ -58,6 +58,17 @@ export const attendanceService = {
       throw new Error('Sesi telah berakhir. Silakan login kembali.');
     }
 
+    // Check user role from profiles first: super_admin and admin must not have employee records or personal attendance
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profile && (profile.role === 'super_admin' || profile.role === 'admin')) {
+      throw new Error('Akun administrator tidak memiliki data pegawai dan tidak dapat melakukan presensi pribadi.');
+    }
+
     // 1. Direct, strict lookup: employees.profile_id = user.id
     const { data: employee, error: employeeError } = await supabase
       .from('employees')
@@ -75,78 +86,6 @@ export const attendanceService = {
         throw new Error('Akun pegawai Anda sedang tidak aktif.');
       }
       return employee as EmployeeRow;
-    }
-
-    // 2. Fallback lookup by matching email (case-insensitive)
-    if (user.email) {
-      const { data: employeeByEmail } = await supabase
-        .from('employees')
-        .select('*')
-        .ilike('email', user.email.trim())
-        .maybeSingle();
-
-      if (employeeByEmail) {
-        // Auto-link profile_id to user.id if not set
-        if (!employeeByEmail.profile_id) {
-          try {
-            await supabase
-              .from('employees')
-              .update({ profile_id: user.id })
-              .eq('id', employeeByEmail.id);
-            employeeByEmail.profile_id = user.id;
-          } catch (linkErr) {
-            console.warn('Auto-link profile_id warning:', linkErr);
-          }
-        }
-
-        if (employeeByEmail.status !== 'active') {
-          try {
-            await supabase
-              .from('employees')
-              .update({ status: 'active' })
-              .eq('id', employeeByEmail.id);
-            employeeByEmail.status = 'active';
-          } catch {
-            // ignore
-          }
-        }
-
-        return employeeByEmail as EmployeeRow;
-      }
-    }
-
-    // 3. Auto-provision employee profile if user exists but has no employee record yet
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      const fullName =
-        profile?.full_name ||
-        user.user_metadata?.full_name ||
-        user.email?.split('@')[0] ||
-        'Pegawai Sekolah';
-      const userEmail = user.email || null;
-
-      const { data: newEmployee, error: createError } = await supabase
-        .from('employees')
-        .insert({
-          profile_id: user.id,
-          full_name: fullName,
-          email: userEmail,
-          status: 'active',
-          employee_type: 'Tenaga Pendidik / Guru',
-        })
-        .select('*')
-        .single();
-
-      if (!createError && newEmployee) {
-        return newEmployee as EmployeeRow;
-      }
-    } catch (provisionErr) {
-      console.warn('Auto-provision employee record warning:', provisionErr);
     }
 
     throw new Error('Akun Anda belum terhubung dengan data pegawai.');
