@@ -74,13 +74,13 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $$
     SELECT 
-        school_name,
-        school_address,
-        school_logo_url,
-        app_name,
-        app_desc
-    FROM public.institution_settings
-    WHERE is_active = true
+        s.school_name,
+        s.school_address,
+        s.school_logo_url,
+        s.app_name,
+        s.app_desc
+    FROM public.institution_settings s
+    WHERE s.is_active = true
     LIMIT 1;
 $$;
 
@@ -121,8 +121,8 @@ BEGIN
     END IF;
 
     RETURN QUERY
-    SELECT * FROM public.institution_settings
-    WHERE is_active = true
+    SELECT s.* FROM public.institution_settings s
+    WHERE s.is_active = true
     LIMIT 1;
 END;
 $$;
@@ -143,25 +143,25 @@ BEGIN
     -- 1. Always enforce server-side updated_at timestamp
     NEW.updated_at := now();
 
-    -- 2. Force updated_by to actual authenticated user (preventing spoofing)
-    IF auth.uid() IS NOT NULL THEN
-        NEW.updated_by := auth.uid();
-    ELSE
-        -- Retain existing updated_by if executed in system/migration context without auth context
-        NEW.updated_by := COALESCE(NEW.updated_by, OLD.updated_by);
-    END IF;
-
-    -- 3. Protect created_at immutability on UPDATE
-    IF TG_OP = 'UPDATE' THEN
+    -- 2. Explicitly branch INSERT and UPDATE to avoid unassigned OLD record error on INSERT
+    IF TG_OP = 'INSERT' THEN
+        NEW.created_at := COALESCE(NEW.created_at, now());
+        IF auth.uid() IS NOT NULL THEN
+            NEW.updated_by := auth.uid();
+        END IF;
+    ELSIF TG_OP = 'UPDATE' THEN
         NEW.created_at := OLD.created_at;
+        IF auth.uid() IS NOT NULL THEN
+            NEW.updated_by := auth.uid();
+        ELSE
+            NEW.updated_by := COALESCE(NEW.updated_by, OLD.updated_by);
+        END IF;
 
-        -- 4. Invariant Protection: Prevent deactivating the active singleton without replacement
+        -- 3. Invariant Protection: Prevent deactivating the active singleton without replacement
         IF OLD.is_active = true AND NEW.is_active = false THEN
             RAISE EXCEPTION 'Pengaturan instansi aktif tidak dapat dinonaktifkan secara manual. Sistem wajib memiliki tepat 1 pengaturan aktif.'
                 USING ERRCODE = '23514';
         END IF;
-    ELSIF TG_OP = 'INSERT' THEN
-        NEW.created_at := COALESCE(NEW.created_at, now());
     END IF;
 
     RETURN NEW;
