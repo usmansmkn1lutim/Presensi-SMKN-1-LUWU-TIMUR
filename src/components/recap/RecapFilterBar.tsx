@@ -64,6 +64,11 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
     });
   };
 
+  // Helper to trigger update
+  const triggerUpdate = (startDate: string, endDate: string, departmentId: string, statusFilter: string, searchQuery: string) => {
+    onApplyFilter({ startDate, endDate, departmentId, statusFilter, searchQuery });
+  };
+
   return (
     <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
       {/* Quick Period Presets */}
@@ -147,7 +152,10 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
               id="recapStartDateInput"
               type="date"
               value={localStartDate}
-              onChange={(e) => setLocalStartDate(e.target.value)}
+              onChange={(e) => {
+                setLocalStartDate(e.target.value);
+                triggerUpdate(e.target.value, localEndDate, localDepartment, localStatus, localSearch);
+              }}
               className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium"
             />
           </div>
@@ -161,7 +169,10 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
               id="recapEndDateInput"
               type="date"
               value={localEndDate}
-              onChange={(e) => setLocalEndDate(e.target.value)}
+              onChange={(e) => {
+                setLocalEndDate(e.target.value);
+                triggerUpdate(localStartDate, e.target.value, localDepartment, localStatus, localSearch);
+              }}
               className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium"
             />
           </div>
@@ -174,7 +185,10 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
             <select
               id="recapDepartmentInput"
               value={localDepartment}
-              onChange={(e) => setLocalDepartment(e.target.value)}
+              onChange={(e) => {
+                setLocalDepartment(e.target.value);
+                triggerUpdate(localStartDate, localEndDate, e.target.value, localStatus, localSearch);
+              }}
               className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium cursor-pointer"
             >
               <option value="all">Semua Departemen</option>
@@ -194,7 +208,10 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
             <select
               id="recapStatusInput"
               value={localStatus}
-              onChange={(e) => setLocalStatus(e.target.value)}
+              onChange={(e) => {
+                setLocalStatus(e.target.value);
+                triggerUpdate(localStartDate, localEndDate, localDepartment, e.target.value, localSearch);
+              }}
               className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium cursor-pointer"
             >
               <option value="all">Semua Status</option>
@@ -217,7 +234,10 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
                 type="text"
                 placeholder="Cari nama atau NIP..."
                 value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
+                onChange={(e) => {
+                  setLocalSearch(e.target.value);
+                  triggerUpdate(localStartDate, localEndDate, localDepartment, localStatus, e.target.value);
+                }}
                 className="w-full h-10 pl-9 pr-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all text-xs font-medium"
               />
               <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-3 pointer-events-none" />
@@ -232,18 +252,6 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
             <span>{validationError}</span>
           </div>
         )}
-
-        <div className="flex justify-end pt-1">
-          <Button
-            type="submit"
-            isLoading={loading}
-            size="sm"
-            className="text-xs font-semibold h-10 px-5 rounded-xl"
-          >
-            <Filter className="w-3.5 h-3.5 mr-1.5" />
-            Terapkan Filter & Statistik
-          </Button>
-        </div>
       </form>
     </div>
   );

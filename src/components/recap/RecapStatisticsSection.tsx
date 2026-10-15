@@ -72,39 +72,39 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
           {/* Progress Bar */}
           <div className="h-3 w-full bg-[#E5E7EB] rounded-full overflow-hidden flex">
             <div
-              style={{ width: `${checkInStatusStats.onTimePercentage}%` }}
-              className="bg-emerald-500 h-full transition-all duration-500"
+              style={{ width: `${checkInStatusStats.onTimePercentage}%`, backgroundColor: 'var(--color-status-present)' }}
+              className="h-full transition-all duration-500"
               title={`Tepat Waktu: ${checkInStatusStats.onTimePercentage}%`}
             />
             <div
-              style={{ width: `${checkInStatusStats.latePercentage}%` }}
-              className="bg-amber-500 h-full transition-all duration-500"
+              style={{ width: `${checkInStatusStats.latePercentage}%`, backgroundColor: 'var(--color-status-late)' }}
+              className="h-full transition-all duration-500"
               title={`Terlambat: ${checkInStatusStats.latePercentage}%`}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
-              <span className="text-[10px] text-emerald-800 font-semibold block flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            <div className="p-2.5 rounded-lg border" style={{ backgroundColor: 'var(--color-status-present-bg)', borderColor: 'var(--color-status-present)' }}>
+              <span className="font-semibold block flex items-center gap-1" style={{ color: 'var(--color-status-present)', fontSize: '10px' }}>
+                <CheckCircle2 className="w-3 h-3" />
                 Tepat Waktu
               </span>
-              <span className="text-base font-bold text-emerald-700 mt-0.5 block">
+              <span className="text-base font-bold mt-0.5 block" style={{ color: 'var(--color-status-present)' }}>
                 {checkInStatusStats.onTimeCount}{' '}
-                <span className="text-xs font-medium text-emerald-600">
+                <span className="text-xs font-medium" style={{ color: 'var(--color-status-present)' }}>
                   ({checkInStatusStats.onTimePercentage}%)
                 </span>
               </span>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200">
-              <span className="text-[10px] text-amber-800 font-semibold block flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3 text-amber-600" />
+            <div className="p-2.5 rounded-lg border" style={{ backgroundColor: 'var(--color-status-late-bg)', borderColor: 'var(--color-status-late)' }}>
+              <span className="font-semibold block flex items-center gap-1" style={{ color: 'var(--color-status-late)', fontSize: '10px' }}>
+                <AlertTriangle className="w-3 h-3" />
                 Terlambat
               </span>
-              <span className="text-base font-bold text-amber-800 mt-0.5 block">
+              <span className="text-base font-bold mt-0.5 block" style={{ color: 'var(--color-status-late)' }}>
                 {checkInStatusStats.lateCount}{' '}
-                <span className="text-xs font-medium text-amber-700">
+                <span className="text-xs font-medium" style={{ color: 'var(--color-status-late)' }}>
                   ({checkInStatusStats.latePercentage}%)
                 </span>
               </span>
@@ -132,8 +132,8 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
               title={`Sudah Check-out: ${checkOutStatusStats.checkedOutPercentage}%`}
             />
             <div
-              style={{ width: `${checkOutStatusStats.notCheckedOutPercentage}%` }}
-              className="bg-rose-400 h-full transition-all duration-500"
+              style={{ width: `${checkOutStatusStats.notCheckedOutPercentage}%`, backgroundColor: 'var(--color-status-absent)' }}
+              className="h-full transition-all duration-500"
               title={`Belum Check-out: ${checkOutStatusStats.notCheckedOutPercentage}%`}
             />
           </div>
@@ -152,14 +152,14 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
               </span>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200">
-              <span className="text-[10px] text-rose-800 font-semibold block flex items-center gap-1">
-                <UserX className="w-3 h-3 text-rose-600" />
+            <div className="p-2.5 rounded-lg border" style={{ backgroundColor: 'var(--color-status-absent-bg)', borderColor: 'var(--color-status-absent-bg)' }}>
+              <span className="font-semibold block flex items-center gap-1" style={{ color: 'var(--color-status-absent-text)', fontSize: '10px' }}>
+                <UserX className="w-3 h-3" style={{ color: 'var(--color-status-absent)' }} />
                 Belum Check-out
               </span>
-              <span className="text-base font-bold text-rose-700 mt-0.5 block">
+              <span className="text-base font-bold mt-0.5 block" style={{ color: 'var(--color-status-absent)' }}>
                 {checkOutStatusStats.notCheckedOutCount}{' '}
-                <span className="text-xs font-medium text-rose-600">
+                <span className="text-xs font-medium" style={{ color: 'var(--color-status-absent)' }}>
                   ({checkOutStatusStats.notCheckedOutPercentage}%)
                 </span>
               </span>
@@ -178,15 +178,15 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
             </span>
             <div className="flex items-center gap-3 text-[10px] font-semibold text-[#6B7280]">
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-status-present)' }} />
                 Tepat Waktu
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-status-late)' }} />
                 Terlambat
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-status-absent)' }} />
                 Tidak Presensi
               </span>
             </div>
@@ -204,9 +204,9 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
                     {/* Tooltip */}
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 bg-[#111827] text-white text-[10px] p-2 rounded-lg shadow-lg pointer-events-none z-20 whitespace-nowrap">
                       <p className="font-bold border-b border-gray-700 pb-1">{pt.dateLabel}</p>
-                      <p className="text-emerald-400">Tepat Waktu: {pt.onTime}</p>
-                      <p className="text-amber-400">Terlambat: {pt.late}</p>
-                      <p className="text-rose-300">Tidak Presensi: {pt.absent}</p>
+                      <p style={{ color: 'var(--color-status-present)' }}>Tepat Waktu: {pt.onTime}</p>
+                      <p style={{ color: 'var(--color-status-late)' }}>Terlambat: {pt.late}</p>
+                      <p style={{ color: 'var(--color-status-absent)' }}>Tidak Presensi: {pt.absent}</p>
                     </div>
 
                     {/* Stacked Bar */}
@@ -216,20 +216,20 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
                     >
                       {pt.absent > 0 && (
                         <div
-                          style={{ flex: pt.absent }}
-                          className="bg-rose-400 w-full transition-all"
+                          style={{ flex: pt.absent, backgroundColor: 'var(--color-status-absent)' }}
+                          className="w-full transition-all"
                         />
                       )}
                       {pt.late > 0 && (
                         <div
-                          style={{ flex: pt.late }}
-                          className="bg-amber-500 w-full transition-all"
+                          style={{ flex: pt.late, backgroundColor: 'var(--color-status-late)' }}
+                          className="w-full transition-all"
                         />
                       )}
                       {pt.onTime > 0 && (
                         <div
-                          style={{ flex: pt.onTime }}
-                          className="bg-emerald-500 w-full transition-all"
+                          style={{ flex: pt.onTime, backgroundColor: 'var(--color-status-present)' }}
+                          className="w-full transition-all"
                         />
                       )}
                     </div>
@@ -275,26 +275,26 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
                   {/* Stacked Progress Bar */}
                   <div className="h-2.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden flex">
                     <div
-                      style={{ width: `${onTimePct}%` }}
-                      className="bg-emerald-500 h-full"
+                      style={{ width: `${onTimePct}%`, backgroundColor: 'var(--color-status-present)' }}
+                      className="h-full"
                       title={`Tepat Waktu: ${dept.onTime}`}
                     />
                     <div
-                      style={{ width: `${latePct}%` }}
-                      className="bg-amber-500 h-full"
+                      style={{ width: `${latePct}%`, backgroundColor: 'var(--color-status-late)' }}
+                      className="h-full"
                       title={`Terlambat: ${dept.late}`}
                     />
                     <div
-                      style={{ width: `${absentPct}%` }}
-                      className="bg-rose-400 h-full"
+                      style={{ width: `${absentPct}%`, backgroundColor: 'var(--color-status-absent)' }}
+                      className="h-full"
                       title={`Tidak Presensi: ${dept.absent}`}
                     />
                   </div>
 
-                  <div className="flex items-center gap-4 text-[10px] text-[#6B7280]">
-                    <span className="text-emerald-700 font-medium">Tepat Waktu: {dept.onTime}</span>
-                    <span className="text-amber-800 font-medium">Terlambat: {dept.late}</span>
-                    <span className="text-rose-700 font-medium">Tidak Presensi: {dept.absent}</span>
+                  <div className="flex items-center gap-4 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                    <span className="font-medium" style={{ color: 'var(--color-status-present)' }}>Tepat Waktu: {dept.onTime}</span>
+                    <span className="font-medium" style={{ color: 'var(--color-status-late)' }}>Terlambat: {dept.late}</span>
+                    <span className="font-medium" style={{ color: 'var(--color-status-absent)' }}>Tidak Presensi: {dept.absent}</span>
                   </div>
                 </div>
               );

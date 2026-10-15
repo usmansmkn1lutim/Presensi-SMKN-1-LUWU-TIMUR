@@ -75,21 +75,21 @@ export const RecapTable: React.FC<RecapTableProps> = ({
 
                 {/* Tepat Waktu */}
                 <td className="py-3.5 px-3 text-center">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold" style={{ backgroundColor: 'var(--color-status-present-bg)', color: 'var(--color-status-present)', border: '1px solid var(--color-status-present-bg)' }}>
                     {row.onTimeCount}
                   </span>
                 </td>
 
                 {/* Terlambat */}
                 <td className="py-3.5 px-3 text-center">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold" style={{ backgroundColor: 'var(--color-status-late-bg)', color: 'var(--color-status-late)', border: '1px solid var(--color-status-late-bg)' }}>
                     {row.lateCount}
                   </span>
                 </td>
 
                 {/* Tidak Presensi */}
                 <td className="py-3.5 px-3 text-center">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold" style={{ backgroundColor: 'var(--color-status-absent-bg)', color: 'var(--color-status-absent)', border: '1px solid var(--color-status-absent-bg)' }}>
                     {row.absentCount}
                   </span>
                 </td>

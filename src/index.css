@@ -23,6 +23,7 @@
   --color-primary: #F97316;
   --color-primary-hover: #EA580C;
   --color-primary-light: #FFF7ED;
+  --color-brand-primary: var(--color-primary);
 
   --color-background: #FFFFFF;
   --color-surface: #FFFFFF;
@@ -33,6 +34,25 @@
   --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
   --color-text-muted: #9CA3AF;
+
+  /* Status Colors */
+  --color-status-total: #64748B;
+  --color-status-present: #39805A;
+  --color-status-late: #7B922F;
+  --color-status-official-duty: #477BAE;
+  --color-status-sick: #4F98B2;
+  --color-status-permission: #C47735;
+  --color-status-leave: #8669AC;
+  --color-status-absent: #F4382C;
+  --color-status-total-bg: #E9EDF2;
+  --color-status-present-bg: #E8F4EB;
+  --color-status-late-bg: #F0F4DE;
+  --color-status-official-duty-bg: #E8F0FA;
+  --color-status-sick-bg: #E6F4F8;
+  --color-status-permission-bg: #FFF0E3;
+  --color-status-leave-bg: #F0EAF8;
+  --color-status-absent-bg: #FDE9E7;
+  --color-status-absent-text: #C92D24;
 }
 
 body {

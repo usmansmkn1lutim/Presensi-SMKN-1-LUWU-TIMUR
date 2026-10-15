@@ -15,7 +15,8 @@ export type OfficialAttendanceStatus =
   | 'official_duty' // Dinas Luar
   | 'leave'         // Cuti
   | 'absent'        // Alpha / Tanpa Keterangan
-  | 'holiday';      // Libur
+  | 'holiday'       // Libur
+  | 'pending';      // Menunggu Presensi
 
 export type AttendanceSubstatus = 'on_time' | 'late' | null;
 
@@ -27,6 +28,7 @@ export const OFFICIAL_STATUS_LABELS: Record<OfficialAttendanceStatus, string> = 
   leave: 'Cuti',
   absent: 'Alpha',
   holiday: 'Libur',
+  pending: 'Menunggu Presensi',
 };
 
 export const SUBSTATUS_LABELS: Record<'on_time' | 'late', string> = {
@@ -220,8 +222,8 @@ export function evaluateDailyStatus(
         employeeName: employee.full_name,
         nip: employee.nip,
         departmentName: deptName,
-        status: 'holiday', // Using 'holiday' to effectively block Alpha status
-        statusLabel: 'Menunggu Presensi',
+        status: 'pending',
+        statusLabel: OFFICIAL_STATUS_LABELS.pending,
         substatus: null,
         substatusLabel: null,
         notes: 'Menunggu Presensi',
@@ -296,7 +298,7 @@ export const attendanceStatusService = {
     const todayStr = getMakassarTodayDateString();
 
     // 1. Fetch holidays
-    const { data: holidaysData, error: holError } = await supabase
+    let { data: holidaysData, error: holError } = await supabase
       .from('holidays')
       .select('id, holiday_date, name, is_active')
       .eq('is_active', true)
@@ -304,8 +306,25 @@ export const attendanceStatusService = {
       .lte('holiday_date', endDate);
 
     if (holError) {
-      console.error('Error fetching holidays for status engine:', holError);
-      throw new Error(formatAttendanceError(holError));
+      if (holError.code === 'PGRST303') {
+        console.warn('JWT expired, refreshing session...');
+        await supabase.auth.refreshSession();
+        const { data: holidaysRetry, error: holErrorRetry } = await supabase
+          .from('holidays')
+          .select('id, holiday_date, name, is_active')
+          .eq('is_active', true)
+          .gte('holiday_date', startDate)
+          .lte('holiday_date', endDate);
+        
+        if (holErrorRetry) {
+          console.error('Error fetching holidays after refresh:', holErrorRetry);
+          throw new Error(formatAttendanceError(holErrorRetry));
+        }
+        holidaysData = holidaysRetry;
+      } else {
+        console.error('Error fetching holidays for status engine:', holError);
+        throw new Error(formatAttendanceError(holError));
+      }
     }
 
     const holidayMap = new Map<string, MinimalHoliday>();

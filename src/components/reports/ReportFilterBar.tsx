@@ -44,25 +44,54 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
     setSelectedPreset(preset);
     const todayStr = getMakassarTodayDateString();
     const [y, m, d] = todayStr.split('-').map(Number);
+    let newStart = startDate;
+    let newEnd = endDate;
 
     if (preset === 'today') {
-      setStartDate(todayStr);
-      setEndDate(todayStr);
+      newStart = todayStr;
+      newEnd = todayStr;
     } else if (preset === 'this_week') {
-      // Monday of current week in Makassar
       const todayObj = new Date(y, m - 1, d, 12, 0, 0);
-      const dayOfWeek = todayObj.getDay(); // 0 = Sun, 1 = Mon ...
+      const dayOfWeek = todayObj.getDay();
       const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
       const mondayObj = new Date(y, m - 1, d + diffToMonday, 12, 0, 0);
       const my = mondayObj.getFullYear();
       const mm = String(mondayObj.getMonth() + 1).padStart(2, '0');
       const md = String(mondayObj.getDate()).padStart(2, '0');
-      setStartDate(`${my}-${mm}-${md}`);
-      setEndDate(todayStr);
+      newStart = `${my}-${mm}-${md}`;
+      newEnd = todayStr;
     } else if (preset === 'this_month') {
-      setStartDate(getMakassarFirstDayOfMonthString());
-      setEndDate(todayStr);
+      newStart = getMakassarFirstDayOfMonthString();
+      newEnd = todayStr;
+    } else {
+      return;
     }
+
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    triggerApply(newStart, newEnd, employeeId, departmentId, locationId, checkInStatus, checkOutStatus, searchQuery);
+  };
+
+  const triggerApply = (
+    sDate: string,
+    eDate: string,
+    eId: string,
+    dId: string,
+    lId: string,
+    ciS: string,
+    coS: string,
+    search: string
+  ) => {
+    onApplyFilter({
+      startDate: sDate,
+      endDate: eDate,
+      employeeId: eId === 'all' ? null : eId,
+      departmentId: dId === 'all' ? null : dId,
+      locationId: lId === 'all' ? null : lId,
+      checkInStatus: ciS === 'all' ? null : (ciS as any),
+      checkOutStatus: coS === 'all' ? null : (coS as any),
+      searchQuery: search.trim() || undefined,
+    });
   };
 
   const handleApply = (e: React.FormEvent) => {
@@ -146,6 +175,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                 onChange={(e) => {
                   setStartDate(e.target.value);
                   setSelectedPreset('custom');
+                  triggerApply(e.target.value, endDate, employeeId, departmentId, locationId, checkInStatus, checkOutStatus, searchQuery);
                 }}
                 className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               />
@@ -158,6 +188,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                 onChange={(e) => {
                   setEndDate(e.target.value);
                   setSelectedPreset('custom');
+                  triggerApply(startDate, e.target.value, employeeId, departmentId, locationId, checkInStatus, checkOutStatus, searchQuery);
                 }}
                 className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               />
@@ -177,7 +208,10 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
               type="text"
               placeholder="Ketik nama atau NIP..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                triggerApply(startDate, endDate, employeeId, departmentId, locationId, checkInStatus, checkOutStatus, e.target.value);
+              }}
               className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316] placeholder:text-[#9CA3AF]"
             />
           </div>
@@ -190,7 +224,10 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             </label>
             <select
               value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
+              onChange={(e) => {
+                setEmployeeId(e.target.value);
+                triggerApply(startDate, endDate, e.target.value, departmentId, locationId, checkInStatus, checkOutStatus, searchQuery);
+              }}
               className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Pegawai ({employees.length})</option>
@@ -210,7 +247,10 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             </label>
             <select
               value={checkInStatus}
-              onChange={(e) => setCheckInStatus(e.target.value)}
+              onChange={(e) => {
+                setCheckInStatus(e.target.value);
+                triggerApply(startDate, endDate, employeeId, departmentId, locationId, e.target.value, checkOutStatus, searchQuery);
+              }}
               className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Status Masuk</option>
@@ -227,7 +267,10 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             </label>
             <select
               value={checkOutStatus}
-              onChange={(e) => setCheckOutStatus(e.target.value)}
+              onChange={(e) => {
+                setCheckOutStatus(e.target.value);
+                triggerApply(startDate, endDate, employeeId, departmentId, locationId, checkInStatus, e.target.value, searchQuery);
+              }}
               className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Status Pulang</option>
@@ -248,7 +291,10 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
               </label>
               <select
                 value={departmentId}
-                onChange={(e) => setDepartmentId(e.target.value)}
+                onChange={(e) => {
+                  setDepartmentId(e.target.value);
+                  triggerApply(startDate, endDate, employeeId, e.target.value, locationId, checkInStatus, checkOutStatus, searchQuery);
+                }}
                 className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 <option value="all">Semua Departemen</option>
@@ -268,7 +314,10 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
               </label>
               <select
                 value={locationId}
-                onChange={(e) => setLocationId(e.target.value)}
+                onChange={(e) => {
+                  setLocationId(e.target.value);
+                  triggerApply(startDate, endDate, employeeId, departmentId, e.target.value, checkInStatus, checkOutStatus, searchQuery);
+                }}
                 className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 <option value="all">Semua Lokasi</option>
@@ -303,15 +352,6 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
               leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
             >
               Reset
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              isLoading={isLoading}
-              leftIcon={<Filter className="w-3.5 h-3.5" />}
-            >
-              Terapkan Filter
             </Button>
           </div>
         </div>

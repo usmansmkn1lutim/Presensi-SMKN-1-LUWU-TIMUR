@@ -71,9 +71,9 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
       label: 'Total GTK Aktif',
       value: summary?.totalActiveGtk ?? 0,
       icon: Users,
-      iconBg: 'bg-slate-50',
-      iconColor: 'text-slate-700',
-      iconBorder: 'border-slate-200',
+      iconBg: 'bg-[var(--color-status-total-bg)]',
+      iconColor: 'text-[var(--color-status-total)]',
+      iconBorder: 'border-[var(--color-status-total-bg)]',
       helperText: 'Pendidik & tenaga kependidikan',
     },
     {
@@ -81,9 +81,9 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
       label: 'Hadir Tepat Waktu',
       value: summary?.onTimeToday ?? 0,
       icon: CheckCircle2,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
-      iconBorder: 'border-emerald-200',
+      iconBg: 'bg-[var(--color-status-present-bg)]',
+      iconColor: 'text-[var(--color-status-present)]',
+      iconBorder: 'border-[var(--color-status-present-bg)]',
       helperText:
         summary && summary.presentToday > 0
           ? `${summary.onTimeRate}% dari total hadir`
@@ -94,36 +94,66 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
       label: 'Terlambat',
       value: summary?.lateToday ?? 0,
       icon: Clock,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
-      iconBorder: 'border-amber-200',
+      iconBg: 'bg-[var(--color-status-late-bg)]',
+      iconColor: 'text-[var(--color-status-late)]',
+      iconBorder: 'border-[var(--color-status-late-bg)]',
       helperText: 'Melewati toleransi jam masuk',
     },
     {
-      key: 'excused',
-      label: 'Izin / Sakit / Dinas / Cuti',
-      value: summary?.excusedToday ?? 0,
+      key: 'official_duty',
+      label: 'Dinas Luar',
+      value: summary?.officialDutyToday ?? 0,
       icon: FileText,
-      iconBg: 'bg-orange-50',
-      iconColor: 'text-[#F97316]',
-      iconBorder: 'border-orange-200',
-      helperText: 'Pengajuan resmi disetujui',
+      iconBg: 'bg-[var(--color-status-official-duty-bg)]',
+      iconColor: 'text-[var(--color-status-official-duty)]',
+      iconBorder: 'border-[var(--color-status-official-duty-bg)]',
+      helperText: 'Tugas kedinasan luar kantor',
+    },
+    {
+      key: 'sick',
+      label: 'Sakit',
+      value: summary?.sickToday ?? 0,
+      icon: FileText,
+      iconBg: 'bg-[var(--color-status-sick-bg)]',
+      iconColor: 'text-[var(--color-status-sick)]',
+      iconBorder: 'border-[var(--color-status-sick-bg)]',
+      helperText: 'Surat keterangan sakit',
+    },
+    {
+      key: 'permission',
+      label: 'Izin',
+      value: summary?.permissionToday ?? 0,
+      icon: FileText,
+      iconBg: 'bg-[var(--color-status-permission-bg)]',
+      iconColor: 'text-[var(--color-status-permission)]',
+      iconBorder: 'border-[var(--color-status-permission-bg)]',
+      helperText: 'Izin meninggalkan tugas',
+    },
+    {
+      key: 'leave',
+      label: 'Cuti',
+      value: summary?.leaveToday ?? 0,
+      icon: FileText,
+      iconBg: 'bg-[var(--color-status-leave-bg)]',
+      iconColor: 'text-[var(--color-status-leave)]',
+      iconBorder: 'border-[var(--color-status-leave-bg)]',
+      helperText: 'Pengajuan cuti resmi',
     },
     {
       key: 'absent',
-      label: 'Belum Presensi',
+      label: 'Alpha',
       value: summary?.absentToday ?? 0,
       icon: UserX,
-      iconBg: 'bg-rose-50',
-      iconColor: 'text-rose-600',
-      iconBorder: 'border-rose-200',
+      iconBg: 'bg-[var(--color-status-absent-bg)]',
+      iconColor: 'text-[var(--color-status-absent)]',
+      iconBorder: 'border-[var(--color-status-absent-bg)]',
       helperText: absentHelper,
     },
   ];
 
   return (
     <section aria-label="Ringkasan Statistik Kehadiran GTK Hari Ini">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {cards.map((card) => {
           const Icon = card.icon;
           return (

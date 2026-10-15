@@ -139,9 +139,23 @@ export const attendanceReportService = {
       .order('name', { ascending: true });
 
     if (error) {
+      if (error.code === 'PGRST303') {
+        console.warn('JWT expired, refreshing session...');
+        await supabase.auth.refreshSession();
+        const { data: retryData, error: retryError } = await supabase
+          .from('departments')
+          .select('id, name')
+          .order('name', { ascending: true });
+        if (retryError) {
+          console.error('Error fetching departments after refresh:', retryError);
+          return [];
+        }
+        return (retryData || []) as { id: string; name: string }[];
+      }
       console.error('Error fetching departments for report:', error);
       return [];
     }
+
 
     return (data || []) as { id: string; name: string }[];
   },
@@ -159,9 +173,24 @@ export const attendanceReportService = {
       .order('name', { ascending: true });
 
     if (error) {
+      if (error.code === 'PGRST303') {
+        console.warn('JWT expired, refreshing session...');
+        await supabase.auth.refreshSession();
+        const { data: retryData, error: retryError } = await supabase
+          .from('locations')
+          .select('id, name')
+          .eq('is_active', true)
+          .order('name', { ascending: true });
+        if (retryError) {
+          console.error('Error fetching locations after refresh:', retryError);
+          return [];
+        }
+        return (retryData || []) as { id: string; name: string }[];
+      }
       console.error('Error fetching locations for report:', error);
       return [];
     }
+
 
     return (data || []) as { id: string; name: string }[];
   },
@@ -792,6 +821,8 @@ export const attendanceReportService = {
           codeValue = 'A';
         } else if (item.status === 'holiday') {
           codeValue = 'L';
+        } else if (item.status === 'pending') {
+          codeValue = '—';
         }
       }
 

@@ -262,7 +262,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
             {/* Header Kolom 1 */}
             <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shadow-2xs shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs shrink-0" style={{ backgroundColor: 'var(--color-status-present-bg)', borderColor: 'var(--color-status-present)', color: 'var(--color-status-present)' }}>
                   <Trophy className="w-5 h-5" />
                 </div>
                 <div>
@@ -270,7 +270,6 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                     <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
                       Top 5 GTK Paling Disiplin
                     </h3>
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Konsistensi ketepatan waktu hadir terbaik
@@ -279,8 +278,8 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
               </div>
 
               {/* Badge Periode Bulan */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-medium bg-emerald-50/80 text-emerald-800 border border-emerald-200/60 shrink-0">
-                <Calendar className="w-3 h-3 text-emerald-600" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-medium shrink-0" style={{ backgroundColor: 'var(--color-status-present-bg)', color: 'var(--color-status-present)' }}>
+                <Calendar className="w-3 h-3" style={{ color: 'var(--color-status-present)' }} />
                 <span>{monthLabel}</span>
               </div>
             </div>
@@ -305,17 +304,11 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                   return (
                     <div
                       key={item.employeeId}
-                      className="group flex items-center justify-between gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-100 hover:border-emerald-200/70 hover:bg-emerald-50/30 transition-colors duration-150"
+                      className="group flex items-center justify-between gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-100 hover:border-[var(--color-status-present)] hover:bg-[var(--color-status-present-bg)] transition-colors duration-150"
                     >
                       {/* Left: Rank, Avatar, Name & Dept */}
                       <div className="flex items-center gap-3 min-w-0">
                         <RankBadge rank={rank} variant="disciplined" />
-
-                        <EmployeeAvatar
-                          photoUrl={item.photoUrl}
-                          name={item.fullName}
-                          variant="disciplined"
-                        />
 
                         <div className="min-w-0">
                           <p
@@ -324,45 +317,18 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                           >
                             {item.fullName}
                           </p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-2xs text-slate-500 truncate max-w-[140px] sm:max-w-[200px]">
-                              {item.departmentName || 'Umum'}
-                            </span>
-                            {item.nip && (
-                              <>
-                                <span className="text-slate-300 text-2xs">•</span>
-                                <span className="text-2xs font-mono text-slate-400">
-                                  NIP {item.nip}
-                                </span>
-                              </>
-                            )}
-                          </div>
                         </div>
                       </div>
 
                       {/* Right: Metrics */}
                       <div className="flex flex-col items-end shrink-0 pl-2">
                         <div className="flex items-center gap-1">
-                          <span className="text-xs sm:text-sm font-bold font-mono text-emerald-600">
+                          <span className="text-xs sm:text-sm font-bold font-mono" style={{ color: 'var(--color-status-present)' }}>
                             {item.onTimeCount}
                           </span>
                           <span className="text-2xs text-slate-500 font-medium">
                             / {item.attendanceCount} hadir
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-2xs font-mono font-medium text-slate-600">
-                            {item.disciplineScore.toFixed(1)}% tepat
-                          </span>
-                          {item.lateCount > 0 ? (
-                            <span className="text-2xs font-mono text-amber-600">
-                              ({item.lateCount} telat)
-                            </span>
-                          ) : (
-                            <span className="text-2xs text-emerald-600 font-medium">
-                              (0 telat)
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -389,7 +355,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
             {/* Header Kolom 2 */}
             <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 shadow-2xs shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-2xs shrink-0" style={{ backgroundColor: 'var(--color-status-late-bg)', borderColor: 'var(--color-status-late)', color: 'var(--color-status-late)' }}>
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
@@ -397,7 +363,6 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                     <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
                       Top 5 Sering Terlambat
                     </h3>
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Frekuensi keterlambatan presensi masuk tertinggi
@@ -406,8 +371,8 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
               </div>
 
               {/* Badge Periode Bulan */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-medium bg-amber-50/80 text-amber-800 border border-amber-200/60 shrink-0">
-                <Calendar className="w-3 h-3 text-amber-600" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-medium shrink-0" style={{ backgroundColor: 'var(--color-status-late-bg)', color: 'var(--color-status-late)' }}>
+                <Calendar className="w-3 h-3" style={{ color: 'var(--color-status-late)' }} />
                 <span>{monthLabel}</span>
               </div>
             </div>
@@ -432,17 +397,11 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                   return (
                     <div
                       key={item.employeeId}
-                      className="group flex items-center justify-between gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-100 hover:border-amber-200/70 hover:bg-amber-50/30 transition-colors duration-150"
+                      className="group flex items-center justify-between gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-100 hover:border-[var(--color-status-late)] hover:bg-[var(--color-status-late-bg)] transition-colors duration-150"
                     >
                       {/* Left: Rank, Avatar, Name & Dept */}
                       <div className="flex items-center gap-3 min-w-0">
                         <RankBadge rank={rank} variant="late" />
-
-                        <EmployeeAvatar
-                          photoUrl={item.photoUrl}
-                          name={item.fullName}
-                          variant="late"
-                        />
 
                         <div className="min-w-0">
                           <p
@@ -451,38 +410,17 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                           >
                             {item.fullName}
                           </p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-2xs text-slate-500 truncate max-w-[140px] sm:max-w-[200px]">
-                              {item.departmentName || 'Umum'}
-                            </span>
-                            {item.nip && (
-                              <>
-                                <span className="text-slate-300 text-2xs">•</span>
-                                <span className="text-2xs font-mono text-slate-400">
-                                  NIP {item.nip}
-                                </span>
-                              </>
-                            )}
-                          </div>
                         </div>
                       </div>
 
                       {/* Right: Metrics */}
                       <div className="flex flex-col items-end shrink-0 pl-2">
                         <div className="flex items-center gap-1">
-                          <span className="text-xs sm:text-sm font-bold font-mono text-amber-600">
+                          <span className="text-xs sm:text-sm font-bold font-mono" style={{ color: 'var(--color-status-late)' }}>
                             {item.lateCount} kali
                           </span>
                           <span className="text-2xs text-slate-500 font-medium">
                             terlambat
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-2xs font-mono text-slate-500">
-                            dari {item.attendanceCount} kehadiran
-                          </span>
-                          <span className="text-2xs font-mono text-emerald-600">
-                            ({item.onTimeCount} tepat)
                           </span>
                         </div>
                       </div>
