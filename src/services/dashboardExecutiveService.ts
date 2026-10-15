@@ -14,6 +14,10 @@ export interface ExecutiveSummary {
   onTimeToday: number;
   lateToday: number;
   excusedToday: number;
+  officialDutyToday: number;
+  sickToday: number;
+  permissionToday: number;
+  leaveToday: number;
   /**
    * Jumlah GTK aktif yang belum melakukan check-in dan tidak memiliki pengajuan izin/cuti/dinas yang disetujui.
    * Pada jam operasional hari berjalan, ini merefleksikan "Belum Presensi".
@@ -251,6 +255,7 @@ export const dashboardExecutiveService = {
 
       // Map: date -> Set<employee_id> with approved requests
       const excusedByDate = new Map<string, Set<string>>();
+      const requestTypeByDateAndEmp = new Map<string, Map<string, string>>();
       approvedRequests.forEach((req) => {
         const empId = req.employee_id;
         if (!empId || !req.start_date || !req.end_date) return;
@@ -265,6 +270,13 @@ export const dashboardExecutiveService = {
             excusedByDate.set(d, s);
           }
           s.add(empId);
+
+          let empMap = requestTypeByDateAndEmp.get(d);
+          if (!empMap) {
+            empMap = new Map();
+            requestTypeByDateAndEmp.set(d, empMap);
+          }
+          empMap.set(empId, req.request_type);
         });
       });
 
@@ -279,11 +291,16 @@ export const dashboardExecutiveService = {
 
       const todayAttendanceMap = attendanceByDateAndEmp.get(todayDate) || new Map();
       const todayExcusedSet = excusedByDate.get(todayDate) || new Set();
+      const todayRequestMap = requestTypeByDateAndEmp.get(todayDate) || new Map();
 
       let presentToday = 0;
       let onTimeToday = 0;
       let lateToday = 0;
       let excusedToday = 0;
+      let officialDutyToday = 0;
+      let sickToday = 0;
+      let permissionToday = 0;
+      let leaveToday = 0;
       let absentToday = 0;
 
       activeEmployees.forEach((emp) => {
@@ -301,6 +318,16 @@ export const dashboardExecutiveService = {
         // Prioritas 2: Pengajuan Izin/Cuti/Dinas yang Disetujui (Approved Request)
         else if (todayExcusedSet.has(emp.id)) {
           excusedToday++;
+          const reqType = todayRequestMap.get(emp.id);
+          if (reqType === 'official_duty') {
+            officialDutyToday++;
+          } else if (reqType === 'sick') {
+            sickToday++;
+          } else if (reqType === 'leave') {
+            leaveToday++;
+          } else {
+            permissionToday++;
+          }
         }
         // Prioritas 3: Belum Presensi / Tanpa Keterangan
         else {
@@ -319,6 +346,10 @@ export const dashboardExecutiveService = {
         onTimeToday,
         lateToday,
         excusedToday,
+        officialDutyToday,
+        sickToday,
+        permissionToday,
+        leaveToday,
         absentToday,
         onTimeRate,
         attendanceRate,

@@ -101,30 +101,42 @@ export const holidayService = {
    */
   async getHolidays(filters?: HolidayFilters): Promise<HolidayModel[]> {
     try {
-      let query = supabase
-        .from('holidays')
-        .select('*')
-        .order('holiday_date', { ascending: true })
-        .order('name', { ascending: true });
+      const executeQuery = async () => {
+        let query = supabase
+          .from('holidays')
+          .select('*')
+          .order('holiday_date', { ascending: true })
+          .order('name', { ascending: true });
 
-      // Year filter (from Jan 1 to Dec 31 of specified year)
-      if (filters?.year) {
-        const startOfYear = `${filters.year}-01-01`;
-        const endOfYear = `${filters.year}-12-31`;
-        query = query.gte('holiday_date', startOfYear).lte('holiday_date', endOfYear);
+        // Year filter (from Jan 1 to Dec 31 of specified year)
+        if (filters?.year) {
+          const startOfYear = `${filters.year}-01-01`;
+          const endOfYear = `${filters.year}-12-31`;
+          query = query.gte('holiday_date', startOfYear).lte('holiday_date', endOfYear);
+        }
+
+        // Holiday Type filter
+        if (filters?.holidayType && filters.holidayType !== 'all') {
+          query = query.eq('holiday_type', filters.holidayType);
+        }
+
+        // Active status filter
+        if (filters?.isActive !== undefined && filters.isActive !== 'all') {
+          query = query.eq('is_active', filters.isActive);
+        }
+
+        return await query;
+      };
+
+      let { data, error } = await executeQuery();
+
+      if (error && error.code === 'PGRST303') {
+        console.warn('JWT expired in holidayService, refreshing session...');
+        await supabase.auth.refreshSession();
+        const retry = await executeQuery();
+        data = retry.data;
+        error = retry.error;
       }
-
-      // Holiday Type filter
-      if (filters?.holidayType && filters.holidayType !== 'all') {
-        query = query.eq('holiday_type', filters.holidayType);
-      }
-
-      // Active status filter
-      if (filters?.isActive !== undefined && filters.isActive !== 'all') {
-        query = query.eq('is_active', filters.isActive);
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         if ((error as any)?.code === 'PGRST205' || (error as any)?.message?.includes('schema cache')) {

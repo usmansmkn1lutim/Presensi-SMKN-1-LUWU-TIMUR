@@ -201,10 +201,21 @@ export const attendanceReportService = {
   async getEmployees(): Promise<{ id: string; name: string; nip: string | null }[]> {
     if (!isSupabaseConfigured()) return [];
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('employees')
       .select('id, full_name, nip')
       .order('full_name', { ascending: true });
+
+    if (error && error.code === 'PGRST303') {
+      console.warn('JWT expired in getEmployees, refreshing session...');
+      await supabase.auth.refreshSession();
+      const retry = await supabase
+        .from('employees')
+        .select('id, full_name, nip')
+        .order('full_name', { ascending: true });
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error('Error fetching employees list for report:', error);
@@ -256,12 +267,25 @@ export const attendanceReportService = {
     }
 
     // 1. Fetch active holidays in date range
-    const { data: holidaysData, error: holError } = await supabase
+    let { data: holidaysData, error: holError } = await supabase
       .from('holidays')
       .select('holiday_date')
       .eq('is_active', true)
       .gte('holiday_date', startDate)
       .lte('holiday_date', endDate);
+
+    if (holError && holError.code === 'PGRST303') {
+      console.warn('JWT expired in fetchRawAttendanceRecords (holidays), refreshing session...');
+      await supabase.auth.refreshSession();
+      const retry = await supabase
+        .from('holidays')
+        .select('holiday_date')
+        .eq('is_active', true)
+        .gte('holiday_date', startDate)
+        .lte('holiday_date', endDate);
+      holidaysData = retry.data;
+      holError = retry.error;
+    }
 
     if (holError) {
       console.error('Error fetching holidays for report:', holError);
@@ -296,7 +320,15 @@ export const attendanceReportService = {
       empQuery = empQuery.eq('id', employeeId);
     }
 
-    const { data: employeesData, error: empError } = await empQuery;
+    let { data: employeesData, error: empError } = await empQuery;
+
+    if (empError && empError.code === 'PGRST303') {
+      console.warn('JWT expired in fetchRawAttendanceRecords (employees), refreshing session...');
+      await supabase.auth.refreshSession();
+      const retry = await empQuery;
+      employeesData = retry.data;
+      empError = retry.error;
+    }
 
     if (empError) {
       console.error('Error fetching employees for report:', empError);
@@ -363,7 +395,15 @@ export const attendanceReportService = {
 
     query = query.order('attendance_date', { ascending: false });
 
-    const { data: attendanceData, error: attError } = await query;
+    let { data: attendanceData, error: attError } = await query;
+
+    if (attError && attError.code === 'PGRST303') {
+      console.warn('JWT expired in fetchRawAttendanceRecords (attendance), refreshing session...');
+      await supabase.auth.refreshSession();
+      const retry = await query;
+      attendanceData = retry.data;
+      attError = retry.error;
+    }
 
     if (attError) {
       console.error('Error fetching attendance for report from database:', attError);

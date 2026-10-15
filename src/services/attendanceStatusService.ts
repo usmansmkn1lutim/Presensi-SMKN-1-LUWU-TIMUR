@@ -261,7 +261,24 @@ export function evaluateDailyStatus(
   }
 
   // FUTURE WORKING DAY (No status evaluated yet)
-
+  return {
+    date,
+    employeeId: employee.id,
+    employeeName: employee.full_name,
+    nip: employee.nip,
+    departmentName: deptName,
+    status: 'holiday',
+    statusLabel: 'Masa Depan',
+    substatus: null,
+    substatusLabel: null,
+    notes: 'Jadwal Kerja Mendatang',
+    checkInAt: null,
+    checkOutAt: null,
+    checkInLocation: null,
+    checkOutLocation: null,
+    source: 'calendar',
+    sourceId: null,
+  };
 }
 
 export const attendanceStatusService = {
