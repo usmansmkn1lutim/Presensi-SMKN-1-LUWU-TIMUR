@@ -3,11 +3,13 @@ import React from 'react';
 interface SchoolLogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'light' | 'dark';
 }
 
 export const SchoolLogo: React.FC<SchoolLogoProps> = ({
   className = '',
   size = 'md',
+  variant = 'light',
 }) => {
   const sizeMap = {
     sm: 'w-8 h-8',
@@ -16,9 +18,11 @@ export const SchoolLogo: React.FC<SchoolLogoProps> = ({
     xl: 'w-20 h-20',
   };
 
+  const logoSrc = variant === 'dark' ? '/logo-dark.svg' : '/logo.svg';
+
   return (
     <img
-      src="/logo.svg"
+      src={logoSrc}
       alt="Logo Sekolah"
       className={`block border-0 outline-none ring-0 shadow-none bg-transparent object-contain ${sizeMap[size]} ${className}`.trim()}
       style={{

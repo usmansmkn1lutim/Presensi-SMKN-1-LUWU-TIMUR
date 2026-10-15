@@ -71,8 +71,8 @@ export const LoginPage: React.FC = () => {
         <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 shadow-xs">
           {/* Header & Logo */}
           <div className="text-center mb-6 sm:mb-8">
-            <div className="flex justify-center mb-3">
-              <SchoolLogo size="lg" />
+            <div className="flex justify-center mb-3 mt-4">
+              <SchoolLogo size="lg" variant="dark" className="w-[90px] h-[90px]" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-normal text-[#F97316] tracking-tight font-casual">
               Tamaki
