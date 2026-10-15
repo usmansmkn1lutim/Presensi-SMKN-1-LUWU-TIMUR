@@ -107,10 +107,19 @@ export function evaluateDailyStatus(
 ): EvaluatedStatusResult {
   const deptName = employee.departmentName || 'Satuan Pendidikan';
 
+  // DIAGNOSTIC START
+  const endMins = schedule ? parseTimeToMinutes(schedule.check_in_end_time) : -1;
+  const currentMins = dateToMinutes(currentTime);
+  // DIAGNOSTIC END
+
   // PRIORITAS 1: PHYSICAL ATTENDANCE
   if (attendance) {
     const isLate = attendance.check_in_status === 'late';
     const substatus: AttendanceSubstatus = isLate ? 'late' : 'on_time';
+    
+    // DIAGNOSTIC LOG (Present)
+    console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: present, CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
+    
     return {
       date,
       employeeId: employee.id,
@@ -143,6 +152,9 @@ export function evaluateDailyStatus(
     } else if (approvedRequest.request_type === 'leave') {
       status = 'leave';
     }
+    
+    // DIAGNOSTIC LOG (Request)
+    console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: ${status}, CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
 
     return {
       date,
@@ -166,6 +178,9 @@ export function evaluateDailyStatus(
 
   // PRIORITAS 3: OFFICIAL ACTIVE HOLIDAY
   if (holiday && (holiday.is_active !== false)) {
+    // DIAGNOSTIC LOG (Holiday)
+    console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: holiday, CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
+    
     return {
       date,
       employeeId: employee.id,
@@ -190,6 +205,9 @@ export function evaluateDailyStatus(
   const [y, m, d] = date.split('-').map(Number);
   const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay(); // 0 = Sun, 6 = Sat
   if (dayOfWeek === 0 || dayOfWeek === 6) {
+    // DIAGNOSTIC LOG (Weekend)
+    console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: holiday (weekend), CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
+    
     return {
       date,
       employeeId: employee.id,
@@ -212,10 +230,10 @@ export function evaluateDailyStatus(
 
   // PRIORITAS 5: PREMATURE ALPHA PREVENTION (Today's operational check)
   if (date === todayStr) {
-    const endMins = schedule ? parseTimeToMinutes(schedule.check_in_end_time) : -1;
-    const currentMins = dateToMinutes(currentTime);
-
     if (endMins !== -1 && currentMins < endMins) {
+      // DIAGNOSTIC LOG (Pending)
+      console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: pending, CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
+      
       return {
         date,
         employeeId: employee.id,
@@ -239,6 +257,9 @@ export function evaluateDailyStatus(
 
   // PRIORITAS 6: ALPHA / TANPA KETERANGAN (Only for working days up to today)
   if (date <= todayStr) {
+    // DIAGNOSTIC LOG (Absent)
+    console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: absent, CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
+    
     return {
       date,
       employeeId: employee.id,
@@ -260,24 +281,9 @@ export function evaluateDailyStatus(
   }
 
   // FUTURE WORKING DAY (No status evaluated yet)
-  return {
-    date,
-    employeeId: employee.id,
-    employeeName: employee.full_name,
-    nip: employee.nip,
-    departmentName: deptName,
-    status: 'holiday',
-    statusLabel: 'Masa Depan',
-    substatus: null,
-    substatusLabel: null,
-    notes: 'Jadwal Kerja Mendatang',
-    checkInAt: null,
-    checkOutAt: null,
-    checkInLocation: null,
-    checkOutLocation: null,
-    source: 'calendar',
-    sourceId: null,
-  };
+  // DIAGNOSTIC LOG (Future)
+  console.log(`[Diagnostic] Date: ${date}, Today: ${todayStr}, Status: future, CurrentMins: ${currentMins}, EndMins: ${endMins}, TimeUTC: ${currentTime.toISOString()}`);
+
 }
 
 export const attendanceStatusService = {
