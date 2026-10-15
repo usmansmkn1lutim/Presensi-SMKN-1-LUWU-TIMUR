@@ -1,5 +1,7 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { formatAttendanceError } from './attendanceService';
+import { evaluateDailyStatus } from './attendanceStatusService';
+import { workScheduleService } from './workScheduleService';
 import {
   getMakassarTodayDateString,
   formatMakassarShortDate,
@@ -32,17 +34,21 @@ export interface ExecutiveSummary {
 }
 
 export interface TodayDonutDistribution {
+  hadir: number;
+  pending: number;
+  alpha: number;
+  lainnya: number;
+  total: number;
+  percentages: {
+    hadir: number;
+    pending: number;
+    alpha: number;
+    lainnya: number;
+  };
   onTime: number;
   late: number;
   excused: number;
   absent: number;
-  total: number;
-  percentages: {
-    onTime: number;
-    late: number;
-    excused: number;
-    absent: number;
-  };
 }
 
 export interface TrendPoint {
@@ -51,6 +57,10 @@ export interface TrendPoint {
   shortDate: string; // 13 Okt
   isHoliday: boolean;
   isWeekend: boolean;
+  hadirCount: number;
+  pendingCount: number;
+  alphaCount: number;
+  lainnyaCount: number;
   presentCount: number;
   onTimeCount: number;
   lateCount: number;
@@ -280,6 +290,33 @@ export const dashboardExecutiveService = {
         });
       });
 
+      // Fetch active work schedule and request objects for robust evaluation
+      const activeSchedule = await workScheduleService.getActiveWorkSchedule();
+      const holidayObjectByDate = new Map<string, any>();
+      (holidaysData || []).forEach((h) => {
+        if (h.holiday_date) {
+          holidayObjectByDate.set(h.holiday_date, h);
+        }
+      });
+
+      const requestByDateAndEmp = new Map<string, Map<string, any>>();
+      approvedRequests.forEach((req) => {
+        const empId = req.employee_id;
+        if (!empId || !req.start_date || !req.end_date) return;
+        const overlappingDates = iterateDateRange(
+          req.start_date < minStartDate ? minStartDate : req.start_date,
+          req.end_date > todayDate ? todayDate : req.end_date
+        );
+        overlappingDates.forEach((d) => {
+          let empMap = requestByDateAndEmp.get(d);
+          if (!empMap) {
+            empMap = new Map();
+            requestByDateAndEmp.set(d, empMap);
+          }
+          empMap.set(empId, req);
+        });
+      });
+
       // ==========================================
       // SECTION A: SUMMARY TODAY (Cards 1-5)
       // ==========================================
@@ -290,8 +327,9 @@ export const dashboardExecutiveService = {
       const holidayNameToday = holidayMap.get(todayDate) || null;
 
       const todayAttendanceMap = attendanceByDateAndEmp.get(todayDate) || new Map();
-      const todayExcusedSet = excusedByDate.get(todayDate) || new Set();
-      const todayRequestMap = requestTypeByDateAndEmp.get(todayDate) || new Map();
+      const todayRequestMap = requestByDateAndEmp.get(todayDate) || new Map();
+      const todayHolidayObj = holidayObjectByDate.get(todayDate) || null;
+      const currentTime = new Date();
 
       let presentToday = 0;
       let onTimeToday = 0;
@@ -303,42 +341,68 @@ export const dashboardExecutiveService = {
       let leaveToday = 0;
       let absentToday = 0;
 
+      let hadirToday = 0;
+      let pendingToday = 0;
+      let alphaToday = 0;
+      let lainnyaToday = 0;
+
       activeEmployees.forEach((emp) => {
-        const att = todayAttendanceMap.get(emp.id);
-        // Prioritas 1: Presensi Fisik Tercatat (Physical Attendance Precedence)
+        const att = todayAttendanceMap.get(emp.id) || null;
+        const req = todayRequestMap.get(emp.id) || null;
+        const evaluated = evaluateDailyStatus(
+          todayDate,
+          emp,
+          att,
+          req,
+          todayHolidayObj,
+          todayDate,
+          activeSchedule,
+          currentTime
+        );
+
+        // Legacy summary metrics for stat cards
         if (att && att.check_in_at) {
           presentToday++;
           if (att.check_in_status === 'late') {
             lateToday++;
           } else {
-            // Default on_time jika tidak late
             onTimeToday++;
           }
-        }
-        // Prioritas 2: Pengajuan Izin/Cuti/Dinas yang Disetujui (Approved Request)
-        else if (todayExcusedSet.has(emp.id)) {
+        } else if (req && req.status === 'approved') {
           excusedToday++;
-          const reqType = todayRequestMap.get(emp.id);
-          if (reqType === 'official_duty') {
+          if (req.request_type === 'official_duty') {
             officialDutyToday++;
-          } else if (reqType === 'sick') {
+          } else if (req.request_type === 'sick') {
             sickToday++;
-          } else if (reqType === 'leave') {
+          } else if (req.request_type === 'leave') {
             leaveToday++;
           } else {
             permissionToday++;
           }
-        }
-        // Prioritas 3: Belum Presensi / Tanpa Keterangan
-        else {
+        } else if (evaluated.status === 'absent') {
           absentToday++;
+        }
+
+        // 4 Categories mapping
+        if (evaluated.status === 'present' || evaluated.status === 'official_duty') {
+          hadirToday++;
+        } else if (evaluated.status === 'pending') {
+          pendingToday++;
+        } else if (evaluated.status === 'absent') {
+          alphaToday++;
+        } else if (
+          evaluated.status === 'sick' ||
+          evaluated.status === 'permit' ||
+          evaluated.status === 'leave'
+        ) {
+          lainnyaToday++;
         }
       });
 
       const onTimeRate =
         presentToday > 0 ? Number(((onTimeToday / presentToday) * 100).toFixed(1)) : 0;
       const attendanceRate =
-        totalActiveGtk > 0 ? Number(((presentToday / totalActiveGtk) * 100).toFixed(1)) : 0;
+        totalActiveGtk > 0 ? Number(((hadirToday / totalActiveGtk) * 100).toFixed(1)) : 0;
 
       const summary: ExecutiveSummary = {
         totalActiveGtk,
@@ -359,21 +423,25 @@ export const dashboardExecutiveService = {
       };
 
       // ==========================================
-      // SECTION B: TODAY DONUT DISTRIBUTION
+      // SECTION B: TODAY DONUT DISTRIBUTION (4 Categories)
       // ==========================================
       const totalPie = totalActiveGtk > 0 ? totalActiveGtk : 1;
       const donutDistribution: TodayDonutDistribution = {
+        hadir: hadirToday,
+        pending: pendingToday,
+        alpha: alphaToday,
+        lainnya: lainnyaToday,
+        total: totalActiveGtk,
+        percentages: {
+          hadir: Number(((hadirToday / totalPie) * 100).toFixed(1)),
+          pending: Number(((pendingToday / totalPie) * 100).toFixed(1)),
+          alpha: Number(((alphaToday / totalPie) * 100).toFixed(1)),
+          lainnya: Number(((lainnyaToday / totalPie) * 100).toFixed(1)),
+        },
         onTime: onTimeToday,
         late: lateToday,
         excused: excusedToday,
         absent: absentToday,
-        total: totalActiveGtk,
-        percentages: {
-          onTime: Number(((onTimeToday / totalPie) * 100).toFixed(1)),
-          late: Number(((lateToday / totalPie) * 100).toFixed(1)),
-          excused: Number(((excusedToday / totalPie) * 100).toFixed(1)),
-          absent: Number(((absentToday / totalPie) * 100).toFixed(1)),
-        },
       };
 
       // ==========================================
@@ -381,41 +449,61 @@ export const dashboardExecutiveService = {
       // ==========================================
       const buildTrendPoint = (dStr: string): TrendPoint => {
         const [y, m, d] = dStr.split('-').map(Number);
-        const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay(); // 0 Sun, 6 Sat
+        const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay();
         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
         const isHoliday = holidaySet.has(dStr);
 
         const dayAttMap = attendanceByDateAndEmp.get(dStr) || new Map();
-        const dayExcSet = excusedByDate.get(dStr) || new Set();
+        const dayReqMap = requestTypeByDateAndEmp.get(dStr) || new Map();
+        const dayHolidayObj = holidayObjectByDate.get(dStr) || null;
+
+        let hadirCount = 0;
+        let pendingCount = 0;
+        let alphaCount = 0;
+        let lainnyaCount = 0;
 
         let pCount = 0;
         let otCount = 0;
         let lCount = 0;
         let eCount = 0;
-        let abCount = 0;
 
         activeEmployees.forEach((emp) => {
-          const att = dayAttMap.get(emp.id);
-          if (att && att.check_in_at) {
+          const att = dayAttMap.get(emp.id) || null;
+          const req = dayReqMap.get(emp.id) || null;
+          const evaluated = evaluateDailyStatus(
+            dStr,
+            emp,
+            att,
+            req,
+            dayHolidayObj,
+            todayDate,
+            activeSchedule,
+            currentTime
+          );
+
+          if (evaluated.status === 'present' || evaluated.status === 'official_duty') {
+            hadirCount++;
             pCount++;
-            if (att.check_in_status === 'late') {
-              lCount++;
-            } else {
-              otCount++;
+            if (evaluated.status === 'present') {
+              if (evaluated.substatus === 'late') lCount++;
+              else otCount++;
             }
-          } else if (dayExcSet.has(emp.id)) {
+          } else if (evaluated.status === 'pending') {
+            pendingCount++;
+          } else if (evaluated.status === 'absent') {
+            alphaCount++;
+          } else if (
+            evaluated.status === 'sick' ||
+            evaluated.status === 'permit' ||
+            evaluated.status === 'leave'
+          ) {
+            lainnyaCount++;
             eCount++;
-          } else {
-            // Hanya dihitung alpa jika merupakan hari kerja aktif
-            if (!isWeekend && !isHoliday) {
-              abCount++;
-            }
           }
         });
 
-        // Persentase kehadiran terhadap total GTK aktif
         const attRate =
-          totalActiveGtk > 0 ? Number(((pCount / totalActiveGtk) * 100).toFixed(1)) : 0;
+          totalActiveGtk > 0 ? Number(((hadirCount / totalActiveGtk) * 100).toFixed(1)) : 0;
 
         return {
           date: dStr,
@@ -423,11 +511,15 @@ export const dashboardExecutiveService = {
           shortDate: formatShortDateLabel(dStr),
           isHoliday,
           isWeekend,
-          presentCount: pCount,
+          hadirCount,
+          pendingCount,
+          alphaCount,
+          lainnyaCount,
+          presentCount: hadirCount,
           onTimeCount: otCount,
           lateCount: lCount,
           excusedCount: eCount,
-          absentCount: abCount,
+          absentCount: alphaCount,
           attendanceRate: attRate,
         };
       };

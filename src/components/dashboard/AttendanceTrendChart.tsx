@@ -135,7 +135,10 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
   // Hitung skala maksimum stacked bar
   const maxStackValue = trendData.reduce((max, point) => {
     const totalDay =
-      point.onTimeCount + point.lateCount + point.excusedCount + point.absentCount;
+      (point.hadirCount ?? point.presentCount ?? 0) +
+      (point.pendingCount ?? 0) +
+      (point.alphaCount ?? point.absentCount ?? 0) +
+      (point.lainnyaCount ?? point.excusedCount ?? 0);
     return Math.max(max, totalDay);
   }, 0);
 
@@ -187,7 +190,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Komposisi kumulatif ketepatan waktu, keterlambatan, izin, dan alpa pada hari kerja
+            Komposisi kumulatif hadir, belum presensi, alpha, dan lainnya pada hari kerja
           </p>
         </div>
 
@@ -227,20 +230,20 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600 pt-0.5">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#7C2D12]" aria-hidden="true" />
-          <span>Tepat Waktu</span>
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#39805A]" aria-hidden="true" />
+          <span>Hadir</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#C2410C]" aria-hidden="true" />
-          <span>Terlambat</span>
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#64748B]" aria-hidden="true" />
+          <span>Belum Presensi</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#EA580C]" aria-hidden="true" />
-          <span>Izin / Cuti / Dinas</span>
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#F4382C]" aria-hidden="true" />
+          <span>Alpha</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-xs bg-[#FFEDD5] border border-[#FED7AA]" aria-hidden="true" />
-          <span>Belum / Alpa</span>
+          <span className="w-2.5 h-2.5 rounded-xs bg-[#8669AC]" aria-hidden="true" />
+          <span>Lainnya (Sakit/Izin/Cuti)</span>
         </div>
       </div>
 
@@ -254,7 +257,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
           </p>
         </div>
       ) : (
-        <div className="relative w-full overflow-hidden select-none">
+        <div className="relative w-full overflow-visible select-none">
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
             className="w-full h-auto overflow-visible block"
@@ -266,11 +269,11 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
               {trendData.map((point, index) => {
                 const centerX = paddingLeft + (index + 0.5) * slotWidth;
                 const barX = centerX - barWidth / 2;
-                const onTimeH = (point.onTimeCount / yMax) * plotHeight;
-                const lateH = (point.lateCount / yMax) * plotHeight;
-                const excusedH = (point.excusedCount / yMax) * plotHeight;
-                const absentH = (point.absentCount / yMax) * plotHeight;
-                const totalBarHeight = onTimeH + lateH + excusedH + absentH;
+                const hadirH = ((point.hadirCount ?? point.presentCount ?? 0) / yMax) * plotHeight;
+                const pendingH = ((point.pendingCount ?? 0) / yMax) * plotHeight;
+                const alphaH = ((point.alphaCount ?? point.absentCount ?? 0) / yMax) * plotHeight;
+                const lainnyaH = ((point.lainnyaCount ?? point.excusedCount ?? 0) / yMax) * plotHeight;
+                const totalBarHeight = hadirH + pendingH + alphaH + lainnyaH;
                 const totalBarTop = paddingTop + plotHeight - totalBarHeight;
                 const barRadius = Math.max(2, Math.min(Math.round(barWidth * 0.2), 6));
 
@@ -328,30 +331,29 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
               const isNonWorkingDay = point.isWeekend || point.isHoliday;
 
               // Hitung ketinggian setiap stack
-              const onTimeH = (point.onTimeCount / yMax) * plotHeight;
-              const lateH = (point.lateCount / yMax) * plotHeight;
-              const excusedH = (point.excusedCount / yMax) * plotHeight;
-              const absentH = (point.absentCount / yMax) * plotHeight;
-              const totalBarHeight = onTimeH + lateH + excusedH + absentH;
+              const hadirH = ((point.hadirCount ?? point.presentCount ?? 0) / yMax) * plotHeight;
+              const pendingH = ((point.pendingCount ?? 0) / yMax) * plotHeight;
+              const alphaH = ((point.alphaCount ?? point.absentCount ?? 0) / yMax) * plotHeight;
+              const lainnyaH = ((point.lainnyaCount ?? point.excusedCount ?? 0) / yMax) * plotHeight;
+              const totalBarHeight = hadirH + pendingH + alphaH + lainnyaH;
 
               // Titik awal dari bawah ke atas
               let currentBottom = paddingTop + plotHeight;
 
-              const onTimeY = currentBottom - onTimeH;
-              currentBottom = onTimeY;
+              const hadirY = currentBottom - hadirH;
+              currentBottom = hadirY;
 
-              const lateY = currentBottom - lateH;
-              currentBottom = lateY;
+              const pendingY = currentBottom - pendingH;
+              currentBottom = pendingY;
 
-              const excusedY = currentBottom - excusedH;
-              currentBottom = excusedY;
+              const alphaY = currentBottom - alphaH;
+              currentBottom = alphaY;
 
-              const absentY = currentBottom - absentH;
+              const lainnyaY = currentBottom - lainnyaH;
 
               // Tentukan apakah label X-axis ditampilkan (hindari tabrakan di 4W)
               let showXLabel = true;
               if (activeRange === '4W') {
-                // Di 4W, tampilkan label setiap 4 atau 5 bar, serta hari pertama & terakhir
                 showXLabel =
                   index === 0 ||
                   index === count - 1 ||
@@ -365,7 +367,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   role="graphics-symbol"
-                  aria-label={`${point.dayName}, ${point.shortDate}: ${point.presentCount} hadir`}
+                  aria-label={`${point.dayName}, ${point.shortDate}: ${point.hadirCount ?? point.presentCount} hadir`}
                 >
                   {/* Kolom latar belakang untuk akhir pekan / hari libur */}
                   {isNonWorkingDay && (
@@ -395,50 +397,50 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                   {/* Stack Segments with Rounded Outer Corners via SVG clipPath */}
                   {totalBarHeight > 0 && (
                     <g clipPath={`url(#${safeChartId}-bar-clip-${index})`}>
-                      {/* 1. Tepat Waktu (Orange 900 #7C2D12) */}
-                      {onTimeH > 0 && (
+                      {/* 1. Hadir (#39805A) */}
+                      {hadirH > 0 && (
                         <rect
                           x={barX}
-                          y={onTimeY}
+                          y={hadirY}
                           width={barWidth}
-                          height={onTimeH}
-                          fill={ATTENDANCE_STATUS_TOKENS.onTime.hex}
+                          height={hadirH}
+                          fill="#39805A"
                           className="transition-all duration-150"
                         />
                       )}
 
-                      {/* 2. Terlambat (Orange 700 #C2410C) */}
-                      {lateH > 0 && (
+                      {/* 2. Belum Presensi (#64748B) */}
+                      {pendingH > 0 && (
                         <rect
                           x={barX}
-                          y={lateY}
+                          y={pendingY}
                           width={barWidth}
-                          height={lateH}
-                          fill={ATTENDANCE_STATUS_TOKENS.late.hex}
+                          height={pendingH}
+                          fill="#64748B"
                           className="transition-all duration-150"
                         />
                       )}
 
-                      {/* 3. Izin/Cuti/Dinas (Orange 600 #EA580C) */}
-                      {excusedH > 0 && (
+                      {/* 3. Alpha (#F4382C) */}
+                      {alphaH > 0 && (
                         <rect
                           x={barX}
-                          y={excusedY}
+                          y={alphaY}
                           width={barWidth}
-                          height={excusedH}
-                          fill={ATTENDANCE_STATUS_TOKENS.officialDuty.hex}
+                          height={alphaH}
+                          fill="#F4382C"
                           className="transition-all duration-150"
                         />
                       )}
 
-                      {/* 4. Belum/Alpa (Orange 100 #FFEDD5) */}
-                      {absentH > 0 && (
+                      {/* 4. Lainnya (#8669AC) */}
+                      {lainnyaH > 0 && (
                         <rect
                           x={barX}
-                          y={absentY}
+                          y={lainnyaY}
                           width={barWidth}
-                          height={absentH}
-                          fill={ATTENDANCE_STATUS_TOKENS.absent.hex}
+                          height={lainnyaH}
+                          fill="#8669AC"
                           className="transition-all duration-150"
                         />
                       )}
@@ -490,89 +492,99 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
           </svg>
 
           {/* Interactive Floating Tooltip */}
-          {hoveredPoint && hoveredIndex !== null && (
-            <div
-              className="absolute z-20 pointer-events-none transform -translate-x-1/2 transition-all duration-75"
-              style={{
-                left: `${
-                  ((paddingLeft + (hoveredIndex + 0.5) * slotWidth) / svgWidth) * 100
-                }%`,
-                top: '8px',
-              }}
-            >
-              <div className="bg-slate-900/95 text-white backdrop-blur-xs rounded-xl px-3.5 py-2.5 shadow-xl text-xs space-y-1.5 border border-slate-700/60 min-w-[190px]">
-                {/* Header Tooltip */}
-                <div className="flex items-center justify-between gap-2 border-b border-slate-700/80 pb-1.5">
-                  <div className="font-semibold text-slate-100 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>
-                      {hoveredPoint.dayName}, {hoveredPoint.shortDate}
-                    </span>
-                  </div>
-                  {hoveredPoint.isHoliday ? (
-                    <span className="text-[10px] bg-rose-900/80 text-rose-200 px-1.5 py-0.5 rounded-sm">
-                      Libur
-                    </span>
-                  ) : hoveredPoint.isWeekend ? (
-                    <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded-sm">
-                      Akhir Pekan
-                    </span>
-                  ) : null}
-                </div>
+          {hoveredPoint && hoveredIndex !== null && (() => {
+            const ratio = count > 1 ? hoveredIndex / (count - 1) : 0.5;
+            let transformClass = '-translate-x-1/2';
+            if (ratio < 0.25) {
+              transformClass = 'translate-x-0';
+            } else if (ratio > 0.75) {
+              transformClass = '-translate-x-full';
+            }
 
-                {/* Komposisi Presensi */}
-                <div className="space-y-1 pt-0.5">
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-xs bg-[#10B981]" />
-                      Tepat Waktu:
-                    </span>
-                    <span className="font-semibold text-white">
-                      {hoveredPoint.onTimeCount} GTK
-                    </span>
+            return (
+              <div
+                className={`absolute z-30 pointer-events-none transform ${transformClass} transition-all duration-75`}
+                style={{
+                  left: `${
+                    ((paddingLeft + (hoveredIndex + 0.5) * slotWidth) / svgWidth) * 100
+                  }%`,
+                  top: '4px',
+                }}
+              >
+                <div className="bg-slate-900/95 text-white backdrop-blur-xs rounded-lg px-2.5 py-1.5 shadow-xl text-[11px] space-y-1 border border-slate-700/60 min-w-[170px]">
+                  {/* Header Tooltip */}
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-700/80 pb-1">
+                    <div className="font-medium text-slate-100 flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span>
+                        {hoveredPoint.dayName}, {hoveredPoint.shortDate}
+                      </span>
+                    </div>
+                    {hoveredPoint.isHoliday ? (
+                      <span className="text-[9px] bg-rose-900/80 text-rose-200 px-1 py-0.2 rounded-xs">
+                        Libur
+                      </span>
+                    ) : hoveredPoint.isWeekend ? (
+                      <span className="text-[9px] bg-slate-800 text-slate-300 px-1 py-0.2 rounded-xs">
+                        Weekend
+                      </span>
+                    ) : null}
                   </div>
 
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-xs bg-[#F59E0B]" />
-                      Terlambat:
-                    </span>
-                    <span className="font-semibold text-white">
-                      {hoveredPoint.lateCount} GTK
-                    </span>
+                  {/* Komposisi Presensi */}
+                  <div className="space-y-0.5">
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-xs bg-[#39805A] shrink-0" />
+                        Hadir:
+                      </span>
+                      <span className="font-semibold text-white">
+                        {hoveredPoint.hadirCount ?? hoveredPoint.presentCount} GTK
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-xs bg-[#64748B] shrink-0" />
+                        Belum Presensi:
+                      </span>
+                      <span className="font-semibold text-white">
+                        {hoveredPoint.pendingCount ?? 0} GTK
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-xs bg-[#F4382C] shrink-0" />
+                        Alpha:
+                      </span>
+                      <span className="font-semibold text-white">
+                        {hoveredPoint.alphaCount ?? hoveredPoint.absentCount} GTK
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-xs bg-[#8669AC] shrink-0" />
+                        Lainnya:
+                      </span>
+                      <span className="font-semibold text-white">
+                        {hoveredPoint.lainnyaCount ?? hoveredPoint.excusedCount} GTK
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-xs bg-[#3B82F6]" />
-                      Izin / Sakit / Dinas:
-                    </span>
-                    <span className="font-semibold text-white">
-                      {hoveredPoint.excusedCount} GTK
+                  {/* Ringkasan Kehadiran */}
+                  <div className="border-t border-slate-700/80 pt-1 flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400">Tingkat Hadir:</span>
+                    <span className="font-bold text-emerald-400">
+                      {hoveredPoint.attendanceRate}%
                     </span>
                   </div>
-
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-xs bg-[#CBD5E1]" />
-                      Belum Presensi / Alpa:
-                    </span>
-                    <span className="font-semibold text-white">
-                      {hoveredPoint.absentCount} GTK
-                    </span>
-                  </div>
-                </div>
-
-                {/* Ringkasan Kehadiran */}
-                <div className="border-t border-slate-700/80 pt-1.5 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">Tingkat Hadir:</span>
-                  <span className="font-bold text-emerald-400">
-                    {hoveredPoint.attendanceRate}%
-                  </span>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
 

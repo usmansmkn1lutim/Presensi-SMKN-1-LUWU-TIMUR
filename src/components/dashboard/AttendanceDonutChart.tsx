@@ -30,7 +30,7 @@ export interface AttendanceDonutChartProps {
   className?: string;
 }
 
-type DonutCategoryKey = 'onTime' | 'late' | 'excused' | 'absent';
+type DonutCategoryKey = 'hadir' | 'pending' | 'alpha' | 'lainnya';
 
 interface SegmentConfig {
   key: DonutCategoryKey;
@@ -101,63 +101,60 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
   }
 
   const total = distribution?.total ?? 0;
-  const onTime = distribution?.onTime ?? 0;
-  const late = distribution?.late ?? 0;
-  const excused = distribution?.excused ?? 0;
-  const absent = distribution?.absent ?? 0;
+  const hadir = distribution?.hadir ?? 0;
+  const pending = distribution?.pending ?? 0;
+  const alpha = distribution?.alpha ?? distribution?.absent ?? 0;
+  const lainnya = distribution?.lainnya ?? distribution?.excused ?? 0;
 
-  const pctOnTime = distribution?.percentages?.onTime ?? 0;
-  const pctLate = distribution?.percentages?.late ?? 0;
-  const pctExcused = distribution?.percentages?.excused ?? 0;
-  const pctAbsent = distribution?.percentages?.absent ?? 0;
+  const pctHadir = distribution?.percentages?.hadir ?? 0;
+  const pctPending = distribution?.percentages?.pending ?? 0;
+  const pctAlpha = distribution?.percentages?.alpha ?? 0;
+  const pctLainnya = distribution?.percentages?.lainnya ?? 0;
 
-  // Persentase kehadiran fisik total (Tepat Waktu + Terlambat) terhadap seluruh GTK
-  const totalPresentCount = onTime + late;
+  // Persentase kehadiran terhadap seluruh GTK
   const overallAttendanceRate =
-    total > 0 ? Number(((totalPresentCount / total) * 100).toFixed(1)) : 0;
+    total > 0 ? Number(((hadir / total) * 100).toFixed(1)) : 0;
 
   const segments: SegmentConfig[] = [
     {
-      key: 'onTime',
-      label: 'Hadir Tepat Waktu',
-      shortLabel: 'Tepat Waktu',
-      count: onTime,
-      percentage: pctOnTime,
-      color: ATTENDANCE_STATUS_TOKENS.onTime.hex,
-      hoverColor: '#65230E',
-      dotClass: 'bg-[#7C2D12]',
+      key: 'hadir',
+      label: 'Hadir (Tepat Waktu / Terlambat / Dinas Luar)',
+      shortLabel: 'Hadir',
+      count: hadir,
+      percentage: pctHadir,
+      color: '#39805A',
+      hoverColor: '#2C6445',
+      dotClass: 'bg-[#39805A]',
     },
     {
-      key: 'late',
-      label: 'Hadir Terlambat',
-      shortLabel: 'Terlambat',
-      count: late,
-      percentage: pctLate,
-      color: ATTENDANCE_STATUS_TOKENS.late.hex,
-      hoverColor: '#A3360A',
-      dotClass: 'bg-[#C2410C]',
+      key: 'pending',
+      label: 'Belum Presensi',
+      shortLabel: 'Belum Presensi',
+      count: pending,
+      percentage: pctPending,
+      color: '#64748B',
+      hoverColor: '#475569',
+      dotClass: 'bg-[#64748B]',
     },
     {
-      key: 'excused',
-      label: 'Izin / Sakit / Dinas / Cuti',
-      shortLabel: 'Izin / Sakit / Dinas',
-      count: excused,
-      percentage: pctExcused,
-      color: ATTENDANCE_STATUS_TOKENS.officialDuty.hex,
-      hoverColor: '#C2410C',
-      dotClass: 'bg-[#EA580C]',
+      key: 'alpha',
+      label: 'Alpha (Tanpa Keterangan)',
+      shortLabel: 'Alpha',
+      count: alpha,
+      percentage: pctAlpha,
+      color: '#F4382C',
+      hoverColor: '#D32F2F',
+      dotClass: 'bg-[#F4382C]',
     },
     {
-      key: 'absent',
-      label: isNonWorkingDay
-        ? 'Libur / Tidak Wajib Hadir'
-        : 'Belum Presensi / Alpa',
-      shortLabel: isNonWorkingDay ? 'Libur' : 'Belum / Alpa',
-      count: absent,
-      percentage: pctAbsent,
-      color: ATTENDANCE_STATUS_TOKENS.absent.hex,
-      hoverColor: '#FED7AA',
-      dotClass: 'bg-[#FFEDD5] border border-[#FED7AA]',
+      key: 'lainnya',
+      label: 'Lainnya (Sakit / Izin / Cuti)',
+      shortLabel: 'Lainnya',
+      count: lainnya,
+      percentage: pctLainnya,
+      color: '#8669AC',
+      hoverColor: '#6B528C',
+      dotClass: 'bg-[#8669AC]',
     },
   ];
 
@@ -301,7 +298,7 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                     {overallAttendanceRate}%
                   </span>
                   <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium block">
-                    {totalPresentCount} / {total} GTK
+                    {hadir} / {total} GTK
                   </span>
                 </div>
               )}
