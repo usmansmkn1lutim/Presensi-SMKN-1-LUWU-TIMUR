@@ -96,8 +96,67 @@ export interface ExecutiveDashboardData {
   donutDistribution: TodayDonutDistribution;
   weeklyTrend: TrendPoint[];
   monthlyTrend: TrendPoint[];
+  thisWeekTrend: TrendPoint[];
+  thisMonthTrend: TrendPoint[];
+  lastMonthTrend: TrendPoint[];
   leaderboard: DisciplineLeaderboard;
   lastUpdated: string;
+}
+
+/**
+ * Returns Monday through Friday dates (YYYY-MM-DD) for the calendar week containing targetDateStr.
+ * Monday is strictly treated as the start of the week, Saturday and Sunday are excluded.
+ */
+export function getWeekDatesMonToFri(targetDateStr: string): string[] {
+  const [y, m, d] = targetDateStr.split('-').map(Number);
+  const targetDateObj = new Date(y, m - 1, d, 12, 0, 0);
+  const day = targetDateObj.getDay(); // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(targetDateObj);
+  monday.setDate(targetDateObj.getDate() + diffToMonday);
+
+  const dates: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const cur = new Date(monday);
+    cur.setDate(monday.getDate() + i);
+    const yr = cur.getFullYear();
+    const mo = String(cur.getMonth() + 1).padStart(2, '0');
+    const da = String(cur.getDate()).padStart(2, '0');
+    dates.push(`${yr}-${mo}-${da}`);
+  }
+  return dates;
+}
+
+/**
+ * Returns all working days (Monday - Friday) in the specified year and month.
+ * Saturday and Sunday are strictly excluded.
+ * If maxDateStr is provided and falls within that month, only working days up to maxDateStr are returned.
+ */
+export function getMonthWorkDays(year: number, month: number, maxDateStr?: string): string[] {
+  const totalDaysInMonth = new Date(year, month, 0).getDate();
+  let limitDay = totalDaysInMonth;
+
+  if (maxDateStr) {
+    const [maxY, maxM, maxD] = maxDateStr.split('-').map(Number);
+    if (maxY === year && maxM === month) {
+      limitDay = Math.min(totalDaysInMonth, maxD);
+    } else if (year > maxY || (year === maxY && month > maxM)) {
+      limitDay = 0;
+    }
+  }
+
+  const dates: string[] = [];
+  for (let d = 1; d <= limitDay; d++) {
+    const cur = new Date(year, month - 1, d, 12, 0, 0);
+    const dayOfWeek = cur.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      const yr = cur.getFullYear();
+      const mo = String(cur.getMonth() + 1).padStart(2, '0');
+      const da = String(cur.getDate()).padStart(2, '0');
+      dates.push(`${yr}-${mo}-${da}`);
+    }
+  }
+  return dates;
 }
 
 /**
@@ -163,8 +222,13 @@ export const dashboardExecutiveService = {
     const past7Days = getPastNDates(todayDate, 7);
     const past30Days = getPastNDates(todayDate, 30);
 
-    // Minimum start date covering both the past 30 days and current month-to-date
-    const minStartDate = past30Days[0] < monthStart ? past30Days[0] : monthStart;
+    const [tYear, tMonth] = todayDate.split('-').map(Number);
+    const lastMonthYear = tMonth === 1 ? tYear - 1 : tYear;
+    const lastMonthNumber = tMonth === 1 ? 12 : tMonth - 1;
+    const lastMonthStart = `${lastMonthYear}-${String(lastMonthNumber).padStart(2, '0')}-01`;
+
+    // Minimum start date covering previous month (for "Bulan lalu"), current month, and this week
+    const minStartDate = lastMonthStart < past30Days[0] ? lastMonthStart : past30Days[0];
 
     try {
       // 1. Fetch active employees with departments
@@ -524,11 +588,18 @@ export const dashboardExecutiveService = {
         };
       };
 
-      // SECTION C: WEEKLY TREND (Past 7 Days inclusive)
-      const weeklyTrend: TrendPoint[] = past7Days.map((dStr) => buildTrendPoint(dStr));
+      // SECTION C: TREND PERIODS (Minggu ini, Bulan ini, Bulan lalu)
+      const thisWeekDates = getWeekDatesMonToFri(todayDate);
+      const thisMonthDates = getMonthWorkDays(tYear, tMonth, todayDate);
+      const lastMonthDates = getMonthWorkDays(lastMonthYear, lastMonthNumber);
 
-      // SECTION D: MONTHLY TREND (Past 30 Days inclusive)
-      const monthlyTrend: TrendPoint[] = past30Days.map((dStr) => buildTrendPoint(dStr));
+      const thisWeekTrend: TrendPoint[] = thisWeekDates.map((dStr) => buildTrendPoint(dStr));
+      const thisMonthTrend: TrendPoint[] = thisMonthDates.map((dStr) => buildTrendPoint(dStr));
+      const lastMonthTrend: TrendPoint[] = lastMonthDates.map((dStr) => buildTrendPoint(dStr));
+
+      // Fallback untuk backward compatibility
+      const weeklyTrend: TrendPoint[] = thisWeekTrend;
+      const monthlyTrend: TrendPoint[] = thisMonthTrend;
 
       // ==========================================
       // SECTION E: DISCIPLINE LEADERBOARD (Month-to-Date)
@@ -640,6 +711,9 @@ export const dashboardExecutiveService = {
         donutDistribution,
         weeklyTrend,
         monthlyTrend,
+        thisWeekTrend,
+        thisMonthTrend,
+        lastMonthTrend,
         leaderboard,
         lastUpdated: new Date().toISOString(),
       };

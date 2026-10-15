@@ -543,6 +543,9 @@ export const DashboardPage: React.FC = () => {
               <AttendanceTrendChart
                 weeklyTrend={execData?.weeklyTrend}
                 monthlyTrend={execData?.monthlyTrend}
+                thisWeekTrend={execData?.thisWeekTrend}
+                thisMonthTrend={execData?.thisMonthTrend}
+                lastMonthTrend={execData?.lastMonthTrend}
                 totalActiveGtk={execData?.summary?.totalActiveGtk}
                 loading={execLoading}
                 className="h-full flex flex-col"
