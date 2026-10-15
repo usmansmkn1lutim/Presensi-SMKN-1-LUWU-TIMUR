@@ -97,7 +97,11 @@ export const router = createBrowserRouter([
       },
       {
         path: '/attendance',
-        element: <AttendancePage />,
+        element: (
+          <ProtectedRoute allowedRoles={['employee', 'headmaster']}>
+            <AttendancePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/attendance-monitoring',
@@ -114,7 +118,7 @@ export const router = createBrowserRouter([
       {
         path: '/history',
         element: (
-          <ProtectedRoute allowedRoles={['super_admin', 'admin', 'headmaster', 'employee']}>
+          <ProtectedRoute allowedRoles={['employee', 'headmaster']}>
             <HistoryPage />
           </ProtectedRoute>
         ),

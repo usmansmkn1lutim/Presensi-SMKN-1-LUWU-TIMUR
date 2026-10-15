@@ -831,9 +831,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
               onClick={handleCaptureFrame}
               disabled={isProcessingCapture}
               isLoading={isProcessingCapture}
+              leftIcon={<Camera className="w-4 h-4" />}
               className="text-xs font-semibold"
             >
-              <Camera className="w-4 h-4 mr-1.5" />
               Ambil Foto
             </Button>
           )}
@@ -847,9 +847,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 size="md"
                 onClick={handleRetake}
                 disabled={isConfirming}
+                leftIcon={<RotateCcw className="w-4 h-4" />}
                 className="text-xs font-medium"
               >
-                <RotateCcw className="w-4 h-4 mr-1.5" />
                 Foto Ulang
               </Button>
               <Button
@@ -859,9 +859,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                 onClick={handleConfirmUse}
                 disabled={isConfirming}
                 isLoading={isConfirming}
+                leftIcon={<Check className="w-4 h-4" />}
                 className="text-xs font-semibold"
               >
-                <Check className="w-4 h-4 mr-1.5" />
                 Gunakan Foto
               </Button>
             </>

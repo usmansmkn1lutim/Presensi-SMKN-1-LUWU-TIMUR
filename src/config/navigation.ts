@@ -170,7 +170,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   ],
   admin: [
     '/dashboard',
-    '/attendance',
+    // '/attendance', // Hidden for admin
     '/attendance-monitoring',
     '/employees',
     '/requests',
@@ -186,9 +186,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   ],
   super_admin: [
     '/dashboard',
-    '/attendance',
+    // '/attendance', // Hidden for super_admin
     '/attendance-monitoring',
-    '/history',
+    // '/history', // Hidden for super_admin
     '/requests',
     '/notifications',
     '/profile',
