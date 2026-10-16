@@ -287,23 +287,14 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
       aria-labelledby={`${chartId}-title`}
     >
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
-          <div className="flex items-center gap-2">
-            <h3
-              id={`${chartId}-title`}
-              className="text-base font-semibold text-slate-900 tracking-tight"
-            >
-              Tren Kehadiran GTK
-            </h3>
-            <span className="hidden sm:inline-block text-xs text-slate-400">·</span>
-            <span className="text-xs text-slate-500 font-medium">
-              {activePeriodOption.description}
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Grafik tren harian kategori <span className="font-semibold text-slate-700">{activeOption.label}</span> pada hari kerja efektif ({activePeriodOption.label.toLowerCase()})
-          </p>
+          <h3
+            id={`${chartId}-title`}
+            className="text-base font-semibold text-slate-900 tracking-tight"
+          >
+            Tren Kehadiran GTK
+          </h3>
         </div>
 
         {/* Action Controls: Status Filter & Period Filter Dropdowns */}
