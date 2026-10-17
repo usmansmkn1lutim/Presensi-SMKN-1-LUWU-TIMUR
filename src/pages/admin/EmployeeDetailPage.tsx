@@ -116,7 +116,7 @@ export const EmployeeDetailPage: React.FC = () => {
             onClick={() => navigate('/employees')}
             leftIcon={<ArrowLeft className="w-4 h-4" />}
           >
-            ← Kembali ke Data Pegawai
+            Kembali ke Data Pegawai
           </Button>
         </div>
       </div>
@@ -144,7 +144,7 @@ export const EmployeeDetailPage: React.FC = () => {
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B7280] hover:text-[#111827] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>← Kembali ke Data Pegawai</span>
+          <span>Kembali ke Data Pegawai</span>
         </Link>
       </div>
 
