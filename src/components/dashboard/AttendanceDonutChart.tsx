@@ -118,12 +118,12 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
   const segments: SegmentConfig[] = [
     {
       key: 'hadir',
-      label: 'Hadir (Tepat Waktu / Terlambat / Dinas Luar)',
+      label: 'Hadir',
       shortLabel: 'Hadir',
       count: hadir,
       percentage: pctHadir,
       color: '#F97316',
-      hoverColor: '#EA580C',
+      hoverColor: '#F97316',
       dotClass: 'bg-[#F97316]',
     },
     {
@@ -133,7 +133,7 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       count: lainnya,
       percentage: pctLainnya,
       color: '#FB923C',
-      hoverColor: '#F97316',
+      hoverColor: '#FB923C',
       dotClass: 'bg-[#FB923C]',
     },
     {
@@ -143,17 +143,17 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       count: pending,
       percentage: pctPending,
       color: '#FED7AA',
-      hoverColor: '#FDBA74',
+      hoverColor: '#FED7AA',
       dotClass: 'bg-[#FED7AA] border border-amber-200',
     },
     {
       key: 'alpha',
-      label: 'Alpha (Tanpa Keterangan)',
-      shortLabel: 'Alpha',
+      label: 'Alfa',
+      shortLabel: 'Alfa',
       count: alpha,
       percentage: pctAlpha,
       color: '#D3D3D3',
-      hoverColor: '#9CA3AF',
+      hoverColor: '#D3D3D3',
       dotClass: 'bg-[#D3D3D3]',
     },
   ];
@@ -261,7 +261,7 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                     cx="100"
                     cy="100"
                     r={radius}
-                    stroke={isHovered ? arc.hoverColor : arc.color}
+                    stroke={arc.color}
                     strokeWidth={isHovered ? activeStrokeWidth : baseStrokeWidth}
                     strokeDasharray={`${arc.strokeDash} ${circumference}`}
                     strokeDashoffset={arc.strokeOffset}
@@ -337,15 +337,6 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                       <span className="font-normal text-slate-400 text-[10px]">
                         GTK
                       </span>
-                    </span>
-                    <span
-                      className={`text-xs font-medium px-1.5 py-0.5 rounded-md min-w-[40px] text-center tabular-nums whitespace-nowrap transition-colors ${
-                        isHovered
-                          ? 'bg-slate-900 text-white font-semibold'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {seg.percentage}%
                     </span>
                   </div>
                 </div>

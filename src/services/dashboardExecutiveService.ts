@@ -518,7 +518,7 @@ export const dashboardExecutiveService = {
         const isHoliday = holidaySet.has(dStr);
 
         const dayAttMap = attendanceByDateAndEmp.get(dStr) || new Map();
-        const dayReqMap = requestTypeByDateAndEmp.get(dStr) || new Map();
+        const dayReqMap = requestByDateAndEmp.get(dStr) || new Map();
         const dayHolidayObj = holidayObjectByDate.get(dStr) || null;
 
         let hadirCount = 0;
