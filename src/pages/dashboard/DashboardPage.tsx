@@ -479,32 +479,7 @@ export const DashboardPage: React.FC = () => {
   // =========================================================================
   if (isManagerial) {
     return (
-      <div className="space-y-6 pb-8 font-sans max-w-7xl mx-auto">
-        {/* Header Bar Manajerial Ringkas */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#111827] tracking-tight">
-              Dashboard Eksekutif
-            </h1>
-            <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
-              {currentDateFormatted || 'Memuat tanggal...'} • Malili, Luwu Timur
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-            <button
-              onClick={handleRefreshExecutive}
-              disabled={execLoading || execRefreshing}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 active:bg-slate-100 text-[#374151] text-xs sm:text-sm font-medium transition-colors border border-[#D1D5DB] disabled:opacity-50 cursor-pointer shadow-2xs"
-              title="Segarkan data ringkasan eksekutif"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 text-[#4B5563] ${execRefreshing ? 'animate-spin' : ''}`}
-              />
-              <span>{execRefreshing ? 'Menyegarkan...' : 'Segarkan Data'}</span>
-            </button>
-          </div>
-        </div>
+      <div className="space-y-5 pb-8 font-sans max-w-7xl mx-auto">
 
         {/* Global Error Banner if Executive Fetch Fails */}
         {execError && (
