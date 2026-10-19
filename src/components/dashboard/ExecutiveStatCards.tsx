@@ -5,12 +5,20 @@ import {
   Clock,
   FileText,
   UserX,
+  MapPin,
+  Calendar,
 } from 'lucide-react';
 import { ExecutiveSummary } from '../../services/dashboardExecutiveService';
 
 export interface ExecutiveStatCardsProps {
   summary: ExecutiveSummary | null;
   loading?: boolean;
+  role?: string;
+  schoolName?: string;
+  currentDateFormatted?: string;
+  todayDisplayStatus?: string;
+  displayCheckInTime?: string;
+  displayCheckOutTime?: string;
 }
 
 interface StatCardConfig {
@@ -27,6 +35,12 @@ interface StatCardConfig {
 export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
   summary,
   loading = false,
+  role,
+  schoolName = 'SMK Negeri 1 Luwu Timur',
+  currentDateFormatted = '',
+  todayDisplayStatus = 'Belum presensi',
+  displayCheckInTime = '--:-- WITA',
+  displayCheckOutTime = '--:-- WITA',
 }) => {
   if (loading) {
     return (
@@ -153,13 +167,83 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
 
   return (
     <section aria-label="Ringkasan Statistik Kehadiran GTK Hari Ini">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      <div
+        className="flex lg:grid lg:grid-cols-4 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none gap-3.5 sm:gap-4 pb-2 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {/* Special Orange Attendance Card for Headmaster on Mobile & Tablet (< 1024px) */}
+        {role === 'headmaster' && (
+          <div className="lg:hidden relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3.5 font-sans w-full flex-none snap-start">
+            {/* Geometric Minimalist Background Pattern */}
+            <div className="absolute inset-0 opacity-12 pointer-events-none overflow-hidden rounded-2xl">
+              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <defs>
+                  <pattern id="geometric-pattern-headmaster-card" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="20" cy="20" r="2" fill="currentColor" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#geometric-pattern-headmaster-card)" className="text-white" />
+              </svg>
+            </div>
+
+            {/* Row 1: Nama Sekolah & Lokasi */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2.5 border-b border-white/20 relative z-10">
+              <h3 className="font-bold text-base sm:text-lg text-white tracking-tight drop-shadow-2xs">
+                {schoolName}
+              </h3>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white/95">
+                <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
+                <span>Malili, Luwu Timur</span>
+              </div>
+            </div>
+
+            {/* Row 2: Status Header & Status Display */}
+            <div className="pt-0.5 pb-0.5 relative z-10 space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-2xs">
+                  PRESENSI HARI INI
+                </span>
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-orange-100/95 shrink-0">
+                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+                  <span>{currentDateFormatted || 'Memuat tanggal...'}</span>
+                </div>
+              </div>
+
+              <p className="text-base sm:text-lg font-extrabold text-white tracking-tight drop-shadow-2xs">
+                {todayDisplayStatus}
+              </p>
+            </div>
+
+            {/* Row 3: Check-in & Check-out COMBINED SINGLE CARD */}
+            <div className="bg-white rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] relative z-10">
+              <div className="grid grid-cols-2 divide-x divide-slate-200">
+                <div className="flex flex-col items-center justify-center text-center px-2">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
+                    Check-in
+                  </span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
+                    {displayCheckInTime}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center justify-center text-center px-2">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
+                    Check-out
+                  </span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
+                    {displayCheckOutTime}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.key}
-              className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between transition-all duration-150 hover:border-[#D1D5DB]"
+              className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between transition-all duration-150 hover:border-[#D1D5DB] w-full flex-none lg:w-auto lg:shrink snap-start"
             >
               <div className="flex items-start justify-between gap-3">
                 <span className="text-xs sm:text-[13px] font-medium text-[#6B7280] leading-snug line-clamp-2">

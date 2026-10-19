@@ -19,6 +19,7 @@ import {
   Briefcase,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useProfileMenu } from '../../context/ProfileMenuContext';
 import {
   dashboardAttendanceService,
   DashboardAttendanceSummary,
@@ -120,6 +121,7 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
 
 export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
+  const { openMenu } = useProfileMenu();
   const navigate = useNavigate();
 
   // Role separation:
@@ -480,6 +482,38 @@ export const DashboardPage: React.FC = () => {
   if (isManagerial) {
     return (
       <div className="space-y-5 pb-8 font-sans max-w-7xl mx-auto">
+        {/* 1. Mobile & Tablet Dynamic Greeting & User Identity (< 1024px) */}
+        <div className="lg:hidden flex items-center justify-between py-2 px-1 font-sans">
+          <div className="flex items-center gap-3">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt="Foto Profil"
+                className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
+              />
+            ) : (
+              <div className="w-11 h-11 rounded-full bg-[#FFF7ED] text-[#F97316] font-bold flex items-center justify-center text-sm border border-orange-200 shrink-0 shadow-2xs">
+                {fullName
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </div>
+            )}
+            <div className="space-y-0.5">
+              <p className="text-xs font-semibold text-[#111827]">
+                {greeting},
+              </p>
+              <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate max-w-[200px] sm:max-w-xs">
+                {fullName}
+              </h2>
+            </div>
+          </div>
+          <div className="shrink-0">
+            <NotificationBell />
+          </div>
+        </div>
 
         {/* Global Error Banner if Executive Fetch Fails */}
         {execError && (
@@ -503,11 +537,17 @@ export const DashboardPage: React.FC = () => {
           </div>
         )}
 
-        {/* 1. EXECUTIVE STAT CARDS (5 KARTU INDIKATOR AGREGAT) */}
+        {/* 1. EXECUTIVE STAT CARDS */}
         <section aria-label="Ringkasan Statistik Eksekutif">
           <ExecutiveStatCards
             summary={execData?.summary ?? null}
             loading={execLoading}
+            role={profile?.role}
+            schoolName={schoolName}
+            currentDateFormatted={currentDateFormatted}
+            todayDisplayStatus={getTodayDisplayStatus()}
+            displayCheckInTime={displayCheckInTime}
+            displayCheckOutTime={displayCheckOutTime}
           />
         </section>
 
@@ -558,23 +598,17 @@ export const DashboardPage: React.FC = () => {
   // =========================================================================
   return (
     <div className="space-y-5 pb-8 font-sans max-w-5xl mx-auto">
-      {/* 1. Mobile Dynamic Greeting & User Identity (< 768px, pada tablet/desktop ditangani oleh Header) */}
-      <div className="md:hidden flex items-center justify-between py-2 px-1 font-sans">
-        <div
-          onClick={() => navigate('/account')}
-          className="flex items-center gap-3 cursor-pointer group active:scale-98 transition-transform"
-          role="button"
-          tabIndex={0}
-          title="Buka Akun Saya"
-        >
+      {/* 1. Mobile & Tablet Dynamic Greeting & User Identity (< 1024px, pada desktop ditangani oleh Header) */}
+      <div className="lg:hidden flex items-center justify-between py-2 px-1 font-sans">
+        <div className="flex items-center gap-3">
           {profile?.avatar_url ? (
             <img
               src={profile.avatar_url}
               alt="Foto Profil"
-              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] group-hover:border-[#F97316] transition-colors shrink-0 shadow-2xs"
+              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
             />
           ) : (
-            <div className="w-11 h-11 rounded-full bg-[#FFF7ED] text-[#F97316] font-bold flex items-center justify-center text-sm border border-orange-200 group-hover:border-[#F97316] transition-colors shrink-0 shadow-2xs">
+            <div className="w-11 h-11 rounded-full bg-[#FFF7ED] text-[#F97316] font-bold flex items-center justify-center text-sm border border-orange-200 shrink-0 shadow-2xs">
               {fullName
                 .split(' ')
                 .map((n) => n[0])
@@ -587,7 +621,7 @@ export const DashboardPage: React.FC = () => {
             <p className="text-xs font-semibold text-[#111827]">
               {greeting},
             </p>
-            <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate max-w-[200px] sm:max-w-xs group-hover:text-[#F97316] transition-colors">
+            <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate max-w-[200px] sm:max-w-xs">
               {fullName}
             </h2>
           </div>
