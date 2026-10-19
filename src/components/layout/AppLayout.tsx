@@ -4,7 +4,6 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileNav';
 import { ProfileMenuProvider } from '../../context/ProfileMenuContext';
-import { ProfileUserMenu } from './ProfileUserMenu';
 
 const SIDEBAR_COLLAPSED_KEY = 'tamaki-sidebar-collapsed';
 
@@ -66,9 +65,6 @@ export const AppLayout: React.FC = () => {
           {/* Mobile & Tablet Bottom Navigation Bar (Sole navigation on mobile/tablet) */}
           <MobileBottomNav />
         </div>
-
-        {/* Global Mobile Bottom Sheet untuk Profile User Menu */}
-        <ProfileUserMenu variant="bottom-sheet" />
       </div>
     </ProfileMenuProvider>
   );

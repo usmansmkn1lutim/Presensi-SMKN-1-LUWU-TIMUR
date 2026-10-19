@@ -19,7 +19,6 @@ import {
   Briefcase,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useProfileMenu } from '../../context/ProfileMenuContext';
 import {
   dashboardAttendanceService,
   DashboardAttendanceSummary,
@@ -121,7 +120,6 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
 
 export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
-  const { openMenu } = useProfileMenu();
   const navigate = useNavigate();
 
   // Role separation:
@@ -563,11 +561,11 @@ export const DashboardPage: React.FC = () => {
       {/* 1. Mobile Dynamic Greeting & User Identity (< 768px, pada tablet/desktop ditangani oleh Header) */}
       <div className="md:hidden flex items-center justify-between py-2 px-1 font-sans">
         <div
-          onClick={openMenu}
+          onClick={() => navigate('/account')}
           className="flex items-center gap-3 cursor-pointer group active:scale-98 transition-transform"
           role="button"
           tabIndex={0}
-          title="Buka menu profil pengguna"
+          title="Buka Akun Saya"
         >
           {profile?.avatar_url ? (
             <img

@@ -154,6 +154,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/holidays',
     '/notifications',
     '/profile',
+    '/account',
   ],
   headmaster: [
     '/dashboard',
@@ -167,6 +168,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/reports',
     '/notifications',
     '/profile',
+    '/account',
   ],
   admin: [
     '/dashboard',
@@ -183,6 +185,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/settings',
     '/notifications',
     '/profile',
+    '/account',
   ],
   super_admin: [
     '/dashboard',
@@ -192,6 +195,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/requests',
     '/notifications',
     '/profile',
+    '/account',
     '/employees',
     '/schedules',
     '/locations',

@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { User as UserIcon, Building2, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { User as UserIcon, Building2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { RoleBadge } from '../ui/Badge';
 import { NAVIGATION_ITEMS } from '../../config/navigation';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { useInstitutionSettings } from '../../hooks/useInstitutionSettings';
-import { useProfileMenu } from '../../context/ProfileMenuContext';
-import { ProfileUserMenu } from './ProfileUserMenu';
 
 const ROUTE_MENU_MAP: Record<string, string> = {
   '/dashboard': 'Beranda',
@@ -15,6 +14,7 @@ const ROUTE_MENU_MAP: Record<string, string> = {
   '/attendance': 'Presensi',
   '/requests': 'Pengajuan',
   '/profile': 'Profil',
+  '/account': 'Akun Saya',
   '/employees': 'Pegawai',
   '/reports': 'Laporan',
   '/attendance-monitoring': 'Monitoring Presensi',
@@ -49,10 +49,8 @@ export const getFriendlyMenuTitle = (pathname: string): string => {
 
 export const Header: React.FC = () => {
   const { user, profile } = useAuth();
-  const { isOpen, toggleMenu } = useProfileMenu();
   const institutionSettings = useInstitutionSettings();
   const [logoLoadFailed, setLogoLoadFailed] = useState(false);
-  const profileAnchorRef = useRef<HTMLDivElement>(null);
 
   // Reset logo failure state when school logo changes
   useEffect(() => {
@@ -104,51 +102,35 @@ export const Header: React.FC = () => {
 
         <div className="h-6 w-px bg-[#E5E7EB] hidden sm:block" />
 
-        {/* User Profile Pill Trigger & Floating Panel */}
-        <div className="relative" ref={profileAnchorRef}>
-          <button
-            type="button"
-            onClick={toggleMenu}
-            aria-expanded={isOpen}
-            aria-haspopup="true"
-            aria-label="Menu Profil Pengguna"
-            className={`flex items-center gap-2 sm:gap-2.5 p-1 sm:px-2 rounded-xl transition-all cursor-pointer ${
-              isOpen
-                ? 'bg-[#E5E7EB] text-[#111827]'
-                : 'hover:bg-[#E5E7EB]/70 text-[#111827]'
-            }`}
-          >
-            <div className="w-8 h-8 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center font-bold text-xs text-[#374151] shadow-2xs shrink-0 overflow-hidden">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  className="w-full h-full object-cover"
-                />
-              ) : displayName ? (
-                displayName.charAt(0).toUpperCase()
-              ) : (
-                <UserIcon className="w-4 h-4 text-[#6B7280]" />
-              )}
+        {/* User Profile Pill -> Navigasi ke Halaman Akun Saya */}
+        <Link
+          to="/account"
+          aria-label="Buka Halaman Akun Saya"
+          title="Buka Halaman Akun Saya"
+          className="flex items-center gap-2 sm:gap-2.5 p-1 sm:px-2 rounded-xl transition-all cursor-pointer hover:bg-[#E5E7EB]/80 text-[#111827] group"
+        >
+          <div className="w-8 h-8 rounded-full bg-white border border-[#E5E7EB] group-hover:border-[#F97316] flex items-center justify-center font-bold text-xs text-[#374151] group-hover:text-[#F97316] shadow-2xs shrink-0 overflow-hidden transition-colors">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
+            ) : displayName ? (
+              displayName.charAt(0).toUpperCase()
+            ) : (
+              <UserIcon className="w-4 h-4 text-[#6B7280]" />
+            )}
+          </div>
+          <div className="hidden sm:block text-left">
+            <p className="text-xs font-semibold text-[#111827] group-hover:text-[#F97316] leading-tight truncate max-w-[110px] lg:max-w-[140px] transition-colors">
+              {displayShortName}
+            </p>
+            <div className="mt-0.5">
+              {user && <RoleBadge role={user.role} size="sm" />}
             </div>
-            <div className="hidden sm:block text-left">
-              <p className="text-xs font-semibold text-[#111827] leading-tight truncate max-w-[110px] lg:max-w-[140px]">
-                {displayShortName}
-              </p>
-              <div className="mt-0.5">
-                {user && <RoleBadge role={user.role} size="sm" />}
-              </div>
-            </div>
-            <ChevronDown
-              className={`w-3.5 h-3.5 text-[#9CA3AF] transition-transform duration-200 hidden sm:block ${
-                isOpen ? 'rotate-180 text-[#F97316]' : ''
-              }`}
-            />
-          </button>
-
-          {/* Tablet & Desktop Floating Panel near Avatar */}
-          <ProfileUserMenu anchorRef={profileAnchorRef} variant="floating-panel" />
-        </div>
+          </div>
+        </Link>
       </div>
     </header>
   );

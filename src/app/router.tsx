@@ -19,6 +19,8 @@ import { AttendanceRecapPage } from '../pages/recap/AttendanceRecapPage';
 import { RequestsPage } from '../pages/requests/RequestsPage';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
+import { AccountPage } from '../pages/account/AccountPage';
+import { AboutPage } from '../pages/about/AboutPage';
 
 // Admin & Management Pages
 import { UsersPage } from '../pages/admin/UsersPage';
@@ -134,6 +136,14 @@ export const router = createBrowserRouter([
       {
         path: '/profile',
         element: <ProfilePage />,
+      },
+      {
+        path: '/account',
+        element: <AccountPage />,
+      },
+      {
+        path: '/about',
+        element: <AboutPage />,
       },
 
       // Administrator & Management Routes with Role Protection

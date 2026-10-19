@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, QrCode, CalendarCheck, FileText, User, Users, BarChart3, LucideIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useProfileMenu } from '../../context/ProfileMenuContext';
 
 interface MobileNavTab {
   label: string;
@@ -13,7 +12,6 @@ interface MobileNavTab {
 
 export const MobileBottomNav: React.FC = () => {
   const { user } = useAuth();
-  const { isOpen: isProfileMenuOpen, openMenu } = useProfileMenu();
   const role = user?.role || 'employee';
 
   // Determine role-aware 5-item tabs for mobile & tablet navbar
@@ -33,7 +31,7 @@ export const MobileBottomNav: React.FC = () => {
     middleLeftTab,
     { label: 'Presensi', path: '/attendance', icon: QrCode, isPrimary: true },
     middleRightTab,
-    { label: 'Profil', path: '/profile', icon: User },
+    { label: 'Profil', path: '/account', icon: User },
   ];
 
   return (
@@ -73,33 +71,6 @@ export const MobileBottomNav: React.FC = () => {
                   </>
                 )}
               </NavLink>
-            );
-          }
-
-          if (tab.label === 'Profil') {
-            return (
-              <button
-                key={tab.path}
-                type="button"
-                onClick={openMenu}
-                aria-label="Menu Profil Pengguna"
-                className="flex flex-col items-center justify-center py-1 px-2.5 rounded-lg transition-colors flex-1 max-w-[72px] cursor-pointer"
-              >
-                <Icon
-                  className={`w-5 h-5 transition-colors ${
-                    isProfileMenuOpen ? 'text-[#F97316]' : 'text-[#6B7280]'
-                  }`}
-                />
-                <span
-                  className={`text-[10px] mt-1 truncate transition-colors ${
-                    isProfileMenuOpen
-                      ? 'text-[#F97316] font-semibold'
-                      : 'text-[#6B7280]'
-                  }`}
-                >
-                  {tab.label}
-                </span>
-              </button>
             );
           }
 
