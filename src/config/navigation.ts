@@ -22,15 +22,6 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     description: 'Catat kehadiran masuk & pulang',
   },
   {
-    id: 'attendance-monitoring',
-    label: 'Monitoring Presensi',
-    path: '/attendance-monitoring',
-    iconName: 'Eye',
-    allowedRoles: ['super_admin', 'admin', 'headmaster'],
-    section: 'main',
-    description: 'Pengawasan kehadiran seluruh pegawai',
-  },
-  {
     id: 'history',
     label: 'Riwayat',
     path: '/history',
@@ -38,6 +29,15 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     allowedRoles: ['super_admin', 'admin', 'headmaster', 'employee'],
     section: 'main',
     description: 'Daftar riwayat presensi pribadi',
+  },
+  {
+    id: 'attendance-monitoring',
+    label: 'Monitoring Presensi',
+    path: '/attendance-monitoring',
+    iconName: 'Eye',
+    allowedRoles: ['super_admin', 'admin', 'headmaster'],
+    section: 'main',
+    description: 'Pengawasan kehadiran seluruh pegawai',
   },
   {
     id: 'requests',
@@ -154,11 +154,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/holidays',
     '/notifications',
     '/profile',
-    '/account',
   ],
   headmaster: [
     '/dashboard',
     '/attendance',
+    '/history',
     '/attendance-monitoring',
     '/employees',
     '/schedules',
@@ -168,7 +168,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/reports',
     '/notifications',
     '/profile',
-    '/account',
   ],
   admin: [
     '/dashboard',
@@ -185,7 +184,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/settings',
     '/notifications',
     '/profile',
-    '/account',
   ],
   super_admin: [
     '/dashboard',
@@ -195,7 +193,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/requests',
     '/notifications',
     '/profile',
-    '/account',
     '/employees',
     '/schedules',
     '/locations',
