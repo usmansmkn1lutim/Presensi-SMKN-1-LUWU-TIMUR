@@ -75,7 +75,7 @@ BEGIN
     END IF;
 
     -- Fetch employee name snapshot
-    SELECT name INTO v_employee_name FROM public.employees WHERE id = v_employee_id;
+    SELECT full_name INTO v_employee_name FROM public.employees WHERE id = v_employee_id;
     IF v_employee_name IS NULL THEN
         v_employee_name := 'Pegawai';
     END IF;
@@ -472,7 +472,7 @@ BEGIN
 
     -- SIDE EFFECT: Dispatch notification to reviewers informing about cancellation
     BEGIN
-        SELECT name INTO v_employee_name FROM public.employees WHERE id = v_employee_id;
+        SELECT full_name INTO v_employee_name FROM public.employees WHERE id = v_employee_id;
         IF v_employee_name IS NULL THEN
             v_employee_name := coalesce(v_request.employee_name_snapshot, 'Pegawai');
         END IF;
