@@ -21,6 +21,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useProfileMenu } from '../../context/ProfileMenuContext';
 import { getNavItemsForRole } from '../../config/navigation';
 import { SchoolLogo } from '../ui/SchoolLogo';
 import { RoleBadge } from '../ui/Badge';
@@ -57,6 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
 }) => {
   const { user, logout } = useAuth();
+  const { toggleMenu } = useProfileMenu();
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -214,17 +216,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {!isCollapsed ? (
         <div className="p-3 border-t border-white/10 bg-[#F97316] shrink-0">
           <div className="p-2.5 rounded-2xl bg-white border border-white/20 flex items-center justify-between gap-2 shadow-xs">
-            <div className="min-w-0 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center font-bold text-xs text-[#F97316] shrink-0">
+            <button
+              type="button"
+              onClick={toggleMenu}
+              title="Buka Menu Profil Pengguna"
+              className="min-w-0 flex items-center gap-2.5 text-left cursor-pointer group flex-1"
+            >
+              <div className="w-8 h-8 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center font-bold text-xs text-[#F97316] shrink-0 group-hover:scale-105 transition-transform">
                 {user.name.charAt(0)}
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-900 truncate">{user.name}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-900 truncate group-hover:text-[#F97316] transition-colors">
+                  {user.name}
+                </p>
                 <div className="mt-0.5">
                   <RoleBadge role={user.role} size="sm" />
                 </div>
               </div>
-            </div>
+            </button>
             <button
               type="button"
               onClick={handleLogout}
@@ -238,12 +247,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       ) : (
         <div className="p-2 border-t border-white/10 bg-[#F97316] shrink-0 flex flex-col items-center gap-2">
-          <div
-            className="w-9 h-9 rounded-full bg-white border border-white/20 flex items-center justify-center font-bold text-xs text-[#F97316] shadow-2xs cursor-default"
-            title={`${user.name} (${user.role})`}
+          <button
+            type="button"
+            onClick={toggleMenu}
+            className="w-9 h-9 rounded-full bg-white border border-white/20 flex items-center justify-center font-bold text-xs text-[#F97316] shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            title={`${user.name} (${user.role}) - Buka Menu Profil`}
           >
             {user.name.charAt(0)}
-          </div>
+          </button>
           <button
             type="button"
             onClick={handleLogout}
