@@ -104,50 +104,32 @@ export const Header: React.FC = () => {
 
         <div className="h-6 w-px bg-[#E5E7EB] hidden sm:block" />
 
-        {/* User Profile Pill Trigger & Floating Panel */}
-        <div className="relative" ref={profileAnchorRef}>
-          <button
-            type="button"
-            onClick={toggleMenu}
-            aria-expanded={isOpen}
-            aria-haspopup="true"
-            aria-label="Menu Profil Pengguna"
-            className={`flex items-center gap-2 sm:gap-2.5 p-1 sm:px-2 rounded-xl transition-all cursor-pointer ${
-              isOpen
-                ? 'bg-[#E5E7EB] text-[#111827]'
-                : 'hover:bg-[#E5E7EB]/70 text-[#111827]'
-            }`}
-          >
-            <div className="w-8 h-8 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center font-bold text-xs text-[#374151] shadow-2xs shrink-0 overflow-hidden">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  className="w-full h-full object-cover"
-                />
-              ) : displayName ? (
-                displayName.charAt(0).toUpperCase()
-              ) : (
-                <UserIcon className="w-4 h-4 text-[#6B7280]" />
-              )}
-            </div>
-            <div className="hidden sm:block text-left">
-              <p className="text-xs font-semibold text-[#111827] leading-tight truncate max-w-[110px] lg:max-w-[140px]">
-                {displayShortName}
-              </p>
-              <div className="mt-0.5">
-                {user && <RoleBadge role={user.role} size="sm" />}
-              </div>
-            </div>
-            <ChevronDown
-              className={`w-3.5 h-3.5 text-[#9CA3AF] transition-transform duration-200 hidden sm:block ${
-                isOpen ? 'rotate-180 text-[#F97316]' : ''
-              }`}
-            />
-          </button>
+        {/* User Profile Pill */}
+        <div className="flex items-center gap-2 sm:gap-3 p-1 sm:px-2 rounded-xl text-[#111827]">
+          {/* Nama & Role di kiri */}
+          <div className="hidden sm:flex flex-col items-end text-right">
+            <p className="text-xs font-semibold text-[#111827] leading-tight truncate max-w-[110px] lg:max-w-[140px]">
+              {displayShortName}
+            </p>
+            <p className="text-[10px] text-[#6B7280] leading-tight mt-0.5 truncate max-w-[110px] lg:max-w-[140px]">
+              {user?.role === 'headmaster' ? 'Kepala Sekolah' : user?.role === 'super_admin' ? 'Super Admin' : user?.role === 'admin' ? 'Admin' : 'Pegawai'}
+            </p>
+          </div>
 
-          {/* Tablet & Desktop Floating Panel near Avatar */}
-          <ProfileUserMenu anchorRef={profileAnchorRef} variant="floating-panel" />
+          {/* Avatar di kanan */}
+          <div className="w-8 h-8 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center font-bold text-xs text-[#374151] shadow-2xs shrink-0 overflow-hidden">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
+            ) : displayName ? (
+              displayName.charAt(0).toUpperCase()
+            ) : (
+              <UserIcon className="w-4 h-4 text-[#6B7280]" />
+            )}
+          </div>
         </div>
       </div>
     </header>

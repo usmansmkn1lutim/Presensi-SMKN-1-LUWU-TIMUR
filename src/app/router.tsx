@@ -21,6 +21,8 @@ import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
 import { AccountPage } from '../pages/account/AccountPage';
 import { AboutPage } from '../pages/about/AboutPage';
+import { LanguagePage } from '../pages/account/LanguagePage';
+import { NotificationsSettingsPage } from '../pages/account/NotificationsSettingsPage';
 
 // Admin & Management Pages
 import { UsersPage } from '../pages/admin/UsersPage';
@@ -144,6 +146,14 @@ export const router = createBrowserRouter([
       {
         path: '/about',
         element: <AboutPage />,
+      },
+      {
+        path: '/account/language',
+        element: <LanguagePage />,
+      },
+      {
+        path: '/account/notifications',
+        element: <NotificationsSettingsPage />,
       },
 
       // Administrator & Management Routes with Role Protection

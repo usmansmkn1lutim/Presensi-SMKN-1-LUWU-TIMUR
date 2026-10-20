@@ -165,15 +165,50 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
     },
   ];
 
+  const StatCard = ({ card, primary }: { card: StatCardConfig; primary?: boolean }) => {
+    const Icon = card.icon;
+    return (
+      <div
+        key={card.key}
+        className={`bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs flex flex-col justify-between transition-all duration-150 hover:border-[#D1D5DB] ${
+          primary
+            ? 'p-4 sm:p-5 w-full flex-none snap-start lg:w-auto lg:shrink lg:h-[136px]'
+            : 'p-3 sm:p-4 w-full flex-none snap-start lg:w-auto lg:shrink lg:h-[40px] lg:flex-row lg:items-center lg:gap-3 lg:p-3'
+        }`}
+      >
+        <div className={`flex ${primary ? 'items-center gap-2 mb-2' : 'items-center gap-2.5 flex-1'}`}>
+          <Icon className={primary ? 'w-5 h-5 text-[#6B7280]' : 'w-4 h-4 text-[#6B7280]'} />
+          <span
+            className={`font-medium text-[#6B7280] leading-snug ${
+              primary ? 'text-sm' : 'text-xs lg:text-xs'
+            }`}
+          >
+            {card.label}
+          </span>
+        </div>
+
+        <div className={primary ? '' : 'lg:mt-0'}>
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className={`font-extrabold text-[#111827] tracking-tight ${
+                primary ? 'text-2xl sm:text-3xl' : 'text-sm lg:text-sm'
+              }`}
+            >
+              {card.value.toLocaleString('id-ID')}
+            </span>
+            <span className={`text-xs font-semibold text-[#9CA3AF] ${primary ? '' : 'lg:hidden'}`}>GTK</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section aria-label="Ringkasan Statistik Kehadiran GTK Hari Ini">
-      <div
-        className="flex lg:grid lg:grid-cols-4 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none gap-3.5 sm:gap-4 pb-2 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {/* Special Orange Attendance Card for Headmaster on Mobile & Tablet (< 1024px) */}
+      {/* Mobile/Tablet Carousel */}
+      <div className="lg:hidden flex overflow-x-auto snap-x snap-mandatory gap-3.5 sm:gap-4 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {role === 'headmaster' && (
-          <div className="lg:hidden relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3.5 font-sans w-full flex-none snap-start">
-            {/* Geometric Minimalist Background Pattern */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#FB923C] via-[#F97316] to-[#EA580C] text-white rounded-2xl p-4 sm:p-5 shadow-md space-y-3.5 font-sans w-full flex-none snap-start">
             <div className="absolute inset-0 opacity-12 pointer-events-none overflow-hidden rounded-2xl">
               <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                 <defs>
@@ -185,96 +220,67 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
                 <rect width="100%" height="100%" fill="url(#geometric-pattern-headmaster-card)" className="text-white" />
               </svg>
             </div>
-
-            {/* Row 1: Nama Sekolah & Lokasi */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2.5 border-b border-white/20 relative z-10">
-              <h3 className="font-bold text-base sm:text-lg text-white tracking-tight drop-shadow-2xs">
-                {schoolName}
-              </h3>
+              <h3 className="font-bold text-base sm:text-lg text-white tracking-tight drop-shadow-2xs">{schoolName}</h3>
               <div className="flex items-center gap-1.5 text-xs font-semibold text-white/95">
                 <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
                 <span>Malili, Luwu Timur</span>
               </div>
             </div>
-
-            {/* Row 2: Status Header & Status Display */}
             <div className="pt-0.5 pb-0.5 relative z-10 space-y-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-2xs">
-                  PRESENSI HARI INI
-                </span>
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white drop-shadow-2xs">PRESENSI HARI INI</span>
                 <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-orange-100/95 shrink-0">
                   <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
                   <span>{currentDateFormatted || 'Memuat tanggal...'}</span>
                 </div>
               </div>
-
-              <p className="text-base sm:text-lg font-extrabold text-white tracking-tight drop-shadow-2xs">
-                {todayDisplayStatus}
-              </p>
+              <p className="text-base sm:text-lg font-extrabold text-white tracking-tight drop-shadow-2xs">{todayDisplayStatus}</p>
             </div>
-
-            {/* Row 3: Check-in & Check-out COMBINED SINGLE CARD */}
             <div className="bg-white rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] relative z-10">
               <div className="grid grid-cols-2 divide-x divide-slate-200">
                 <div className="flex flex-col items-center justify-center text-center px-2">
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
-                    Check-in
-                  </span>
-                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
-                    {displayCheckInTime}
-                  </span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">Check-in</span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">{displayCheckInTime}</span>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center px-2">
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
-                    Check-out
-                  </span>
-                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
-                    {displayCheckOutTime}
-                  </span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">Check-out</span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">{displayCheckOutTime}</span>
                 </div>
               </div>
             </div>
           </div>
         )}
+        {cards.map((card) => <StatCard key={card.key} card={card} primary />)}
+      </div>
 
-        {cards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.key}
-              className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between transition-all duration-150 hover:border-[#D1D5DB] w-full flex-none lg:w-auto lg:shrink snap-start"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="text-xs sm:text-[13px] font-medium text-[#6B7280] leading-snug line-clamp-2">
-                  {card.label}
-                </span>
-                <div
-                  className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${card.iconBg} ${card.iconColor} ${card.iconBorder}`}
-                  aria-hidden="true"
-                >
-                  <Icon className="w-4 h-4" />
+      {/* Desktop Grid */}
+      <div className="hidden lg:grid grid-cols-4 gap-4">
+        {/* Col 1: Total GTK */}
+        <StatCard card={cards[0]} primary />
+        {/* Col 2: On Time */}
+        <StatCard card={cards[1]} primary />
+        
+        {/* Col 3 & 4: Combined Secondary Cards */}
+        {[
+          [cards[2], cards[3], cards[4]], // Col 3
+          [cards[5], cards[6], cards[7]], // Col 4
+        ].map((columnCards, colIndex) => (
+          <div key={colIndex} className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs p-3 flex flex-col justify-between gap-2">
+            {columnCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div key={card.key} className="flex items-center justify-between py-1 border-b last:border-b-0 border-[#F3F4F6] last:pb-0">
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <span className="text-[11px] font-medium text-[#6B7280]">{card.label}</span>
+                  </div>
+                  <span className="text-sm font-bold text-[#111827]">{card.value.toLocaleString('id-ID')}</span>
                 </div>
-              </div>
-
-              <div className="mt-3 sm:mt-4">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
-                    {card.value.toLocaleString('id-ID')}
-                  </span>
-                  <span className="text-xs font-semibold text-[#9CA3AF]">
-                    GTK
-                  </span>
-                </div>
-                {card.helperText && (
-                  <p className="text-[11px] text-[#9CA3AF] mt-1 leading-normal truncate">
-                    {card.helperText}
-                  </p>
-                )}
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
     </section>
   );

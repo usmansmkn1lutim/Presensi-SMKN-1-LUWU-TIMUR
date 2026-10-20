@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   User as UserIcon,
   ShieldCheck,
+  Languages,
+  Bell,
   Sun,
   Info,
   LogOut,
@@ -96,9 +98,7 @@ export const AccountPage: React.FC = () => {
             className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#F3F4F6] flex items-center justify-center text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0">
-                <UserIcon className="w-4 h-4 stroke-[1.8]" />
-              </div>
+              <UserIcon className="w-5 h-5 text-[#6B7280] group-hover:text-[#F97316] transition-colors shrink-0" />
               <span className="text-sm font-semibold text-[#111827] truncate">
                 Profil Saya
               </span>
@@ -112,14 +112,42 @@ export const AccountPage: React.FC = () => {
             aria-disabled="true"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#F3F4F6] flex items-center justify-center text-[#9CA3AF] shrink-0">
-                <ShieldCheck className="w-4 h-4 stroke-[1.8]" />
-              </div>
+              <ShieldCheck className="w-5 h-5 text-[#9CA3AF] shrink-0" />
               <span className="text-sm font-medium text-[#9CA3AF] truncate">
                 Keamanan Akun
               </span>
             </div>
           </div>
+
+          {/* Bahasa: Navigasi ke /account/language */}
+          <button
+            type="button"
+            onClick={() => navigate('/account/language')}
+            className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <Languages className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
+              <span className="text-sm font-semibold text-[#111827] truncate">
+                Bahasa
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          </button>
+
+          {/* Notifikasi: Navigasi ke /account/notifications */}
+          <button
+            type="button"
+            onClick={() => navigate('/account/notifications')}
+            className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <Bell className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
+              <span className="text-sm font-semibold text-[#111827] truncate">
+                Notifikasi
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          </button>
         </div>
       </div>
 
@@ -135,9 +163,7 @@ export const AccountPage: React.FC = () => {
             aria-disabled="true"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] flex items-center justify-center text-[#F97316] shrink-0">
-                <Sun className="w-4 h-4 stroke-[1.8]" />
-              </div>
+              <Sun className="w-5 h-5 text-[#F97316] shrink-0" />
               <span className="text-sm font-semibold text-[#111827] truncate">
                 Tema
               </span>
@@ -162,9 +188,7 @@ export const AccountPage: React.FC = () => {
             className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#F3F4F6] flex items-center justify-center text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0">
-                <Info className="w-4 h-4 stroke-[1.8]" />
-              </div>
+              <Info className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
               <span className="text-sm font-semibold text-[#111827] truncate">
                 Tentang Tamaki
               </span>
@@ -183,9 +207,7 @@ export const AccountPage: React.FC = () => {
             className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-red-50/60 active:bg-red-100/60 transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center text-red-600 shrink-0">
-                <LogOut className="w-4 h-4 stroke-[1.8]" />
-              </div>
+              <LogOut className="w-5 h-5 text-red-600 shrink-0" />
               <span className="text-sm font-bold text-red-600 truncate">
                 Keluar
               </span>
