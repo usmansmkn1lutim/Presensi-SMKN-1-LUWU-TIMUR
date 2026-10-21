@@ -296,11 +296,21 @@ export const DashboardPage: React.FC = () => {
     if (isManagerial) {
       setExecLoading(true);
       setExecError(null);
-      dashboardExecutiveService
-        .getExecutiveDashboardData()
-        .then((data) => {
+      Promise.all([
+        dashboardExecutiveService.getExecutiveDashboardData(),
+        attendanceService.getTodayAttendance().catch(() => null),
+        attendanceService.getCurrentEmployee().then(async (emp) => {
+          if (!emp) return null;
+          const todayStr = getMakassarTodayDateString();
+          const matrix = await attendanceStatusService.getEvaluatedMatrix(todayStr, todayStr, emp.id).catch(() => []);
+          return matrix.find((r) => r.date === todayStr) || null;
+        }).catch(() => null)
+      ])
+        .then(([data, todayAtt, todayRec]) => {
           if (isMounted) {
             setExecData(data);
+            setTodayAttendance(todayAtt);
+            setTodayEvaluatedRecord(todayRec);
             setExecLoading(false);
           }
         })
