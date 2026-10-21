@@ -42,6 +42,7 @@ import { CheckOutCard } from '../../components/attendance/CheckOutCard';
 import { WorkScheduleCard } from '../../components/attendance/WorkScheduleCard';
 import { AttendanceLocationCard } from '../../components/attendance/AttendanceLocationCard';
 import { CameraCaptureModal } from '../../components/attendance/CameraCaptureModal';
+import { AttendanceResultModal } from '../../components/attendance/AttendanceResultModal';
 import { Button } from '../../components/ui/Button';
 import { NotificationBell } from '../../components/notifications/NotificationBell';
 import {
@@ -665,32 +666,22 @@ export const AttendancePage: React.FC = () => {
 
   return (
     <div className="space-y-5 max-w-5xl mx-auto pb-10">
-      {/* Banner Feedback Messages */}
-      {banner && (
-        <div
-          className={`p-4 rounded-xl border flex items-start gap-3 text-xs sm:text-sm font-medium animate-in fade-in transition-all ${
-            banner.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-              : banner.type === 'error'
-              ? 'bg-red-50 border-red-200 text-red-800'
-              : 'bg-blue-50 border-blue-200 text-blue-800'
-          }`}
-        >
-          {banner.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-          ) : banner.type === 'error' ? (
-            <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-          ) : (
-            <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-          )}
+      {/* Attendance Result Modal for Success / Error */}
+      <AttendanceResultModal
+        isOpen={!!banner && (banner.type === 'success' || banner.type === 'error')}
+        type={banner && (banner.type === 'success' || banner.type === 'error') ? banner.type : null}
+        title={banner?.title}
+        message={banner?.message || ''}
+        onClose={() => setBanner(null)}
+      />
+
+      {/* Other Feedback Messages (Info etc) */}
+      {banner && banner.type === 'info' && (
+        <div className="p-4 rounded-xl border flex items-start gap-3 text-xs sm:text-sm font-medium animate-in fade-in transition-all bg-blue-50 border-blue-200 text-blue-800">
+          <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-semibold text-xs sm:text-sm">
-              {banner.title ||
-                (banner.type === 'success'
-                  ? 'Presensi Berhasil'
-                  : banner.type === 'error'
-                  ? 'Informasi Presensi'
-                  : 'Pemberitahuan')}
+              {banner.title || 'Pemberitahuan'}
             </p>
             <p className="mt-0.5 text-xs opacity-90">{banner.message}</p>
           </div>
