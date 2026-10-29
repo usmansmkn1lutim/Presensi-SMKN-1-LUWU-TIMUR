@@ -7,6 +7,33 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { APP_CONFIG } from '../../config/appConfig';
 
+/**
+ * Determines the safe post-login destination path.
+ * Ignores account, profile, and login routes (which typically originate from a logout or auth loop),
+ * falling back to '/dashboard', while preserving valid deep-link paths (e.g. /reports, /attendance).
+ */
+const getValidRedirectTarget = (targetPath?: string | null): string => {
+  if (!targetPath || typeof targetPath !== 'string') {
+    return '/dashboard';
+  }
+
+  // Normalize path by stripping trailing slash (except for bare root '/')
+  const normalized = targetPath.length > 1 && targetPath.endsWith('/')
+    ? targetPath.slice(0, -1)
+    : targetPath;
+
+  // Segment boundary check: exact match or followed by '/'
+  const matchesSegment = (prefix: string) =>
+    normalized === prefix || normalized.startsWith(`${prefix}/`);
+
+  const shouldIgnore =
+    matchesSegment('/account') ||
+    matchesSegment('/profile') ||
+    matchesSegment('/login');
+
+  return shouldIgnore ? '/dashboard' : normalized;
+};
+
 export const LoginPage: React.FC = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +48,8 @@ export const LoginPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Redirection target after successful login
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+  const rawTarget = (location.state as { from?: { pathname: string } })?.from?.pathname;
+  const from = getValidRedirectTarget(rawTarget);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
