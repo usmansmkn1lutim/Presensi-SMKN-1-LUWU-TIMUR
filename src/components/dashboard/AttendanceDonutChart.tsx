@@ -122,8 +122,8 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: 'Hadir',
       count: hadir,
       percentage: pctHadir,
-      color: '#F97316',
-      hoverColor: '#F97316',
+      color: ATTENDANCE_STATUS_TOKENS.onTime.hex, // #F97316
+      hoverColor: ATTENDANCE_STATUS_TOKENS.onTime.hex,
       dotClass: 'bg-[#F97316]',
     },
     {
@@ -132,19 +132,9 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: 'Sakit/Izin/Cuti',
       count: lainnya,
       percentage: pctLainnya,
-      color: '#FB923C',
-      hoverColor: '#FB923C',
-      dotClass: 'bg-[#FB923C]',
-    },
-    {
-      key: 'pending',
-      label: 'Belum Presensi',
-      shortLabel: 'Belum Presensi',
-      count: pending,
-      percentage: pctPending,
-      color: '#FED7AA',
-      hoverColor: '#FED7AA',
-      dotClass: 'bg-[#FED7AA] border border-amber-200',
+      color: ATTENDANCE_STATUS_TOKENS.sick.hex, // #F59E0B
+      hoverColor: ATTENDANCE_STATUS_TOKENS.sick.hex,
+      dotClass: 'bg-[#F59E0B]',
     },
     {
       key: 'alpha',
@@ -152,9 +142,19 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       shortLabel: 'Alfa',
       count: alpha,
       percentage: pctAlpha,
-      color: '#D3D3D3',
-      hoverColor: '#D3D3D3',
-      dotClass: 'bg-[#D3D3D3]',
+      color: ATTENDANCE_STATUS_TOKENS.absent.hex, // #DC2626
+      hoverColor: ATTENDANCE_STATUS_TOKENS.absent.hex,
+      dotClass: 'bg-[#DC2626]',
+    },
+    {
+      key: 'pending',
+      label: 'Belum Presensi',
+      shortLabel: 'Belum Presensi',
+      count: pending,
+      percentage: pctPending,
+      color: ATTENDANCE_STATUS_TOKENS.pending.bgHex, // #E5E7EB
+      hoverColor: '#D1D5DB',
+      dotClass: 'bg-[#E5E7EB] border border-slate-300',
     },
   ];
 

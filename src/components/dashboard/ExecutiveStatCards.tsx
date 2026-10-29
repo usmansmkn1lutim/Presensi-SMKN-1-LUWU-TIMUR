@@ -180,7 +180,7 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
         }`}
       >
         <div className={`flex ${primary ? 'items-center gap-2 mb-2' : 'items-center gap-2.5 flex-1'}`}>
-          <Icon className={primary ? 'w-5 h-5 text-[#6B7280]' : 'w-4 h-4 text-[#6B7280]'} />
+          <Icon className={primary ? `w-5 h-5 ${card.iconColor}` : `w-4 h-4 ${card.iconColor}`} />
           <span
             className={`font-medium text-[#6B7280] leading-snug ${
               primary ? 'text-sm' : 'text-xs lg:text-xs'
@@ -275,7 +275,7 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
               return (
                 <div key={card.key} className="flex items-center justify-between py-1 border-b last:border-b-0 border-[#F3F4F6] last:pb-0">
                   <div className="flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
                     <span className="text-[11px] font-medium text-[#6B7280]">{card.label}</span>
                   </div>
                   <span className="text-sm font-bold text-[#111827]">{card.value.toLocaleString('id-ID')}</span>

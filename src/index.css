@@ -35,24 +35,27 @@
   --color-text-secondary: #6B7280;
   --color-text-muted: #9CA3AF;
 
-  /* Status Colors */
+  /* Status Colors (Phase 1 Standardization) */
   --color-status-total: #64748B;
-  --color-status-present: #39805A;
-  --color-status-late: #7B922F;
-  --color-status-official-duty: #477BAE;
-  --color-status-sick: #4F98B2;
-  --color-status-permission: #C47735;
-  --color-status-leave: #8669AC;
-  --color-status-absent: #F4382C;
+  --color-status-present: #F97316;
+  --color-status-late: #F97316;
+  --color-status-official-duty: #F97316;
+  --color-status-sick: #F59E0B;
+  --color-status-permission: #F59E0B;
+  --color-status-leave: #F59E0B;
+  --color-status-absent: #DC2626;
+  --color-status-pending: #9CA3AF;
   --color-status-total-bg: #E9EDF2;
-  --color-status-present-bg: #E8F4EB;
-  --color-status-late-bg: #F0F4DE;
-  --color-status-official-duty-bg: #E8F0FA;
-  --color-status-sick-bg: #E6F4F8;
-  --color-status-permission-bg: #FFF0E3;
-  --color-status-leave-bg: #F0EAF8;
-  --color-status-absent-bg: #FDE9E7;
-  --color-status-absent-text: #C92D24;
+  --color-status-present-bg: #FFF7ED;
+  --color-status-late-bg: #FFF7ED;
+  --color-status-official-duty-bg: #FFF7ED;
+  --color-status-sick-bg: #FEF3C7;
+  --color-status-permission-bg: #FEF3C7;
+  --color-status-leave-bg: #FEF3C7;
+  --color-status-absent-bg: #FEE2E2;
+  --color-status-pending-bg: #E5E7EB;
+  --color-status-absent-text: #B91C1C;
+  --color-status-pending-text: #374151;
 }
 
 body {

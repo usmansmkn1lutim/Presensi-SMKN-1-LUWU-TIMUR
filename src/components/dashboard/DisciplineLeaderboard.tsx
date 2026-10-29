@@ -323,10 +323,10 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                       {/* Right: Metrics */}
                       <div className="flex flex-col items-end shrink-0 pl-2">
                         <div className="flex items-center gap-1">
-                          <span className="text-xs sm:text-sm font-bold font-mono" style={{ color: 'var(--color-status-present)' }}>
+                          <span className="text-xs sm:text-sm font-semibold" style={{ color: 'var(--color-status-present)' }}>
                             {item.onTimeCount}
                           </span>
-                          <span className="text-2xs text-slate-500 font-medium">
+                          <span className="text-xs sm:text-sm text-slate-500 font-medium">
                             / {item.attendanceCount} hadir
                           </span>
                         </div>
@@ -416,10 +416,10 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                       {/* Right: Metrics */}
                       <div className="flex flex-col items-end shrink-0 pl-2">
                         <div className="flex items-center gap-1">
-                          <span className="text-xs sm:text-sm font-bold font-mono" style={{ color: 'var(--color-status-late)' }}>
+                          <span className="text-xs sm:text-sm font-semibold" style={{ color: 'var(--color-status-late)' }}>
                             {item.lateCount} kali
                           </span>
-                          <span className="text-2xs text-slate-500 font-medium">
+                          <span className="text-xs sm:text-sm text-slate-500 font-medium">
                             terlambat
                           </span>
                         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useId, useRef, useEffect } from 'react';
 import { TrendingUp, Calendar, Info, Filter, ChevronDown, Check } from 'lucide-react';
 import { TrendPoint } from '../../services/dashboardExecutiveService';
+import { ATTENDANCE_STATUS_TOKENS } from '../../config/statusColors';
 
 export type TrendPeriodKey = 'this_week' | 'this_month' | 'last_month';
 export type TrendRange = '1W' | '4W' | TrendPeriodKey;
@@ -46,26 +47,26 @@ export const TREND_STATUS_OPTIONS: TrendStatusOption[] = [
   {
     key: 'hadir',
     label: 'Hadir',
-    color: '#F97316',
+    color: ATTENDANCE_STATUS_TOKENS.onTime.hex,
     getValue: (p) => p.hadirCount ?? p.presentCount ?? 0,
   },
   {
     key: 'lainnya',
     label: 'Sakit / Izin / Cuti',
-    color: '#FB923C',
+    color: ATTENDANCE_STATUS_TOKENS.sick.hex,
     getValue: (p) => p.lainnyaCount ?? p.excusedCount ?? 0,
-  },
-  {
-    key: 'pending',
-    label: 'Belum Presensi',
-    color: '#FED7AA',
-    getValue: (p) => p.pendingCount ?? 0,
   },
   {
     key: 'alpha',
     label: 'Alpha',
-    color: '#D3D3D3',
+    color: ATTENDANCE_STATUS_TOKENS.absent.hex,
     getValue: (p) => p.alphaCount ?? p.absentCount ?? 0,
+  },
+  {
+    key: 'pending',
+    label: 'Belum Presensi',
+    color: ATTENDANCE_STATUS_TOKENS.pending.hex,
+    getValue: (p) => p.pendingCount ?? 0,
   },
 ];
 
@@ -587,11 +588,11 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                   top: '4px',
                 }}
               >
-                <div className="bg-slate-900/95 text-white backdrop-blur-xs rounded-lg px-2.5 py-1.5 shadow-xl text-[11px] space-y-1 border border-slate-700/60 min-w-[160px]">
+                <div className="bg-white text-slate-700 rounded-xl px-3 py-2 shadow-lg text-[11px] space-y-1.5 border border-slate-200 min-w-[170px]">
                   {/* Header Tooltip */}
-                  <div className="flex items-center justify-between gap-2 border-b border-slate-700/80 pb-1">
-                    <div className="font-medium text-slate-100 flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5">
+                    <div className="font-semibold text-slate-900 flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-slate-500 shrink-0" />
                       <span>
                         {hoveredPoint.dayName}, {hoveredPoint.shortDate}
                       </span>
@@ -600,15 +601,15 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
                   {/* Nilai Kategori Aktif */}
                   <div className="space-y-0.5">
-                    <div className="flex items-center justify-between text-slate-300">
-                      <span className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-between text-slate-600">
+                      <span className="flex items-center gap-1.5 font-medium">
                         <span
                           className="w-2 h-2 rounded-xs shrink-0"
                           style={{ backgroundColor: activeOption.color }}
                         />
                         {activeOption.label}:
                       </span>
-                      <span className="font-semibold text-white">
+                      <span className="font-bold text-slate-900">
                         {activeOption.getValue(hoveredPoint)} GTK
                       </span>
                     </div>
@@ -616,9 +617,9 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
                   {/* Ringkasan Tingkat Kehadiran jika Hadir aktif */}
                   {activeOption.key === 'hadir' && (
-                    <div className="border-t border-slate-700/80 pt-1 flex items-center justify-between text-[10px]">
-                      <span className="text-slate-400">Tingkat Hadir:</span>
-                      <span className="font-bold text-emerald-400">
+                    <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
+                      <span className="text-slate-500 font-medium">Tingkat Hadir:</span>
+                      <span className="font-bold text-emerald-600">
                         {hoveredPoint.attendanceRate}%
                       </span>
                     </div>
