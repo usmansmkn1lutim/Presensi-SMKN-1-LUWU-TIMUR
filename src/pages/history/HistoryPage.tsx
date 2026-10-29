@@ -300,6 +300,7 @@ export const HistoryPage: React.FC = () => {
           onMonthChange={handleMonthChange}
           selectedDate={selectedDate || ''}
           currentDate={currentCalendarDate}
+          records={monthlyOfficialRecords}
         />
 
         {/* REKAP KEHADIRAN BULAN INI */}

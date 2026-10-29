@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { AttendanceHistoryRecord } from '../../types/attendanceHistory.types';
 
 interface HistoryCalendarMobileProps {
   onDateSelect: (date: string) => void;
   onMonthChange: (year: number, month: number) => void;
   selectedDate: string;
   currentDate: Date; // {year, month} for calendar view
+  records?: AttendanceHistoryRecord[];
 }
 
 export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
@@ -14,6 +15,7 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
   onMonthChange,
   selectedDate,
   currentDate,
+  records = [],
 }) => {
   const daysInMonth = useMemo(() => new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate(), [currentDate]);
   const firstDayOfMonth = useMemo(() => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay(), [currentDate]);
@@ -45,6 +47,91 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
     return dateStr === selectedDate;
   };
 
+  const getDayStyle = (day: number) => {
+    const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(d);
+    checkDate.setHours(0, 0, 0, 0);
+
+    const isTodayDate = isToday(day);
+    const isFutureDate = checkDate > today;
+    const selected = isSelected(day);
+    const dayOfWeek = d.getDay(); // 0 = Sun, 6 = Sat
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    const record = records.find(r => r.attendance_date === dateStr);
+    const status = record?.official_status;
+
+    // Status-based solid background colors
+    if (status === 'present' || status === 'official_duty') {
+      return {
+        bg: 'bg-[#44C1A3]',
+        text: 'text-white font-semibold',
+        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : 'border border-transparent',
+      };
+    }
+    if (status === 'sick' || status === 'permit' || status === 'leave') {
+      return {
+        bg: 'bg-[#F59E0B]',
+        text: 'text-white font-semibold',
+        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : 'border border-transparent',
+      };
+    }
+    if (status === 'absent') {
+      return {
+        bg: 'bg-[#DC2626]',
+        text: 'text-white font-semibold',
+        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : 'border border-transparent',
+      };
+    }
+
+    // Future dates
+    if (isFutureDate) {
+      return {
+        bg: 'bg-white',
+        text: 'text-slate-400 font-normal hover:bg-slate-50',
+        border: 'border border-transparent',
+      };
+    }
+
+    // Today without status
+    if (isTodayDate) {
+      return {
+        bg: selected ? 'bg-[#F97316]' : 'bg-white',
+        text: selected ? 'text-white font-bold' : 'text-[#F97316] font-bold',
+        border: selected ? 'border border-[#F97316]' : 'border border-[#F97316]',
+      };
+    }
+
+    // Weekend without status
+    if (isWeekend) {
+      return {
+        bg: selected ? 'bg-[#F97316]' : 'bg-white',
+        text: selected ? 'text-white font-semibold' : 'text-[#DC2626] font-medium hover:bg-slate-100',
+        border: 'border border-transparent',
+      };
+    }
+
+    // Selected past date without status
+    if (selected) {
+      return {
+        bg: 'bg-[#F97316]',
+        text: 'text-white font-semibold',
+        border: 'border border-transparent',
+      };
+    }
+
+    // Default past date without status
+    return {
+      bg: 'bg-white',
+      text: 'text-slate-700 font-medium hover:bg-slate-100',
+      border: 'border border-transparent',
+    };
+  };
+
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs">
       <div className="flex items-center justify-between mb-4">
@@ -64,8 +151,7 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
       <div className="grid grid-cols-7 gap-1">
         {days.map((day, idx) => {
           if (!day) return <div key={idx} />;
-          const selected = isSelected(day);
-          const today = isToday(day);
+          const style = getDayStyle(day);
           
           return (
             <button
@@ -76,12 +162,9 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
                   const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                   onDateSelect(dateStr);
               }}
-              className={`w-full aspect-square flex items-center justify-center rounded-lg text-xs font-medium relative
-                ${selected ? 'bg-[#F97316] text-white' : today ? 'border border-[#F97316] text-[#F97316]' : 'text-slate-700 hover:bg-slate-100'}
-              `}
+              className={`w-full aspect-square flex items-center justify-center rounded-lg text-xs relative transition-all ${style.bg} ${style.text} ${style.border}`}
             >
               {day}
-              {today && !selected && <span className="absolute bottom-1 w-1 h-1 bg-[#F97316] rounded-full" />}
             </button>
           );
         })}
@@ -89,3 +172,4 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
     </div>
   );
 };
+
