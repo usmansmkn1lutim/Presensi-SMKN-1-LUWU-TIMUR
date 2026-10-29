@@ -1,6 +1,15 @@
 import React from 'react';
 import { RecapStatistics } from '../../types/attendanceRecap.types';
-import { PieChart, TrendingUp, Building2, Clock, CheckCircle2, AlertTriangle, UserX } from 'lucide-react';
+import {
+  PieChart,
+  TrendingUp,
+  Building2,
+  Clock,
+  CircleCheck,
+  ClockAlert,
+  UserRoundX,
+  LogOut,
+} from 'lucide-react';
 
 interface RecapStatisticsSectionProps {
   statistics: RecapStatistics | null;
@@ -84,30 +93,30 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div className="p-2.5 rounded-lg border" style={{ backgroundColor: 'var(--color-status-present-bg)', borderColor: 'var(--color-status-present)' }}>
-              <span className="font-semibold block flex items-center gap-1" style={{ color: 'var(--color-status-present)', fontSize: '10px' }}>
-                <CheckCircle2 className="w-3 h-3" />
-                Tepat Waktu
-              </span>
-              <span className="text-base font-bold mt-0.5 block" style={{ color: 'var(--color-status-present)' }}>
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
+                <CircleCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Tepat Waktu</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
                 {checkInStatusStats.onTimeCount}{' '}
-                <span className="text-xs font-medium" style={{ color: 'var(--color-status-present)' }}>
+                <span className="text-xs font-normal text-[#6B7280]">
                   ({checkInStatusStats.onTimePercentage}%)
                 </span>
-              </span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-lg border" style={{ backgroundColor: 'var(--color-status-late-bg)', borderColor: 'var(--color-status-late)' }}>
-              <span className="font-semibold block flex items-center gap-1" style={{ color: 'var(--color-status-late)', fontSize: '10px' }}>
-                <AlertTriangle className="w-3 h-3" />
-                Terlambat
-              </span>
-              <span className="text-base font-bold mt-0.5 block" style={{ color: 'var(--color-status-late)' }}>
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
+                <ClockAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>Terlambat</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
                 {checkInStatusStats.lateCount}{' '}
-                <span className="text-xs font-medium" style={{ color: 'var(--color-status-late)' }}>
+                <span className="text-xs font-normal text-[#6B7280]">
                   ({checkInStatusStats.latePercentage}%)
                 </span>
-              </span>
+              </div>
             </div>
           </div>
         </div>
@@ -116,7 +125,7 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
         <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-blue-600" />
+              <LogOut className="w-4 h-4 text-blue-600" />
               Statistik Status Check-out
             </span>
             <span className="text-[11px] font-semibold text-[#6B7280]">
@@ -139,30 +148,30 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200">
-              <span className="text-[10px] text-blue-800 font-semibold block flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-blue-600" />
-                Sudah Check-out
-              </span>
-              <span className="text-base font-bold text-blue-700 mt-0.5 block">
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
+                <LogOut className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>Sudah Check-out</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
                 {checkOutStatusStats.checkedOutCount}{' '}
-                <span className="text-xs font-medium text-blue-600">
+                <span className="text-xs font-normal text-[#6B7280]">
                   ({checkOutStatusStats.checkedOutPercentage}%)
                 </span>
-              </span>
+              </div>
             </div>
 
-            <div className="p-2.5 rounded-lg border" style={{ backgroundColor: 'var(--color-status-absent-bg)', borderColor: 'var(--color-status-absent-bg)' }}>
-              <span className="font-semibold block flex items-center gap-1" style={{ color: 'var(--color-status-absent-text)', fontSize: '10px' }}>
-                <UserX className="w-3 h-3" style={{ color: 'var(--color-status-absent)' }} />
-                Belum Check-out
-              </span>
-              <span className="text-base font-bold mt-0.5 block" style={{ color: 'var(--color-status-absent)' }}>
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
+                <UserRoundX className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                <span>Belum Check-out</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
                 {checkOutStatusStats.notCheckedOutCount}{' '}
-                <span className="text-xs font-medium" style={{ color: 'var(--color-status-absent)' }}>
+                <span className="text-xs font-normal text-[#6B7280]">
                   ({checkOutStatusStats.notCheckedOutPercentage}%)
                 </span>
-              </span>
+              </div>
             </div>
           </div>
         </div>

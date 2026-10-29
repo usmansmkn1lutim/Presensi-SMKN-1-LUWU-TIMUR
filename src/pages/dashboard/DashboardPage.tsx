@@ -17,6 +17,12 @@ import {
   Calendar,
   HeartPulse,
   Briefcase,
+  CircleCheck,
+  Thermometer,
+  FileCheck,
+  BriefcaseBusiness,
+  CalendarDays,
+  UserRoundX,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProfileMenu } from '../../context/ProfileMenuContext';
@@ -452,37 +458,37 @@ export const DashboardPage: React.FC = () => {
       key: 'present',
       title: 'Hadir',
       value: weeklySummary?.present ?? 0,
-      icon: <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
+      icon: <CircleCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
     },
     {
       key: 'sick',
       title: 'Sakit',
       value: weeklySummary?.sick ?? 0,
-      icon: <HeartPulse className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
+      icon: <Thermometer className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
     },
     {
       key: 'permit',
       title: 'Izin',
       value: weeklySummary?.permit ?? 0,
-      icon: <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
+      icon: <FileCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
     },
     {
       key: 'official_duty',
       title: 'Dinas Luar',
       value: weeklySummary?.officialDuty ?? 0,
-      icon: <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
+      icon: <BriefcaseBusiness className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
     },
     {
       key: 'leave',
       title: 'Cuti',
       value: weeklySummary?.leave ?? 0,
-      icon: <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
+      icon: <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
     },
     {
       key: 'absent',
       title: 'Alpha',
       value: weeklySummary?.absent ?? 0,
-      icon: <UserX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
+      icon: <UserRoundX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
     },
   ];
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  CheckCircle2,
-  Clock,
+  CircleCheck,
+  ClockAlert,
   LogOut,
   AlertCircle,
   Users,
@@ -24,11 +24,10 @@ export const ReportSummaryCards: React.FC<ReportSummaryCardsProps> = ({
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="bg-white border border-[#E5E7EB] rounded-2xl p-4 animate-pulse shadow-2xs space-y-2"
+            className="bg-white border border-[#E5E7EB] rounded-2xl p-3.5 sm:p-4 animate-pulse shadow-2xs space-y-2"
           >
-            <div className="w-8 h-8 rounded-xl bg-gray-100" />
-            <div className="h-4 bg-gray-100 rounded w-16" />
-            <div className="h-6 bg-gray-200 rounded w-12" />
+            <div className="h-3.5 bg-gray-100 rounded w-2/3" />
+            <div className="h-6 bg-gray-200 rounded w-1/2" />
           </div>
         ))}
       </div>
@@ -40,54 +39,42 @@ export const ReportSummaryCards: React.FC<ReportSummaryCardsProps> = ({
       label: 'Total Hadir',
       value: metrics.totalAttendanceRecords,
       icon: Users,
-      bgColor: 'bg-blue-50',
       iconColor: 'text-blue-600',
-      borderColor: 'border-blue-100',
       desc: 'Kehadiran tercatat',
     },
     {
       label: 'Tepat Waktu',
       value: metrics.totalOnTime,
-      icon: CheckCircle2,
-      bgColor: 'bg-emerald-50',
+      icon: CircleCheck,
       iconColor: 'text-emerald-600',
-      borderColor: 'border-emerald-100',
       desc: 'Sesuai jam kerja',
     },
     {
       label: 'Terlambat',
       value: metrics.totalLate,
-      icon: Clock,
-      bgColor: 'bg-amber-50',
+      icon: ClockAlert,
       iconColor: 'text-amber-600',
-      borderColor: 'border-amber-100',
       desc: 'Melewati batas masuk',
     },
     {
       label: 'Sudah Check-out',
       value: metrics.totalCheckedOut,
       icon: LogOut,
-      bgColor: 'bg-purple-50',
       iconColor: 'text-purple-600',
-      borderColor: 'border-purple-100',
       desc: 'Selesai presensi pulang',
     },
     {
       label: 'Belum Check-out',
       value: metrics.totalNotCheckedOut,
       icon: AlertCircle,
-      bgColor: 'bg-rose-50',
       iconColor: 'text-rose-600',
-      borderColor: 'border-rose-100',
       desc: 'Belum absen pulang',
     },
     {
       label: 'Tingkat Kehadiran',
       value: `${metrics.overallAttendancePercentage}%`,
       icon: Percent,
-      bgColor: 'bg-orange-50',
       iconColor: 'text-[#F97316]',
-      borderColor: 'border-orange-100',
       desc: `${metrics.effectiveWorkingDays} hari kerja efektif`,
     },
   ];
@@ -99,18 +86,19 @@ export const ReportSummaryCards: React.FC<ReportSummaryCardsProps> = ({
         return (
           <div
             key={idx}
-            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-4.5 shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between"
+            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 sm:p-4 shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between gap-2"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] sm:text-xs font-medium text-[#6B7280]">
+            {/* Baris Atas: Ikon berdampingan langsung dengan judul indikator */}
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Icon className={`w-4 h-4 ${c.iconColor} shrink-0`} />
+              <span className="text-[11px] sm:text-xs font-medium text-[#6B7280] truncate">
                 {c.label}
               </span>
-              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl ${c.bgColor} flex items-center justify-center shrink-0`}>
-                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${c.iconColor}`} />
-              </div>
             </div>
+
+            {/* Baris Bawah: Nilai statistik di bawah baris ikon dan judul */}
             <div>
-              <div className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+              <div className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight tabular-nums">
                 {c.value}
               </div>
               <p className="text-[10px] sm:text-[11px] text-[#9CA3AF] mt-0.5 truncate">

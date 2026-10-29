@@ -1,5 +1,13 @@
 import React from 'react';
-import { Users, CalendarDays, CalendarCheck, Clock, AlertTriangle, UserX, LogOut } from 'lucide-react';
+import {
+  Users,
+  CalendarDays,
+  CalendarCheck,
+  CircleCheck,
+  ClockAlert,
+  UserRoundX,
+  LogOut,
+} from 'lucide-react';
 import { GlobalRecapSummary } from '../../types/attendanceRecap.types';
 
 interface RecapSummaryCardsProps {
@@ -31,44 +39,37 @@ export const RecapSummaryCards: React.FC<RecapSummaryCardsProps> = ({
     {
       title: 'Total Pegawai',
       value: summary?.totalEmployees || 0,
-      icon: <Users className="w-4 h-4 text-[#111827]" />,
-      bgIcon: 'bg-[#F3F4F6] text-[#111827] border-[#E5E7EB]',
+      icon: <Users className="w-4 h-4 text-[#111827] shrink-0" />,
     },
     {
       title: 'Hari Kerja Efektif',
       value: summary?.effectiveWorkingDays || 0,
-      icon: <CalendarDays className="w-4 h-4 text-[#F97316]" />,
-      bgIcon: 'bg-[#FFF7ED] text-[#F97316] border-[#FFEDD5]',
+      icon: <CalendarDays className="w-4 h-4 text-[#F97316] shrink-0" />,
     },
     {
       title: 'Total Presensi',
       value: summary?.totalAttendance || 0,
-      icon: <CalendarCheck className="w-4 h-4 text-blue-600" />,
-      bgIcon: 'bg-blue-50 text-blue-600 border-blue-200',
+      icon: <CalendarCheck className="w-4 h-4 text-blue-600 shrink-0" />,
     },
     {
       title: 'Tepat Waktu',
       value: summary?.onTimeCount || 0,
-      icon: <Clock className="w-4 h-4 text-emerald-600" />,
-      bgIcon: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+      icon: <CircleCheck className="w-4 h-4 text-emerald-600 shrink-0" />,
     },
     {
       title: 'Terlambat',
       value: summary?.lateCount || 0,
-      icon: <AlertTriangle className="w-4 h-4 text-amber-600" />,
-      bgIcon: 'bg-amber-50 text-amber-600 border-amber-200',
+      icon: <ClockAlert className="w-4 h-4 text-amber-600 shrink-0" />,
     },
     {
       title: 'Tidak Presensi',
       value: summary?.absentCount || 0,
-      icon: <UserX className="w-4 h-4 text-rose-600" />,
-      bgIcon: 'bg-rose-50 text-rose-600 border-rose-200',
+      icon: <UserRoundX className="w-4 h-4 text-rose-600 shrink-0" />,
     },
     {
       title: 'Sudah Check-out',
       value: summary?.checkedOutCount || 0,
-      icon: <LogOut className="w-4 h-4 text-indigo-600" />,
-      bgIcon: 'bg-indigo-50 text-indigo-600 border-indigo-200',
+      icon: <LogOut className="w-4 h-4 text-indigo-600 shrink-0" />,
     },
   ];
 
@@ -77,20 +78,21 @@ export const RecapSummaryCards: React.FC<RecapSummaryCardsProps> = ({
       {cards.map((card, idx) => (
         <div
           key={idx}
-          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3 shadow-2xs flex items-center justify-between"
+          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 shadow-2xs flex flex-col justify-between gap-2"
         >
-          <div>
-            <span className="text-[11px] text-[#6B7280] block font-medium">
+          {/* Baris Atas: Ikon langsung di sebelah kiri judul indikator */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            {card.icon}
+            <span className="text-[11px] text-[#6B7280] font-medium truncate">
               {card.title}
             </span>
-            <span className="text-xl font-bold text-[#111827] mt-0.5 block">
+          </div>
+
+          {/* Baris Bawah: Angka statistik diletakkan di bawah baris ikon dan judul */}
+          <div>
+            <span className="text-xl font-bold text-[#111827] block tabular-nums">
               {card.value}
             </span>
-          </div>
-          <div
-            className={`w-8 h-8 rounded-xl border flex items-center justify-center shrink-0 ${card.bgIcon}`}
-          >
-            {card.icon}
           </div>
         </div>
       ))}

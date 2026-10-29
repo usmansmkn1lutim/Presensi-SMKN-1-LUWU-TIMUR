@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, UserCheck, Clock, AlertTriangle, UserX, LogOut } from 'lucide-react';
+import { Users, UserCheck, CircleCheck, ClockAlert, UserRoundX, LogOut } from 'lucide-react';
 import { MonitoringSummary } from '../../types/attendanceMonitoring.types';
 
 interface MonitoringSummaryCardsProps {
@@ -31,38 +31,32 @@ export const MonitoringSummaryCards: React.FC<MonitoringSummaryCardsProps> = ({
     {
       title: 'Total Pegawai',
       value: summary?.totalEmployees || 0,
-      icon: <Users className="w-4 h-4 text-[#111827]" />,
-      bgIcon: 'bg-[#F3F4F6] text-[#111827] border-[#E5E7EB]',
+      icon: <Users className="w-4 h-4 text-[#111827] shrink-0" />,
     },
     {
       title: 'Sudah Presensi',
       value: summary?.presentCount || 0,
-      icon: <UserCheck className="w-4 h-4 text-[#F97316]" />,
-      bgIcon: 'bg-[#FFF7ED] text-[#F97316] border-[#FFEDD5]',
+      icon: <UserCheck className="w-4 h-4 text-[#F97316] shrink-0" />,
     },
     {
       title: 'Tepat Waktu',
       value: summary?.onTimeCount || 0,
-      icon: <Clock className="w-4 h-4 text-emerald-600" />,
-      bgIcon: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+      icon: <CircleCheck className="w-4 h-4 text-emerald-600 shrink-0" />,
     },
     {
       title: 'Terlambat',
       value: summary?.lateCount || 0,
-      icon: <AlertTriangle className="w-4 h-4 text-amber-600" />,
-      bgIcon: 'bg-amber-50 text-amber-600 border-amber-200',
+      icon: <ClockAlert className="w-4 h-4 text-amber-600 shrink-0" />,
     },
     {
       title: 'Belum Presensi',
       value: summary?.absentCount || 0,
-      icon: <UserX className="w-4 h-4 text-rose-600" />,
-      bgIcon: 'bg-rose-50 text-rose-600 border-rose-200',
+      icon: <UserRoundX className="w-4 h-4 text-rose-600 shrink-0" />,
     },
     {
       title: 'Sudah Pulang',
       value: summary?.checkedOutCount || 0,
-      icon: <LogOut className="w-4 h-4 text-blue-600" />,
-      bgIcon: 'bg-blue-50 text-blue-600 border-blue-200',
+      icon: <LogOut className="w-4 h-4 text-blue-600 shrink-0" />,
     },
   ];
 
@@ -71,21 +65,17 @@ export const MonitoringSummaryCards: React.FC<MonitoringSummaryCardsProps> = ({
       {cards.map((card, idx) => (
         <div
           key={idx}
-          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 shadow-2xs flex items-center justify-between"
+          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 shadow-2xs flex flex-col justify-between gap-1.5"
         >
-          <div>
-            <span className="text-[11px] text-[#6B7280] block font-medium">
+          <div className="flex items-center gap-1.5 min-w-0">
+            {card.icon}
+            <span className="text-[11px] text-[#6B7280] font-medium truncate">
               {card.title}
             </span>
-            <span className="text-xl font-bold text-[#111827] mt-0.5 block">
-              {card.value}
-            </span>
           </div>
-          <div
-            className={`w-8 h-8 rounded-xl border flex items-center justify-center shrink-0 ${card.bgIcon}`}
-          >
-            {card.icon}
-          </div>
+          <span className="text-xl font-bold text-[#111827] block tabular-nums">
+            {card.value}
+          </span>
         </div>
       ))}
     </div>
