@@ -65,26 +65,26 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
     const record = records.find(r => r.attendance_date === dateStr);
     const status = record?.official_status;
 
-    // Status-based solid background colors
+    // Status-based background colors (soft background rounded corner with high-contrast text)
     if (status === 'present' || status === 'official_duty') {
       return {
-        bg: 'bg-[#44C1A3]',
-        text: 'text-white font-semibold',
-        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : 'border border-transparent',
+        bg: 'bg-[#ECFDF5]',
+        text: 'text-[#065F46] font-semibold',
+        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : (isTodayDate ? 'border border-[#F97316]' : 'border border-transparent'),
       };
     }
     if (status === 'sick' || status === 'permit' || status === 'leave') {
       return {
-        bg: 'bg-[#F59E0B]',
-        text: 'text-white font-semibold',
-        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : 'border border-transparent',
+        bg: 'bg-[#FFFBEB]',
+        text: 'text-[#92400E] font-semibold',
+        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : (isTodayDate ? 'border border-[#F97316]' : 'border border-transparent'),
       };
     }
     if (status === 'absent') {
       return {
-        bg: 'bg-[#DC2626]',
-        text: 'text-white font-semibold',
-        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : 'border border-transparent',
+        bg: 'bg-[#FEF2F2]',
+        text: 'text-[#991B1B] font-semibold',
+        border: selected ? 'ring-2 ring-offset-1 ring-[#111827]' : (isTodayDate ? 'border border-[#F97316]' : 'border border-transparent'),
       };
     }
 
@@ -102,7 +102,7 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
       return {
         bg: selected ? 'bg-[#F97316]' : 'bg-white',
         text: selected ? 'text-white font-bold' : 'text-[#F97316] font-bold',
-        border: selected ? 'border border-[#F97316]' : 'border border-[#F97316]',
+        border: 'border border-[#F97316]',
       };
     }
 
@@ -110,7 +110,7 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
     if (isWeekend) {
       return {
         bg: selected ? 'bg-[#F97316]' : 'bg-white',
-        text: selected ? 'text-white font-semibold' : 'text-[#DC2626] font-medium hover:bg-slate-100',
+        text: selected ? 'text-white font-semibold' : 'text-[#B55654] font-medium hover:bg-slate-100',
         border: 'border border-transparent',
       };
     }
