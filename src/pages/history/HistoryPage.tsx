@@ -16,7 +16,6 @@ import {
   OfficialMonthlyRecapSummary,
 } from '../../types/attendanceHistory.types';
 import { HistorySummaryCards } from '../../components/history/HistorySummaryCards';
-import { HistoryMonthlyRecapMobile } from '../../components/history/HistoryMonthlyRecapMobile';
 import { HistoryFilterBar } from '../../components/history/HistoryFilterBar';
 import { HistoryTable } from '../../components/history/HistoryTable';
 import { HistoryMobileList } from '../../components/history/HistoryMobileList';
@@ -294,17 +293,13 @@ export const HistoryPage: React.FC = () => {
 
       {/* Mobile & Tablet View: Calendar-First Layout */}
       <div className="lg:hidden space-y-5 sm:space-y-6">
-        {/* Card Kalender */}
+        {/* Card Kalender & Rekap Kehadiran Terpadu (Satu Card) */}
         <HistoryCalendarMobile
           onDateSelect={handleDateSelect}
           onMonthChange={handleMonthChange}
           selectedDate={selectedDate || ''}
           currentDate={currentCalendarDate}
           records={monthlyOfficialRecords}
-        />
-
-        {/* REKAP KEHADIRAN BULAN INI */}
-        <HistoryMonthlyRecapMobile
           summary={monthlyOfficialSummary}
           loading={monthlyOfficialLoading}
         />
