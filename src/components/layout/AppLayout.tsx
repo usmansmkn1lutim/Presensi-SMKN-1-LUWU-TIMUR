@@ -33,7 +33,7 @@ export const AppLayout: React.FC = () => {
 
   return (
     <ProfileMenuProvider>
-      <div className="min-h-screen lg:h-screen flex bg-white lg:bg-[#F97316] text-[#111827] lg:overflow-hidden">
+      <div className="min-h-screen lg:h-screen flex bg-[#F7F7F7] lg:bg-[#F97316] text-[#111827] lg:overflow-hidden">
         {/* Desktop Sidebar ONLY (Fixed left, responsive width lg:w-64 / lg:w-20 on desktop lg: 1024px+). No sidebar on mobile/tablet. */}
         <div
           className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 z-30 transition-all duration-300 ease-in-out ${
@@ -50,12 +50,12 @@ export const AppLayout: React.FC = () => {
           }`}
         >
           {/* Kanvas Utama Desktop (lg: dan ke atas) / Alur Konten Standar (mobile & tablet) */}
-          <div className="flex-1 flex flex-col min-w-0 bg-white lg:rounded-l-[32px] lg:rounded-r-none lg:bg-[#F2F2F2] lg:shadow-xl lg:overflow-y-auto lg:overflow-x-hidden lg:h-screen [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex-1 flex flex-col min-w-0 bg-[#F7F7F7] lg:rounded-l-[32px] lg:rounded-r-none lg:bg-[#F2F2F2] lg:shadow-xl lg:overflow-y-auto lg:overflow-x-hidden lg:h-screen [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {/* Header Global di dalam Kanvas */}
             <Header />
 
             {/* Konten Halaman */}
-            <main className="flex-1 pb-24 lg:pb-8 p-4 sm:p-6 lg:p-8 bg-white lg:bg-transparent">
+            <main className="flex-1 pb-24 lg:pb-8 p-4 sm:p-6 lg:p-8 bg-[#F7F7F7] lg:bg-transparent">
               <div className="max-w-7xl mx-auto w-full">
                 <Outlet />
               </div>

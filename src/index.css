@@ -65,6 +65,13 @@
   --color-status-pending-text: #374151;
 }
 
+/* Mobile & Tablet (< 1024px) background test */
+@media (max-width: 1023.98px) {
+  :root {
+    --color-background: #F7F7F7;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
