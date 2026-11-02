@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   AttendanceHistoryRecord,
   OfficialMonthlyRecapSummary,
@@ -24,7 +24,6 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
   summary = null,
   loading = false,
 }) => {
-  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   const daysInMonth = useMemo(
     () => new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate(),
@@ -172,62 +171,6 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
     };
   };
 
-  // Rincian 7 Status (dihitung berdasarkan record tanggal unik)
-  const onTimeCount = useMemo(() => {
-    return records.filter(
-      (r) => r.official_status === 'present' && r.check_in_status === 'on_time'
-    ).length;
-  }, [records]);
-
-  const lateCount = useMemo(() => {
-    return records.filter(
-      (r) => r.official_status === 'present' && r.check_in_status === 'late'
-    ).length;
-  }, [records]);
-
-  const officialDutyCount = useMemo(() => {
-    return records.filter((r) => r.official_status === 'official_duty').length;
-  }, [records]);
-
-  const sickCount = useMemo(() => {
-    return records.filter((r) => r.official_status === 'sick').length;
-  }, [records]);
-
-  const permitCount = useMemo(() => {
-    return records.filter((r) => r.official_status === 'permit').length;
-  }, [records]);
-
-  const leaveCount = useMemo(() => {
-    return records.filter((r) => r.official_status === 'leave').length;
-  }, [records]);
-
-  const absentCount = useMemo(() => {
-    return records.filter((r) => r.official_status === 'absent').length;
-  }, [records]);
-
-  // Tiga Indikator Utama:
-  // - Kehadiran = Hadir Tepat Waktu + Terlambat + Dinas Luar
-  // - Berizin = Sakit + Izin + Cuti
-  // - Alfa = Alpha
-  const presenceCount =
-    (summary?.present ?? (onTimeCount + lateCount)) +
-    (summary?.officialDuty ?? officialDutyCount);
-  const permittedCount =
-    (summary?.sick ?? sickCount) +
-    (summary?.permit ?? permitCount) +
-    (summary?.leave ?? leaveCount);
-  const alfaCount = summary?.absent ?? absentCount;
-
-  const detailItems = [
-    { label: 'Hadir Tepat Waktu', count: onTimeCount },
-    { label: 'Terlambat', count: lateCount },
-    { label: 'Dinas Luar', count: summary?.officialDuty ?? officialDutyCount },
-    { label: 'Sakit', count: summary?.sick ?? sickCount },
-    { label: 'Izin', count: summary?.permit ?? permitCount },
-    { label: 'Cuti', count: summary?.leave ?? leaveCount },
-    { label: 'Alpha', count: summary?.absent ?? absentCount },
-  ];
-
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs font-sans">
       {/* Header Navigasi Bulan */}
@@ -289,80 +232,6 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
             </button>
           );
         })}
-      </div>
-
-      {/* Rekap Kehadiran Bulan Ini (Dalam Satu Card yang Sama) */}
-      <div className="border-t border-[#E5E7EB] pt-4 mt-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-          Rekap Kehadiran Bulan Ini
-        </h4>
-
-        {/* Tiga Indikator Utama dalam satu baris */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* 1. Kehadiran: #ECFDF5, teks #065F46 */}
-          <div className="bg-[#ECFDF5] text-[#065F46] rounded-xl p-2.5 sm:p-3 text-center flex flex-col items-center justify-center">
-            <span className="text-xl sm:text-2xl font-bold leading-none">
-              {loading ? '-' : presenceCount}
-            </span>
-            <span className="text-[11px] sm:text-xs font-semibold mt-1 leading-tight">
-              Kehadiran
-            </span>
-          </div>
-
-          {/* 2. Berizin: #FFFBEB, teks #92400E */}
-          <div className="bg-[#FFFBEB] text-[#92400E] rounded-xl p-2.5 sm:p-3 text-center flex flex-col items-center justify-center">
-            <span className="text-xl sm:text-2xl font-bold leading-none">
-              {loading ? '-' : permittedCount}
-            </span>
-            <span className="text-[11px] sm:text-xs font-semibold mt-1 leading-tight">
-              Berizin
-            </span>
-          </div>
-
-          {/* 3. Alfa: #FEF2F2, teks #991B1B */}
-          <div className="bg-[#FEF2F2] text-[#991B1B] rounded-xl p-2.5 sm:p-3 text-center flex flex-col items-center justify-center">
-            <span className="text-xl sm:text-2xl font-bold leading-none">
-              {loading ? '-' : alfaCount}
-            </span>
-            <span className="text-[11px] sm:text-xs font-semibold mt-1 leading-tight">
-              Alfa
-            </span>
-          </div>
-        </div>
-
-        {/* Aksi Buka/Tutup Rincian */}
-        <div className="mt-3 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setShowDetails((prev) => !prev)}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-100"
-            aria-expanded={showDetails}
-          >
-            <span>{showDetails ? 'Tutup rincian' : 'Lihat rincian'}</span>
-            {showDetails ? (
-              <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
-            ) : (
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-            )}
-          </button>
-        </div>
-
-        {/* Rincian Tujuh Status (Daftar teks sederhana, bukan card terpisah) */}
-        {showDetails && (
-          <div className="mt-2 pt-2 border-t border-slate-100 divide-y divide-slate-100">
-            {detailItems.map((item) => (
-              <div
-                key={item.label}
-                className="flex items-center justify-between py-1.5 px-1 text-xs text-slate-600"
-              >
-                <span>{item.label}</span>
-                <span className="font-semibold text-slate-900">
-                  {loading ? '-' : item.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ interface AttendanceSelfieCardProps {
   date?: string | null; // YYYY-MM-DD
   locationName?: string | null;
   statusLabel?: string | null;
+  statusClassName?: string;
 }
 
 export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
@@ -18,6 +19,7 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
   date,
   locationName,
   statusLabel,
+  statusClassName,
 }) => {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState<boolean>(false);
@@ -91,6 +93,31 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
     }
   };
 
+  const resolveStatusClass = (label?: string | null, customClass?: string) => {
+    if (customClass) return customClass;
+    if (!label) return 'bg-orange-50 text-[#F97316] border border-orange-100';
+
+    switch (label) {
+      case 'Tepat Waktu':
+      case 'Terlambat':
+      case 'Dinas Luar':
+        return 'bg-orange-50 text-[#F97316] border border-orange-100';
+      case 'Sakit':
+      case 'Izin':
+      case 'Cuti':
+        return 'bg-amber-50 text-amber-800 border border-amber-200';
+      case 'Alfa':
+      case 'Alpha':
+        return 'bg-rose-50 text-rose-700 border border-rose-200';
+      case 'Jam Operasional':
+        return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'Setelah Jam Kerja':
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      default:
+        return 'bg-orange-50 text-[#F97316] border border-orange-100';
+    }
+  };
+
   const isCheckIn = type === 'check_in';
   const labelText = isCheckIn ? 'Check-in' : 'Check-out';
   const IconComponent = isCheckIn ? LogIn : LogOut;
@@ -143,7 +170,12 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
               {labelText}
             </span>
             {statusLabel && (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-orange-50 text-[#F97316] border border-orange-100">
+              <span
+                className={`text-xs font-semibold px-2 py-0.5 rounded-md ${resolveStatusClass(
+                  statusLabel,
+                  statusClassName
+                )}`}
+              >
                 {statusLabel}
               </span>
             )}

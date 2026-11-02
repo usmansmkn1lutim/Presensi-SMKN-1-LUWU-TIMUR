@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CalendarCheck,
@@ -6,6 +6,8 @@ import {
   RefreshCw,
   UserX,
   Users,
+  BarChart3,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { attendanceHistoryService } from '../../services/attendanceHistoryService';
@@ -21,11 +23,14 @@ import { HistoryTable } from '../../components/history/HistoryTable';
 import { HistoryCalendarMobile } from '../../components/history/HistoryCalendarMobile';
 import { HistoryDetailModal } from '../../components/history/HistoryDetailModal';
 import { AttendanceSelfieCard } from '../../components/history/AttendanceSelfieCard';
+import { HistoryMonthlyRecapBottomSheet } from '../../components/history/HistoryMonthlyRecapBottomSheet';
 import { Button } from '../../components/ui/Button';
 
 export const HistoryPage: React.FC = () => {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+
+  const isAdminRole = Boolean(profile && ['super_admin', 'admin'].includes(profile.role));
 
   const getTodayString = () => {
     return getLocalDateString(new Date());
@@ -56,6 +61,7 @@ export const HistoryPage: React.FC = () => {
   const [monthlyOfficialSummary, setMonthlyOfficialSummary] = useState<OfficialMonthlyRecapSummary | null>(null);
   const [monthlyOfficialRecords, setMonthlyOfficialRecords] = useState<AttendanceHistoryRecord[]>([]);
   const [monthlyOfficialLoading, setMonthlyOfficialLoading] = useState<boolean>(true);
+  const [isRecapModalOpen, setIsRecapModalOpen] = useState<boolean>(false);
   
   const [statusFilter, setStatusFilter] = useState<'all' | 'on_time' | 'late'>('all');
   const [checkoutFilter, setCheckoutFilter] = useState<
@@ -111,14 +117,20 @@ export const HistoryPage: React.FC = () => {
       setTotalCount(res.totalCount);
       setTotalPages(res.totalPages);
     } catch (err: any) {
-      console.error('Failed to fetch personal attendance history:', err);
       const msg = err?.message || 'Gagal memuat riwayat presensi.';
+      if (
+        !msg.includes('Sesi telah berakhir') &&
+        !msg.includes('tidak memiliki data pegawai')
+      ) {
+        console.error('Failed to fetch personal attendance history:', err);
+      }
       setErrorState(msg);
 
       if (
         msg.includes('belum terhubung') ||
         msg.includes('tidak ditemukan') ||
-        msg.includes('belum dikaitkan')
+        msg.includes('belum dikaitkan') ||
+        msg.includes('tidak memiliki data pegawai')
       ) {
         setIsUnlinked(true);
       }
@@ -134,7 +146,13 @@ export const HistoryPage: React.FC = () => {
       setMonthlyOfficialSummary(res.summary);
       setMonthlyOfficialRecords(res.records);
     } catch (err: any) {
-      console.error('Failed to fetch monthly official status recap:', err);
+      const msg = err?.message || '';
+      if (
+        !msg.includes('Sesi telah berakhir') &&
+        !msg.includes('tidak memiliki data pegawai')
+      ) {
+        console.error('Failed to fetch monthly official status recap:', err);
+      }
       setMonthlyOfficialSummary({
         present: 0,
         sick: 0,
@@ -194,22 +212,47 @@ export const HistoryPage: React.FC = () => {
     );
     setSelectedDayRecord(cachedRecord || null);
 
+    // If user is unlinked, admin role (no personal employee records), or not logged in, skip network call
+    if (isAdminRole || isUnlinked || !user) {
+      return;
+    }
+
     // 2. Fetch authoritative complete record directly by date to guarantee photos and locations
     const fetchFullDayRecord = async () => {
       setLoadingDayRecord(true);
       try {
-        const fullRecord = await attendanceHistoryService.getAttendanceRecordByDate(targetDate);
+        const knownEmpId = monthlyOfficialRecords[0]?.employee_id || records[0]?.employee_id;
+        const fullRecord = await attendanceHistoryService.getAttendanceRecordByDate(
+          targetDate,
+          knownEmpId
+        );
         if (!isCancelled) {
           if (fullRecord && fullRecord.attendance_date === targetDate) {
-            setSelectedDayRecord(fullRecord);
+            setSelectedDayRecord({
+              ...(cachedRecord || {}),
+              ...fullRecord,
+              official_status:
+                cachedRecord?.official_status ||
+                (fullRecord.check_in_at ? 'present' : undefined),
+              status_label:
+                cachedRecord?.status_label ||
+                (fullRecord.check_in_at ? 'Hadir' : undefined),
+            });
           } else if (!fullRecord && cachedRecord) {
             setSelectedDayRecord(cachedRecord);
           } else if (!fullRecord) {
             setSelectedDayRecord(null);
           }
         }
-      } catch (err) {
-        console.error('Failed to fetch full attendance record for date:', err);
+      } catch (err: any) {
+        const msg = err?.message || '';
+        if (
+          !msg.includes('Sesi telah berakhir') &&
+          !msg.includes('tidak memiliki data pegawai') &&
+          !msg.includes('tidak ditemukan')
+        ) {
+          console.error('Failed to fetch full attendance record for date:', err);
+        }
       } finally {
         if (!isCancelled) {
           setLoadingDayRecord(false);
@@ -222,7 +265,7 @@ export const HistoryPage: React.FC = () => {
     return () => {
       isCancelled = true;
     };
-  }, [selectedDate, monthlyOfficialRecords]);
+  }, [selectedDate, monthlyOfficialRecords, records, isAdminRole, isUnlinked, user]);
 
   const handleApplyFilters = (filters: {
     startDate: string;
@@ -279,10 +322,124 @@ export const HistoryPage: React.FC = () => {
     );
   };
 
-  const isAdminRole = profile && ['super_admin', 'admin'].includes(profile.role);
   const startRecordNum = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endRecordNum = Math.min(currentPage * pageSize, totalCount);
 
+  // Evaluated status indicators for Check-in and Check-out selfie cards
+  const selfieIndicators = useMemo(() => {
+    const activeRecord =
+      selectedDayRecord?.attendance_date === selectedDate
+        ? selectedDayRecord
+        : monthlyOfficialRecords.find((r) => r.attendance_date === selectedDate);
+
+    if (!activeRecord) {
+      return {
+        checkInLabel: undefined,
+        checkInClass: undefined,
+        checkOutLabel: undefined,
+        checkOutClass: undefined,
+      };
+    }
+
+    const official = activeRecord.official_status;
+
+    // 1. Kondisi Tidak Hadir / Tugas Luar (berlaku untuk kedua card)
+    if (official === 'official_duty') {
+      return {
+        checkInLabel: 'Dinas Luar',
+        checkInClass: 'bg-orange-50 text-[#F97316] border border-orange-200',
+        checkOutLabel: 'Dinas Luar',
+        checkOutClass: 'bg-orange-50 text-[#F97316] border border-orange-200',
+      };
+    }
+
+    if (official === 'sick') {
+      return {
+        checkInLabel: 'Sakit',
+        checkInClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+        checkOutLabel: 'Sakit',
+        checkOutClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+      };
+    }
+
+    if (official === 'permit') {
+      return {
+        checkInLabel: 'Izin',
+        checkInClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+        checkOutLabel: 'Izin',
+        checkOutClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+      };
+    }
+
+    if (official === 'leave') {
+      return {
+        checkInLabel: 'Cuti',
+        checkInClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+        checkOutLabel: 'Cuti',
+        checkOutClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+      };
+    }
+
+    if (official === 'absent') {
+      return {
+        checkInLabel: 'Alfa',
+        checkInClass: 'bg-rose-50 text-rose-700 border border-rose-200',
+        checkOutLabel: 'Alfa',
+        checkOutClass: 'bg-rose-50 text-rose-700 border border-rose-200',
+      };
+    }
+
+    // Belum ada status final (misal: pending, holiday, atau tanggal belum dievaluasi)
+    if (official === 'pending' || official === 'holiday') {
+      return {
+        checkInLabel: undefined,
+        checkInClass: undefined,
+        checkOutLabel: undefined,
+        checkOutClass: undefined,
+      };
+    }
+
+    // 2. Kondisi Presensi Fisik (Hadir)
+    let checkInLabel: string | undefined;
+    let checkInClass: string | undefined;
+
+    if (activeRecord.check_in_status === 'on_time') {
+      checkInLabel = 'Tepat Waktu';
+      checkInClass = 'bg-orange-50 text-[#F97316] border border-orange-100';
+    } else if (activeRecord.check_in_status === 'late') {
+      checkInLabel = 'Terlambat';
+      checkInClass = 'bg-orange-50 text-[#F97316] border border-orange-100';
+    } else if (activeRecord.check_in_at) {
+      checkInLabel = 'Tepat Waktu';
+      checkInClass = 'bg-orange-50 text-[#F97316] border border-orange-100';
+    }
+
+    let checkOutLabel: string | undefined;
+    let checkOutClass: string | undefined;
+
+    if (activeRecord.check_out_status === 'operational') {
+      checkOutLabel = 'Jam Operasional';
+      checkOutClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+    } else if (activeRecord.check_out_status === 'after_work') {
+      checkOutLabel = 'Setelah Jam Kerja';
+      checkOutClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+    }
+
+    return {
+      checkInLabel,
+      checkInClass,
+      checkOutLabel,
+      checkOutClass,
+    };
+  }, [selectedDayRecord, selectedDate, monthlyOfficialRecords]);
+
+  // Label periode bulan dan tahun aktif untuk tombol rekap
+  const calendarMonthYearLabel = useMemo(() => {
+    return currentCalendarDate.toLocaleDateString('id-ID', {
+      month: 'long',
+      year: 'numeric',
+    });
+  }, [currentCalendarDate]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
@@ -337,8 +494,8 @@ export const HistoryPage: React.FC = () => {
       </div>
 
       {/* Mobile & Tablet View: Calendar-First Layout */}
-      <div className="lg:hidden space-y-5 sm:space-y-6">
-        {/* Card Kalender & Rekap Kehadiran Terpadu (Satu Card) */}
+      <div className="lg:hidden space-y-4 sm:space-y-5">
+        {/* 1. Card Kalender Mobile */}
         <HistoryCalendarMobile
           onDateSelect={handleDateSelect}
           onMonthChange={handleMonthChange}
@@ -349,7 +506,35 @@ export const HistoryPage: React.FC = () => {
           loading={monthlyOfficialLoading}
         />
 
-        {/* 2 & 3. Card Foto Selfie Check-in & Check-out tepat di bawah kalender */}
+        {/* 2. Tombol Akses Ringkas Rekap Kehadiran Bulanan */}
+        <button
+          type="button"
+          onClick={() => setIsRecapModalOpen(true)}
+          className="w-full min-h-[48px] py-3 px-4 bg-gradient-to-r from-orange-50/80 via-white to-orange-50/30 hover:from-orange-100/80 hover:to-orange-50/70 border border-orange-200 hover:border-[#F97316] rounded-2xl shadow-2xs flex items-center justify-between text-left transition-all group active:scale-[0.99] touch-manipulation cursor-pointer"
+          aria-haspopup="dialog"
+          aria-expanded={isRecapModalOpen}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#F97316] border border-orange-200/80 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#EA580C] transition-colors leading-tight">
+                Rekap Kehadiran Bulanan
+              </div>
+              <p className="text-[11px] font-medium text-slate-500 capitalize leading-tight mt-0.5">
+                Statistik & rincian ({calendarMonthYearLabel})
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs font-bold text-[#F97316] bg-white px-2.5 py-1.5 rounded-xl border border-orange-200 shadow-2xs shrink-0 group-hover:bg-orange-50 transition-colors">
+            <span>Buka</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </div>
+        </button>
+
+        {/* 3 & 4. Card Foto Selfie Check-in & Check-out tepat di bawah tombol rekap */}
         <div className="space-y-3 font-sans">
           <AttendanceSelfieCard
             type="check_in"
@@ -369,15 +554,8 @@ export const HistoryPage: React.FC = () => {
                 ? selectedDayRecord.check_in_location?.name
                 : null
             }
-            statusLabel={
-              selectedDayRecord?.attendance_date === selectedDate
-                ? selectedDayRecord.check_in_status === 'on_time'
-                  ? 'Tepat Waktu'
-                  : selectedDayRecord.check_in_status === 'late'
-                  ? 'Terlambat'
-                  : undefined
-                : undefined
-            }
+            statusLabel={selfieIndicators.checkInLabel}
+            statusClassName={selfieIndicators.checkInClass}
           />
           <AttendanceSelfieCard
             type="check_out"
@@ -397,15 +575,8 @@ export const HistoryPage: React.FC = () => {
                 ? selectedDayRecord.check_out_location?.name
                 : null
             }
-            statusLabel={
-              selectedDayRecord?.attendance_date === selectedDate
-                ? selectedDayRecord.check_out_status === 'operational'
-                  ? 'Jam Operasional'
-                  : selectedDayRecord.check_out_status === 'after_work'
-                  ? 'Setelah Jam Kerja'
-                  : undefined
-                : undefined
-            }
+            statusLabel={selfieIndicators.checkOutLabel}
+            statusClassName={selfieIndicators.checkOutClass}
           />
         </div>
       </div>
@@ -527,6 +698,16 @@ export const HistoryPage: React.FC = () => {
 
       {/* Detail Modal */}
       <HistoryDetailModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />
+
+      {/* Monthly Attendance Recap Bottom Sheet Modal (Mobile & Tablet) */}
+      <HistoryMonthlyRecapBottomSheet
+        isOpen={isRecapModalOpen}
+        onClose={() => setIsRecapModalOpen(false)}
+        currentDate={currentCalendarDate}
+        summary={monthlyOfficialSummary}
+        records={monthlyOfficialRecords}
+        loading={monthlyOfficialLoading}
+      />
     </div>
   );
 };

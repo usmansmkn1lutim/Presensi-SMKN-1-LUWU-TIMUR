@@ -124,7 +124,40 @@ export const attendanceHistoryService = {
     month: number,
     employeeId?: string
   ): Promise<OfficialMonthlyRecapResponse> {
-    const empId = employeeId || (await attendanceService.getCurrentEmployee()).id;
+    let empId = employeeId;
+    if (!empId) {
+      try {
+        const emp = await attendanceService.getCurrentEmployee();
+        empId = emp.id;
+      } catch {
+        return {
+          summary: {
+            present: 0,
+            sick: 0,
+            permit: 0,
+            officialDuty: 0,
+            leave: 0,
+            absent: 0,
+          },
+          records: [],
+        };
+      }
+    }
+
+    if (!empId) {
+      return {
+        summary: {
+          present: 0,
+          sick: 0,
+          permit: 0,
+          officialDuty: 0,
+          leave: 0,
+          absent: 0,
+        },
+        records: [],
+      };
+    }
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = getLocalDateString(firstDay);
@@ -191,31 +224,48 @@ export const attendanceHistoryService = {
     date: string,
     employeeId?: string
   ): Promise<AttendanceHistoryRecord | null> {
-    const empId = employeeId || (await attendanceService.getCurrentEmployee()).id;
-    const { data, error } = await supabase
-      .from('attendance')
-      .select(`
-        *,
-        check_in_location:locations!check_in_location_id (
-          id,
-          name,
-          code
-        ),
-        check_out_location:locations!check_out_location_id (
-          id,
-          name,
-          code
-        )
-      `)
-      .eq('employee_id', empId)
-      .eq('attendance_date', date)
-      .maybeSingle();
+    try {
+      let empId = employeeId;
+      if (!empId) {
+        try {
+          const emp = await attendanceService.getCurrentEmployee();
+          empId = emp.id;
+        } catch {
+          return null;
+        }
+      }
 
-    if (error) {
-      console.error('Error fetching attendance record for date:', error);
+      if (!empId) {
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('attendance')
+        .select(`
+          *,
+          check_in_location:locations!check_in_location_id (
+            id,
+            name,
+            code
+          ),
+          check_out_location:locations!check_out_location_id (
+            id,
+            name,
+            code
+          )
+        `)
+        .eq('employee_id', empId)
+        .eq('attendance_date', date)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching attendance record for date:', error);
+        return null;
+      }
+
+      return (data as unknown as AttendanceHistoryRecord) || null;
+    } catch {
       return null;
     }
-
-    return (data as unknown as AttendanceHistoryRecord) || null;
   },
 };
