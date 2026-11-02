@@ -192,9 +192,47 @@ export async function uploadAttendanceSelfie(
   return cleanPath;
 }
 
+/**
+ * Generates a signed URL for securely viewing an attendance selfie from the private 'attendance-selfies' bucket.
+ */
+export async function getSelfieSignedUrl(
+  path: string,
+  expiresInSeconds: number = 300
+): Promise<string | null> {
+  if (!path || typeof path !== 'string' || path.trim() === '') {
+    return null;
+  }
+
+  const cleanPath = path.trim();
+
+  // Validate path against canonical check-in or check-out patterns
+  if (!CHECK_IN_PATH_REGEX.test(cleanPath) && !CHECK_OUT_PATH_REGEX.test(cleanPath)) {
+    // If not matching strict canonical regex, allow general non-empty storage paths as fallback
+    if (cleanPath.split('/').length < 2) {
+      return null;
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(ATTENDANCE_SELFIES_BUCKET)
+      .createSignedUrl(cleanPath, expiresInSeconds);
+
+    if (error || !data?.signedUrl) {
+      return null;
+    }
+
+    return data.signedUrl;
+  } catch {
+    return null;
+  }
+}
+
 export const attendancePhotoService = {
   getWitaDateString,
   generateSelfieStoragePath,
   validateSelfieBlob,
   uploadAttendanceSelfie,
+  getSelfieSignedUrl,
 };
+

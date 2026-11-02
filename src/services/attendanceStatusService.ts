@@ -51,6 +51,8 @@ export interface EvaluatedStatusResult {
   checkOutAt: string | null;
   checkInLocation: string | null;
   checkOutLocation: string | null;
+  checkInPhotoPath?: string | null;
+  checkOutPhotoPath?: string | null;
   source: 'attendance' | 'request' | 'holiday' | 'calendar';
   sourceId: string | null;
 }
@@ -70,6 +72,8 @@ export interface MinimalAttendance {
   check_out_at: string | null;
   check_in_status: 'on_time' | 'late' | null;
   check_out_status: 'operational' | 'after_work' | null;
+  check_in_photo_path?: string | null;
+  check_out_photo_path?: string | null;
   notes: string | null;
   check_in_location?: { name: string } | null;
   check_out_location?: { name: string } | null;
@@ -127,6 +131,8 @@ export function evaluateDailyStatus(
       checkOutAt: attendance.check_out_at,
       checkInLocation: attendance.check_in_location?.name || null,
       checkOutLocation: attendance.check_out_location?.name || null,
+      checkInPhotoPath: attendance.check_in_photo_path || null,
+      checkOutPhotoPath: attendance.check_out_photo_path || null,
       source: 'attendance',
       sourceId: attendance.id,
     };
@@ -395,6 +401,8 @@ export const attendanceStatusService = {
         check_out_at,
         check_in_status,
         check_out_status,
+        check_in_photo_path,
+        check_out_photo_path,
         notes,
         check_in_location:locations!check_in_location_id (name),
         check_out_location:locations!check_out_location_id (name)

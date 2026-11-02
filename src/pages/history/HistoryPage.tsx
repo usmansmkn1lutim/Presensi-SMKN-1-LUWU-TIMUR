@@ -18,9 +18,9 @@ import {
 import { HistorySummaryCards } from '../../components/history/HistorySummaryCards';
 import { HistoryFilterBar } from '../../components/history/HistoryFilterBar';
 import { HistoryTable } from '../../components/history/HistoryTable';
-import { HistoryMobileList } from '../../components/history/HistoryMobileList';
 import { HistoryCalendarMobile } from '../../components/history/HistoryCalendarMobile';
 import { HistoryDetailModal } from '../../components/history/HistoryDetailModal';
+import { AttendanceSelfieCard } from '../../components/history/AttendanceSelfieCard';
 import { Button } from '../../components/ui/Button';
 
 export const HistoryPage: React.FC = () => {
@@ -46,9 +46,11 @@ export const HistoryPage: React.FC = () => {
   const [startDate, setStartDate] = useState<string>(getFirstDayOfMonthString());
   const [endDate, setEndDate] = useState<string>(getLastDayOfMonthString());
   
-  // New state for Calendar
+  // Calendar state and active selected date
   const [currentCalendarDate, setCurrentCalendarDate] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
+  const [selectedDayRecord, setSelectedDayRecord] = useState<AttendanceHistoryRecord | null>(null);
+  const [loadingDayRecord, setLoadingDayRecord] = useState<boolean>(false);
 
   // Mobile official attendance status monthly recap and records state
   const [monthlyOfficialSummary, setMonthlyOfficialSummary] = useState<OfficialMonthlyRecapSummary | null>(null);
@@ -160,7 +162,7 @@ export const HistoryPage: React.FC = () => {
 
   // Calendar logic
   const handleDateSelect = (date: string) => {
-    setSelectedDate((prev) => (prev === date ? null : date));
+    setSelectedDate(date);
   };
 
   const handleMonthChange = (year: number, month: number) => {
@@ -171,10 +173,56 @@ export const HistoryPage: React.FC = () => {
     const newEnd = getLocalDateString(lastDay);
     setStartDate(newStart);
     setEndDate(newEnd);
-    setSelectedDate(null);
+    setSelectedDate(newStart);
     fetchHistoryData(newStart, newEnd, statusFilter, checkoutFilter, 1);
     fetchMonthlyOfficialRecap(year, month);
   };
+
+  // Synchronize and fetch authoritative attendance record for the selected date
+  useEffect(() => {
+    let isCancelled = false;
+    const targetDate = selectedDate;
+
+    if (!targetDate) {
+      setSelectedDayRecord(null);
+      return;
+    }
+
+    // 1. Immediate optimistic sync from cached monthly records
+    const cachedRecord = monthlyOfficialRecords.find(
+      (r) => r.attendance_date === targetDate
+    );
+    setSelectedDayRecord(cachedRecord || null);
+
+    // 2. Fetch authoritative complete record directly by date to guarantee photos and locations
+    const fetchFullDayRecord = async () => {
+      setLoadingDayRecord(true);
+      try {
+        const fullRecord = await attendanceHistoryService.getAttendanceRecordByDate(targetDate);
+        if (!isCancelled) {
+          if (fullRecord && fullRecord.attendance_date === targetDate) {
+            setSelectedDayRecord(fullRecord);
+          } else if (!fullRecord && cachedRecord) {
+            setSelectedDayRecord(cachedRecord);
+          } else if (!fullRecord) {
+            setSelectedDayRecord(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch full attendance record for date:', err);
+      } finally {
+        if (!isCancelled) {
+          setLoadingDayRecord(false);
+        }
+      }
+    };
+
+    fetchFullDayRecord();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedDate, monthlyOfficialRecords]);
 
   const handleApplyFilters = (filters: {
     startDate: string;
@@ -235,9 +283,6 @@ export const HistoryPage: React.FC = () => {
   const startRecordNum = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endRecordNum = Math.min(currentPage * pageSize, totalCount);
 
-  const displayedMobileRecords = selectedDate
-    ? monthlyOfficialRecords.filter((r) => r.attendance_date === selectedDate)
-    : monthlyOfficialRecords;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
@@ -304,27 +349,64 @@ export const HistoryPage: React.FC = () => {
           loading={monthlyOfficialLoading}
         />
 
-        {/* RIWAYAT KEHADIRAN ANDA */}
+        {/* 2 & 3. Card Foto Selfie Check-in & Check-out tepat di bawah kalender */}
         <div className="space-y-3 font-sans">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            RIWAYAT KEHADIRAN ANDA
-          </h3>
-          {monthlyOfficialLoading ? (
-            <div className="space-y-3 animate-pulse">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-gray-100 rounded-2xl" />
-              ))}
-            </div>
-          ) : displayedMobileRecords.length === 0 ? (
-            <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center text-xs text-slate-500">
-              Tidak ada catatan presensi pada periode ini.
-            </div>
-          ) : (
-            <HistoryMobileList
-              records={displayedMobileRecords}
-              onSelectRecord={setSelectedRecord}
-            />
-          )}
+          <AttendanceSelfieCard
+            type="check_in"
+            photoPath={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_in_photo_path
+                : null
+            }
+            time={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_in_at
+                : null
+            }
+            date={selectedDate}
+            locationName={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_in_location?.name
+                : null
+            }
+            statusLabel={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_in_status === 'on_time'
+                  ? 'Tepat Waktu'
+                  : selectedDayRecord.check_in_status === 'late'
+                  ? 'Terlambat'
+                  : undefined
+                : undefined
+            }
+          />
+          <AttendanceSelfieCard
+            type="check_out"
+            photoPath={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_out_photo_path
+                : null
+            }
+            time={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_out_at
+                : null
+            }
+            date={selectedDate}
+            locationName={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_out_location?.name
+                : null
+            }
+            statusLabel={
+              selectedDayRecord?.attendance_date === selectedDate
+                ? selectedDayRecord.check_out_status === 'operational'
+                  ? 'Jam Operasional'
+                  : selectedDayRecord.check_out_status === 'after_work'
+                  ? 'Setelah Jam Kerja'
+                  : undefined
+                : undefined
+            }
+          />
         </div>
       </div>
 

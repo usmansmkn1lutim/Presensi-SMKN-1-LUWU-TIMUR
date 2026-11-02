@@ -156,6 +156,8 @@ export const attendanceHistoryService = {
         check_out_at: r.checkOutAt,
         check_in_status: r.substatus,
         check_out_status: r.checkOutAt ? 'operational' : null,
+        check_in_photo_path: r.checkInPhotoPath || null,
+        check_out_photo_path: r.checkOutPhotoPath || null,
         check_in_location_id: null,
         check_out_location_id: null,
         check_in_latitude: null,
@@ -179,5 +181,41 @@ export const attendanceHistoryService = {
       summary,
       records,
     };
+  },
+
+  /**
+   * Fetches the complete authoritative attendance record for a specific date and employee
+   * including check_in_photo_path, check_out_photo_path, and relations to locations.
+   */
+  async getAttendanceRecordByDate(
+    date: string,
+    employeeId?: string
+  ): Promise<AttendanceHistoryRecord | null> {
+    const empId = employeeId || (await attendanceService.getCurrentEmployee()).id;
+    const { data, error } = await supabase
+      .from('attendance')
+      .select(`
+        *,
+        check_in_location:locations!check_in_location_id (
+          id,
+          name,
+          code
+        ),
+        check_out_location:locations!check_out_location_id (
+          id,
+          name,
+          code
+        )
+      `)
+      .eq('employee_id', empId)
+      .eq('attendance_date', date)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching attendance record for date:', error);
+      return null;
+    }
+
+    return (data as unknown as AttendanceHistoryRecord) || null;
   },
 };
