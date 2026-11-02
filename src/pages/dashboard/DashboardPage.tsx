@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Clock,
   MapPin,
   CalendarCheck,
   FileText,
@@ -17,12 +16,6 @@ import {
   Calendar,
   HeartPulse,
   Briefcase,
-  CircleCheck,
-  Thermometer,
-  FileCheck,
-  BriefcaseBusiness,
-  CalendarDays,
-  UserRoundX,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProfileMenu } from '../../context/ProfileMenuContext';
@@ -39,6 +32,7 @@ import { getMakassarTodayDateString } from '../../services/attendanceReportServi
 import { AttendanceModel } from '../../types/attendance.types';
 import { AttendanceHistoryRecord } from '../../types/attendanceHistory.types';
 import { HistoryDetailModal } from '../../components/history/HistoryDetailModal';
+import { HistoryMobileList } from '../../components/history/HistoryMobileList';
 import { APP_CONFIG } from '../../config/appConfig';
 import { NotificationBell } from '../../components/notifications/NotificationBell';
 import { Button } from '../../components/ui/Button';
@@ -190,6 +184,7 @@ export const DashboardPage: React.FC = () => {
   // Weekly attendance status recap & records (Monday to Today)
   const [weeklySummary, setWeeklySummary] = useState<OfficialWeeklySummary | null>(null);
   const [weeklyRecords, setWeeklyRecords] = useState<AttendanceHistoryRecord[]>([]);
+  const [historyRecords, setHistoryRecords] = useState<AttendanceHistoryRecord[]>([]);
   const [selectedHistoryRecord, setSelectedHistoryRecord] = useState<AttendanceHistoryRecord | null>(null);
 
   // Monthly summary state (for desktop view compatibility)
@@ -233,7 +228,9 @@ export const DashboardPage: React.FC = () => {
       const todayAtt = await attendanceService.getTodayAttendance();
       setTodayAttendance(todayAtt);
 
-      // 2. Compute weekly bounds: Monday up to Today (Asia/Makassar)
+      // 2. Compute date bounds (Asia/Makassar):
+      // - Weekly bounds: Monday up to Today for WeeklyDateCapsules and weeklySummary
+      // - History bounds: 30 days back up to Today for recent workdays history cards
       const todayStr = getMakassarTodayDateString();
       const [year, month, day] = todayStr.split('-').map(Number);
       const todayDate = new Date(year, month - 1, day);
@@ -246,29 +243,51 @@ export const DashboardPage: React.FC = () => {
         String(mondayDate.getDate()).padStart(2, '0'),
       ].join('-');
 
-      // 3. Evaluate official matrix for Monday to Today
-      const matrix = await attendanceStatusService.getEvaluatedMatrix(
-        mondayStr,
+      // Helper to filter workdays (Monday-Friday, excluding official holidays and weekends)
+      const filterWorkdays = (items: EvaluatedStatusResult[]) => {
+        return items.filter((r) => {
+          if (r.status === 'holiday') return false;
+          const [y, m, d] = r.date.split('-').map(Number);
+          const dateObj = new Date(y, m - 1, d, 12, 0, 0);
+          const dayNum = dateObj.getDay(); // 0 = Sunday, 1 = Monday, ..., 5 = Friday, 6 = Saturday
+          return dayNum >= 1 && dayNum <= 5;
+        });
+      };
+
+      // 30 days initial lookback
+      let currentLookbackDays = 30;
+      const historyStartDateObj = new Date(year, month - 1, day - currentLookbackDays);
+      const historyStartDateStr = [
+        historyStartDateObj.getFullYear(),
+        String(historyStartDateObj.getMonth() + 1).padStart(2, '0'),
+        String(historyStartDateObj.getDate()).padStart(2, '0'),
+      ].join('-');
+
+      // 3. Evaluate official matrix for initial 30 days history up to today
+      const historyMatrix = await attendanceStatusService.getEvaluatedMatrix(
+        historyStartDateStr,
         todayStr,
         employee.id
       );
-      const todayRec = matrix.find((r) => r.date === todayStr) || null;
+
+      // Today's evaluated record
+      const todayRec = historyMatrix.find((r) => r.date === todayStr) || null;
       setTodayEvaluatedRecord(todayRec);
 
-      // 4. Calculate 3x2 weekly official summary
+      // 4. Calculate 3x2 weekly official summary (Monday to Today)
+      const weeklyMatrix = historyMatrix.filter((r) => r.date >= mondayStr && r.date <= todayStr);
       const summary: OfficialWeeklySummary = {
-        present: matrix.filter((r) => r.status === 'present').length,
-        sick: matrix.filter((r) => r.status === 'sick').length,
-        permit: matrix.filter((r) => r.status === 'permit').length,
-        officialDuty: matrix.filter((r) => r.status === 'official_duty').length,
-        leave: matrix.filter((r) => r.status === 'leave').length,
-        absent: matrix.filter((r) => r.status === 'absent').length,
+        present: weeklyMatrix.filter((r) => r.status === 'present').length,
+        sick: weeklyMatrix.filter((r) => r.status === 'sick').length,
+        permit: weeklyMatrix.filter((r) => r.status === 'permit').length,
+        officialDuty: weeklyMatrix.filter((r) => r.status === 'official_duty').length,
+        leave: weeklyMatrix.filter((r) => r.status === 'leave').length,
+        absent: weeklyMatrix.filter((r) => r.status === 'absent').length,
       };
       setWeeklySummary(summary);
 
-      // 5. Map weekly records sorted newest to oldest (terbaru -> terlama)
-      // Excludes holidays from attendance history cards per domain rule
-      const records: AttendanceHistoryRecord[] = matrix
+      // 5. Weekly records for WeeklyDateCapsules (Monday to Today)
+      const weeklyCardRecords: AttendanceHistoryRecord[] = weeklyMatrix
         .filter((r) => r.status !== 'holiday')
         .sort((a, b) => b.date.localeCompare(a.date))
         .map((r) => ({
@@ -297,7 +316,78 @@ export const DashboardPage: React.FC = () => {
           created_at: r.date,
           updated_at: r.date,
         }));
-      setWeeklyRecords(records);
+      setWeeklyRecords(weeklyCardRecords);
+
+      // 6. Recent 5 workday history records for "RIWAYAT KEHADIRAN ANDA"
+      // Filter workdays from initial 30 days
+      let collectedWorkdays = filterWorkdays(historyMatrix);
+
+      // If fewer than 5 workdays found, expand backwards in steps (30 days per chunk) without repeating queries
+      const STEP_DAYS = 30;
+      const MAX_LOOKBACK_DAYS = 180; // Maximum boundary (~6 months) to avoid infinite expansion
+
+      while (collectedWorkdays.length < 5 && currentLookbackDays < MAX_LOOKBACK_DAYS) {
+        const nextLookbackDays = Math.min(currentLookbackDays + STEP_DAYS, MAX_LOOKBACK_DAYS);
+        const chunkStartObj = new Date(year, month - 1, day - nextLookbackDays);
+        const chunkEndObj = new Date(year, month - 1, day - (currentLookbackDays + 1));
+
+        const chunkStartStr = [
+          chunkStartObj.getFullYear(),
+          String(chunkStartObj.getMonth() + 1).padStart(2, '0'),
+          String(chunkStartObj.getDate()).padStart(2, '0'),
+        ].join('-');
+
+        const chunkEndStr = [
+          chunkEndObj.getFullYear(),
+          String(chunkEndObj.getMonth() + 1).padStart(2, '0'),
+          String(chunkEndObj.getDate()).padStart(2, '0'),
+        ].join('-');
+
+        const chunkMatrix = await attendanceStatusService.getEvaluatedMatrix(
+          chunkStartStr,
+          chunkEndStr,
+          employee.id
+        );
+
+        const chunkWorkdays = filterWorkdays(chunkMatrix);
+        collectedWorkdays = [...collectedWorkdays, ...chunkWorkdays];
+        currentLookbackDays = nextLookbackDays;
+
+        if (chunkMatrix.length === 0) {
+          break;
+        }
+      }
+
+      const recentWorkdayRecords: AttendanceHistoryRecord[] = collectedWorkdays
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 5)
+        .map((r) => ({
+          id: r.sourceId || `history-${r.date}`,
+          employee_id: employee.id,
+          attendance_date: r.date,
+          check_in_at: r.checkInAt,
+          check_out_at: r.checkOutAt,
+          check_in_status: r.substatus,
+          check_out_status: r.checkOutAt ? 'operational' : null,
+          check_in_location_id: null,
+          check_out_location_id: null,
+          check_in_latitude: null,
+          check_in_longitude: null,
+          check_out_latitude: null,
+          check_out_longitude: null,
+          notes: r.notes,
+          check_in_location: r.checkInLocation
+            ? { id: '', name: r.checkInLocation, code: '' }
+            : null,
+          check_out_location: r.checkOutLocation
+            ? { id: '', name: r.checkOutLocation, code: '' }
+            : null,
+          official_status: r.status,
+          status_label: r.statusLabel,
+          created_at: r.date,
+          updated_at: r.date,
+        }));
+      setHistoryRecords(recentWorkdayRecords);
 
       // 6. Fetch monthly summary for desktop compatibility
       try {
@@ -481,45 +571,6 @@ export const DashboardPage: React.FC = () => {
     ? '--:-- WITA'
     : formatAttendanceTime(todayAttendance?.check_out_at);
 
-  // Weekly summary items in exact 3x2 matrix order
-  const weeklyItems = [
-    {
-      key: 'present',
-      title: 'Hadir',
-      value: weeklySummary?.present ?? 0,
-      icon: <CircleCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
-    },
-    {
-      key: 'sick',
-      title: 'Sakit',
-      value: weeklySummary?.sick ?? 0,
-      icon: <Thermometer className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
-    },
-    {
-      key: 'permit',
-      title: 'Izin',
-      value: weeklySummary?.permit ?? 0,
-      icon: <FileCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
-    },
-    {
-      key: 'official_duty',
-      title: 'Dinas Luar',
-      value: weeklySummary?.officialDuty ?? 0,
-      icon: <BriefcaseBusiness className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
-    },
-    {
-      key: 'leave',
-      title: 'Cuti',
-      value: weeklySummary?.leave ?? 0,
-      icon: <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
-    },
-    {
-      key: 'absent',
-      title: 'Alpha',
-      value: weeklySummary?.absent ?? 0,
-      icon: <UserRoundX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F97316]" />,
-    },
-  ];
 
   // =========================================================================
   // VIEW 1: MANAGERIAL EXECUTIVE DASHBOARD (Super Admin, Admin & Headmaster)
@@ -859,41 +910,27 @@ export const DashboardPage: React.FC = () => {
           {/* 3. Mobile & Tablet: REKAP PRESENSI MINGGU INI (3 x 2 Matrix) (< 1024px) */}
           <WeeklyDateCapsules records={weeklyRecords} />
           
-          <div className="lg:hidden space-y-2.5 sm:space-y-3 font-sans">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                REKAP PRESENSI MINGGU INI
-              </h2>
-              <span className="text-[11px] text-[#9CA3AF]">Senin s/d Hari Ini</span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-              {weeklyItems.map((item) => (
-                <div
-                  key={item.key}
-                  className="relative bg-white border border-[#E5E7EB] rounded-2xl p-3 sm:p-4 min-h-[96px] sm:min-h-[108px] shadow-2xs flex flex-col items-center justify-center text-center group"
-                >
-                  {/* Icon Orange Sunset pojok kanan atas */}
-                  <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#FFF7ED] border border-[#FFEDD5] flex items-center justify-center shrink-0">
-                    {item.icon}
-                  </div>
-
-                  {/* Angka & Label Center */}
-                  <div className="flex flex-col items-center justify-center pt-2 sm:pt-2.5">
-                    <span className="text-2xl sm:text-3xl font-bold text-[#111827] tracking-tight tabular-nums leading-none">
-                      {loading ? (
-                        <span className="animate-pulse inline-block w-6 h-6 bg-slate-200 rounded" />
-                      ) : (
-                        item.value
-                      )}
-                    </span>
-                    <span className="text-xs sm:text-sm font-semibold text-[#6B7280] mt-1.5 leading-none">
-                      {item.title}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* 3. Mobile & Tablet: RIWAYAT KEHADIRAN ANDA (< 1024px) */}
+          <div className="lg:hidden space-y-3 font-sans">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              RIWAYAT KEHADIRAN ANDA
+            </h3>
+            {loading ? (
+              <div className="space-y-3 animate-pulse">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-20 bg-gray-100 rounded-2xl" />
+                ))}
+              </div>
+            ) : historyRecords.length === 0 ? (
+              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center text-xs text-slate-500">
+                Tidak ada catatan presensi pada periode ini.
+              </div>
+            ) : (
+              <HistoryMobileList
+                records={historyRecords}
+                onSelectRecord={setSelectedHistoryRecord}
+              />
+            )}
           </div>
 
           {/* Desktop Only: Rekap Kehadiran Bulan Ini (>= 1024px) */}
@@ -1004,14 +1041,6 @@ export const DashboardPage: React.FC = () => {
             </div>
             <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
-        </div>
-      </div>
-
-      {/* Information Note */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start sm:items-center gap-3 text-xs sm:text-sm text-[#6B7280]">
-        <Clock className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5 sm:mt-0" />
-        <div>
-          <span className="font-semibold text-[#111827]">Waktu Sistem Aktual:</span> Jam operasional presensi mengikuti zona waktu Indonesia Tengah (WITA). Saat ini: <span className="font-mono font-bold text-[#111827]">{currentTime || '--:--:--'} WITA</span>.
         </div>
       </div>
     </div>
