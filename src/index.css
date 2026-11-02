@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Touch gesture utilities for physical devices */
+.touch-none {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 @font-face {
   font-family: 'Casual-Regular';
   src: url('./assets/fonts/Casual-Regular.ttf') format('truetype');

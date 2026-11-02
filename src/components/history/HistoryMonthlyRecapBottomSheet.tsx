@@ -30,6 +30,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
   const startTimeRef = useRef<number>(0);
   const isPointerDownRef = useRef<boolean>(false);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const dragZoneRef = useRef<HTMLDivElement>(null);
 
   // Smooth exit transition handler
   const handleClose = useCallback(() => {
@@ -73,14 +74,110 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
     };
   }, [isOpen, handleClose]);
 
-  // Swipe-down Pointer Events on Header / Drag Handle area
+  // Native Non-Passive Touch Events for 100% reliable physical mobile & tablet support
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = dragZoneRef.current;
+    if (!el) return;
+
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchStartTime = 0;
+    let isTrackingTouch = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      // Only track single touch contact
+      if (e.touches.length !== 1) return;
+
+      // Ignore if touch started on button or interactive element
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('button, a, input, select, textarea')) return;
+
+      const touch = e.touches[0];
+      touchStartY = touch.clientY;
+      touchStartX = touch.clientX;
+      touchStartTime = Date.now();
+      isTrackingTouch = true;
+      setIsDragging(true);
+
+      window.addEventListener('touchmove', onWindowTouchMove, { passive: false });
+      window.addEventListener('touchend', onWindowTouchEnd, { passive: false });
+      window.addEventListener('touchcancel', onWindowTouchCancel, { passive: false });
+    };
+
+    const onWindowTouchMove = (e: TouchEvent) => {
+      if (!isTrackingTouch || e.touches.length !== 1) return;
+
+      const touch = e.touches[0];
+      const deltaY = touch.clientY - touchStartY;
+      const deltaX = touch.clientX - touchStartX;
+
+      // Prevent native page scroll / pull-to-refresh when dragging vertically
+      if (deltaY > 0 || Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+
+      // Upward pull resistance (clamped to prevent awkward upward stretch)
+      const clampedY = deltaY < 0 ? Math.max(deltaY * 0.1, -8) : deltaY;
+      setDragY(clampedY);
+    };
+
+    const onWindowTouchEnd = (e: TouchEvent) => {
+      if (!isTrackingTouch) return;
+      isTrackingTouch = false;
+      cleanupTouch();
+
+      const touch = e.changedTouches[0];
+      const deltaY = touch ? touch.clientY - touchStartY : 0;
+      const duration = Math.max(Date.now() - touchStartTime, 1);
+      const avgVelocity = deltaY / duration; // px per ms
+
+      // Thresholds:
+      // 1. Distance: pulled down >= 100px
+      // 2. Velocity: pulled down >= 35px with quick flick (velocity >= 0.45 px/ms)
+      const shouldDismiss = deltaY >= 100 || (deltaY >= 35 && avgVelocity >= 0.45);
+
+      if (shouldDismiss) {
+        handleClose();
+      } else {
+        setDragY(0);
+        setIsDragging(false);
+      }
+    };
+
+    const onWindowTouchCancel = () => {
+      if (!isTrackingTouch) return;
+      isTrackingTouch = false;
+      cleanupTouch();
+      setDragY(0);
+      setIsDragging(false);
+    };
+
+    const cleanupTouch = () => {
+      window.removeEventListener('touchmove', onWindowTouchMove);
+      window.removeEventListener('touchend', onWindowTouchEnd);
+      window.removeEventListener('touchcancel', onWindowTouchCancel);
+    };
+
+    // Attach non-passive touchstart listener
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      cleanupTouch();
+    };
+  }, [isOpen, handleClose]);
+
+  // Pointer Events fallback for mouse drag on desktop / Preview
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // Only primary button
+    // Touch is handled with high priority by the native TouchEvent listener above
+    if (e.pointerType === 'touch') return;
     if (e.button !== 0) return;
 
-    // Do not initiate drag if tapping on a button or interactive child
     const target = e.target as HTMLElement;
-    if (target.closest('button, a, input')) return;
+    if (target.closest('button, a, input, select, textarea')) return;
 
     isPointerDownRef.current = true;
     startYRef.current = e.clientY;
@@ -95,17 +192,15 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDownRef.current) return;
+    if (!isPointerDownRef.current || e.pointerType === 'touch') return;
 
     const deltaY = e.clientY - startYRef.current;
-
-    // Upward pull resistance (clamped to prevent awkward upward stretch)
     const clampedY = deltaY < 0 ? Math.max(deltaY * 0.1, -8) : deltaY;
     setDragY(clampedY);
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDownRef.current) return;
+    if (!isPointerDownRef.current || e.pointerType === 'touch') return;
     isPointerDownRef.current = false;
 
     try {
@@ -118,24 +213,20 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
 
     const deltaY = e.clientY - startYRef.current;
     const duration = Math.max(Date.now() - startTimeRef.current, 1);
-    const avgVelocity = deltaY / duration; // px per ms
+    const avgVelocity = deltaY / duration;
 
-    // Thresholds:
-    // 1. Distance: pulled down >= 100px
-    // 2. Velocity: pulled down >= 35px with quick flick (velocity >= 0.45 px/ms)
     const shouldDismiss = deltaY >= 100 || (deltaY >= 35 && avgVelocity >= 0.45);
 
     if (shouldDismiss) {
       handleClose();
     } else {
-      // Revert smoothly
       setDragY(0);
       setIsDragging(false);
     }
   };
 
   const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDownRef.current) return;
+    if (!isPointerDownRef.current || e.pointerType === 'touch') return;
     isPointerDownRef.current = false;
 
     try {
@@ -421,10 +512,12 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
       >
         {/* Swipe-down Dismiss Zone: Drag Handle & Header */}
         <div
+          ref={dragZoneRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerCancel}
+          style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
           className="w-full cursor-grab active:cursor-grabbing select-none touch-none"
         >
           {/* Grab Handle */}
@@ -450,6 +543,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
 
             <button
               type="button"
+              onTouchStart={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleClose}
               className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
