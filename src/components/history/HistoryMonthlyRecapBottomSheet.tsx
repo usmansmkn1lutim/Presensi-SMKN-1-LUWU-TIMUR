@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { X, BarChart3, Clock, CalendarDays, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
 import {
   AttendanceHistoryRecord,
@@ -22,7 +22,37 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
   records,
   loading = false,
 }) => {
-  // Lock body scroll when modal is open
+  const [dragY, setDragY] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
+
+  const startYRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+  const isPointerDownRef = useRef<boolean>(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  // Smooth exit transition handler
+  const handleClose = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+      setDragY(0);
+      setIsDragging(false);
+    }, 250);
+  }, [isClosing, onClose]);
+
+  // Reset drag states whenever modal opens or closes
+  useEffect(() => {
+    if (isOpen) {
+      setDragY(0);
+      setIsDragging(false);
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  // Lock body scroll when modal is open and listen for ESC
   useEffect(() => {
     if (!isOpen) return;
 
@@ -31,7 +61,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        handleClose();
       }
     };
 
@@ -41,7 +71,84 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, handleClose]);
+
+  // Swipe-down Pointer Events on Header / Drag Handle area
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Only primary button
+    if (e.button !== 0) return;
+
+    // Do not initiate drag if tapping on a button or interactive child
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input')) return;
+
+    isPointerDownRef.current = true;
+    startYRef.current = e.clientY;
+    startTimeRef.current = Date.now();
+    setIsDragging(true);
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore if pointer capture fails
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+
+    const deltaY = e.clientY - startYRef.current;
+
+    // Upward pull resistance (clamped to prevent awkward upward stretch)
+    const clampedY = deltaY < 0 ? Math.max(deltaY * 0.1, -8) : deltaY;
+    setDragY(clampedY);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+    isPointerDownRef.current = false;
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // Ignore
+    }
+
+    const deltaY = e.clientY - startYRef.current;
+    const duration = Math.max(Date.now() - startTimeRef.current, 1);
+    const avgVelocity = deltaY / duration; // px per ms
+
+    // Thresholds:
+    // 1. Distance: pulled down >= 100px
+    // 2. Velocity: pulled down >= 35px with quick flick (velocity >= 0.45 px/ms)
+    const shouldDismiss = deltaY >= 100 || (deltaY >= 35 && avgVelocity >= 0.45);
+
+    if (shouldDismiss) {
+      handleClose();
+    } else {
+      // Revert smoothly
+      setDragY(0);
+      setIsDragging(false);
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+    isPointerDownRef.current = false;
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // Ignore
+    }
+
+    setDragY(0);
+    setIsDragging(false);
+  };
 
   // Formatted period label (e.g. "Oktober 2026")
   const formattedMonthYear = useMemo(() => {
@@ -280,47 +387,77 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
     <div className="fixed inset-0 z-50 flex items-end justify-center font-sans">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
-        onClick={onClose}
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-250"
+        style={{
+          opacity: isClosing
+            ? 0
+            : isDragging && dragY > 0
+            ? Math.max(0, 1 - dragY / 320)
+            : 1,
+        }}
+        onClick={handleClose}
         aria-hidden="true"
       />
 
       {/* Bottom Sheet Container */}
       <div
+        ref={sheetRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="recap-sheet-title"
-        className="relative w-full max-w-2xl bg-white rounded-t-3xl shadow-2xl z-10 max-h-[88vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300 border-t border-slate-200"
+        style={{
+          transform: isClosing
+            ? 'translateY(100%)'
+            : dragY !== 0
+            ? `translateY(${dragY}px)`
+            : 'translateY(0)',
+          transition: isDragging
+            ? 'none'
+            : 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+        className={`relative w-full max-w-2xl bg-white rounded-t-3xl shadow-2xl z-10 max-h-[88vh] flex flex-col overflow-hidden border-t border-slate-200 ${
+          !isClosing && !isDragging && dragY === 0 ? 'animate-in slide-in-from-bottom duration-300' : ''
+        }`}
       >
-        {/* Grab Handle */}
-        <div className="w-full pt-3 pb-1 flex justify-center cursor-pointer" onClick={onClose}>
-          <div className="w-12 h-1.5 bg-slate-300 rounded-full" />
-        </div>
-
-        {/* Modal Header */}
-        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#F97316]">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 id="recap-sheet-title" className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                Rekap Kehadiran Bulanan
-              </h3>
-              <p className="text-xs font-medium text-slate-500 capitalize">
-                Periode: {formattedMonthYear}
-              </p>
-            </div>
+        {/* Swipe-down Dismiss Zone: Drag Handle & Header */}
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          className="w-full cursor-grab active:cursor-grabbing select-none touch-none"
+        >
+          {/* Grab Handle */}
+          <div className="w-full pt-3 pb-2 flex justify-center">
+            <div className="w-12 h-1.5 bg-slate-300 rounded-full transition-colors group-hover:bg-slate-400" />
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors"
-            aria-label="Tutup modal rekap"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Modal Header */}
+          <div className="px-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#F97316] shrink-0">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 id="recap-sheet-title" className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                  Rekap Kehadiran Bulanan
+                </h3>
+                <p className="text-xs font-medium text-slate-500 capitalize">
+                  Periode: {formattedMonthYear}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={handleClose}
+              className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              aria-label="Tutup modal rekap"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Modal Body */}
