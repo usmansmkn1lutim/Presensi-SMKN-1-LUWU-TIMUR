@@ -72,7 +72,7 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
   };
 
   const getDayStyle = (day: number) => {
-    const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 12, 0, 0);
     const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
       d.getDate()
     ).padStart(2, '0')}`;
@@ -126,15 +126,6 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
       };
     }
 
-    // Future dates
-    if (isFutureDate) {
-      return {
-        bg: 'bg-white',
-        text: 'text-slate-400 font-normal hover:bg-slate-50',
-        border: 'border border-transparent',
-      };
-    }
-
     // Today without status
     if (isTodayDate) {
       return {
@@ -144,13 +135,22 @@ export const HistoryCalendarMobile: React.FC<HistoryCalendarMobileProps> = ({
       };
     }
 
-    // Weekend without status
+    // Weekend without status (applies to all months and years, past and future)
     if (isWeekend) {
       return {
         bg: selected ? 'bg-[#F97316]' : 'bg-white',
         text: selected
           ? 'text-white font-semibold'
           : 'text-[#B55654] font-medium hover:bg-slate-100',
+        border: 'border border-transparent',
+      };
+    }
+
+    // Future weekday dates without status
+    if (isFutureDate) {
+      return {
+        bg: 'bg-white',
+        text: 'text-slate-400 font-normal hover:bg-slate-50',
         border: 'border border-transparent',
       };
     }

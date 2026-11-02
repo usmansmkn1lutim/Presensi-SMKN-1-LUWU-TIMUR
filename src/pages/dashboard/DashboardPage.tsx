@@ -61,6 +61,37 @@ interface OfficialWeeklySummary {
 }
 
 
+const FlameIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="tamaki-flame-outer" x1="8" y1="1" x2="8" y2="16" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#EA580C" />
+        <stop offset="45%" stopColor="#F97316" />
+        <stop offset="100%" stopColor="#DC2626" />
+      </linearGradient>
+      <linearGradient id="tamaki-flame-inner" x1="8" y1="8" x2="8" y2="15.5" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="55%" stopColor="#FBBF24" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M8.2 1.2C8.2 1.2 8.7 3.2 7.8 4.6C7.1 5.6 5.8 6.4 5.8 7.8C5.8 8.1 5.9 8.5 6.1 8.8C5.3 8.3 4.6 7.4 4.6 6.3C3.6 7.4 3 8.9 3 10.6C3 13.5 5.2 15.8 8 15.8C10.8 15.8 13 13.5 13 10.6C13 8.2 11.8 6.2 10.1 4.5C9.7 6.1 8.6 7 8.6 7C8.6 7 9.8 4.8 8.2 1.2Z"
+      fill="url(#tamaki-flame-outer)"
+    />
+    <path
+      d="M8.1 8.4C8.1 8.4 8.5 9.4 7.9 10.2C7.5 10.7 6.8 11.2 6.8 12C6.8 13.7 8.2 14.8 9.5 14.8C10.8 14.8 11.8 13.7 11.8 12.1C11.8 10.7 10.9 9.8 9.8 8.8C9.5 9.6 8.9 10 8.9 10C8.9 10 9.2 9.1 8.1 8.4Z"
+      fill="url(#tamaki-flame-inner)"
+    />
+  </svg>
+);
+
 const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ records }) => {
   const todayStr = getMakassarTodayDateString();
   const [year, month, day] = todayStr.split('-').map(Number);
@@ -103,20 +134,40 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
         const isToday = day.dateStr === todayStr;
         const isHoliday = record?.official_status === 'holiday';
         const isSpecialDay = isHoliday || day.isWeekend;
+        const hasStatus = Boolean(record && record.official_status && record.official_status !== 'holiday');
+        const isPresent = record?.official_status === 'present';
 
-        const bgColor = isToday ? 'bg-[#F97316]' : 'bg-white';
+        const bgColor = isToday ? 'bg-[#111827] lg:bg-[#F97316]' : 'bg-white';
         const textColor = isToday ? 'text-white' : (isSpecialDay ? 'text-[#DC2626]' : 'text-[#111827]');
         const shadow = isToday ? '' : 'shadow-[0_2px_8px_rgba(15,23,42,0.06)]';
 
         return (
           <div
             key={day.dateStr}
-            className={`rounded-full h-[108px] flex flex-col items-center justify-center gap-1 ${bgColor} ${shadow} border border-[#E5E7EB]`}
+            className={`relative rounded-xl lg:rounded-full h-[88px] lg:h-[108px] flex flex-col items-center justify-center gap-1 ${bgColor} ${shadow} border border-[#E5E7EB]`}
           >
             <span className={`text-[10px] font-bold ${textColor}`}>{day.dayName}</span>
             <span className={`text-sm sm:text-base font-bold ${textColor}`}>{day.dayNum}</span>
-            {(!isSpecialDay && record && record.official_status !== 'holiday') && (
-              <div className={`w-3 h-1 mt-1 rounded-full ${getStatusColor(record.official_status)}`} />
+
+            {/* Ikon api dekoratif khusus status Hadir (hanya mobile/tablet) */}
+            <div className="h-4 flex items-center justify-center lg:hidden">
+              {isPresent ? <FlameIcon className="w-4 h-4 shrink-0" /> : <div className="w-4 h-4" />}
+            </div>
+
+            {isToday ? (
+              <div
+                className={`w-3 h-1 absolute bottom-0 left-1/2 -translate-x-1/2 rounded-none lg:static lg:bottom-auto lg:left-auto lg:translate-x-0 lg:mt-1 lg:rounded-full ${
+                  hasStatus ? getStatusColor(record?.official_status) : 'bg-white lg:hidden'
+                }`}
+              />
+            ) : (
+              !isSpecialDay && hasStatus && (
+                <div
+                  className={`w-3 h-1 absolute bottom-0 left-1/2 -translate-x-1/2 rounded-none lg:static lg:bottom-auto lg:left-auto lg:translate-x-0 lg:mt-1 lg:rounded-full ${getStatusColor(
+                    record?.official_status
+                  )}`}
+                />
+              )
             )}
           </div>
         );
