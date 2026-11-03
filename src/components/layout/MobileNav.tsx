@@ -262,26 +262,15 @@ export const MobileBottomNav: React.FC = () => {
                 key={tab.path}
                 to={tab.path}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center -mt-6 transition-transform active:scale-95 px-2 flex-1 max-w-[72px] ${
+                  `flex flex-col items-center justify-center -mt-[30px] transition-transform active:scale-95 px-2 flex-1 max-w-[72px] ${
                     isActive ? 'scale-105' : ''
                   }`
                 }
               >
                 {({ isActive }) => (
-                  <>
-                    <div className="w-12 h-12 rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                      <NavScannerFabIcon className="w-[31px] h-[31px]" />
-                    </div>
-                    <span
-                      className={`text-[10px] mt-1 truncate transition-colors ${
-                        isActive
-                          ? 'text-[#F97316] font-semibold'
-                          : 'text-[#6B7280] hover:text-[#111827]'
-                      }`}
-                    >
-                      {tab.label}
-                    </span>
-                  </>
+                  <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
+                    <NavScannerFabIcon className="w-[31px] h-[31px]" />
+                  </div>
                 )}
               </NavLink>
             );
