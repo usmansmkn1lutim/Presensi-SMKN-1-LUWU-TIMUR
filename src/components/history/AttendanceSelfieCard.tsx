@@ -95,13 +95,15 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
 
   const resolveStatusClass = (label?: string | null, customClass?: string) => {
     if (customClass) return customClass;
-    if (!label) return 'bg-orange-50 text-[#F97316] border border-orange-100';
+    if (!label) return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
 
     switch (label) {
       case 'Tepat Waktu':
       case 'Terlambat':
       case 'Dinas Luar':
-        return 'bg-orange-50 text-[#F97316] border border-orange-100';
+      case 'Jam Operasional':
+      case 'Setelah Jam Kerja':
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
       case 'Sakit':
       case 'Izin':
       case 'Cuti':
@@ -109,12 +111,8 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
       case 'Alfa':
       case 'Alpha':
         return 'bg-rose-50 text-rose-700 border border-rose-200';
-      case 'Jam Operasional':
-        return 'bg-blue-50 text-blue-700 border border-blue-200';
-      case 'Setelah Jam Kerja':
-        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
       default:
-        return 'bg-orange-50 text-[#F97316] border border-orange-100';
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     }
   };
 

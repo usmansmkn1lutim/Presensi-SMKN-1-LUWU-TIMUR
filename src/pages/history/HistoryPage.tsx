@@ -347,9 +347,9 @@ export const HistoryPage: React.FC = () => {
     if (official === 'official_duty') {
       return {
         checkInLabel: 'Dinas Luar',
-        checkInClass: 'bg-orange-50 text-[#F97316] border border-orange-200',
+        checkInClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
         checkOutLabel: 'Dinas Luar',
-        checkOutClass: 'bg-orange-50 text-[#F97316] border border-orange-200',
+        checkOutClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
       };
     }
 
@@ -405,13 +405,13 @@ export const HistoryPage: React.FC = () => {
 
     if (activeRecord.check_in_status === 'on_time') {
       checkInLabel = 'Tepat Waktu';
-      checkInClass = 'bg-orange-50 text-[#F97316] border border-orange-100';
+      checkInClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     } else if (activeRecord.check_in_status === 'late') {
       checkInLabel = 'Terlambat';
-      checkInClass = 'bg-orange-50 text-[#F97316] border border-orange-100';
+      checkInClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     } else if (activeRecord.check_in_at) {
       checkInLabel = 'Tepat Waktu';
-      checkInClass = 'bg-orange-50 text-[#F97316] border border-orange-100';
+      checkInClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     }
 
     let checkOutLabel: string | undefined;
@@ -419,7 +419,7 @@ export const HistoryPage: React.FC = () => {
 
     if (activeRecord.check_out_status === 'operational') {
       checkOutLabel = 'Jam Operasional';
-      checkOutClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+      checkOutClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     } else if (activeRecord.check_out_status === 'after_work') {
       checkOutLabel = 'Setelah Jam Kerja';
       checkOutClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
@@ -506,35 +506,7 @@ export const HistoryPage: React.FC = () => {
           loading={monthlyOfficialLoading}
         />
 
-        {/* 2. Tombol Akses Ringkas Rekap Kehadiran Bulanan */}
-        <button
-          type="button"
-          onClick={() => setIsRecapModalOpen(true)}
-          className="w-full min-h-[48px] py-3 px-4 bg-gradient-to-r from-orange-50/80 via-white to-orange-50/30 hover:from-orange-100/80 hover:to-orange-50/70 border border-orange-200 hover:border-[#F97316] rounded-2xl shadow-2xs flex items-center justify-between text-left transition-all group active:scale-[0.99] touch-manipulation cursor-pointer"
-          aria-haspopup="dialog"
-          aria-expanded={isRecapModalOpen}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#F97316] border border-orange-200/80 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#EA580C] transition-colors leading-tight">
-                Rekap Kehadiran Bulanan
-              </div>
-              <p className="text-[11px] font-medium text-slate-500 capitalize leading-tight mt-0.5">
-                Statistik & rincian ({calendarMonthYearLabel})
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 text-xs font-bold text-[#F97316] bg-white px-2.5 py-1.5 rounded-xl border border-orange-200 shadow-2xs shrink-0 group-hover:bg-orange-50 transition-colors">
-            <span>Buka</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </div>
-        </button>
-
-        {/* 3 & 4. Card Foto Selfie Check-in & Check-out tepat di bawah tombol rekap */}
+        {/* 2 & 3. Card Foto Selfie Check-in & Check-out tepat di bawah kalender */}
         <div className="space-y-3 font-sans">
           <AttendanceSelfieCard
             type="check_in"
@@ -579,6 +551,32 @@ export const HistoryPage: React.FC = () => {
             statusClassName={selfieIndicators.checkOutClass}
           />
         </div>
+
+        {/* 4. Tombol Akses Ringkas Rekap Kehadiran Bulanan */}
+        <button
+          type="button"
+          onClick={() => setIsRecapModalOpen(true)}
+          className="w-full min-h-[48px] py-3 px-4 bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#F97316] rounded-2xl shadow-2xs flex items-center justify-between text-left transition-all group active:scale-[0.99] touch-manipulation cursor-pointer"
+          aria-haspopup="dialog"
+          aria-expanded={isRecapModalOpen}
+        >
+          <div className="flex items-center gap-3">
+            <BarChart3 className="w-5 h-5 text-[#F97316] shrink-0" />
+            <div>
+              <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#EA580C] transition-colors leading-tight">
+                Rekap Kehadiran Bulanan
+              </div>
+              <p className="text-[11px] font-medium text-slate-500 capitalize leading-tight mt-0.5">
+                Statistik & rincian ({calendarMonthYearLabel})
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs font-bold text-white bg-[#F97316] px-3 py-1.5 rounded-xl shadow-2xs shrink-0 group-hover:bg-[#EA580C] transition-colors">
+            <span>Buka</span>
+            <ChevronRight className="w-3.5 h-3.5 text-white" />
+          </div>
+        </button>
       </div>
 
       {/* UNLINKED ACCOUNT STATE (FINDING-03 Fix) */}

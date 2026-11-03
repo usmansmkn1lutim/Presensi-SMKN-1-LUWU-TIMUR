@@ -528,9 +528,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
           {/* Modal Header */}
           <div className="px-5 pb-3 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#F97316] shrink-0">
-                <BarChart3 className="w-5 h-5" />
-              </div>
+              <BarChart3 className="w-5 h-5 text-[#F97316] shrink-0" />
               <div>
                 <h3 id="recap-sheet-title" className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
                   Rekap Kehadiran Bulanan
