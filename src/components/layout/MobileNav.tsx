@@ -138,11 +138,11 @@ const NavProfileIcon: React.FC<{ isActive: boolean; className?: string }> = ({
  * - Kepala berbentuk lingkaran penuh berwarna putih (#FFFFFF)
  * - Setengah badan dengan bahu membulat berwarna putih (#FFFFFF), tepat di bawah kepala
  * - Empat sudut pemindai berbentuk L simetris mengelilingi area kepala saja
- * - Berukuran ~25px x 25px (diperbesar ~25% dari ukuran 20px sebelumnya)
+ * - Berukuran 31px x 31px (diperbesar 25% dari ukuran 25px sebelumnya)
  * - Warna seluruh elemen adalah putih (#FFFFFF)
  */
 const NavScannerFabIcon: React.FC<{ className?: string }> = ({
-  className = 'w-[25px] h-[25px]',
+  className = 'w-[31px] h-[31px]',
 }) => {
   return (
     <svg
@@ -270,7 +270,7 @@ export const MobileBottomNav: React.FC = () => {
                 {({ isActive }) => (
                   <>
                     <div className="w-12 h-12 rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                      <NavScannerFabIcon className="w-[25px] h-[25px]" />
+                      <NavScannerFabIcon className="w-[31px] h-[31px]" />
                     </div>
                     <span
                       className={`text-[10px] mt-1 truncate transition-colors ${
