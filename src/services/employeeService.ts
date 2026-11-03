@@ -411,6 +411,26 @@ class EmployeeService {
       preserved_requests_count: number;
     };
   }
+
+  /**
+   * Update employee photo path via RPC update_employee_photo.
+   */
+  async updateEmployeePhoto(employeeId: string, photoPath: string | null): Promise<any> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase configuration is missing.');
+    }
+
+    const { data, error } = await (supabase as any).rpc('update_employee_photo', {
+      p_employee_id: employeeId,
+      p_photo_path: photoPath,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
 }
 
 export const employeeService = new EmployeeService();

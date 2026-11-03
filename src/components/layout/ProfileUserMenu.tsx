@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { RoleBadge } from '../ui/Badge';
+import { UserAvatar } from '../ui/UserAvatar';
 import { APP_CONFIG } from '../../config/appConfig';
 import { useProfileMenu } from '../../context/ProfileMenuContext';
 
@@ -152,17 +153,12 @@ export const ProfileUserMenu: React.FC<ProfileUserMenuProps> = ({
       <div className="flex items-center gap-3.5 p-3.5 sm:p-4 bg-[#F9FAFB] rounded-2xl border border-[#F3F4F6]">
         {/* Avatar di sisi kiri dengan fallback inisial */}
         <div className="relative shrink-0">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center font-bold text-base shadow-2xs">
-              {initials}
-            </div>
-          )}
+          <UserAvatar
+            userId={user?.id}
+            avatarUrl={profile?.avatar_url || user?.avatarUrl}
+            name={displayName}
+            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs"
+          />
           <div
             className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center"
             title="Akun Terhubung"

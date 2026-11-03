@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User as UserIcon, Building2, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { RoleBadge } from '../ui/Badge';
+import { UserAvatar } from '../ui/UserAvatar';
 import { NAVIGATION_ITEMS } from '../../config/navigation';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { useInstitutionSettings } from '../../hooks/useInstitutionSettings';
@@ -117,19 +118,12 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Avatar di kanan */}
-          <div className="w-8 h-8 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center font-bold text-xs text-[#374151] shadow-2xs shrink-0 overflow-hidden">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="w-full h-full object-cover"
-              />
-            ) : displayName ? (
-              displayName.charAt(0).toUpperCase()
-            ) : (
-              <UserIcon className="w-4 h-4 text-[#6B7280]" />
-            )}
-          </div>
+          <UserAvatar
+            userId={user?.id}
+            avatarUrl={profile?.avatar_url || user?.avatarUrl}
+            name={displayName}
+            className="w-8 h-8 rounded-full object-cover border border-[#E5E7EB] shadow-2xs shrink-0"
+          />
         </div>
       </div>
     </header>

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProfileMenu } from '../../context/ProfileMenuContext';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import {
   dashboardAttendanceService,
   DashboardAttendanceSummary,
@@ -581,22 +582,12 @@ export const DashboardPage: React.FC = () => {
         {/* 1. Mobile & Tablet Dynamic Greeting & User Identity (< 1024px) */}
         <div className="lg:hidden flex items-center justify-between py-2 px-1 font-sans">
           <div className="flex items-center gap-3">
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                alt="Foto Profil"
-                className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
-              />
-            ) : (
-              <div className="w-11 h-11 rounded-full bg-[#FFF7ED] text-[#F97316] font-bold flex items-center justify-center text-sm border border-orange-200 shrink-0 shadow-2xs">
-                {fullName
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </div>
-            )}
+            <UserAvatar
+              userId={user?.id}
+              avatarUrl={profile?.avatar_url}
+              name={fullName}
+              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
+            />
             <div className="space-y-0.5">
               <p className="text-xs font-semibold text-[#111827]">
                 {greeting},
@@ -697,22 +688,12 @@ export const DashboardPage: React.FC = () => {
       {/* 1. Mobile & Tablet Dynamic Greeting & User Identity (< 1024px, pada desktop ditangani oleh Header) */}
       <div className="lg:hidden flex items-center justify-between py-2 px-1 font-sans">
         <div className="flex items-center gap-3">
-          {profile?.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt="Foto Profil"
-              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
-            />
-          ) : (
-            <div className="w-11 h-11 rounded-full bg-[#FFF7ED] text-[#F97316] font-bold flex items-center justify-center text-sm border border-orange-200 shrink-0 shadow-2xs">
-              {fullName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase()}
-            </div>
-          )}
+          <UserAvatar
+            userId={user?.id}
+            avatarUrl={profile?.avatar_url}
+            name={fullName}
+            className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
+          />
           <div className="space-y-0.5">
             <p className="text-xs font-semibold text-[#111827]">
               {greeting},

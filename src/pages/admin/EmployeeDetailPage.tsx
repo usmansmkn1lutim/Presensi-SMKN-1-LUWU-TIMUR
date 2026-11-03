@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Badge, RoleBadge } from '../../components/ui/Badge';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import { employeeService, EmployeeWithRelations } from '../../services/employeeService';
 import { EmployeeFormModal } from '../../components/employees/EmployeeFormModal';
 import { StatusConfirmModal } from '../../components/employees/StatusConfirmModal';
@@ -154,17 +155,12 @@ export const EmployeeDetailPage: React.FC = () => {
           <div className="flex items-center gap-4 sm:gap-6">
             {/* Foto / Avatar */}
             <div className="relative">
-              {employee.photo_url ? (
-                <img
-                  src={employee.photo_url}
-                  alt={employee.full_name}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-orange-200 shadow-xs"
-                />
-              ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#FFF7ED] border-2 border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-xs">
-                  {employee.full_name.charAt(0)}
-                </div>
-              )}
+              <UserAvatar
+                userId={employee.profile_id}
+                photoUrl={employee.photo_url}
+                name={employee.full_name}
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-orange-200 shadow-xs"
+              />
               <div className="absolute -bottom-1 -right-1 p-1 bg-white rounded-full shadow-2xs">
                 {employee.status === 'active' ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />

@@ -116,6 +116,25 @@ class ProfileService {
 
     return data || [];
   }
+
+  /**
+   * Update current user's profile photo path via RPC update_my_profile_photo.
+   */
+  async updateMyProfilePhoto(photoPath: string | null): Promise<any> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase configuration is missing.');
+    }
+
+    const { data, error } = await (supabase as any).rpc('update_my_profile_photo', {
+      p_photo_path: photoPath,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
 }
 
 export const profileService = new ProfileService();

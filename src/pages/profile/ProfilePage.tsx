@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User as UserIcon,
@@ -14,9 +14,19 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
+  Camera,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { profileService } from '../../services/profileService';
+import { employeeService, EmployeeWithRelations } from '../../services/employeeService';
+import {
+  getPrivatePhotoSignedUrl,
+  uploadProfilePhoto,
+  uploadEmployeePhoto,
+  deletePhotoObject,
+} from '../../services/photoStorageService';
+import { processImageToWebP } from '../../utils/imageUtils';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { RoleBadge, Badge } from '../../components/ui/Badge';
@@ -30,6 +40,38 @@ export const ProfilePage: React.FC = () => {
   const [fullNameInput, setFullNameInput] = useState(user?.name || '');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Photo management state
+  const [signedPhotoUrl, setSignedPhotoUrl] = useState<string | null>(null);
+  const [linkedEmployee, setLinkedEmployee] = useState<EmployeeWithRelations | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadPhotoAndEmployee = async () => {
+      if (!user) return;
+      try {
+        const emp = await employeeService.getEmployeeByProfileId(user.id);
+        if (isMounted) {
+          setLinkedEmployee(emp);
+          const activePath = emp?.photo_url || profile?.avatar_url;
+          if (activePath) {
+            const signed = await getPrivatePhotoSignedUrl(activePath);
+            if (isMounted) setSignedPhotoUrl(signed);
+          } else {
+            if (isMounted) setSignedPhotoUrl(null);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load profile photo/employee link:', err);
+      }
+    };
+    loadPhotoAndEmployee();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, profile]);
 
   if (!user) return null;
 
@@ -73,20 +115,117 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
+  const handlePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingPhoto(true);
+    setSaveMessage(null);
+
+    try {
+      const processed = await processImageToWebP(files);
+      let newPath = '';
+      const oldPath = linkedEmployee?.photo_url || profile?.avatar_url;
+
+      if (linkedEmployee) {
+        newPath = await uploadEmployeePhoto(linkedEmployee.id, processed.file);
+        await employeeService.updateEmployeePhoto(linkedEmployee.id, newPath);
+      } else {
+        newPath = await uploadProfilePhoto(user.id, processed.file);
+        await profileService.updateMyProfilePhoto(newPath);
+      }
+
+      if (oldPath && oldPath !== newPath) {
+        await deletePhotoObject(oldPath);
+      }
+
+      const signed = await getPrivatePhotoSignedUrl(newPath);
+      setSignedPhotoUrl(signed);
+      await refreshProfile();
+      setSaveMessage({ type: 'success', text: 'Foto profil berhasil diperbarui.' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengunggah foto.';
+      setSaveMessage({ type: 'error', text: msg });
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus foto profil?')) return;
+
+    setIsUploadingPhoto(true);
+    setSaveMessage(null);
+
+    try {
+      const oldPath = linkedEmployee?.photo_url || profile?.avatar_url;
+      if (linkedEmployee) {
+        await employeeService.updateEmployeePhoto(linkedEmployee.id, null);
+      } else {
+        await profileService.updateMyProfilePhoto(null);
+      }
+
+      if (oldPath) {
+        await deletePhotoObject(oldPath);
+      }
+
+      setSignedPhotoUrl(null);
+      await refreshProfile();
+      setSaveMessage({ type: 'success', text: 'Foto profil berhasil dihapus.' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menghapus foto.';
+      setSaveMessage({ type: 'error', text: msg });
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile Header Card */}
       <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-4 sm:gap-5">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-[#FFF7ED] border-2 border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-2xl shadow-xs">
-                {user.name.charAt(0)}
+          <div className="flex items-center gap-5 sm:gap-6">
+            {/* Avatar & Photo Upload Widget */}
+            <div className="relative group">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#FFF7ED] border-2 border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-xs overflow-hidden relative">
+                {signedPhotoUrl ? (
+                  <img
+                    src={signedPhotoUrl}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span>{user.name.charAt(0)}</span>
+                )}
+
+                {isUploadingPhoto && (
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex items-center justify-center text-white">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
               </div>
-              <div className="absolute -bottom-1 -right-1 p-1 bg-white rounded-full shadow-2xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              </div>
+
+              {/* Hover Overlay Button to Change Photo */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingPhoto}
+                className="absolute -bottom-1 -right-1 p-2 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-full shadow-md transition-transform hover:scale-105 cursor-pointer"
+                title="Unggah atau Ganti Foto"
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handlePhotoFileChange}
+              />
             </div>
 
             <div>
@@ -111,6 +250,17 @@ export const ProfilePage: React.FC = () => {
                   {user.status === 'active' ? 'Akun Aktif' : 'Nonaktif'}
                 </Badge>
               </div>
+
+              {signedPhotoUrl && !isUploadingPhoto && (
+                <button
+                  type="button"
+                  onClick={handleDeletePhoto}
+                  className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Hapus Foto</span>
+                </button>
+              )}
             </div>
           </div>
 

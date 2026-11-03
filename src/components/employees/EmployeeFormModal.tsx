@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, User, Check, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, User, Check, AlertCircle, Camera, Trash2, Upload } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { DepartmentRow, PositionRow } from '../../types/database.types';
@@ -7,6 +7,12 @@ import { EmployeeWithRelations, EmployeeFormData, COMMON_EMPLOYEE_TYPES } from '
 import { employeeService } from '../../services/employeeService';
 import { departmentService } from '../../services/departmentService';
 import { positionService } from '../../services/positionService';
+import {
+  getPrivatePhotoSignedUrl,
+  uploadEmployeePhoto,
+  deletePhotoObject,
+} from '../../services/photoStorageService';
+import { processImageToWebP } from '../../utils/imageUtils';
 
 interface EmployeeFormModalProps {
   isOpen: boolean;
@@ -46,6 +52,12 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Photo state
+  const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [isRemovingPhoto, setIsRemovingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Load master departments and positions
   useEffect(() => {
     if (!isOpen) return;
@@ -71,46 +83,90 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
   // Populate form if editing
   useEffect(() => {
-    if (employeeToEdit) {
-      setFormData({
-        full_name: employeeToEdit.full_name || '',
-        nip: employeeToEdit.nip || '',
-        nik: employeeToEdit.nik || '',
-        employee_number: employeeToEdit.employee_number || '',
-        gender: employeeToEdit.gender || '',
-        employee_type: employeeToEdit.employee_type || 'PNS',
-        position_id: employeeToEdit.position_id || '',
-        department_id: employeeToEdit.department_id || '',
-        phone: employeeToEdit.phone || '',
-        email: employeeToEdit.email || '',
-        photo_url: employeeToEdit.photo_url || '',
-        join_date: employeeToEdit.join_date || '',
-        status: employeeToEdit.status || 'active',
-        notes: employeeToEdit.notes || '',
-        profile_id: employeeToEdit.profile_id,
-      });
-    } else {
-      setFormData({
-        full_name: '',
-        nip: '',
-        nik: '',
-        employee_number: '',
-        gender: '',
-        employee_type: 'PNS',
-        position_id: '',
-        department_id: '',
-        phone: '',
-        email: '',
-        photo_url: '',
-        join_date: new Date().toISOString().split('T')[0],
-        status: 'active',
-        notes: '',
-      });
-    }
-    setErrorMessage(null);
+    let isMounted = true;
+    const loadPhoto = async () => {
+      if (employeeToEdit) {
+        setFormData({
+          full_name: employeeToEdit.full_name || '',
+          nip: employeeToEdit.nip || '',
+          nik: employeeToEdit.nik || '',
+          employee_number: employeeToEdit.employee_number || '',
+          gender: employeeToEdit.gender || '',
+          employee_type: employeeToEdit.employee_type || 'PNS',
+          position_id: employeeToEdit.position_id || '',
+          department_id: employeeToEdit.department_id || '',
+          phone: employeeToEdit.phone || '',
+          email: employeeToEdit.email || '',
+          photo_url: employeeToEdit.photo_url || '',
+          join_date: employeeToEdit.join_date || '',
+          status: employeeToEdit.status || 'active',
+          notes: employeeToEdit.notes || '',
+          profile_id: employeeToEdit.profile_id,
+        });
+
+        setSelectedPhotoFile(null);
+        setIsRemovingPhoto(false);
+
+        if (employeeToEdit.photo_url) {
+          const signed = await getPrivatePhotoSignedUrl(employeeToEdit.photo_url);
+          if (isMounted) setPhotoPreviewUrl(signed);
+        } else {
+          if (isMounted) setPhotoPreviewUrl(null);
+        }
+      } else {
+        setFormData({
+          full_name: '',
+          nip: '',
+          nik: '',
+          employee_number: '',
+          gender: '',
+          employee_type: 'PNS',
+          position_id: '',
+          department_id: '',
+          phone: '',
+          email: '',
+          photo_url: '',
+          join_date: new Date().toISOString().split('T')[0],
+          status: 'active',
+          notes: '',
+        });
+        setSelectedPhotoFile(null);
+        setPhotoPreviewUrl(null);
+        setIsRemovingPhoto(false);
+      }
+      setErrorMessage(null);
+    };
+
+    loadPhoto();
+    return () => {
+      isMounted = false;
+    };
   }, [employeeToEdit, isOpen]);
 
   if (!isOpen) return null;
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      const processed = await processImageToWebP(files);
+      setSelectedPhotoFile(processed.file);
+      setPhotoPreviewUrl(URL.createObjectURL(processed.blob));
+      setIsRemovingPhoto(false);
+      setErrorMessage(null);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'Gagal memproses gambar.');
+    }
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = () => {
+    setSelectedPhotoFile(null);
+    setPhotoPreviewUrl(null);
+    setIsRemovingPhoto(true);
+    setFormData({ ...formData, photo_url: '' });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,7 +203,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
         position_id: formData.position_id || null,
         phone: formData.phone,
         email: formData.email,
-        photo_url: formData.photo_url,
+        photo_url: isRemovingPhoto ? null : formData.photo_url,
         join_date: formData.join_date || null,
         status: formData.status,
         notes: formData.notes,
@@ -155,8 +211,31 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
       if (isEditMode && employeeToEdit) {
         result = await employeeService.updateEmployee(employeeToEdit.id, payload);
+
+        if (selectedPhotoFile) {
+          const oldPath = employeeToEdit.photo_url;
+          const newPath = await uploadEmployeePhoto(employeeToEdit.id, selectedPhotoFile);
+          await employeeService.updateEmployeePhoto(employeeToEdit.id, newPath);
+
+          if (oldPath && oldPath !== newPath) {
+            await deletePhotoObject(oldPath);
+          }
+
+          const updated = await employeeService.getEmployeeById(employeeToEdit.id);
+          if (updated) result = updated;
+        } else if (isRemovingPhoto && employeeToEdit.photo_url) {
+          await deletePhotoObject(employeeToEdit.photo_url);
+        }
       } else {
         result = await employeeService.createEmployee(payload);
+
+        if (selectedPhotoFile && result?.id) {
+          const newPath = await uploadEmployeePhoto(result.id, selectedPhotoFile);
+          await employeeService.updateEmployeePhoto(result.id, newPath);
+
+          const updated = await employeeService.getEmployeeById(result.id);
+          if (updated) result = updated;
+        }
       }
 
       onSuccess(result);
@@ -209,6 +288,68 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
+
+          {/* Section 0: Foto Profil GTK */}
+          <div className="space-y-3 pb-3 border-b border-[#E5E7EB]">
+            <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] text-[#F97316]">
+              Foto Profil GTK (Opsional)
+            </h4>
+
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#FFF7ED] border-2 border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden shadow-xs relative">
+                {photoPreviewUrl ? (
+                  <img
+                    src={photoPreviewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span>{formData.full_name ? formData.full_name.charAt(0) : '?'}</span>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isSubmitting}
+                    leftIcon={<Upload className="w-3.5 h-3.5" />}
+                  >
+                    Pilih Foto (WebP/PNG/JPG)
+                  </Button>
+
+                  {photoPreviewUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemovePhoto}
+                      disabled={isSubmitting}
+                      leftIcon={<Trash2 className="w-3.5 h-3.5 text-red-600" />}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                    >
+                      Hapus
+                    </Button>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#6B7280]">
+                  Format otomatis dikonversi ke WebP, rasio persegi, ukuran maksimal 2MB.
+                </p>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handlePhotoSelect}
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Section 1: Data Pokok */}
           <div className="space-y-3.5">
@@ -394,16 +535,6 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                   disabled={isSubmitting}
                 />
               </div>
-            </div>
-
-            <div>
-              <Input
-                label="URL Foto Profil (Opsional)"
-                placeholder="https://example.com/foto.jpg"
-                value={formData.photo_url}
-                onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                disabled={isSubmitting}
-              />
             </div>
 
             <div>

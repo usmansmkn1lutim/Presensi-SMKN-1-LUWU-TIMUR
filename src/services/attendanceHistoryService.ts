@@ -259,12 +259,17 @@ export const attendanceHistoryService = {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching attendance record for date:', error);
+        if (!error.message?.includes('Failed to fetch')) {
+          console.error('Error fetching attendance record for date:', error);
+        }
         return null;
       }
 
       return (data as unknown as AttendanceHistoryRecord) || null;
-    } catch {
+    } catch (err: any) {
+      if (!err?.message?.includes('Failed to fetch')) {
+        console.error('Error in getAttendanceRecordByDate:', err);
+      }
       return null;
     }
   },

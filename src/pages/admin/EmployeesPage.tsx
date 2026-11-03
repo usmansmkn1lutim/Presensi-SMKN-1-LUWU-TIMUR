@@ -21,6 +21,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import { DepartmentRow, PositionRow } from '../../types/database.types';
 import {
   EmployeeWithRelations,
@@ -509,17 +510,12 @@ export const EmployeesPage: React.FC = () => {
                         {/* Pegawai */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            {emp.photo_url ? (
-                              <img
-                                src={emp.photo_url}
-                                alt={emp.full_name}
-                                className="w-9 h-9 rounded-xl object-cover border border-orange-200 shrink-0"
-                              />
-                            ) : (
-                              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] font-bold flex items-center justify-center shrink-0">
-                                {emp.full_name.charAt(0)}
-                              </div>
-                            )}
+                            <UserAvatar
+                              userId={emp.profile_id}
+                              photoUrl={emp.photo_url}
+                              name={emp.full_name}
+                              className="w-9 h-9 rounded-xl object-cover border border-orange-200 shrink-0"
+                            />
                             <div>
                               <button
                                 onClick={() => navigate(`/employees/${emp.id}`)}
@@ -647,17 +643,12 @@ export const EmployeesPage: React.FC = () => {
                   <div key={emp.id} className="p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        {emp.photo_url ? (
-                          <img
-                            src={emp.photo_url}
-                            alt={emp.full_name}
+                          <UserAvatar
+                            userId={emp.profile_id}
+                            photoUrl={emp.photo_url}
+                            name={emp.full_name}
                             className="w-10 h-10 rounded-xl object-cover border border-orange-200 shrink-0"
                           />
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] font-bold text-sm flex items-center justify-center shrink-0">
-                            {emp.full_name.charAt(0)}
-                          </div>
-                        )}
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="text-[10px] text-[#9CA3AF] font-mono">#{index + 1}</span>
