@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 
 export const AccountPage: React.FC = () => {
   const { user, profile, session, logout } = useAuth();
@@ -63,17 +64,13 @@ export const AccountPage: React.FC = () => {
       {/* Identitas Pengguna: Nama dan Email (Tanpa Role dan Tanpa Badge Status) */}
       <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-xs flex items-center gap-4">
         <div className="shrink-0">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border border-[#E5E7EB] shadow-2xs"
-            />
-          ) : (
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center font-bold text-lg sm:text-xl shadow-2xs">
-              {initials}
-            </div>
-          )}
+          <UserAvatar
+            userId={user?.id}
+            avatarUrl={profile?.avatar_url || user?.avatarUrl}
+            photoUrl={user?.photoUrl}
+            name={displayName}
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border border-[#E5E7EB] shadow-2xs"
+          />
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-base sm:text-lg font-bold text-[#111827] truncate leading-tight">

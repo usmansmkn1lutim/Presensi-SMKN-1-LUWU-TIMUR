@@ -584,7 +584,8 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <UserAvatar
               userId={user?.id}
-              avatarUrl={profile?.avatar_url}
+              avatarUrl={profile?.avatar_url || user?.avatarUrl}
+              photoUrl={user?.photoUrl}
               name={fullName}
               className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
             />
@@ -690,7 +691,8 @@ export const DashboardPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <UserAvatar
             userId={user?.id}
-            avatarUrl={profile?.avatar_url}
+            avatarUrl={profile?.avatar_url || user?.avatarUrl}
+            photoUrl={user?.photoUrl}
             name={fullName}
             className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
           />

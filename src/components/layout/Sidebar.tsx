@@ -24,6 +24,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getNavItemsForRole } from '../../config/navigation';
 import { SchoolLogo } from '../ui/SchoolLogo';
 import { RoleBadge } from '../ui/Badge';
+import { UserAvatar } from '../ui/UserAvatar';
 import { APP_CONFIG } from '../../config/appConfig';
 
 // Map icon name string to Lucide icon component
@@ -56,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed = false,
   onToggleCollapse,
 }) => {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -220,9 +221,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               title="Buka Halaman Akun Saya"
               className="min-w-0 flex items-center gap-2.5 text-left cursor-pointer group flex-1"
             >
-              <div className="w-8 h-8 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center font-bold text-xs text-[#F97316] shrink-0 group-hover:scale-105 transition-transform">
-                {user.name.charAt(0)}
-              </div>
+              <UserAvatar
+                userId={user.id}
+                avatarUrl={profile?.avatar_url || user.avatarUrl}
+                photoUrl={user.photoUrl}
+                name={user.name}
+                className="w-8 h-8 rounded-full object-cover border border-orange-200 shrink-0 group-hover:scale-105 transition-transform"
+              />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-slate-900 truncate group-hover:text-[#F97316] transition-colors">
                   {user.name}
@@ -248,10 +253,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={() => navigate('/account')}
-            className="w-9 h-9 rounded-full bg-white border border-white/20 flex items-center justify-center font-bold text-xs text-[#F97316] shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            className="cursor-pointer hover:scale-105 transition-transform"
             title={`${user.name} (${user.role}) - Buka Akun Saya`}
           >
-            {user.name.charAt(0)}
+            <UserAvatar
+              userId={user.id}
+              avatarUrl={profile?.avatar_url || user.avatarUrl}
+              photoUrl={user.photoUrl}
+              name={user.name}
+              className="w-9 h-9 rounded-full object-cover border border-white/20 shadow-2xs shrink-0"
+            />
           </button>
           <button
             type="button"
