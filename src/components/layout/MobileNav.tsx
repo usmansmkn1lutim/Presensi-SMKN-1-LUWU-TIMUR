@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { QrCode, Users, BarChart3, LucideIcon } from 'lucide-react';
+import { Users, BarChart3, LucideIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 /* ==========================================================================
@@ -133,6 +133,67 @@ const NavProfileIcon: React.FC<{ isActive: boolean; className?: string }> = ({
   );
 };
 
+/**
+ * 5. Ikon FAB Presensi: Profil Pemindai (Presence / Face Scanner)
+ * - Kepala berbentuk lingkaran penuh berwarna putih (#FFFFFF)
+ * - Setengah badan dengan bahu membulat berwarna putih (#FFFFFF), tepat di bawah kepala
+ * - Empat sudut pemindai berbentuk L simetris mengelilingi area kepala saja
+ * - Berukuran ~25px x 25px (diperbesar ~25% dari ukuran 20px sebelumnya)
+ * - Warna seluruh elemen adalah putih (#FFFFFF)
+ */
+const NavScannerFabIcon: React.FC<{ className?: string }> = ({
+  className = 'w-[25px] h-[25px]',
+}) => {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {/* 4 Sudut Pemindai L-shaped simetris mengelilingi area kepala saja */}
+      <path
+        d="M9 2.5H6.5A1 1 0 0 0 5.5 3.5V6"
+        stroke="#FFFFFF"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 2.5h2.5a1 1 0 0 1 1 1V6"
+        stroke="#FFFFFF"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.5 10.5v2.5a1 1 0 0 0 1 1H9"
+        stroke="#FFFFFF"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18.5 10.5v2.5a1 1 0 0 1-1 1H15"
+        stroke="#FFFFFF"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Kepala: Lingkaran Penuh Putih */}
+      <circle cx="12" cy="8.25" r="3" fill="#FFFFFF" />
+
+      {/* Badan: Setengah Badan dengan Bahu Membulat Putih */}
+      <path
+        d="M5.5 21c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5Z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+};
+
 interface MobileNavTab {
   label: string;
   path: string;
@@ -209,7 +270,7 @@ export const MobileBottomNav: React.FC = () => {
                 {({ isActive }) => (
                   <>
                     <div className="w-12 h-12 rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                      <QrCode className="w-5 h-5" />
+                      <NavScannerFabIcon className="w-[25px] h-[25px]" />
                     </div>
                     <span
                       className={`text-[10px] mt-1 truncate transition-colors ${
