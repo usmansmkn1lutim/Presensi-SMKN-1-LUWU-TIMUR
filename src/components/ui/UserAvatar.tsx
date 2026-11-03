@@ -33,20 +33,28 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       setHasError(false);
 
       try {
-        let activePath: string | null | undefined = null;
+        let activePath: string | null = null;
+        let isGtkLinked = false;
         const targetId = userId || profileId;
 
-        // Rule 1: Check if user is linked to an employee (GTK)
-        if (targetId) {
+        if (photoUrl) {
+          // Explicit GTK photo path passed via prop
+          activePath = photoUrl;
+          isGtkLinked = true;
+        } else if (targetId) {
+          // Check database employee record relation
           const emp = await employeeService.getEmployeeByProfileId(targetId);
-          if (emp?.photo_url) {
-            activePath = emp.photo_url;
+          if (emp) {
+            isGtkLinked = true;
+            if (emp.photo_url) {
+              activePath = emp.photo_url;
+            }
           }
         }
 
-        // Rule 2: If no employee photo found, fall back to passed photoUrl or profile avatar_url
-        if (!activePath) {
-          activePath = photoUrl || avatarUrl;
+        // For non-GTK accounts (e.g. general admins without GTK profile), use profile avatar_url
+        if (!isGtkLinked && avatarUrl) {
+          activePath = avatarUrl;
         }
 
         if (activePath) {

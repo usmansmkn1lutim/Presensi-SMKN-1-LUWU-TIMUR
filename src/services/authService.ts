@@ -66,6 +66,7 @@ class AuthService {
       position: posName,
       department: deptName,
       avatarUrl: profile.avatar_url || undefined,
+      photoUrl: employeeData?.photo_url || undefined,
       schoolName: APP_CONFIG.schoolName,
       status: profile.is_active ? 'active' : 'inactive',
       joinedDate: employeeData?.join_date || profile.created_at?.split('T')[0] || '—',

@@ -15,6 +15,7 @@ export interface User {
   position: string;
   department: string;
   avatarUrl?: string;
+  photoUrl?: string;
   schoolName: string;
   status: 'active' | 'inactive' | 'suspended';
   joinedDate: string;

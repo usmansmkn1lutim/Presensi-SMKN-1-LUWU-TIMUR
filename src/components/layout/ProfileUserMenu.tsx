@@ -156,6 +156,7 @@ export const ProfileUserMenu: React.FC<ProfileUserMenuProps> = ({
           <UserAvatar
             userId={user?.id}
             avatarUrl={profile?.avatar_url || user?.avatarUrl}
+            photoUrl={user?.photoUrl}
             name={displayName}
             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs"
           />

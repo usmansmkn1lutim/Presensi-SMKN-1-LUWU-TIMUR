@@ -121,6 +121,7 @@ export const Header: React.FC = () => {
           <UserAvatar
             userId={user?.id}
             avatarUrl={profile?.avatar_url || user?.avatarUrl}
+            photoUrl={user?.photoUrl}
             name={displayName}
             className="w-8 h-8 rounded-full object-cover border border-[#E5E7EB] shadow-2xs shrink-0"
           />
