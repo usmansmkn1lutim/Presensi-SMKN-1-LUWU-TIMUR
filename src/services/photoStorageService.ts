@@ -13,7 +13,8 @@ interface CachedSignedUrl {
 const signedUrlCache = new Map<string, CachedSignedUrl>();
 const SIGNED_URL_TTL_SECONDS = 300; // 5 minutes
 const TTL_BUFFER_SECONDS = 60; // refresh 60s before expiry
-const UUID_REGEX = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$';
+const UUID_PATTERN = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+const UUID_REGEX = `^${UUID_PATTERN}$`;
 
 /**
  * Validates storage path matches:
@@ -33,7 +34,7 @@ export function validateStoragePath(path: string | null | undefined): boolean {
   const uuidRegex = new RegExp(UUID_REGEX);
   if (!uuidRegex.test(entityId)) return false;
 
-  const fileNameRegex = new RegExp(`^${UUID_REGEX}\\.webp$`);
+  const fileNameRegex = new RegExp(`^${UUID_PATTERN}\\.webp$`);
   if (!fileNameRegex.test(fileName)) return false;
 
   return true;
