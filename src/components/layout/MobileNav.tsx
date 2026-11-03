@@ -134,63 +134,19 @@ const NavProfileIcon: React.FC<{ isActive: boolean; className?: string }> = ({
 };
 
 /**
- * 5. Ikon FAB Presensi: Profil Pemindai (Presence / Face Scanner)
- * - Kepala berbentuk lingkaran penuh berwarna putih (#FFFFFF)
- * - Setengah badan dengan bahu membulat berwarna putih (#FFFFFF), tepat di bawah kepala
- * - Empat sudut pemindai berbentuk L simetris mengelilingi area kepala saja
- * - Berukuran 31px x 31px (diperbesar 25% dari ukuran 25px sebelumnya)
- * - Warna seluruh elemen adalah putih (#FFFFFF)
+ * 5. Ikon FAB Presensi: Profil Pemindai (Profile Scan SVG Asset)
+ * - Berukuran 36px x 36px
+ * - Posisi horizontal tepat di tengah menggunakan absolute centering
  */
 const NavScannerFabIcon: React.FC<{ className?: string }> = ({
-  className = 'w-[31px] h-[31px]',
+  className = 'w-[36px] h-[36px]',
 }) => {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      {/* 4 Sudut Pemindai L-shaped simetris mengelilingi area kepala saja */}
-      <path
-        d="M9 2.5H6.5A1 1 0 0 0 5.5 3.5V6"
-        stroke="#FFFFFF"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M15 2.5h2.5a1 1 0 0 1 1 1V6"
-        stroke="#FFFFFF"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M5.5 10.5v2.5a1 1 0 0 0 1 1H9"
-        stroke="#FFFFFF"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M18.5 10.5v2.5a1 1 0 0 1-1 1H15"
-        stroke="#FFFFFF"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      {/* Kepala: Lingkaran Penuh Putih */}
-      <circle cx="12" cy="8.25" r="3" fill="#FFFFFF" />
-
-      {/* Badan: Setengah Badan dengan Bahu Membulat Putih */}
-      <path
-        d="M5.5 21c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5Z"
-        fill="#FFFFFF"
-      />
-    </svg>
+    <img
+      src="/assets/icons/profile-scan.svg"
+      alt="Presensi"
+      className={`${className} object-contain`}
+    />
   );
 };
 
@@ -268,8 +224,8 @@ export const MobileBottomNav: React.FC = () => {
                 }
               >
                 {({ isActive }) => (
-                  <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white flex items-center justify-center shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                    <NavScannerFabIcon className="w-[31px] h-[31px]" />
+                  <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white relative shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
+                    <NavScannerFabIcon className="absolute left-1/2 -translate-x-1/2 bottom-1.5 w-[36px] h-[36px]" />
                   </div>
                 )}
               </NavLink>
