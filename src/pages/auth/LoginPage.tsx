@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, Check } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { SchoolLogo } from '../../components/ui/SchoolLogo';
 import { Button } from '../../components/ui/Button';
@@ -205,7 +205,6 @@ export const LoginPage: React.FC = () => {
                 isLoading={isLoading}
                 disabled={isLoading}
                 className="w-full"
-                rightIcon={!isLoading ? <ArrowRight className="w-4 h-4 ml-1" /> : undefined}
               >
                 {isLoading ? 'Memproses...' : 'Masuk'}
               </Button>

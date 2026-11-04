@@ -80,11 +80,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/reset-password',
-    element: (
-      <PublicOnlyRoute>
-        <ResetPasswordPage />
-      </PublicOnlyRoute>
-    ),
+    element: <ResetPasswordPage />,
   },
 
   // Protected App Routes

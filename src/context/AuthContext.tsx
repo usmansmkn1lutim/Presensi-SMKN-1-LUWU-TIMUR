@@ -12,6 +12,7 @@ export interface AuthContextType {
   loading: boolean;
   isLoading: boolean; // Alias for backward compatibility
   isAuthenticated: boolean;
+  isPasswordRecovery: boolean;
   signIn: (credentials: LoginCredentials) => Promise<{ user: User; session: Session; profile: ProfileRow }>;
   login: (credentials: LoginCredentials) => Promise<{ user: User; session: Session; profile: ProfileRow }>; // Alias
   signOut: () => Promise<void>;
@@ -28,6 +29,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState<boolean>(false);
+
+  // Helper to detect recovery in URL hash or query params
+  const checkIsRecoveryUrl = () => {
+    if (typeof window === 'undefined') return false;
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    return (
+      hash.includes('type=recovery') ||
+      search.includes('type=recovery') ||
+      (window.location.pathname.endsWith('/reset-password') &&
+        (hash.includes('access_token') || search.includes('code')))
+    );
+  };
 
   // Initialize and verify session on initial load
   useEffect(() => {
@@ -37,6 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!isSupabaseConfigured()) {
         if (isMounted) setLoading(false);
         return;
+      }
+
+      if (checkIsRecoveryUrl()) {
+        if (isMounted) setIsPasswordRecovery(true);
       }
 
       try {
@@ -52,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setUser(null);
               setSession(null);
               setProfile(null);
+              setIsPasswordRecovery(false);
             }
           } else if (isMounted) {
             setUser(userModel);
@@ -69,20 +89,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
 
-    // Listen to Supabase auth state changes (sign in, sign out, token refresh)
+    // Listen to Supabase auth state changes (sign in, sign out, token refresh, password recovery)
     const unsubscribe = authService.onAuthStateChange(async (event, currentSession) => {
       if (!isMounted) return;
+
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+        setSession(currentSession);
+        if (currentSession?.user) {
+          try {
+            const { user: userModel, profile: profileRow } = await authService.loadFullUserData(currentSession.user);
+            if (isMounted) {
+              setUser(userModel);
+              setProfile(profileRow);
+            }
+          } catch (err) {
+            console.warn('Auth state recovery user load error:', err);
+          }
+        }
+        if (isMounted) setLoading(false);
+        return;
+      }
 
       if (event === 'SIGNED_OUT' || !currentSession?.user) {
         setUser(null);
         setSession(null);
         setProfile(null);
+        setIsPasswordRecovery(false);
         setLoading(false);
         return;
       }
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         setSession(currentSession);
+        if (checkIsRecoveryUrl()) {
+          setIsPasswordRecovery(true);
+        }
         try {
           const { user: userModel, profile: profileRow } = await authService.loadFullUserData(currentSession.user);
           if (profileRow.is_active === false) {
@@ -91,6 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setUser(null);
               setSession(null);
               setProfile(null);
+              setIsPasswordRecovery(false);
             }
           } else if (isMounted) {
             setUser(userModel);
@@ -117,6 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(result.user);
       setSession(result.session);
       setProfile(result.profile);
+      setIsPasswordRecovery(false);
       return result;
     } finally {
       setLoading(false);
@@ -130,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setSession(null);
       setProfile(null);
+      setIsPasswordRecovery(false);
     } finally {
       setLoading(false);
     }
@@ -165,6 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         isLoading: loading,
         isAuthenticated: !!user && !!session && (profile?.is_active ?? true),
+        isPasswordRecovery,
         signIn,
         login: signIn,
         signOut,
