@@ -98,7 +98,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
     );
   }
 
-  // 4. Check Allowed Roles for Current Route
+  // 4. Check Mandatory Password Change Flag
+  if (profile.must_change_password === true && location.pathname !== '/account/security') {
+    return <Navigate to="/account/security" replace />;
+  }
+
+  // 5. Check Allowed Roles for Current Route
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">

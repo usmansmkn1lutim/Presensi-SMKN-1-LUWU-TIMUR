@@ -299,7 +299,33 @@ class AuthService {
       throw new Error('Kata sandi baru tidak boleh sama dengan kata sandi saat ini.');
     }
 
-    // 1. Get current active user email
+    // 1. Invoke secure Edge Function 'change-password'
+    try {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke('change-password', {
+        body: {
+          current_password: currentPassword,
+          new_password: newPassword,
+        },
+      });
+
+      if (!fnError && fnData && typeof fnData === 'object') {
+        if ((fnData as any).success) {
+          return;
+        }
+        if ((fnData as any).message) {
+          throw new Error((fnData as any).message);
+        }
+      }
+      if (fnError && fnError.message && !fnError.message.includes('FunctionsFetchError') && !fnError.message.includes('404')) {
+        throw new Error(fnError.message);
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && !err.message.includes('FunctionsFetchError') && !err.message.includes('404')) {
+        throw err;
+      }
+    }
+
+    // 2. Fallback for environments where Edge Function is not deployed:
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user?.email) {
       throw new Error('Sesi pengguna tidak valid. Silakan masuk kembali.');
@@ -307,7 +333,6 @@ class AuthService {
 
     const email = userData.user.email;
 
-    // 2. Re-authenticate with current password to verify identity
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password: currentPassword,
@@ -328,7 +353,6 @@ class AuthService {
       throw new Error('Kata sandi saat ini tidak cocok.');
     }
 
-    // 3. Update password in Supabase Auth
     const { error: updateError } = await supabase.auth.updateUser({
       password: newPassword,
     });
@@ -339,6 +363,29 @@ class AuthService {
         throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
       }
       throw new Error('Gagal memperbarui kata sandi. Silakan coba lagi.');
+    }
+
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('must_change_password')
+      .eq('id', userData.user.id)
+      .single();
+
+    if (currentProfile?.must_change_password) {
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update({
+          must_change_password: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userData.user.id);
+
+      if (profileUpdateError) {
+        console.error('Failed to clear must_change_password flag:', profileUpdateError.message);
+        throw new Error(
+          'Kata sandi berhasil diperbarui, tetapi gagal memperbarui status akun. Silakan coba lagi.'
+        );
+      }
     }
   }
 

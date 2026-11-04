@@ -16,9 +16,10 @@ import { Input } from '../../components/ui/Input';
 
 export const SecurityPage: React.FC = () => {
   const navigate = useNavigate();
-  const { changePassword } = useAuth();
+  const { profile, changePassword, refreshProfile } = useAuth();
+  const mustChangePassword = profile?.must_change_password === true;
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(mustChangePassword);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Form states
@@ -51,6 +52,7 @@ export const SecurityPage: React.FC = () => {
   };
 
   const handleCloseForm = () => {
+    if (mustChangePassword) return; // Prevent closing form if mandatory password change is active
     resetForm();
     setIsFormOpen(false);
   };
@@ -89,6 +91,8 @@ export const SecurityPage: React.FC = () => {
 
     try {
       await changePassword(currentPassword, newPassword);
+      // Synchronize latest profile state to AuthContext
+      await refreshProfile();
       // Clean inputs, close form view, and show success modal
       resetForm();
       setIsFormOpen(false);
@@ -106,20 +110,38 @@ export const SecurityPage: React.FC = () => {
 
   const handleFinishSuccess = () => {
     setShowSuccessModal(false);
+    if (mustChangePassword) {
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   return (
     <div className="space-y-6 pb-12 font-sans max-w-2xl mx-auto">
+      {/* Mandatory Password Change Notice Banner */}
+      {mustChangePassword && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-xs text-amber-950 shadow-2xs animate-in fade-in duration-200">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-amber-900 text-sm">Wajib Mengganti Kata Sandi</p>
+            <p className="text-amber-900/90 leading-relaxed">
+              Kata sandi Anda telah direset oleh Super Admin. Demi keamanan akun, Anda wajib memperbarui kata sandi sementara sebelum dapat mengakses menu aplikasi lainnya.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Navigation Header */}
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => (isFormOpen ? handleCloseForm() : navigate('/account'))}
-          className="p-2 -ml-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
-          aria-label="Kembali"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+        {!mustChangePassword && (
+          <button
+            type="button"
+            onClick={() => (isFormOpen ? handleCloseForm() : navigate('/account'))}
+            className="p-2 -ml-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            aria-label="Kembali"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        )}
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
             Keamanan Akun
@@ -249,15 +271,17 @@ export const SecurityPage: React.FC = () => {
             </div>
 
             <div className="pt-3 flex items-center justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                onClick={handleCloseForm}
-                disabled={isLoading}
-              >
-                Batal
-              </Button>
+              {!mustChangePassword && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  onClick={handleCloseForm}
+                  disabled={isLoading}
+                >
+                  Batal
+                </Button>
+              )}
               <Button
                 type="submit"
                 variant="primary"

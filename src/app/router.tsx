@@ -39,7 +39,7 @@ import { NotFoundPage } from '../pages/NotFoundPage';
 
 // Root redirect handler: / -> /dashboard (if authenticated) or /login (if not)
 const RootRedirect: React.FC = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -52,7 +52,15 @@ const RootRedirect: React.FC = () => {
     );
   }
 
-  return <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (profile?.must_change_password === true) {
+    return <Navigate to="/account/security" replace />;
+  }
+
+  return <Navigate to="/dashboard" replace />;
 };
 
 export const router = createBrowserRouter([

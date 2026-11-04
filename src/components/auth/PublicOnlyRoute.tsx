@@ -7,7 +7,7 @@ interface PublicOnlyRouteProps {
 }
 
 export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, profile, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -18,6 +18,9 @@ export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({ children }) =>
   }
 
   if (isAuthenticated) {
+    if (profile?.must_change_password === true) {
+      return <Navigate to="/account/security" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 

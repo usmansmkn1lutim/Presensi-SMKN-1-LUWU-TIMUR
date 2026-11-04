@@ -476,6 +476,66 @@ class UserService {
       unlinked_employee_name: string | null;
     };
   }
+
+  /**
+   * 11. Reset User Password
+   * Invokes secure Edge Function `reset-user-password` (Super Admin ONLY).
+   * Returns temporary password for single-view presentation to Super Admin.
+   * DOES NOT store password in any browser storage or console log.
+   */
+  async resetUserPassword(targetUserId: string): Promise<{
+    success: boolean;
+    message: string;
+    temporary_password?: string;
+    user?: {
+      id: string;
+      full_name: string;
+      role: ActiveAppRole;
+      must_change_password: boolean;
+    };
+  }> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Konfigurasi Supabase belum lengkap.');
+    }
+
+    if (!targetUserId || typeof targetUserId !== 'string') {
+      throw new Error('ID pengguna target tidak valid.');
+    }
+
+    const { data, error } = await supabase.functions.invoke('reset-user-password', {
+      body: {
+        target_user_id: targetUserId.trim(),
+      },
+    });
+
+    if (error) {
+      let errorMessage = 'Gagal melakukan reset password.';
+      try {
+        if (data && typeof data === 'object' && 'message' in data) {
+          errorMessage = (data as { message: string }).message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      } catch {
+        // Fallback message
+      }
+      throw new Error(errorMessage);
+    }
+
+    if (
+      !data ||
+      typeof data !== 'object' ||
+      !(data as any).success ||
+      !(data as any).temporary_password
+    ) {
+      const msg =
+        (data as any)?.message ||
+        'Gagal mereset kata sandi pengguna. Response tidak valid.';
+      throw new Error(msg);
+    }
+
+    return data;
+  }
 }
 
 export const userService = new UserService();

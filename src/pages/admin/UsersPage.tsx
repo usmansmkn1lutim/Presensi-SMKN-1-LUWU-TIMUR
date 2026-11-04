@@ -15,6 +15,7 @@ import {
   Unlink,
   Power,
   Trash2,
+  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -32,6 +33,7 @@ import { UserStatusConfirmModal } from '../../components/users/UserStatusConfirm
 import { LinkUserEmployeeModal } from '../../components/users/LinkUserEmployeeModal';
 import { UnlinkUserEmployeeModal } from '../../components/users/UnlinkUserEmployeeModal';
 import { DeleteUserModal } from '../../components/users/DeleteUserModal';
+import { ResetPasswordModal } from '../../components/users/ResetPasswordModal';
 
 const ROLE_LABELS: Record<ActiveAppRole, string> = {
   super_admin: 'Super Admin',
@@ -71,6 +73,8 @@ export const UsersPage: React.FC = () => {
   const [userForUnlink, setUserForUnlink] = useState<UserManagementItem | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userForDelete, setUserForDelete] = useState<UserManagementItem | null>(null);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [userForResetPassword, setUserForResetPassword] = useState<UserManagementItem | null>(null);
 
   // Fetch Users
   const fetchUsersData = useCallback(async () => {
@@ -170,6 +174,18 @@ export const UsersPage: React.FC = () => {
       `Akun pengguna "${deletedUser.full_name || 'Pengguna'}" berhasil dihapus secara permanen.${employeeNotice}`
     );
     setTimeout(() => setSuccessToast(null), 6000);
+  };
+
+  // Handle Reset Password Success
+  const handleResetPasswordSuccess = (result: {
+    userId: string;
+    userName: string;
+  }) => {
+    fetchUsersData();
+    setSuccessToast(
+      `Password untuk pengguna "${result.userName}" berhasil direset.`
+    );
+    setTimeout(() => setSuccessToast(null), 5000);
   };
 
   // Filtered Users List
@@ -407,6 +423,12 @@ export const UsersPage: React.FC = () => {
                       canManage &&
                       !isSelf &&
                       (isSuperAdmin || !isTargetSuperAdmin);
+                    const canResetThisAccountPassword =
+                      isSuperAdmin &&
+                      !isSelf &&
+                      (u.role === 'employee' || u.role === 'headmaster') &&
+                      Boolean(u.employee_id) &&
+                      u.is_active;
 
                     return (
                       <tr key={u.id} className="hover:bg-[#F9FAFB] transition-colors">
@@ -555,7 +577,7 @@ export const UsersPage: React.FC = () => {
                                   Ubah Role
                                 </Button>
 
-                                <Button
+                                 <Button
                                   variant="outline"
                                   size="sm"
                                   disabled={!canEditThisAccount}
@@ -581,6 +603,23 @@ export const UsersPage: React.FC = () => {
                                 >
                                   {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                                 </Button>
+
+                                {/* Reset Password Action (Super Admin ONLY for active employees/headmasters) */}
+                                {canResetThisAccountPassword && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    title="Reset kata sandi akun pegawai ini"
+                                    onClick={() => {
+                                      setUserForResetPassword(u);
+                                      setIsResetPasswordModalOpen(true);
+                                    }}
+                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
+                                    leftIcon={<KeyRound className="w-3.5 h-3.5" />}
+                                  >
+                                    Reset Password
+                                  </Button>
+                                )}
 
                                 <Button
                                   variant="outline"
@@ -634,6 +673,12 @@ export const UsersPage: React.FC = () => {
                   canManage &&
                   !isSelf &&
                   (isSuperAdmin || !isTargetSuperAdmin);
+                const canResetThisAccountPassword =
+                  isSuperAdmin &&
+                  !isSelf &&
+                  (u.role === 'employee' || u.role === 'headmaster') &&
+                  Boolean(u.employee_id) &&
+                  u.is_active;
 
                 return (
                   <div key={u.id} className="p-4 space-y-3">
@@ -787,6 +832,23 @@ export const UsersPage: React.FC = () => {
                           </Button>
                         </div>
 
+                        {/* Reset Password Button (Mobile) */}
+                        {canResetThisAccountPassword && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Reset kata sandi akun pegawai ini"
+                            onClick={() => {
+                              setUserForResetPassword(u);
+                              setIsResetPasswordModalOpen(true);
+                            }}
+                            className="w-full justify-center text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
+                            leftIcon={<KeyRound className="w-3.5 h-3.5" />}
+                          >
+                            Reset Password
+                          </Button>
+                        )}
+
                         {/* Delete User Button (Mobile) */}
                         <Button
                           variant="outline"
@@ -879,6 +941,16 @@ export const UsersPage: React.FC = () => {
         }}
         user={userForDelete}
         onSuccess={handleDeleteSuccess}
+      />
+
+      <ResetPasswordModal
+        isOpen={isResetPasswordModalOpen}
+        onClose={() => {
+          setIsResetPasswordModalOpen(false);
+          setUserForResetPassword(null);
+        }}
+        user={userForResetPassword}
+        onSuccess={handleResetPasswordSuccess}
       />
     </div>
   );
