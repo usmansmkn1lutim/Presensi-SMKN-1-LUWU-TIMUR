@@ -270,7 +270,75 @@ class AuthService {
       if (msg.includes('network') || msg.includes('fetch')) {
         throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
       }
-      throw new Error('Gagal memperbarui kata sandi. Tautan mungkin telah kedaluwarsa.');
+    }
+  }
+
+  /**
+   * Change Password for currently authenticated user
+   * Verifies current password via re-authentication first, then updates password.
+   * Keeps user logged in continuously.
+   */
+  public async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      throw new Error(SUPABASE_MISSING_CONFIG_MESSAGE);
+    }
+
+    if (!currentPassword) {
+      throw new Error('Kata sandi saat ini wajib diisi.');
+    }
+
+    if (!newPassword) {
+      throw new Error('Kata sandi baru wajib diisi.');
+    }
+
+    if (newPassword.length < 6) {
+      throw new Error('Kata sandi baru minimal 6 karakter.');
+    }
+
+    if (currentPassword === newPassword) {
+      throw new Error('Kata sandi baru tidak boleh sama dengan kata sandi saat ini.');
+    }
+
+    // 1. Get current active user email
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user?.email) {
+      throw new Error('Sesi pengguna tidak valid. Silakan masuk kembali.');
+    }
+
+    const email = userData.user.email;
+
+    // 2. Re-authenticate with current password to verify identity
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      const msg = signInError.message.toLowerCase();
+      if (
+        msg.includes('invalid login credentials') ||
+        msg.includes('invalid_grant') ||
+        msg.includes('invalid credentials')
+      ) {
+        throw new Error('Kata sandi saat ini tidak cocok.');
+      }
+      if (msg.includes('network') || msg.includes('fetch')) {
+        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
+      }
+      throw new Error('Kata sandi saat ini tidak cocok.');
+    }
+
+    // 3. Update password in Supabase Auth
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      const msg = updateError.message.toLowerCase();
+      if (msg.includes('network') || msg.includes('fetch')) {
+        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
+      }
+      throw new Error('Gagal memperbarui kata sandi. Silakan coba lagi.');
     }
   }
 

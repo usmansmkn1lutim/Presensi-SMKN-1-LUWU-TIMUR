@@ -20,6 +20,7 @@ export interface AuthContextType {
   refreshProfile: () => Promise<void>;
   resetPassword: (email: string, redirectTo?: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -201,6 +202,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authService.updatePassword(newPassword);
   }, []);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    await authService.changePassword(currentPassword, newPassword);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -218,6 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshProfile,
         resetPassword,
         updatePassword,
+        changePassword,
       }}
     >
       {children}

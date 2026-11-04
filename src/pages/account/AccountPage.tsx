@@ -103,18 +103,20 @@ export const AccountPage: React.FC = () => {
             <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
           </button>
 
-          {/* Keamanan Akun: Nonaktif, sedikit redup, tanpa deskripsi dan tanpa interaksi */}
-          <div
-            className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left opacity-45 cursor-not-allowed select-none bg-transparent"
-            aria-disabled="true"
+          {/* Keamanan Akun: Navigasi ke /account/security */}
+          <button
+            type="button"
+            onClick={() => navigate('/account/security')}
+            className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <ShieldCheck className="w-5 h-5 text-[#9CA3AF] shrink-0" />
-              <span className="text-sm font-medium text-[#9CA3AF] truncate">
+              <ShieldCheck className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
+              <span className="text-sm font-semibold text-[#111827] truncate">
                 Keamanan Akun
               </span>
             </div>
-          </div>
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          </button>
 
           {/* Bahasa: Navigasi ke /account/language */}
           <button
