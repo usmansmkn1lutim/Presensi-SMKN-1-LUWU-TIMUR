@@ -165,7 +165,7 @@ export const AttendancePage: React.FC = () => {
 
     try {
       // 1. Resolve personal employee record
-      const emp = await attendanceService.getCurrentEmployee();
+      const emp = await attendanceService.getCurrentEmployee(user?.id);
       setEmployee(emp);
 
       // Fetch weekly matrix for current week
@@ -184,7 +184,7 @@ export const AttendancePage: React.FC = () => {
       setLocation(primaryLoc);
 
       // 4. Fetch today's attendance record
-      const att = await attendanceService.getTodayAttendance();
+      const att = await attendanceService.getTodayAttendance(user?.id);
       setTodayAttendance(att);
 
       // 5. Fetch approved request overlapping today (WITA)
@@ -551,7 +551,7 @@ export const AttendancePage: React.FC = () => {
       // Langkah 5 — Identitas pegawai dan pembuatan path kanonis (WITA)
       let activeEmpId = employee?.id;
       if (!activeEmpId) {
-        const currentEmp = await attendanceService.getCurrentEmployee();
+        const currentEmp = await attendanceService.getCurrentEmployee(user?.id);
         activeEmpId = currentEmp?.id;
         if (currentEmp) {
           setEmployee(currentEmp);

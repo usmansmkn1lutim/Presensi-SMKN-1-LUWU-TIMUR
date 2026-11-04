@@ -21,6 +21,7 @@ interface ChangePasswordRequestBody {
 const ALLOWED_ORIGINS = [
   'https://ais-dev-tezldmbtiuugsm3lvw4wdk-70461058593.asia-southeast1.run.app',
   'https://ais-pre-tezldmbtiuugsm3lvw4wdk-70461058593.asia-southeast1.run.app',
+  'https://presensismkn1luwutimur.vercel.app',
 ];
 
 function isOriginAllowed(requestOrigin?: string | null): boolean {

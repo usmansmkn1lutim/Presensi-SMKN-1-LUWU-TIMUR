@@ -150,7 +150,7 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
 };
 
 export const DashboardPage: React.FC = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading, logout } = useAuth();
   const { openMenu } = useProfileMenu();
   const navigate = useNavigate();
 
@@ -217,16 +217,16 @@ export const DashboardPage: React.FC = () => {
   };
 
   const fetchPersonalDashboardData = async () => {
-    if (isManagerial) return;
+    if (isManagerial || authLoading || !user) return;
     setLoading(true);
     setError(null);
     setIsUnlinked(false);
 
     try {
-      const employee = await attendanceService.getCurrentEmployee();
+      const employee = await attendanceService.getCurrentEmployee(user.id);
 
       // 1. Fetch today's actual attendance record from public.attendance
-      const todayAtt = await attendanceService.getTodayAttendance();
+      const todayAtt = await attendanceService.getTodayAttendance(user.id);
       setTodayAttendance(todayAtt);
 
       // 2. Compute date bounds (Asia/Makassar):
@@ -400,8 +400,9 @@ export const DashboardPage: React.FC = () => {
     } catch (err: any) {
       console.error('Failed to load employee dashboard data:', err);
       const msg = err?.message || 'Gagal memuat data presensi pegawai.';
-      if (msg === 'Sesi telah berakhir. Silakan login kembali.') {
-        navigate('/login');
+      if (msg === 'Sesi telah berakhir. Silakan login kembali.' || msg.includes('Sesi telah berakhir')) {
+        await logout();
+        navigate('/login', { replace: true });
         return;
       }
       setError(msg);
@@ -418,19 +419,24 @@ export const DashboardPage: React.FC = () => {
   };
 
   useEffect(() => {
+    if (authLoading || !user) return;
+
     let isMounted = true;
     if (isManagerial) {
       setExecLoading(true);
       setExecError(null);
+      const isHeadmaster = profile?.role === 'headmaster';
       Promise.all([
         dashboardExecutiveService.getExecutiveDashboardData(),
-        attendanceService.getTodayAttendance().catch(() => null),
-        attendanceService.getCurrentEmployee().then(async (emp) => {
-          if (!emp) return null;
-          const todayStr = getMakassarTodayDateString();
-          const matrix = await attendanceStatusService.getEvaluatedMatrix(todayStr, todayStr, emp.id).catch(() => []);
-          return matrix.find((r) => r.date === todayStr) || null;
-        }).catch(() => null)
+        isHeadmaster ? attendanceService.getTodayAttendance(user.id).catch(() => null) : Promise.resolve(null),
+        isHeadmaster
+          ? attendanceService.getCurrentEmployee(user.id).then(async (emp) => {
+              if (!emp) return null;
+              const todayStr = getMakassarTodayDateString();
+              const matrix = await attendanceStatusService.getEvaluatedMatrix(todayStr, todayStr, emp.id).catch(() => []);
+              return matrix.find((r) => r.date === todayStr) || null;
+            }).catch(() => null)
+          : Promise.resolve(null)
       ])
         .then(([data, todayAtt, todayRec]) => {
           if (isMounted) {
@@ -454,7 +460,7 @@ export const DashboardPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [isManagerial]);
+  }, [isManagerial, authLoading, user?.id, profile?.role]);
 
   // Real-time clock & dynamic greeting in Asia/Makassar (WITA)
   useEffect(() => {

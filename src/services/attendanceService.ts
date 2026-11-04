@@ -48,21 +48,33 @@ export const attendanceService = {
    * Applies identically across all roles (super_admin, admin, headmaster, employee).
    * NO fallback to unlinked employees, arbitrary active employees, or role-based auto-linking.
    */
-  async getCurrentEmployee(): Promise<EmployeeRow> {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+  async getCurrentEmployee(targetUserId?: string): Promise<EmployeeRow> {
+    let resolvedUserId = targetUserId;
 
-    if (authError || !user) {
-      throw new Error('Sesi telah berakhir. Silakan login kembali.');
+    if (!resolvedUserId) {
+      // 1. Check local session first (fastest, automatically refreshed)
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user?.id) {
+        resolvedUserId = sessionData.session.user.id;
+      } else {
+        // 2. Fall back to network getUser call
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+          throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        resolvedUserId = user.id;
+      }
     }
 
     // Check user role from profiles first: super_admin and admin must not have employee records or personal attendance
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', resolvedUserId)
       .maybeSingle();
 
     if (profile && (profile.role === 'super_admin' || profile.role === 'admin')) {
@@ -73,7 +85,7 @@ export const attendanceService = {
     const { data: employee, error: employeeError } = await supabase
       .from('employees')
       .select('*')
-      .eq('profile_id', user.id)
+      .eq('profile_id', resolvedUserId)
       .maybeSingle();
 
     if (employeeError) {
@@ -140,8 +152,8 @@ export const attendanceService = {
    *    -> throws error.
    *    -> NEVER converts a network/database error into "Sudah Check-in" via localStorage.
    */
-  async getTodayAttendance(): Promise<AttendanceModel | null> {
-    const employee = await this.getCurrentEmployee();
+  async getTodayAttendance(targetUserId?: string): Promise<AttendanceModel | null> {
+    const employee = await this.getCurrentEmployee(targetUserId);
     const todayStr = getLocalDateString(new Date());
 
     const { data, error } = await supabase
