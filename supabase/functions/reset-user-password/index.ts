@@ -384,19 +384,24 @@ Deno.serve(async (req: Request) => {
 
     // 14. Record Mandatory Audit Log (DO NOT LOG PASSWORD)
     try {
-      const { error: auditError } = await supabaseAdmin.rpc('write_audit_log', {
-        p_action: 'RESET_USER_PASSWORD',
-        p_target_type: 'user',
-        p_target_id: targetUserId,
-        p_reason: reason,
-        p_metadata: {
-          target_full_name: targetProfile.full_name,
-          target_role: targetProfile.role,
-        },
-      });
+      const { error: auditError } = await supabaseAdmin
+        .from('audit_logs')
+        .insert({
+          actor_user_id: callerUser.id,
+          actor_email: callerUser.email || null,
+          actor_role: callerProfile.role,
+          action: 'RESET_USER_PASSWORD',
+          target_type: 'user',
+          target_id: targetUserId,
+          reason: reason,
+          metadata: {
+            target_full_name: targetProfile.full_name,
+            target_role: targetProfile.role,
+          },
+        });
 
       if (auditError) {
-        console.error('CRITICAL: Audit log RPC returned error during password reset:', auditError.message);
+        console.error('CRITICAL: Audit log insert error during password reset:', auditError.message);
         return jsonResponse(
           {
             success: false,
