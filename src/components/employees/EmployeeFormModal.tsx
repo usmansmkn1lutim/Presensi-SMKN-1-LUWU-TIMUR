@@ -13,6 +13,8 @@ import {
   deletePhotoObject,
 } from '../../services/photoStorageService';
 import { processImageToWebP } from '../../utils/imageUtils';
+import { ImageCropperModal } from '../ui/ImageCropperModal';
+import { DeletePhotoConfirmModal } from '../ui/DeletePhotoConfirmModal';
 
 interface EmployeeFormModalProps {
   isOpen: boolean;
@@ -57,6 +59,13 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [isRemovingPhoto, setIsRemovingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Photo cropper modal state
+  const [selectedFileForCropper, setSelectedFileForCropper] = useState<File | null>(null);
+  const [isCropperOpen, setIsCropperOpen] = useState<boolean>(false);
+
+  // Delete photo confirm modal state
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState<boolean>(false);
 
   // Load master departments and positions
   useEffect(() => {
@@ -145,27 +154,40 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const file = files[0];
+    setSelectedFileForCropper(file);
+    setIsCropperOpen(true);
+    e.target.value = '';
+  };
+
+  const handleCropSave = async (croppedFile: File) => {
     try {
-      const processed = await processImageToWebP(files);
+      const processed = await processImageToWebP(croppedFile);
       setSelectedPhotoFile(processed.file);
       setPhotoPreviewUrl(URL.createObjectURL(processed.blob));
       setIsRemovingPhoto(false);
       setErrorMessage(null);
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Gagal memproses gambar.');
+      const msg = err instanceof Error ? err.message : 'Gagal memproses gambar.';
+      setErrorMessage(msg);
+      throw err;
     }
-    e.target.value = '';
   };
 
-  const handleRemovePhoto = () => {
+  const handleRemovePhotoClick = () => {
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmRemovePhoto = () => {
     setSelectedPhotoFile(null);
     setPhotoPreviewUrl(null);
     setIsRemovingPhoto(true);
-    setFormData({ ...formData, photo_url: '' });
+    setFormData((prev) => ({ ...prev, photo_url: '' }));
+    setIsDeleteConfirmOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -327,7 +349,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={handleRemovePhoto}
+                      onClick={handleRemovePhotoClick}
                       disabled={isSubmitting}
                       leftIcon={<Trash2 className="w-3.5 h-3.5 text-red-600" />}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
@@ -579,6 +601,25 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Image Cropper Modal */}
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        imageFile={selectedFileForCropper}
+        onClose={() => {
+          setIsCropperOpen(false);
+          setSelectedFileForCropper(null);
+        }}
+        onCropComplete={handleCropSave}
+        title="Potong Foto Pegawai"
+      />
+
+      {/* Delete Photo Confirmation Modal */}
+      <DeletePhotoConfirmModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmRemovePhoto}
+      />
     </div>
   );
 };

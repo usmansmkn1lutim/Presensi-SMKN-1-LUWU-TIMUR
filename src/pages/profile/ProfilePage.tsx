@@ -30,6 +30,8 @@ import { processImageToWebP } from '../../utils/imageUtils';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { RoleBadge, Badge } from '../../components/ui/Badge';
+import { ImageCropperModal } from '../../components/ui/ImageCropperModal';
+import { DeletePhotoConfirmModal } from '../../components/ui/DeletePhotoConfirmModal';
 import { APP_CONFIG } from '../../config/appConfig';
 
 export const ProfilePage: React.FC = () => {
@@ -115,15 +117,26 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
-  const handlePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Photo cropper modal state
+  const [selectedFileForCropper, setSelectedFileForCropper] = useState<File | null>(null);
+  const [isCropperOpen, setIsCropperOpen] = useState<boolean>(false);
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const file = files[0];
+    setSelectedFileForCropper(file);
+    setIsCropperOpen(true);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleCropSave = async (croppedFile: File) => {
     setIsUploadingPhoto(true);
     setSaveMessage(null);
 
     try {
-      const processed = await processImageToWebP(files);
+      const processed = await processImageToWebP(croppedFile);
       let newPath = '';
       const oldPath = linkedEmployee?.photo_url || profile?.avatar_url;
 
@@ -146,15 +159,21 @@ export const ProfilePage: React.FC = () => {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal mengunggah foto.';
       setSaveMessage({ type: 'error', text: msg });
+      throw err;
     } finally {
       setIsUploadingPhoto(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const handleDeletePhoto = async () => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus foto profil?')) return;
+  // Delete photo confirmation state
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
+  const handleDeleteClick = () => {
+    setSaveMessage(null);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDeletePhoto = async () => {
     setIsUploadingPhoto(true);
     setSaveMessage(null);
 
@@ -173,9 +192,11 @@ export const ProfilePage: React.FC = () => {
       setSignedPhotoUrl(null);
       await refreshProfile();
       setSaveMessage({ type: 'success', text: 'Foto profil berhasil dihapus.' });
+      setIsDeleteConfirmOpen(false);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gagal menghapus foto.';
       setSaveMessage({ type: 'error', text: msg });
+      setIsDeleteConfirmOpen(false);
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -254,7 +275,7 @@ export const ProfilePage: React.FC = () => {
               {signedPhotoUrl && !isUploadingPhoto && (
                 <button
                   type="button"
-                  onClick={handleDeletePhoto}
+                  onClick={handleDeleteClick}
                   className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -427,6 +448,26 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Image Cropper Modal */}
+      <ImageCropperModal
+        isOpen={isCropperOpen}
+        imageFile={selectedFileForCropper}
+        onClose={() => {
+          setIsCropperOpen(false);
+          setSelectedFileForCropper(null);
+        }}
+        onCropComplete={handleCropSave}
+        title="Potong Foto Profil Saya"
+      />
+
+      {/* Delete Photo Confirmation Modal */}
+      <DeletePhotoConfirmModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmDeletePhoto}
+        isDeleting={isUploadingPhoto}
+      />
     </div>
   );
 };
