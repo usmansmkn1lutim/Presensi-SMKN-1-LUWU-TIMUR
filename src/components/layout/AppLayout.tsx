@@ -36,7 +36,7 @@ export const AppLayout: React.FC = () => {
       <div className="min-h-screen lg:h-screen flex bg-[#F7F7F7] lg:bg-[#F97316] text-[#111827] lg:overflow-hidden">
         {/* Desktop Sidebar ONLY (Fixed left, responsive width lg:w-64 / lg:w-20 on desktop lg: 1024px+). No sidebar on mobile/tablet. */}
         <div
-          className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 z-30 transition-all duration-300 ease-in-out ${
+          className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 z-50 transition-all duration-300 ease-in-out ${
             isCollapsed ? 'lg:w-20' : 'lg:w-64'
           }`}
         >

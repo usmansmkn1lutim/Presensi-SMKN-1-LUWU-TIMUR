@@ -163,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={onToggleCollapse}
           aria-label={isCollapsed ? 'Perluas bilah samping' : 'Ciutkan bilah samping'}
           title={isCollapsed ? 'Perluas bilah samping' : 'Ciutkan bilah samping'}
-          className="absolute top-6 right-0 translate-x-1/2 z-40 w-6 h-6 rounded-full bg-[#F97316] border border-white text-white flex items-center justify-center shadow-md hover:bg-[#EA580C] cursor-pointer transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F97316]"
+          className="absolute top-6 right-0 translate-x-1/2 z-50 w-6 h-6 rounded-full bg-[#F97316] border border-white text-white flex items-center justify-center shadow-md hover:bg-[#EA580C] cursor-pointer transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F97316]"
         >
           <ChevronRight
             size={14}
