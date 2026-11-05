@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
   ArrowUpDown,
   Check,
+  MoreVertical,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -87,6 +88,10 @@ export const EmployeesPage: React.FC = () => {
   const filterRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
 
+  // State: Mobile List Row Action Dropdown
+  const [openMobileListMenuId, setOpenMobileListMenuId] = useState<string | null>(null);
+  const mobileListMenuRef = useRef<HTMLDivElement>(null);
+
   // State: Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -129,6 +134,31 @@ export const EmployeesPage: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Click-outside listener for Mobile List Action Menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileListMenuRef.current &&
+        !mobileListMenuRef.current.contains(event.target as Node)
+      ) {
+        setOpenMobileListMenuId(null);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpenMobileListMenuId(null);
+      }
+    };
+    if (openMobileListMenuId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openMobileListMenuId]);
 
   // Load Master Filters (Departments & Positions)
   const loadMasterFilters = useCallback(async () => {
@@ -318,8 +348,8 @@ export const EmployeesPage: React.FC = () => {
         Pegawai
       </h1>
 
-      {/* 4 Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 4 Statistics Cards (Disembunyikan di Mobile/Tablet <1024px, tampil di Desktop ≥1024px) */}
+      <div className="hidden lg:grid lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Total Pegawai */}
         <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
@@ -385,9 +415,9 @@ export const EmployeesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Toolbar sebagai Card Putih Tersendiri dengan CSS Grid Layout */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
-        <div className="grid grid-cols-1 lg:grid-cols-[max-content_minmax(220px,1fr)_max-content_max-content] items-center gap-3">
+      {/* DESKTOP TOOLBAR CONTAINER (≥1024px) - 100% Persis Card Putih */}
+      <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs">
+        <div className="grid grid-cols-[max-content_minmax(220px,1fr)_max-content_max-content] items-center gap-3">
           {/* Kelompok Kiri — Aksi */}
           <div className="flex items-center gap-2.5 flex-wrap">
             {canManage && (
@@ -398,7 +428,7 @@ export const EmployeesPage: React.FC = () => {
                   leftIcon={<UserPlus className="w-4 h-4" />}
                   onClick={handleOpenAddModal}
                 >
-                  + Tambah Pegawai
+                  Tambah Pegawai
                 </Button>
                 <Button
                   variant="outline"
@@ -444,7 +474,7 @@ export const EmployeesPage: React.FC = () => {
                 </button>
               )}
 
-              {/* Tombol Ikon Filter di dalam Kontrol Terpadu */}
+              {/* Tombol Ikon Filter */}
               <div className="relative shrink-0 pr-1" ref={filterRef}>
                 <button
                   type="button"
@@ -623,7 +653,7 @@ export const EmployeesPage: React.FC = () => {
               aria-label="Urutkan data pegawai"
             >
               <ArrowUpDown className="w-4 h-4" />
-              <span className="hidden sm:inline">Urutkan</span>
+              <span>Urutkan</span>
             </button>
 
             {/* Dropdown Menu Urutkan */}
@@ -669,7 +699,7 @@ export const EmployeesPage: React.FC = () => {
                 aria-label="Tampilan Tabel"
               >
                 <LayoutList className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Tabel</span>
+                <span>Tabel</span>
               </button>
 
               <button
@@ -684,22 +714,220 @@ export const EmployeesPage: React.FC = () => {
                 aria-label="Tampilan Grid"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Grid</span>
+                <span>Grid</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Area Data Pegawai Terpisah */}
-      <div
-        className={`rounded-2xl overflow-hidden flex flex-col transition-all duration-200 ${
-          viewMode === 'grid'
-            ? 'bg-transparent border-0 shadow-none'
-            : 'bg-[#FFFFFF] border border-[#E5E7EB] shadow-2xs'
-        }`}
-      >
-        {/* Area Daftar Pegawai (Tabel / List vs Grid / Cards) */}
+      {/* MOBILE / TABLET TOOLBAR CONTAINER (<1024px) - Minimalis Transparan */}
+      <div className="block lg:hidden bg-transparent border-0 shadow-none p-0">
+        <div className="flex items-center gap-2 justify-between w-full">
+          {/* Integrated Search + Filter Bar (Search Bar Putih Bersih) */}
+          <div className="relative flex items-center flex-1 min-w-0 bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Cari pegawai..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-9 pl-9 pr-14 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-8 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#111827] cursor-pointer p-0.5"
+                aria-label="Hapus kata kunci pencarian"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {/* Filter Trigger Button */}
+            <div className="relative shrink-0 pr-1" ref={filterRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFilterOpen((prev) => !prev);
+                  setIsSortOpen(false);
+                }}
+                className={`inline-flex items-center justify-center w-7.5 h-7.5 rounded-lg transition-all cursor-pointer ${
+                  activeFilterCount > 0 || isFilterOpen
+                    ? 'bg-orange-50 text-[#EA580C]'
+                    : 'text-[#6B7280] hover:bg-gray-100 hover:text-[#111827]'
+                }`}
+                aria-expanded={isFilterOpen}
+                aria-label="Buka filter pegawai"
+                title="Filter Pegawai"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full text-[8px] font-bold bg-[#F97316] text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Popover Filter Panel Mobile */}
+              {isFilterOpen && (
+                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-3.5 z-30 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F3F4F6]">
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#F97316]" />
+                      <h4 className="text-xs font-bold text-[#111827]">Filter Pegawai</h4>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterOpen(false)}
+                      className="text-[#9CA3AF] hover:text-[#111827] p-1 rounded-lg"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-2.5 py-2 text-xs">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                        Status Pegawai
+                      </label>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                      >
+                        <option value="all">Semua Status</option>
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Nonaktif</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                        Unit Kerja
+                      </label>
+                      <select
+                        value={departmentFilter}
+                        onChange={(e) => setDepartmentFilter(e.target.value)}
+                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                      >
+                        <option value="">Semua Unit Kerja</option>
+                        {departments.map((dept) => (
+                          <option key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                        Jabatan
+                      </label>
+                      <select
+                        value={positionFilter}
+                        onChange={(e) => setPositionFilter(e.target.value)}
+                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                      >
+                        <option value="">Semua Jabatan</option>
+                        {positions.map((pos) => (
+                          <option key={pos.id} value={pos.id}>
+                            {pos.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                        Jenis Pegawai
+                      </label>
+                      <select
+                        value={employeeTypeFilter}
+                        onChange={(e) => setEmployeeTypeFilter(e.target.value)}
+                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                      >
+                        <option value="">Semua Jenis Pegawai</option>
+                        {COMMON_EMPLOYEE_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handleResetFilter}
+                      className="text-[11px] font-medium text-red-600 hover:underline"
+                    >
+                      Reset Filter
+                    </button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setIsFilterOpen(false)}
+                    >
+                      Tutup
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* View Switcher Minimalis (Tabel / Grid) - Tanpa Wrapper Card Putih */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className={`p-2 rounded-lg text-xs transition-colors cursor-pointer ${
+                viewMode === 'table'
+                  ? 'text-[#F97316] font-bold bg-orange-50/80'
+                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80'
+              }`}
+              title="Tampilan List"
+              aria-label="Tampilan List"
+            >
+              <LayoutList className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-lg text-xs transition-colors cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'text-[#F97316] font-bold bg-orange-50/80'
+                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80'
+              }`}
+              title="Tampilan Grid"
+              aria-label="Tampilan Grid"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Tombol Tambah Pegawai Ikon Plus (+) di Ujung Kanan Mobile */}
+          {canManage && (
+            <button
+              type="button"
+              onClick={handleOpenAddModal}
+              className="w-9 h-9 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
+              title="Tambah Pegawai"
+              aria-label="Tambah Pegawai Baru"
+            >
+              <UserPlus className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* DESKTOP DATA AREA CONTAINER (≥1024px) - 100% Persis Untouched */}
+      {/* ========================================================= */}
+      <div className="hidden lg:flex flex-col rounded-2xl overflow-hidden transition-all duration-200 bg-[#FFFFFF] border border-[#E5E7EB] shadow-2xs">
         <div className="flex-1 min-w-0">
           {isLoading ? (
             <div className="py-16 text-center text-[#6B7280]">
@@ -707,7 +935,6 @@ export const EmployeesPage: React.FC = () => {
               <p className="text-xs font-medium">Memuat data pegawai sekolah...</p>
             </div>
           ) : paginatedEmployees.length === 0 ? (
-            /* Empty State */
             <div className="py-16 px-4 text-center max-w-md mx-auto">
               <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center mx-auto mb-3">
                 <Users className="w-7 h-7" />
@@ -740,26 +967,29 @@ export const EmployeesPage: React.FC = () => {
               </div>
             </div>
           ) : viewMode === 'table' ? (
-            /* Mode Tabel / List */
+            /* Desktop Table */
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
                   <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
-                    <th className="py-3 px-4">Pegawai</th>
+                    <th className="py-3 px-3 text-center w-12">No</th>
+                    <th className="py-3 px-4">Nama Pegawai</th>
+                    <th className="py-3 px-4">Department/Unit</th>
                     <th className="py-3 px-4">Jabatan</th>
-                    <th className="py-3 px-4">Unit Kerja</th>
                     <th className="py-3 px-4">Jenis Pegawai</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] text-xs">
-                  {paginatedEmployees.map((emp) => (
+                  {paginatedEmployees.map((emp, index) => (
                     <tr
                       key={emp.id}
                       className="hover:bg-[#F9FAFB] transition-colors group"
                     >
-                      {/* Pegawai: Foto, Nama Lengkap, dan NIP */}
+                      <td className="py-3.5 px-3 text-center text-xs font-semibold text-[#6B7280]">
+                        {(currentPage - 1) * pageSize + index + 1}
+                      </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <UserAvatar
@@ -781,25 +1011,17 @@ export const EmployeesPage: React.FC = () => {
                           </div>
                         </div>
                       </td>
-
-                      {/* Jabatan */}
-                      <td className="py-3.5 px-4 font-medium text-[#111827] whitespace-nowrap">
-                        {emp.positions?.name || '—'}
-                      </td>
-
-                      {/* Unit Kerja */}
                       <td className="py-3.5 px-4 text-[#4B5563] whitespace-nowrap">
                         {emp.departments?.name || '—'}
                       </td>
-
-                      {/* Jenis Pegawai */}
+                      <td className="py-3.5 px-4 font-medium text-[#111827] whitespace-nowrap">
+                        {emp.positions?.name || '—'}
+                      </td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-[#374151]">
                           {emp.employee_type || 'PNS'}
                         </span>
                       </td>
-
-                      {/* Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <Badge
                           variant={emp.status === 'active' ? 'success' : 'danger'}
@@ -808,59 +1030,93 @@ export const EmployeesPage: React.FC = () => {
                           {emp.status === 'active' ? 'Aktif' : 'Nonaktif'}
                         </Badge>
                       </td>
-
-                      {/* Aksi */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/employees/${emp.id}`)}
-                            title="Lihat Detail"
-                            className="h-8 w-8 p-0 text-[#6B7280] hover:text-[#F97316]"
+                        <div
+                          className="relative inline-block text-left"
+                          ref={openMobileListMenuId === emp.id ? mobileListMenuRef : undefined}
+                        >
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMobileListMenuId((prev) => (prev === emp.id ? null : emp.id));
+                            }}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none ml-auto"
+                            aria-label="Menu aksi pegawai"
+                            title="Menu Aksi"
                           >
-                            <Eye className="w-3.5 h-3.5" />
-                          </Button>
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
 
-                          {canManage && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenEditModal(emp)}
-                                title="Edit Data"
-                                className="h-8 w-8 p-0 text-[#6B7280] hover:text-[#111827]"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </Button>
+                          {openMobileListMenuId === emp.id && (
+                            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
+                              <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
+                                {emp.full_name}
+                              </div>
 
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenStatusModal(emp)}
-                                title={emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
-                                className={`h-8 w-8 p-0 ${
-                                  emp.status === 'active'
-                                    ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50'
-                                    : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'
-                                }`}
-                              >
-                                <Power className="w-3.5 h-3.5" />
-                              </Button>
-
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEmployeeForDelete(emp);
-                                  setIsDeleteModalOpen(true);
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenMobileListMenuId(null);
+                                  navigate(`/employees/${emp.id}`);
                                 }}
-                                title="Hapus Data Pegawai"
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </>
+                                <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
+                                <span>Detail Pegawai</span>
+                              </button>
+
+                              {canManage && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMobileListMenuId(null);
+                                      handleOpenEditModal(emp);
+                                    }}
+                                    className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
+                                    <span>Edit Data</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMobileListMenuId(null);
+                                      handleOpenStatusModal(emp);
+                                    }}
+                                    className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                                      emp.status === 'active'
+                                        ? 'text-amber-700 hover:bg-amber-50'
+                                        : 'text-emerald-700 hover:bg-emerald-50'
+                                    }`}
+                                  >
+                                    <Power className="w-3.5 h-3.5" />
+                                    <span>{emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
+                                  </button>
+
+                                  <div className="my-1 border-t border-[#F3F4F6]" />
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMobileListMenuId(null);
+                                      setEmployeeForDelete(emp);
+                                      setIsDeleteModalOpen(true);
+                                    }}
+                                    className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                    <span>Hapus Pegawai</span>
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           )}
                         </div>
                       </td>
@@ -870,9 +1126,9 @@ export const EmployeesPage: React.FC = () => {
               </table>
             </div>
           ) : (
-            /* Mode Grid / Cards */
-            <div className="p-4 sm:p-6 bg-transparent">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            /* Desktop Grid */
+            <div className="p-0 bg-transparent">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 {paginatedEmployees.map((emp) => (
                   <EmployeeGridCard
                     key={emp.id}
@@ -892,7 +1148,7 @@ export const EmployeesPage: React.FC = () => {
           )}
         </div>
 
-        {/* 6. Pagination Terintegrasi di Dasar Kartu */}
+        {/* Desktop Pagination Terintegrasi */}
         {!isLoading && sortedEmployees.length > 0 && (
           <EmployeePagination
             currentPage={currentPage}
@@ -906,6 +1162,223 @@ export const EmployeesPage: React.FC = () => {
             }}
             pageSizeOptions={[10, 12, 20]}
           />
+        )}
+      </div>
+
+      {/* ========================================================= */}
+      {/* MOBILE / TABLET DATA AREA & PAGINATION (<1024px) */}
+      {/* ========================================================= */}
+      <div className="block lg:hidden space-y-4">
+        <div className="bg-transparent">
+          {isLoading ? (
+            <div className="py-16 text-center text-[#6B7280]">
+              <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-xs font-medium">Memuat data pegawai sekolah...</p>
+            </div>
+          ) : paginatedEmployees.length === 0 ? (
+            /* Empty State Mobile */
+            <div className="py-16 px-4 text-center max-w-md mx-auto bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center mx-auto mb-3">
+                <Users className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-[#111827]">
+                {hasActiveFilters ? 'Pegawai Tidak Ditemukan' : 'Belum ada data pegawai'}
+              </h3>
+              <p className="text-xs text-[#6B7280] mt-1">
+                {hasActiveFilters
+                  ? 'Tidak ada data pegawai yang sesuai dengan kriteria pencarian dan filter.'
+                  : 'Tambahkan data pegawai untuk mulai mengelola informasi kepegawaian.'}
+              </p>
+              <div className="pt-4 flex justify-center gap-2">
+                {hasActiveFilters ? (
+                  <Button variant="outline" size="sm" onClick={handleResetFilter}>
+                    Reset Filter
+                  </Button>
+                ) : (
+                  canManage && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      leftIcon={<UserPlus className="w-4 h-4" />}
+                      onClick={handleOpenAddModal}
+                    >
+                      Tambah Pegawai
+                    </Button>
+                  )
+                )}
+              </div>
+            </div>
+          ) : viewMode === 'table' ? (
+            /* Mode List Mobile — Wrapper Transparan, Baris dipisah separator tipis */
+            <div className="divide-y divide-[#E5E7EB] bg-transparent">
+              {paginatedEmployees.map((emp) => (
+                <div
+                  key={emp.id}
+                  onClick={() => navigate(`/employees/${emp.id}`)}
+                  className="flex items-center justify-between py-3.5 px-1 gap-3 hover:bg-gray-100/60 transition-colors cursor-pointer"
+                >
+                  {/* Avatar Lingkaran + Tumpukan Nama & Jabatan */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <UserAvatar
+                      userId={emp.profile_id}
+                      photoUrl={emp.photo_url}
+                      name={emp.full_name}
+                      className="w-10 h-10 rounded-full object-cover border border-orange-200 shrink-0 shadow-2xs"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-xs sm:text-sm text-[#111827] truncate">
+                        {emp.full_name}
+                      </h4>
+                      <p className="text-[11px] text-[#6B7280] truncate mt-0.5">
+                        {emp.positions?.name || '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Jenis Pegawai Teks Biasa */}
+                  <div className="shrink-0 text-right px-2">
+                    <span className="text-xs font-semibold text-[#4B5563]">
+                      {emp.employee_type || 'PNS'}
+                    </span>
+                  </div>
+
+                  {/* Tombol Menu Titik Tiga (MoreVertical) & Popover Aksi */}
+                  <div
+                    className="relative shrink-0"
+                    ref={openMobileListMenuId === emp.id ? mobileListMenuRef : undefined}
+                  >
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMobileListMenuId((prev) => (prev === emp.id ? null : emp.id));
+                      }}
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none"
+                      aria-label="Menu aksi pegawai"
+                      title="Menu Aksi"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+
+                    {/* Action Dropdown Menu Mobile */}
+                    {openMobileListMenuId === emp.id && (
+                      <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
+                        <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
+                          {emp.full_name}
+                        </div>
+
+                        {/* Detail Pegawai */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMobileListMenuId(null);
+                            navigate(`/employees/${emp.id}`);
+                          }}
+                          className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
+                          <span>Detail Pegawai</span>
+                        </button>
+
+                        {canManage && (
+                          <>
+                            {/* Edit Data */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMobileListMenuId(null);
+                                handleOpenEditModal(emp);
+                              }}
+                              className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
+                              <span>Edit Data</span>
+                            </button>
+
+                            {/* Status Toggle */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMobileListMenuId(null);
+                                handleOpenStatusModal(emp);
+                              }}
+                              className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                                emp.status === 'active'
+                                  ? 'text-amber-700 hover:bg-amber-50'
+                                  : 'text-emerald-700 hover:bg-emerald-50'
+                              }`}
+                            >
+                              <Power className="w-3.5 h-3.5" />
+                              <span>{emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
+                            </button>
+
+                            <div className="my-1 border-t border-[#F3F4F6]" />
+
+                            {/* Delete */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMobileListMenuId(null);
+                                setEmployeeForDelete(emp);
+                                setIsDeleteModalOpen(true);
+                              }}
+                              className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                              <span>Hapus Pegawai</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Mode Grid Mobile — Container Transparan */
+            <div className="bg-transparent">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {paginatedEmployees.map((emp) => (
+                  <EmployeeGridCard
+                    key={emp.id}
+                    employee={emp}
+                    canManage={canManage}
+                    onViewDetail={(e) => navigate(`/employees/${e.id}`)}
+                    onEdit={handleOpenEditModal}
+                    onToggleStatus={handleOpenStatusModal}
+                    onDelete={(e) => {
+                      setEmployeeForDelete(e);
+                      setIsDeleteModalOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination Terpisah & Transparan di Mobile/Tablet */}
+        {!isLoading && sortedEmployees.length > 0 && (
+          <div className="pt-2">
+            <EmployeePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={totalItems}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setCurrentPage(1);
+              }}
+              pageSizeOptions={[10, 12, 20]}
+              className="bg-transparent border-0 px-1 py-2 flex flex-row items-center justify-between text-xs text-[#6B7280] w-full"
+            />
+          </div>
         )}
       </div>
 
