@@ -318,7 +318,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
             </h4>
 
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#FFF7ED] border-2 border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden shadow-xs relative">
+              <div className="w-16 h-16 rounded-full bg-[#FFF7ED] border border-[#E5E7EB] text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden relative">
                 {photoPreviewUrl ? (
                   <img
                     src={photoPreviewUrl}

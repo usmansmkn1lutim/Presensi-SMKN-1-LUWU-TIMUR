@@ -2,6 +2,7 @@ import React from 'react';
 import { X, User, Shield, CheckCircle2, AlertCircle, Clock, Calendar, Briefcase, Link2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { RoleBadge, Badge } from '../ui/Badge';
+import { UserAvatar } from '../ui/UserAvatar';
 import { UserManagementItem } from '../../services/userService';
 
 interface UserDetailModalProps {
@@ -46,17 +47,13 @@ export const UserDetailModal: React.FC<UserDetailModalProps> = ({
         {/* User Profile Card */}
         <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
           <div className="flex items-center gap-3.5">
-            {user.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt={user.full_name}
-                className="w-12 h-12 rounded-xl object-cover border border-[#E5E7EB]"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-lg">
-                {user.full_name.charAt(0)}
-              </div>
-            )}
+            <UserAvatar
+              userId={user.id}
+              avatarUrl={user.avatar_url}
+              photoUrl={user.photo_url}
+              name={user.full_name}
+              className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+            />
             <div className="space-y-0.5 min-w-0 flex-1">
               <h4 className="text-sm font-bold text-[#111827] truncate">
                 {user.full_name}

@@ -159,7 +159,7 @@ export const EmployeeDetailPage: React.FC = () => {
                 userId={employee.profile_id}
                 photoUrl={employee.photo_url}
                 name={employee.full_name}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-orange-200 shadow-xs"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border border-[#E5E7EB]"
               />
               <div className="absolute -bottom-1 -right-1 p-1 bg-white rounded-full shadow-2xs">
                 {employee.status === 'active' ? (

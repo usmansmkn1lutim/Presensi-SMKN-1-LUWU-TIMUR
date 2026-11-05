@@ -415,8 +415,8 @@ export const EmployeesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* DESKTOP TOOLBAR CONTAINER (≥1024px) - 100% Persis Card Putih */}
-      <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs">
+      {/* DESKTOP TOOLBAR CONTAINER (≥1024px) - Minimalis Transparan */}
+      <div className="hidden lg:block bg-transparent border-0 shadow-none p-0">
         <div className="grid grid-cols-[max-content_minmax(220px,1fr)_max-content_max-content] items-center gap-3">
           {/* Kelompok Kiri — Aksi */}
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -436,6 +436,7 @@ export const EmployeesPage: React.FC = () => {
                   leftIcon={<Building className="w-4 h-4" />}
                   onClick={() => setIsDepartmentModalOpen(true)}
                   title="Kelola Departemen / Unit Kerja"
+                  className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
                 >
                   Departemen
                 </Button>
@@ -445,6 +446,7 @@ export const EmployeesPage: React.FC = () => {
                   leftIcon={<Briefcase className="w-4 h-4" />}
                   onClick={() => setIsPositionModalOpen(true)}
                   title="Kelola Jabatan"
+                  className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
                 >
                   Jabatan
                 </Button>
@@ -454,14 +456,14 @@ export const EmployeesPage: React.FC = () => {
 
           {/* Kelompok Tengah — Pencarian (Search + Filter Terpadu) */}
           <div className="w-full min-w-0">
-            <div className="relative flex items-center w-full bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors">
+            <div className="relative flex items-center w-full h-11 bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
               <input
                 type="text"
                 placeholder="Cari nama, NIP, NIK..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9.5 pl-9 pr-8 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
+                className="w-full h-full pl-9 pr-8 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
               />
               {searchQuery && (
                 <button
@@ -644,7 +646,7 @@ export const EmployeesPage: React.FC = () => {
                 setIsSortOpen((prev) => !prev);
                 setIsFilterOpen(false);
               }}
-              className={`inline-flex items-center gap-1.5 h-9.5 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 h-11 px-3.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                 isSortOpen || sortBy !== 'name_asc'
                   ? 'border-[#F97316] bg-orange-50 text-[#EA580C]'
                   : 'border-[#E5E7EB] bg-white text-[#4B5563] hover:bg-gray-50 hover:text-[#111827]'
@@ -686,11 +688,11 @@ export const EmployeesPage: React.FC = () => {
             <span className="text-[11px] font-semibold text-[#6B7280] hidden xl:inline">
               Tampilan:
             </span>
-            <div className="flex items-center gap-1 bg-[#F3F4F6] p-1 rounded-xl border border-[#E5E7EB]">
+            <div className="flex items-center gap-1 bg-[#F3F4F6] p-1 h-11 rounded-xl border border-[#E5E7EB]">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`h-9 flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === 'table'
                     ? 'bg-[#FFFFFF] text-[#F97316] shadow-2xs font-bold'
                     : 'text-[#6B7280] hover:text-[#111827]'
@@ -705,7 +707,7 @@ export const EmployeesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`h-9 flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === 'grid'
                     ? 'bg-[#FFFFFF] text-[#F97316] shadow-2xs font-bold'
                     : 'text-[#6B7280] hover:text-[#111827]'
@@ -925,305 +927,224 @@ export const EmployeesPage: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* DESKTOP DATA AREA CONTAINER (≥1024px) - 100% Persis Untouched */}
+      {/* DATA DISPLAY AREA (DESKTOP & MOBILE UNIFIED) */}
       {/* ========================================================= */}
-      <div className="hidden lg:flex flex-col rounded-2xl overflow-hidden transition-all duration-200 bg-[#FFFFFF] border border-[#E5E7EB] shadow-2xs">
-        <div className="flex-1 min-w-0">
-          {isLoading ? (
-            <div className="py-16 text-center text-[#6B7280]">
-              <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-xs font-medium">Memuat data pegawai sekolah...</p>
+      <div className="w-full">
+        {isLoading ? (
+          <div className="py-16 text-center text-[#6B7280]">
+            <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs font-medium">Memuat data pegawai sekolah...</p>
+          </div>
+        ) : paginatedEmployees.length === 0 ? (
+          <div className="py-16 px-4 text-center max-w-md mx-auto bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
+            <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center mx-auto mb-3">
+              <Users className="w-7 h-7" />
             </div>
-          ) : paginatedEmployees.length === 0 ? (
-            <div className="py-16 px-4 text-center max-w-md mx-auto">
-              <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center mx-auto mb-3">
-                <Users className="w-7 h-7" />
-              </div>
-              <h3 className="text-base font-bold text-[#111827]">
-                {hasActiveFilters ? 'Pegawai Tidak Ditemukan' : 'Belum ada data pegawai'}
-              </h3>
-              <p className="text-xs text-[#6B7280] mt-1">
-                {hasActiveFilters
-                  ? 'Tidak ada data pegawai yang sesuai dengan kriteria pencarian dan filter.'
-                  : 'Tambahkan data pegawai untuk mulai mengelola informasi kepegawaian.'}
-              </p>
-              <div className="pt-4 flex justify-center gap-2">
-                {hasActiveFilters ? (
-                  <Button variant="outline" size="sm" onClick={handleResetFilter}>
-                    Reset Filter
+            <h3 className="text-base font-bold text-[#111827]">
+              {hasActiveFilters ? 'Pegawai Tidak Ditemukan' : 'Belum ada data pegawai'}
+            </h3>
+            <p className="text-xs text-[#6B7280] mt-1">
+              {hasActiveFilters
+                ? 'Tidak ada data pegawai yang sesuai dengan kriteria pencarian dan filter.'
+                : 'Tambahkan data pegawai untuk mulai mengelola informasi kepegawaian.'}
+            </p>
+            <div className="pt-4 flex justify-center gap-2">
+              {hasActiveFilters ? (
+                <Button variant="outline" size="sm" onClick={handleResetFilter}>
+                  Reset Filter
+                </Button>
+              ) : (
+                canManage && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    leftIcon={<UserPlus className="w-4 h-4" />}
+                    onClick={handleOpenAddModal}
+                  >
+                    Tambah Pegawai
                   </Button>
-                ) : (
-                  canManage && (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      leftIcon={<UserPlus className="w-4 h-4" />}
-                      onClick={handleOpenAddModal}
-                    >
-                      Tambah Pegawai
-                    </Button>
-                  )
-                )}
-              </div>
+                )
+              )}
             </div>
-          ) : viewMode === 'table' ? (
-            /* Desktop Table */
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[700px]">
-                <thead>
-                  <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
-                    <th className="py-3 px-3 text-center w-12">No</th>
-                    <th className="py-3 px-4">Nama Pegawai</th>
-                    <th className="py-3 px-4">Department/Unit</th>
-                    <th className="py-3 px-4">Jabatan</th>
-                    <th className="py-3 px-4">Jenis Pegawai</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E5E7EB] text-xs">
-                  {paginatedEmployees.map((emp, index) => (
-                    <tr
-                      key={emp.id}
-                      className="hover:bg-[#F9FAFB] transition-colors group"
-                    >
-                      <td className="py-3.5 px-3 text-center text-xs font-semibold text-[#6B7280]">
-                        {(currentPage - 1) * pageSize + index + 1}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <UserAvatar
-                            userId={emp.profile_id}
-                            photoUrl={emp.photo_url}
-                            name={emp.full_name}
-                            className="w-10 h-10 rounded-xl object-cover border border-orange-200 shrink-0 shadow-2xs"
-                          />
-                          <div className="min-w-0">
-                            <button
-                              onClick={() => navigate(`/employees/${emp.id}`)}
-                              className="font-bold text-xs sm:text-sm text-[#111827] hover:text-[#F97316] text-left transition-colors cursor-pointer block truncate max-w-[220px] sm:max-w-xs"
-                            >
-                              {emp.full_name}
-                            </button>
-                            <p className="text-[11px] text-[#6B7280] font-mono mt-0.5 truncate">
-                              NIP: {emp.nip || '—'}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 text-[#4B5563] whitespace-nowrap">
-                        {emp.departments?.name || '—'}
-                      </td>
-                      <td className="py-3.5 px-4 font-medium text-[#111827] whitespace-nowrap">
-                        {emp.positions?.name || '—'}
-                      </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-[#374151]">
-                          {emp.employee_type || 'PNS'}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <Badge
-                          variant={emp.status === 'active' ? 'success' : 'danger'}
-                          size="sm"
-                        >
-                          {emp.status === 'active' ? 'Aktif' : 'Nonaktif'}
-                        </Badge>
-                      </td>
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <div
-                          className="relative inline-block text-left"
-                          ref={openMobileListMenuId === emp.id ? mobileListMenuRef : undefined}
-                        >
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenMobileListMenuId((prev) => (prev === emp.id ? null : emp.id));
-                            }}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none ml-auto"
-                            aria-label="Menu aksi pegawai"
-                            title="Menu Aksi"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-
-                          {openMobileListMenuId === emp.id && (
-                            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
-                              <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
-                                {emp.full_name}
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenMobileListMenuId(null);
-                                  navigate(`/employees/${emp.id}`);
-                                }}
-                                className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
-                              >
-                                <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
-                                <span>Detail Pegawai</span>
-                              </button>
-
-                              {canManage && (
-                                <>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenMobileListMenuId(null);
-                                      handleOpenEditModal(emp);
-                                    }}
-                                    className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
-                                    <span>Edit Data</span>
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenMobileListMenuId(null);
-                                      handleOpenStatusModal(emp);
-                                    }}
-                                    className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
-                                      emp.status === 'active'
-                                        ? 'text-amber-700 hover:bg-amber-50'
-                                        : 'text-emerald-700 hover:bg-emerald-50'
-                                    }`}
-                                  >
-                                    <Power className="w-3.5 h-3.5" />
-                                    <span>{emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
-                                  </button>
-
-                                  <div className="my-1 border-t border-[#F3F4F6]" />
-
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenMobileListMenuId(null);
-                                      setEmployeeForDelete(emp);
-                                      setIsDeleteModalOpen(true);
-                                    }}
-                                    className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                                    <span>Hapus Pegawai</span>
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </td>
+          </div>
+        ) : viewMode === 'table' ? (
+          /* MODE TABEL / LIST */
+          <div className="w-full">
+            {/* Desktop Table (≥1024px) - Card Putih Hanya Untuk Tabel */}
+            <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+                      <th className="py-3 px-3 text-center w-12">No</th>
+                      <th className="py-3 px-4">Nama Pegawai</th>
+                      <th className="py-3 px-4">Department/Unit</th>
+                      <th className="py-3 px-4">Jabatan</th>
+                      <th className="py-3 px-4">Jenis Pegawai</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4 text-right">Aksi</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            /* Desktop Grid */
-            <div className="p-0 bg-transparent">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-                {paginatedEmployees.map((emp) => (
-                  <EmployeeGridCard
-                    key={emp.id}
-                    employee={emp}
-                    canManage={canManage}
-                    onViewDetail={(e) => navigate(`/employees/${e.id}`)}
-                    onEdit={handleOpenEditModal}
-                    onToggleStatus={handleOpenStatusModal}
-                    onDelete={(e) => {
-                      setEmployeeForDelete(e);
-                      setIsDeleteModalOpen(true);
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5E7EB] text-xs">
+                    {paginatedEmployees.map((emp, index) => (
+                      <tr
+                        key={emp.id}
+                        className="hover:bg-[#F9FAFB] transition-colors group"
+                      >
+                        <td className="py-3.5 px-3 text-center text-xs font-semibold text-[#6B7280]">
+                          {(currentPage - 1) * pageSize + index + 1}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <UserAvatar
+                              userId={emp.profile_id}
+                              photoUrl={emp.photo_url}
+                              name={emp.full_name}
+                              className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <button
+                                onClick={() => navigate(`/employees/${emp.id}`)}
+                                className="font-bold text-xs sm:text-sm text-[#111827] hover:text-[#F97316] text-left transition-colors cursor-pointer block truncate max-w-[220px] sm:max-w-xs"
+                              >
+                                {emp.full_name}
+                              </button>
+                              <p className="text-[11px] text-[#6B7280] font-mono mt-0.5 truncate">
+                                NIP: {emp.nip || '—'}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 text-[#4B5563] whitespace-nowrap">
+                          {emp.departments?.name || '—'}
+                        </td>
+                        <td className="py-3.5 px-4 font-medium text-[#111827] whitespace-nowrap">
+                          {emp.positions?.name || '—'}
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-[#374151]">
+                            {emp.employee_type || 'PNS'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <Badge
+                            variant={emp.status === 'active' ? 'success' : 'danger'}
+                            size="sm"
+                          >
+                            {emp.status === 'active' ? 'Aktif' : 'Nonaktif'}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                          <div
+                            className="relative inline-block text-left"
+                            ref={openMobileListMenuId === emp.id ? mobileListMenuRef : undefined}
+                          >
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMobileListMenuId((prev) => (prev === emp.id ? null : emp.id));
+                              }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none ml-auto"
+                              aria-label="Menu aksi pegawai"
+                              title="Menu Aksi"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
 
-        {/* Desktop Pagination Terintegrasi */}
-        {!isLoading && sortedEmployees.length > 0 && (
-          <EmployeePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={totalItems}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(newSize) => {
-              setPageSize(newSize);
-              setCurrentPage(1);
-            }}
-            pageSizeOptions={[10, 12, 20]}
-          />
-        )}
-      </div>
+                            {openMobileListMenuId === emp.id && (
+                              <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
+                                <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
+                                  {emp.full_name}
+                                </div>
 
-      {/* ========================================================= */}
-      {/* MOBILE / TABLET DATA AREA & PAGINATION (<1024px) */}
-      {/* ========================================================= */}
-      <div className="block lg:hidden space-y-4">
-        <div className="bg-transparent">
-          {isLoading ? (
-            <div className="py-16 text-center text-[#6B7280]">
-              <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-xs font-medium">Memuat data pegawai sekolah...</p>
-            </div>
-          ) : paginatedEmployees.length === 0 ? (
-            /* Empty State Mobile */
-            <div className="py-16 px-4 text-center max-w-md mx-auto bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center mx-auto mb-3">
-                <Users className="w-7 h-7" />
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMobileListMenuId(null);
+                                    navigate(`/employees/${emp.id}`);
+                                  }}
+                                  className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
+                                  <span>Detail Pegawai</span>
+                                </button>
+
+                                {canManage && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenMobileListMenuId(null);
+                                        handleOpenEditModal(emp);
+                                      }}
+                                      className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
+                                    >
+                                      <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
+                                      <span>Edit Data</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenMobileListMenuId(null);
+                                        handleOpenStatusModal(emp);
+                                      }}
+                                      className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
+                                        emp.status === 'active'
+                                          ? 'text-amber-700 hover:bg-amber-50'
+                                          : 'text-emerald-700 hover:bg-emerald-50'
+                                      }`}
+                                    >
+                                      <Power className="w-3.5 h-3.5" />
+                                      <span>{emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
+                                    </button>
+
+                                    <div className="my-1 border-t border-[#F3F4F6]" />
+
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenMobileListMenuId(null);
+                                        setEmployeeForDelete(emp);
+                                        setIsDeleteModalOpen(true);
+                                      }}
+                                      className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                      <span>Hapus Pegawai</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <h3 className="text-base font-bold text-[#111827]">
-                {hasActiveFilters ? 'Pegawai Tidak Ditemukan' : 'Belum ada data pegawai'}
-              </h3>
-              <p className="text-xs text-[#6B7280] mt-1">
-                {hasActiveFilters
-                  ? 'Tidak ada data pegawai yang sesuai dengan kriteria pencarian dan filter.'
-                  : 'Tambahkan data pegawai untuk mulai mengelola informasi kepegawaian.'}
-              </p>
-              <div className="pt-4 flex justify-center gap-2">
-                {hasActiveFilters ? (
-                  <Button variant="outline" size="sm" onClick={handleResetFilter}>
-                    Reset Filter
-                  </Button>
-                ) : (
-                  canManage && (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      leftIcon={<UserPlus className="w-4 h-4" />}
-                      onClick={handleOpenAddModal}
-                    >
-                      Tambah Pegawai
-                    </Button>
-                  )
-                )}
-              </div>
             </div>
-          ) : viewMode === 'table' ? (
-            /* Mode List Mobile — Wrapper Transparan, Baris dipisah separator tipis */
-            <div className="divide-y divide-[#E5E7EB] bg-transparent">
+
+            {/* Mobile List (<1024px) - Transparan */}
+            <div className="block lg:hidden divide-y divide-[#E5E7EB] bg-transparent">
               {paginatedEmployees.map((emp) => (
                 <div
                   key={emp.id}
                   onClick={() => navigate(`/employees/${emp.id}`)}
                   className="flex items-center justify-between py-3.5 px-1 gap-3 hover:bg-gray-100/60 transition-colors cursor-pointer"
                 >
-                  {/* Avatar Lingkaran + Tumpukan Nama & Jabatan */}
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <UserAvatar
                       userId={emp.profile_id}
                       photoUrl={emp.photo_url}
                       name={emp.full_name}
-                      className="w-10 h-10 rounded-full object-cover border border-orange-200 shrink-0 shadow-2xs"
+                      className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] shrink-0"
                     />
                     <div className="min-w-0 flex-1">
                       <h4 className="font-bold text-xs sm:text-sm text-[#111827] truncate">
@@ -1235,14 +1156,12 @@ export const EmployeesPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Jenis Pegawai Teks Biasa */}
                   <div className="shrink-0 text-right px-2">
                     <span className="text-xs font-semibold text-[#4B5563]">
                       {emp.employee_type || 'PNS'}
                     </span>
                   </div>
 
-                  {/* Tombol Menu Titik Tiga (MoreVertical) & Popover Aksi */}
                   <div
                     className="relative shrink-0"
                     ref={openMobileListMenuId === emp.id ? mobileListMenuRef : undefined}
@@ -1260,14 +1179,11 @@ export const EmployeesPage: React.FC = () => {
                       <MoreVertical className="w-4 h-4" />
                     </button>
 
-                    {/* Action Dropdown Menu Mobile */}
                     {openMobileListMenuId === emp.id && (
                       <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
                         <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
                           {emp.full_name}
                         </div>
-
-                        {/* Detail Pegawai */}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -1283,7 +1199,6 @@ export const EmployeesPage: React.FC = () => {
 
                         {canManage && (
                           <>
-                            {/* Edit Data */}
                             <button
                               type="button"
                               onClick={(e) => {
@@ -1297,7 +1212,6 @@ export const EmployeesPage: React.FC = () => {
                               <span>Edit Data</span>
                             </button>
 
-                            {/* Status Toggle */}
                             <button
                               type="button"
                               onClick={(e) => {
@@ -1317,7 +1231,6 @@ export const EmployeesPage: React.FC = () => {
 
                             <div className="my-1 border-t border-[#F3F4F6]" />
 
-                            {/* Delete */}
                             <button
                               type="button"
                               onClick={(e) => {
@@ -1339,32 +1252,32 @@ export const EmployeesPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          ) : (
-            /* Mode Grid Mobile — Container Transparan */
-            <div className="bg-transparent">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {paginatedEmployees.map((emp) => (
-                  <EmployeeGridCard
-                    key={emp.id}
-                    employee={emp}
-                    canManage={canManage}
-                    onViewDetail={(e) => navigate(`/employees/${e.id}`)}
-                    onEdit={handleOpenEditModal}
-                    onToggleStatus={handleOpenStatusModal}
-                    onDelete={(e) => {
-                      setEmployeeForDelete(e);
-                      setIsDeleteModalOpen(true);
-                    }}
-                  />
-                ))}
-              </div>
+          </div>
+        ) : (
+          /* MODE GRID / CARDS (WRAPPER TRANSPARAN TANPA BACKGROUND PUTIH) */
+          <div className="bg-transparent border-0 shadow-none p-0 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              {paginatedEmployees.map((emp) => (
+                <EmployeeGridCard
+                  key={emp.id}
+                  employee={emp}
+                  canManage={canManage}
+                  onViewDetail={(e) => navigate(`/employees/${e.id}`)}
+                  onEdit={handleOpenEditModal}
+                  onToggleStatus={handleOpenStatusModal}
+                  onDelete={(e) => {
+                    setEmployeeForDelete(e);
+                    setIsDeleteModalOpen(true);
+                  }}
+                />
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Pagination Terpisah & Transparan di Mobile/Tablet */}
+        {/* STANDALONE TRANSPARENT PAGINATION (DILUAR WRAPPER DATA TABEL/GRID) */}
         {!isLoading && sortedEmployees.length > 0 && (
-          <div className="pt-2">
+          <div className="pt-4 w-full bg-transparent border-0 shadow-none">
             <EmployeePagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -1376,7 +1289,7 @@ export const EmployeesPage: React.FC = () => {
                 setCurrentPage(1);
               }}
               pageSizeOptions={[10, 12, 20]}
-              className="bg-transparent border-0 px-1 py-2 flex flex-row items-center justify-between text-xs text-[#6B7280] w-full"
+              className="bg-transparent border-0 px-0 py-2 flex flex-row items-center justify-between text-xs text-[#6B7280] w-full"
             />
           </div>
         )}

@@ -170,7 +170,7 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
             userId={employee.profile_id}
             photoUrl={employee.photo_url}
             name={employee.full_name}
-            className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full object-cover border-2 border-orange-200 shadow-sm mx-auto shrink-0"
+            className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full object-cover border border-[#E5E7EB] mx-auto shrink-0"
           />
 
           {/* Full Name (Max 2 lines) */}
@@ -242,7 +242,7 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
               userId={employee.profile_id}
               photoUrl={employee.photo_url}
               name={employee.full_name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-orange-200 shadow-2xs shrink-0"
+              className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] shrink-0"
             />
             <div className="min-w-0 flex-1">
               <h3 className="font-bold text-sm text-[#111827] group-hover:text-[#F97316] transition-colors truncate">

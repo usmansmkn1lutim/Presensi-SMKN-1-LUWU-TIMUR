@@ -103,7 +103,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   }
 
   return (
-    <div className={`flex items-center justify-center font-bold bg-[#FFF7ED] text-[#F97316] border border-orange-200 overflow-hidden ${className}`}>
+    <div className={`flex items-center justify-center font-bold bg-[#FFF7ED] text-[#F97316] border border-[#E5E7EB] overflow-hidden ${className}`}>
       {name && name !== 'Pegawai' && name !== 'Admin' ? (
         <span>{initials}</span>
       ) : (

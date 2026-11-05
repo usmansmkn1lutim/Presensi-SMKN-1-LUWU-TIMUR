@@ -49,7 +49,7 @@ export const EmployeePagination: React.FC<EmployeePaginationProps> = ({
     <div
       className={
         className ||
-        'bg-[#FFFFFF] border-t border-[#E5E7EB] px-3.5 py-3 sm:px-5 sm:py-4 flex flex-row items-center justify-between gap-2 text-xs text-[#6B7280] w-full overflow-hidden'
+        'bg-transparent border-0 px-0 py-2 flex flex-row items-center justify-between gap-2 text-xs text-[#6B7280] w-full'
       }
     >
       {/* Kelompok Kiri — Informasi Jumlah Data */}

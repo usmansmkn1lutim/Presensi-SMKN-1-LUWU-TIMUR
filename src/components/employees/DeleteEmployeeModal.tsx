@@ -120,10 +120,10 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
               <img
                 src={employee.photo_url}
                 alt={employee.full_name}
-                className="w-12 h-12 rounded-xl object-cover border border-[#E5E7EB] shrink-0"
+                className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] shrink-0"
               />
             ) : (
-              <div className="w-12 h-12 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-base shrink-0">
+              <div className="w-12 h-12 rounded-full bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-base shrink-0">
                 {employee.full_name.charAt(0)}
               </div>
             )}

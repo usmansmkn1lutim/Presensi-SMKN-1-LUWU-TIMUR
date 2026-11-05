@@ -52,6 +52,7 @@ export interface UserManagementItem {
   updated_at: string;
   employee_id?: string | null;
   employee_name?: string | null;
+  photo_url?: string | null;
 }
 
 const ALLOWED_ROLES: ActiveAppRole[] = [
@@ -118,21 +119,21 @@ class UserService {
       return [];
     }
 
-    // 2. Fetch linked employees to annotate employee details
+    // 2. Fetch linked employees to annotate employee details & GTK photo_url
     const { data: employees, error: employeeError } = await supabase
       .from('employees')
-      .select('id, full_name, profile_id')
+      .select('id, full_name, profile_id, photo_url')
       .not('profile_id', 'is', null);
 
     if (employeeError) {
       console.warn('UserService.getUsers employee annotation warning:', employeeError.message);
     }
 
-    const employeeMap = new Map<string, { id: string; name: string }>();
+    const employeeMap = new Map<string, { id: string; name: string; photo_url: string | null }>();
     if (employees) {
       for (const emp of employees) {
         if (emp.profile_id) {
-          employeeMap.set(emp.profile_id, { id: emp.id, name: emp.full_name });
+          employeeMap.set(emp.profile_id, { id: emp.id, name: emp.full_name, photo_url: emp.photo_url || null });
         }
       }
     }
@@ -151,6 +152,7 @@ class UserService {
         updated_at: p.updated_at,
         employee_id: linked?.id || null,
         employee_name: linked?.name || null,
+        photo_url: linked?.photo_url || null,
       };
     });
   }

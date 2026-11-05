@@ -20,6 +20,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { RoleBadge, Badge } from '../../components/ui/Badge';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import {
   userService,
   UserManagementItem,
@@ -435,17 +436,13 @@ export const UsersPage: React.FC = () => {
                         {/* Name & Avatar */}
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
-                            {u.avatar_url ? (
-                              <img
-                                src={u.avatar_url}
-                                alt={u.full_name}
-                                className="w-8 h-8 rounded-lg object-cover border border-[#E5E7EB]"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-lg bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-xs">
-                                {u.full_name.charAt(0)}
-                              </div>
-                            )}
+                            <UserAvatar
+                              userId={u.id}
+                              avatarUrl={u.avatar_url}
+                              photoUrl={u.photo_url}
+                              name={u.full_name}
+                              className="w-9 h-9 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                            />
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5">
                                 <span className="font-bold text-[#111827] block truncate">
@@ -684,17 +681,13 @@ export const UsersPage: React.FC = () => {
                   <div key={u.id} className="p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        {u.avatar_url ? (
-                          <img
-                            src={u.avatar_url}
-                            alt={u.full_name}
-                            className="w-10 h-10 rounded-xl object-cover border border-[#E5E7EB]"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-sm">
-                            {u.full_name.charAt(0)}
-                          </div>
-                        )}
+                        <UserAvatar
+                          userId={u.id}
+                          avatarUrl={u.avatar_url}
+                          photoUrl={u.photo_url}
+                          name={u.full_name}
+                          className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                        />
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="font-bold text-sm text-[#111827] block truncate">
