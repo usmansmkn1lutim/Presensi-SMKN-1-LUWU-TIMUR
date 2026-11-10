@@ -15,6 +15,7 @@ import {
   MapPin,
   ArrowUp,
   ArrowDown,
+  Table,
 } from 'lucide-react';
 import {
   EvaluatedStatusResult,
@@ -270,98 +271,99 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
 
   return (
     <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 space-y-6 shadow-2xs">
-      {/* Header Title, Toggle & Main Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#E5E7EB]">
-        <div className="flex items-center justify-between w-full lg:w-auto gap-4">
-          <div className="flex items-center gap-2.5 text-[#F97316]">
-            <div className="p-2 rounded-xl bg-[#FFF7ED] border border-orange-200">
-              <CalendarCheck className="w-5 h-5 text-[#F97316]" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[#111827]">
-                Riwayat Kehadiran
-              </h3>
-              <p className="text-xs text-[#6B7280]">
-                Catatan presensi resmi, perizinan, dan status kehadiran harian pegawai.
-              </p>
-            </div>
+      {/* Header Title, Filter Toolbar & View Mode Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E5E7EB]">
+        {/* Left: Title (No Subtitle) */}
+        <div className="flex items-center gap-2.5 text-[#F97316]">
+          <div className="p-2 rounded-xl bg-[#FFF7ED] border border-orange-200 shrink-0">
+            <CalendarCheck className="w-5 h-5 text-[#F97316]" />
           </div>
+          <h3 className="text-base font-bold text-[#111827]">
+            Riwayat Kehadiran
+          </h3>
+        </div>
 
-          {/* View Mode Toggle (Segmented Control) */}
+        {/* Right Area: Filters & Icon-Only Toggle */}
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+          {/* Toolbar Filters (Shown only in Table View) */}
+          {viewMode === 'table' && (
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {/* Periode Selector */}
+              <div className="flex items-center gap-1.5 bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#F97316]">
+                <Calendar className="w-4 h-4 text-[#6B7280] shrink-0" />
+                <select
+                  value={period}
+                  onChange={(e) => {
+                    setPeriod(e.target.value as PeriodOption);
+                    setCurrentPage(1);
+                  }}
+                  className="bg-transparent text-xs font-semibold text-[#111827] focus:outline-none cursor-pointer"
+                >
+                  <option value="this_month">Bulan Ini</option>
+                  <option value="last_month">Bulan Lalu</option>
+                  <option value="3_months">3 Bulan</option>
+                  <option value="6_months">6 Bulan</option>
+                  <option value="this_year">Tahun Ini</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-1.5 bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#F97316]">
+                <Filter className="w-4 h-4 text-[#6B7280] shrink-0" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="bg-transparent text-xs font-semibold text-[#111827] focus:outline-none cursor-pointer"
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="present">Semua Hadir</option>
+                  <option value="on_time">Hadir — Tepat Waktu</option>
+                  <option value="late">Hadir — Terlambat</option>
+                  <option value="sick">Sakit</option>
+                  <option value="permit">Izin</option>
+                  <option value="official_duty">Dinas Luar</option>
+                  <option value="leave">Cuti</option>
+                  <option value="absent">Alpha</option>
+                  <option value="holiday">Libur</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Icon-Only View Mode Toggle (Segmented Control) */}
           <div className="inline-flex items-center p-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-xl shrink-0">
             <button
               type="button"
               onClick={() => onViewModeChange?.('table')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              title="Tampilan Tabel"
+              aria-label="Tampilan Tabel"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === 'table'
                   ? 'bg-[#F97316] text-white shadow-2xs'
-                  : 'text-[#6B7280] hover:text-[#111827]'
+                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-200/60'
               }`}
             >
-              Tabel
+              <Table className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => onViewModeChange?.('calendar')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              title="Tampilan Kalender"
+              aria-label="Tampilan Kalender"
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === 'calendar'
                   ? 'bg-[#F97316] text-white shadow-2xs'
-                  : 'text-[#6B7280] hover:text-[#111827]'
+                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-200/60'
               }`}
             >
-              Kalender
+              <Calendar className="w-4 h-4" />
             </button>
           </div>
         </div>
-
-        {/* Filter Toolbar (Only shown in Table View) */}
-        {viewMode === 'table' && (
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Periode Selector */}
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-[#6B7280] shrink-0" />
-              <select
-                value={period}
-                onChange={(e) => {
-                  setPeriod(e.target.value as PeriodOption);
-                  setCurrentPage(1);
-                }}
-                className="bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
-              >
-                <option value="this_month">Bulan Ini</option>
-                <option value="last_month">Bulan Lalu</option>
-                <option value="3_months">3 Bulan</option>
-                <option value="6_months">6 Bulan</option>
-                <option value="this_year">Tahun Ini</option>
-                <option value="custom">Custom Range</option>
-              </select>
-            </div>
-
-            {/* Status Filter */}
-            <div className="flex items-center gap-1.5">
-              <Filter className="w-4 h-4 text-[#6B7280] shrink-0" />
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]"
-              >
-                <option value="all">Semua Status</option>
-                <option value="present">Semua Hadir</option>
-                <option value="on_time">Hadir — Tepat Waktu</option>
-                <option value="late">Hadir — Terlambat</option>
-                <option value="sick">Sakit</option>
-                <option value="permit">Izin</option>
-                <option value="official_duty">Dinas Luar</option>
-                <option value="leave">Cuti</option>
-                <option value="absent">Alpha</option>
-                <option value="holiday">Libur</option>
-              </select>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Content Area: Table View vs Calendar View */}
