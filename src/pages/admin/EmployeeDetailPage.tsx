@@ -28,6 +28,7 @@ import { DeleteEmployeeModal } from '../../components/employees/DeleteEmployeeMo
 import { EmployeeAttendanceHistoryCard } from '../../components/employees/EmployeeAttendanceHistoryCard';
 import { MonthlyStatisticsSection } from '../../components/employees/MonthlyStatisticsSection';
 import { HistoryCalendarMobile } from '../../components/history/HistoryCalendarMobile';
+import { AttendanceSelfieCard } from '../../components/history/AttendanceSelfieCard';
 import { attendanceStatusService, EvaluatedStatusResult } from '../../services/attendanceStatusService';
 import {
   getMakassarTodayDateString,
@@ -104,6 +105,9 @@ export const EmployeeDetailPage: React.FC = () => {
   const [matrixData, setMatrixData] = useState<EvaluatedStatusResult[]>([]);
   const [isAttendanceLoading, setIsAttendanceLoading] = useState(true);
   const [attendanceError, setAttendanceError] = useState<string | null>(null);
+
+  // View Mode toggle state ('table' | 'calendar')
+  const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
 
   // 1. Independent Table Period Filter State
   const [tablePeriod, setTablePeriod] = useState<{ startDate: string; endDate: string }>(() => ({
@@ -182,7 +186,7 @@ export const EmployeeDetailPage: React.FC = () => {
     }
   };
 
-  // Trigger fetching when id, tablePeriod, or statsMonth changes
+  // Trigger fetching when id, tablePeriod, statsMonth, or calendarMonth changes
   useEffect(() => {
     if (id) {
       // Delta fetch for tablePeriod
@@ -196,8 +200,17 @@ export const EmployeeDetailPage: React.FC = () => {
         endDate: `${statsMonth.year}-${statsMonthStr}-${String(statsLastDay).padStart(2, '0')}`,
       };
       loadAttendanceHistory(id, statsPeriod);
+
+      // Delta fetch for calendarMonth
+      const calMonthStr = String(calendarMonth.month + 1).padStart(2, '0');
+      const calLastDay = new Date(calendarMonth.year, calendarMonth.month + 1, 0).getDate();
+      const calendarPeriod = {
+        startDate: `${calendarMonth.year}-${calMonthStr}-01`,
+        endDate: `${calendarMonth.year}-${calMonthStr}-${String(calLastDay).padStart(2, '0')}`,
+      };
+      loadAttendanceHistory(id, calendarPeriod);
     }
-  }, [id, tablePeriod, statsMonth]);
+  }, [id, tablePeriod, statsMonth, calendarMonth]);
 
   // Reset state when changing employee ID
   useEffect(() => {
@@ -301,12 +314,12 @@ export const EmployeeDetailPage: React.FC = () => {
         </Link>
       </div>
 
-      {/* Main 3-Column Grid Layout */}
+      {/* Main 2-Column Grid Layout (35% : 65%) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 items-start">
         
-        {/* AREA A — Profil dan Informasi Pegawai */}
-        <div className="lg:col-span-5 xl:col-span-3 space-y-6">
-          {/* Main Profile Header Card */}
+        {/* KOLOM KIRI — 35% (Profil & Informasi Kepegawaian) */}
+        <div className="lg:col-span-5 xl:col-span-4 space-y-6">
+          {/* 1. Main Profile Header Card */}
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-6">
             <div className="flex flex-col items-center text-center space-y-4">
               {/* Foto / Avatar */}
@@ -399,7 +412,7 @@ export const EmployeeDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Card 1: Identitas & Nomor Registrasi */}
+          {/* 2. Card Identitas & Nomor Registrasi */}
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-3.5 shadow-2xs">
             <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider pb-2.5 border-b border-[#E5E7EB] flex items-center gap-2 text-[#F97316]">
               <IdCard className="w-4 h-4" />
@@ -452,7 +465,7 @@ export const EmployeeDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 2: Satuan Kerja & Jabatan */}
+          {/* 3. Card Satuan Kerja & Jabatan */}
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-3.5 shadow-2xs">
             <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider pb-2.5 border-b border-[#E5E7EB] flex items-center gap-2 text-[#F97316]">
               <Building className="w-4 h-4" />
@@ -495,7 +508,7 @@ export const EmployeeDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 3: Kontak & Komunikasi */}
+          {/* 4. Card Kontak & Komunikasi */}
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-3.5 shadow-2xs">
             <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider pb-2.5 border-b border-[#E5E7EB] flex items-center gap-2 text-[#F97316]">
               <Phone className="w-4 h-4" />
@@ -517,7 +530,7 @@ export const EmployeeDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 4: Status Akun Supabase */}
+          {/* 5. Card Status Akun Supabase */}
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-3.5 shadow-2xs">
             <div className="flex items-center justify-between pb-2.5 border-b border-[#E5E7EB]">
               <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2 text-[#F97316]">
@@ -588,113 +601,8 @@ export const EmployeeDetailPage: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
 
-        {/* AREA B — Statistik Kehadiran Bulanan & Tabel Riwayat Presensi */}
-        <div className="lg:col-span-7 xl:col-span-6 space-y-6">
-          <MonthlyStatisticsSection
-            matrixData={matrixData}
-            isLoading={isAttendanceLoading}
-            error={attendanceError}
-            statsMonth={statsMonth}
-            onStatsMonthChange={setStatsMonth}
-          />
-
-          <EmployeeAttendanceHistoryCard
-            matrixData={matrixData}
-            isLoading={isAttendanceLoading}
-            error={attendanceError}
-            tablePeriod={tablePeriod}
-            onPeriodChange={setTablePeriod}
-          />
-        </div>
-
-        {/* AREA C — Kalender, Detail & Catatan */}
-        <div className="lg:col-span-12 xl:col-span-3 space-y-6">
-          {/* HistoryCalendarMobile Widget */}
-          <HistoryCalendarMobile
-            onDateSelect={setSelectedDate}
-            onMonthChange={(y, m) => setCalendarMonth({ year: y, month: m })}
-            selectedDate={selectedDate || ''}
-            currentDate={new Date(calendarMonth.year, calendarMonth.month)}
-            records={attendanceRecordsForCalendar}
-          />
-
-          {/* Panel Detail Tanggal Terpilih */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-4 shadow-2xs">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
-              <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2 text-[#F97316]">
-                <CalendarCheck className="w-4 h-4" />
-                <span>Detail Tanggal Terpilih</span>
-              </h3>
-              {selectedDate && (
-                <span className="px-2 py-0.5 text-[11px] font-mono font-bold bg-[#FFF7ED] text-[#F97316] rounded-md border border-orange-200">
-                  {formatMakassarShortDate(selectedDate)}
-                </span>
-              )}
-            </div>
-
-            {selectedDate ? (
-              selectedDateRecord ? (
-                <div className="space-y-3 text-xs">
-                  <div className="flex items-center justify-between py-1 border-b border-[#F3F4F6]">
-                    <span className="text-[#6B7280] font-semibold">Status Resmi</span>
-                    <span className="font-bold text-[#111827]">
-                      {selectedDateRecord.statusLabel}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-1 border-b border-[#F3F4F6]">
-                    <span className="text-[#6B7280] font-semibold">Jam Masuk (Check-in)</span>
-                    <span className="font-mono font-bold text-[#111827]">
-                      {formatMakassarTime(selectedDateRecord.checkInAt)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between py-1 border-b border-[#F3F4F6]">
-                    <span className="text-[#6B7280] font-semibold">Jam Pulang (Check-out)</span>
-                    <span className="font-mono font-bold text-[#111827]">
-                      {formatMakassarTime(selectedDateRecord.checkOutAt)}
-                    </span>
-                  </div>
-
-                  {(selectedDateRecord.checkInLocation || selectedDateRecord.checkOutLocation) && (
-                    <div className="flex items-start justify-between py-1 border-b border-[#F3F4F6]">
-                      <span className="text-[#6B7280] font-semibold">Lokasi</span>
-                      <span className="text-[#111827] text-right font-medium max-w-[60%]">
-                        {selectedDateRecord.checkInLocation || selectedDateRecord.checkOutLocation}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="py-1">
-                    <span className="text-[#6B7280] font-semibold block mb-1">Catatan / Alasan:</span>
-                    <p className="p-2.5 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#374151]">
-                      {selectedDateRecord.notes || 'Tidak ada catatan tambahan untuk tanggal ini.'}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4 rounded-xl bg-[#F9FAFB] border border-dashed border-[#D1D5DB] text-center space-y-1">
-                  <p className="text-xs font-semibold text-[#374151]">
-                    Tidak ada data presensi pada tanggal {selectedDate}.
-                  </p>
-                  <p className="text-[11px] text-[#6B7280]">
-                    Pegawai tidak memiliki catatan presensi atau status khusus untuk tanggal ini.
-                  </p>
-                </div>
-              )
-            ) : (
-              <div className="p-4 rounded-xl bg-[#F9FAFB] border border-dashed border-[#D1D5DB] text-center space-y-1">
-                <p className="text-xs font-semibold text-[#374151]">Belum ada tanggal dipilih.</p>
-                <p className="text-[11px] text-[#6B7280]">
-                  Pilih salah satu tanggal pada kalender di atas untuk melihat rincian presensi harian pegawai.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Card: Catatan Kepegawaian & Audit Metadata */}
+          {/* 6. Card Catatan Kepegawaian & Audit Metadata (Dipindahkan ke Paling Bawah Kolom Kiri) */}
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-3.5 shadow-2xs">
             <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider pb-2.5 border-b border-[#E5E7EB] flex items-center gap-2 text-[#F97316]">
               <FileText className="w-4 h-4" />
@@ -736,6 +644,81 @@ export const EmployeeDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* KOLOM KANAN — 65% (Statistik & Riwayat Kehadiran) */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+          {/* 1. Statistik Kehadiran Bulanan (Paling Atas) */}
+          <MonthlyStatisticsSection
+            matrixData={matrixData}
+            isLoading={isAttendanceLoading}
+            error={attendanceError}
+            statsMonth={statsMonth}
+            onStatsMonthChange={setStatsMonth}
+          />
+
+          {/* 2. Riwayat Kehadiran (Dengan Toggle Tabel / Kalender) */}
+          <EmployeeAttendanceHistoryCard
+            matrixData={matrixData}
+            isLoading={isAttendanceLoading}
+            error={attendanceError}
+            tablePeriod={tablePeriod}
+            onPeriodChange={setTablePeriod}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            calendarContent={
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                {/* HistoryCalendarMobile Widget */}
+                <HistoryCalendarMobile
+                  onDateSelect={setSelectedDate}
+                  onMonthChange={(y, m) => setCalendarMonth({ year: y, month: m })}
+                  selectedDate={selectedDate || ''}
+                  currentDate={new Date(calendarMonth.year, calendarMonth.month)}
+                  records={attendanceRecordsForCalendar}
+                />
+
+                {/* Panel Detail Tanggal Terpilih: Dua Card Check-in dan Check-out */}
+                <div className="space-y-4">
+                  {selectedDate ? (
+                    <div className="space-y-4">
+                      {/* Card Check-in */}
+                      <AttendanceSelfieCard
+                        type="check_in"
+                        photoPath={selectedDateRecord?.checkInPhotoPath}
+                        time={selectedDateRecord?.checkInAt}
+                        date={selectedDate}
+                        locationName={selectedDateRecord?.checkInLocation}
+                        statusLabel={selectedDateRecord?.statusLabel}
+                        notes={selectedDateRecord?.notes}
+                      />
+
+                      {/* Card Check-out */}
+                      <AttendanceSelfieCard
+                        type="check_out"
+                        photoPath={selectedDateRecord?.checkOutPhotoPath}
+                        time={selectedDateRecord?.checkOutAt}
+                        date={selectedDate}
+                        locationName={selectedDateRecord?.checkOutLocation}
+                        statusLabel={selectedDateRecord?.statusLabel}
+                        notes={selectedDateRecord?.notes}
+                      />
+                    </div>
+                  ) : (
+                    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 border-dashed text-center space-y-2 shadow-2xs">
+                      <div className="w-10 h-10 rounded-2xl bg-[#F9FAFB] text-[#6B7280] flex items-center justify-center mx-auto border border-[#E5E7EB]">
+                        <CalendarCheck className="w-5 h-5 text-[#9CA3AF]" />
+                      </div>
+                      <p className="text-xs font-bold text-[#374151]">Belum ada tanggal dipilih</p>
+                      <p className="text-[11px] text-[#6B7280] max-w-xs mx-auto leading-relaxed">
+                        Pilih salah satu tanggal pada kalender di sebelah kiri untuk melihat rincian kartu presensi Check-in dan Check-out.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            }
+          />
+
         </div>
 
       </div>
