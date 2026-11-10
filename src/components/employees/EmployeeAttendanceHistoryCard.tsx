@@ -9,7 +9,6 @@ import {
   Briefcase,
   FileText,
   XCircle,
-  HelpCircle,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -18,10 +17,7 @@ import {
   ArrowDown,
 } from 'lucide-react';
 import {
-  attendanceStatusService,
   EvaluatedStatusResult,
-  OfficialAttendanceStatus,
-  OFFICIAL_STATUS_LABELS,
 } from '../../services/attendanceStatusService';
 import {
   getMakassarTodayDateString,
@@ -30,7 +26,6 @@ import {
   formatMakassarShortDate,
   getDayNameIndonesian,
 } from '../../services/attendanceReportService';
-import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
 export type PeriodOption =
@@ -42,32 +37,42 @@ export type PeriodOption =
   | 'custom';
 
 export interface EmployeeAttendanceHistoryCardProps {
-  employeeId: string;
+  matrixData: EvaluatedStatusResult[];
+  isLoading: boolean;
+  error: string | null;
+  tablePeriod: {
+    startDate: string;
+    endDate: string;
+  };
+  onPeriodChange: (period: {
+    startDate: string;
+    endDate: string;
+  }) => void;
 }
 
 export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCardProps> = ({
-  employeeId,
+  matrixData,
+  isLoading,
+  error,
+  tablePeriod,
+  onPeriodChange,
 }) => {
   const todayStr = useMemo(() => getMakassarTodayDateString(), []);
 
   // Filter & Sort States
-  const [period, setPeriod] = useState<PeriodOption>('this_month');
-  const [customStartDate, setCustomStartDate] = useState<string>(getMakassarFirstDayOfMonthString());
-  const [customEndDate, setCustomEndDate] = useState<string>(todayStr);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-
-  // Data & Fetching States
-  const [matrixData, setMatrixData] = useState<EvaluatedStatusResult[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Pagination States
   const [pageSize, setPageSize] = useState<number>(15);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Compute Start & End dates based on Period
-  const { startDate, endDate } = useMemo(() => {
+  const [period, setPeriod] = useState<PeriodOption>('this_month');
+  const [customStartDate, setCustomStartDate] = useState<string>(tablePeriod.startDate);
+  const [customEndDate, setCustomEndDate] = useState<string>(tablePeriod.endDate);
+
+  const periodDates = useMemo(() => {
     const today = getMakassarTodayDateString();
     const [yearNum, monthNum] = today.split('-').map(Number);
 
@@ -133,87 +138,9 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
     };
   }, [period, customStartDate, customEndDate]);
 
-  // Load Data
-  const loadAttendanceHistory = async () => {
-    if (!employeeId) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const results = await attendanceStatusService.getEvaluatedMatrix(
-        startDate,
-        endDate,
-        employeeId
-      );
-      setMatrixData(results);
-      setCurrentPage(1);
-    } catch (err) {
-      console.error('Error loading employee attendance history card matrix:', err);
-      setError(err instanceof Error ? err.message : 'Gagal memuat riwayat presensi.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadAttendanceHistory();
-  }, [employeeId, startDate, endDate]);
-
-  // Overall Statistics calculated over full period dataset
-  const stats = useMemo(() => {
-    let presentOnTime = 0;
-    let presentLate = 0;
-    let sick = 0;
-    let permit = 0;
-    let officialDuty = 0;
-    let leave = 0;
-    let absent = 0;
-    let holiday = 0;
-    let effectiveWorkingDays = 0;
-
-    matrixData.forEach((item) => {
-      if (item.status === 'present') {
-        effectiveWorkingDays++;
-        if (item.substatus === 'late') {
-          presentLate++;
-        } else {
-          presentOnTime++;
-        }
-      } else if (item.status === 'sick') {
-        sick++;
-        effectiveWorkingDays++;
-      } else if (item.status === 'permit') {
-        permit++;
-        effectiveWorkingDays++;
-      } else if (item.status === 'official_duty') {
-        officialDuty++;
-        effectiveWorkingDays++;
-      } else if (item.status === 'leave') {
-        leave++;
-        effectiveWorkingDays++;
-      } else if (item.status === 'absent') {
-        absent++;
-        effectiveWorkingDays++;
-      } else if (item.status === 'holiday') {
-        holiday++;
-      }
-    });
-
-    const totalPresent = presentOnTime + presentLate;
-
-    return {
-      totalPresent,
-      presentOnTime,
-      presentLate,
-      sick,
-      permit,
-      officialDuty,
-      leave,
-      absent,
-      holiday,
-      effectiveWorkingDays,
-      totalEvaluatedDays: matrixData.length,
-    };
-  }, [matrixData]);
+    onPeriodChange(periodDates);
+  }, [periodDates]);
 
   // Filter dataset for table
   const filteredData = useMemo(() => {
@@ -343,7 +270,7 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
           </div>
           <div>
             <h3 className="text-base font-bold text-[#111827]">
-              Riwayat Kehadiran
+              Tabel Riwayat Kehadiran
             </h3>
             <p className="text-xs text-[#6B7280]">
               Catatan presensi resmi, perizinan, dan status kehadiran harian pegawai.
@@ -423,93 +350,6 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
         </div>
       )}
 
-      {/* Summary Statistics Grid */}
-      {!isLoading && !error && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-          {/* Hadir */}
-          <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-emerald-800">
-              <span>Hadir</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            </div>
-            <p className="text-lg font-bold text-emerald-900">{stats.totalPresent}</p>
-            <div className="text-[10px] text-emerald-700 font-medium leading-tight">
-              <span>Tepat: {stats.presentOnTime}</span> • <span>Lambat: {stats.presentLate}</span>
-            </div>
-          </div>
-
-          {/* Sakit */}
-          <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-blue-800">
-              <span>Sakit</span>
-              <FileText className="w-3.5 h-3.5 text-blue-600" />
-            </div>
-            <p className="text-lg font-bold text-blue-900">{stats.sick}</p>
-            <p className="text-[10px] text-blue-700">Hari</p>
-          </div>
-
-          {/* Izin */}
-          <div className="p-3 rounded-xl bg-indigo-50/60 border border-indigo-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-800">
-              <span>Izin</span>
-              <FileText className="w-3.5 h-3.5 text-indigo-600" />
-            </div>
-            <p className="text-lg font-bold text-indigo-900">{stats.permit}</p>
-            <p className="text-[10px] text-indigo-700">Hari</p>
-          </div>
-
-          {/* Dinas Luar */}
-          <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-purple-800">
-              <span>Dinas Luar</span>
-              <Briefcase className="w-3.5 h-3.5 text-purple-600" />
-            </div>
-            <p className="text-lg font-bold text-purple-900">{stats.officialDuty}</p>
-            <p className="text-[10px] text-purple-700">Hari</p>
-          </div>
-
-          {/* Cuti */}
-          <div className="p-3 rounded-xl bg-teal-50/60 border border-teal-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-teal-800">
-              <span>Cuti</span>
-              <Calendar className="w-3.5 h-3.5 text-teal-600" />
-            </div>
-            <p className="text-lg font-bold text-teal-900">{stats.leave}</p>
-            <p className="text-[10px] text-teal-700">Hari</p>
-          </div>
-
-          {/* Alpha */}
-          <div className="p-3 rounded-xl bg-red-50/60 border border-red-200/80 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-red-800">
-              <span>Alpha</span>
-              <XCircle className="w-3.5 h-3.5 text-red-600" />
-            </div>
-            <p className="text-lg font-bold text-red-900">{stats.absent}</p>
-            <p className="text-[10px] text-red-700">Tanpa Ket.</p>
-          </div>
-
-          {/* Libur */}
-          <div className="p-3 rounded-xl bg-gray-50 border border-gray-200 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-gray-700">
-              <span>Libur</span>
-              <Calendar className="w-3.5 h-3.5 text-gray-500" />
-            </div>
-            <p className="text-lg font-bold text-gray-900">{stats.holiday}</p>
-            <p className="text-[10px] text-gray-500">Hari</p>
-          </div>
-
-          {/* Total Hari Kerja */}
-          <div className="p-3 rounded-xl bg-[#FFF7ED] border border-orange-200 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-[#C2410C]">
-              <span>Hari Kerja</span>
-              <Clock className="w-3.5 h-3.5 text-[#F97316]" />
-            </div>
-            <p className="text-lg font-bold text-[#9A3412]">{stats.effectiveWorkingDays}</p>
-            <p className="text-[10px] text-[#C2410C]">Hari Efektif</p>
-          </div>
-        </div>
-      )}
-
       {/* Main Table Content / Loading / Error / Empty States */}
       {isLoading ? (
         <div className="min-h-[220px] flex flex-col items-center justify-center gap-3 py-10">
@@ -528,7 +368,7 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
           <Button
             variant="outline"
             size="sm"
-            onClick={loadAttendanceHistory}
+            onClick={() => onPeriodChange(tablePeriod)}
             leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
             className="border-red-300 text-red-800 hover:bg-red-100"
           >

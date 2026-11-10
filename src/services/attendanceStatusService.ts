@@ -111,7 +111,53 @@ export function evaluateDailyStatus(
 ): EvaluatedStatusResult {
   const deptName = employee.departmentName || 'Satuan Pendidikan';
 
-  // PRIORITAS 1: PHYSICAL ATTENDANCE
+  // PRIORITAS 1: OFFICIAL ACTIVE HOLIDAY (Tingkat Tertinggi)
+  if (holiday && (holiday.is_active !== false)) {
+    return {
+      date,
+      employeeId: employee.id,
+      employeeName: employee.full_name,
+      nip: employee.nip,
+      departmentName: deptName,
+      status: 'holiday',
+      statusLabel: OFFICIAL_STATUS_LABELS.holiday,
+      substatus: null,
+      substatusLabel: null,
+      notes: holiday.name,
+      checkInAt: null,
+      checkOutAt: null,
+      checkInLocation: null,
+      checkOutLocation: null,
+      source: 'holiday',
+      sourceId: holiday.id || null,
+    };
+  }
+
+  // PRIORITAS 2: WEEKEND (Sabtu / Minggu)
+  const [y, m, d] = date.split('-').map(Number);
+  const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay(); // 0 = Sun, 6 = Sat
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return {
+      date,
+      employeeId: employee.id,
+      employeeName: employee.full_name,
+      nip: employee.nip,
+      departmentName: deptName,
+      status: 'holiday',
+      statusLabel: OFFICIAL_STATUS_LABELS.holiday,
+      substatus: null,
+      substatusLabel: null,
+      notes: 'Akhir Pekan',
+      checkInAt: null,
+      checkOutAt: null,
+      checkInLocation: null,
+      checkOutLocation: null,
+      source: 'calendar',
+      sourceId: null,
+    };
+  }
+
+  // PRIORITAS 3: PHYSICAL ATTENDANCE (Untuk Hari Kerja)
   if (attendance) {
     const isLate = attendance.check_in_status === 'late';
     const substatus: AttendanceSubstatus = isLate ? 'late' : 'on_time';
@@ -138,7 +184,7 @@ export function evaluateDailyStatus(
     };
   }
 
-  // PRIORITAS 2: APPROVED REQUEST
+  // PRIORITAS 4: APPROVED REQUEST (Untuk Hari Kerja)
   if (approvedRequest && approvedRequest.status === 'approved') {
     let status: OfficialAttendanceStatus = 'leave';
     if (approvedRequest.request_type === 'sick') {
@@ -168,52 +214,6 @@ export function evaluateDailyStatus(
       checkOutLocation: null,
       source: 'request',
       sourceId: approvedRequest.id,
-    };
-  }
-
-  // PRIORITAS 3: OFFICIAL ACTIVE HOLIDAY
-  if (holiday && (holiday.is_active !== false)) {
-    return {
-      date,
-      employeeId: employee.id,
-      employeeName: employee.full_name,
-      nip: employee.nip,
-      departmentName: deptName,
-      status: 'holiday',
-      statusLabel: OFFICIAL_STATUS_LABELS.holiday,
-      substatus: null,
-      substatusLabel: null,
-      notes: holiday.name,
-      checkInAt: null,
-      checkOutAt: null,
-      checkInLocation: null,
-      checkOutLocation: null,
-      source: 'holiday',
-      sourceId: holiday.id || null,
-    };
-  }
-
-  // PRIORITAS 4: WEEKEND
-  const [y, m, d] = date.split('-').map(Number);
-  const dayOfWeek = new Date(y, m - 1, d, 12, 0, 0).getDay(); // 0 = Sun, 6 = Sat
-  if (dayOfWeek === 0 || dayOfWeek === 6) {
-    return {
-      date,
-      employeeId: employee.id,
-      employeeName: employee.full_name,
-      nip: employee.nip,
-      departmentName: deptName,
-      status: 'holiday',
-      statusLabel: OFFICIAL_STATUS_LABELS.holiday,
-      substatus: null,
-      substatusLabel: null,
-      notes: 'Akhir Pekan',
-      checkInAt: null,
-      checkOutAt: null,
-      checkInLocation: null,
-      checkOutLocation: null,
-      source: 'calendar',
-      sourceId: null,
     };
   }
 

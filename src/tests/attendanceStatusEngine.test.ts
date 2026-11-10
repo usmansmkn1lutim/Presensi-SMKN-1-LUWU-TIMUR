@@ -1,315 +1,334 @@
+import { describe, it, expect } from 'vitest';
 import {
   evaluateDailyStatus,
-  OFFICIAL_STATUS_LABELS,
   MinimalEmployee,
-  MinimalAttendance,
-  MinimalRequest,
-  MinimalHoliday,
 } from '../services/attendanceStatusService';
 
-console.log('=== RUNNING ATTENDANCE STATUS ENGINE TESTS ===\n');
+describe('Attendance Status Engine (Tahap 3B-1A)', () => {
+  const testEmployee: MinimalEmployee = {
+    id: 'emp-101',
+    full_name: 'Ahmad Supardi',
+    nip: '198001012005011001',
+    departmentName: 'Bahasa & Seni',
+  };
 
-const testEmployee: MinimalEmployee = {
-  id: 'emp-101',
-  full_name: 'Ahmad Supardi',
-  nip: '198001012005011001',
-  departmentName: 'Bahasa & Seni',
-};
+  const todayStr = '2026-10-05'; // Monday
 
-const todayStr = '2026-10-05'; // Monday
+  it('1. Skenario 1: Hari kerja biasa dengan presensi (Hadir - Tepat Waktu)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      {
+        id: 'att-1',
+        employee_id: 'emp-101',
+        attendance_date: '2026-10-05',
+        check_in_at: '2026-10-05T07:15:00+08:00',
+        check_out_at: '2026-10-05T15:30:00+08:00',
+        check_in_status: 'on_time',
+        check_out_status: 'operational',
+        notes: null,
+      },
+      null,
+      null,
+      todayStr,
+      null,
+      new Date('2026-10-05T08:00:00+08:00')
+    );
+    expect(res.status).toBe('present');
+    expect(res.substatus).toBe('on_time');
+    expect(res.statusLabel).toBe('Hadir');
+  });
 
-// 1. Attendance On Time
-const res1 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  {
-    id: 'att-1',
-    employee_id: 'emp-101',
-    attendance_date: '2026-10-05',
-    check_in_at: '2026-10-05T07:15:00+08:00',
-    check_out_at: '2026-10-05T15:30:00+08:00',
-    check_in_status: 'on_time',
-    check_out_status: 'operational',
-    notes: null,
-  },
-  null,
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(res1.status === 'present', '1. Status should be present');
-console.assert(res1.substatus === 'on_time', '1. Substatus should be on_time');
-console.assert(res1.statusLabel === 'Hadir', '1. Label should be Hadir');
-console.log('✓ 1. Attendance on-time verified: Hadir (Tepat Waktu)');
+  it('2. Skenario 2: Hari kerja biasa dengan pengajuan sakit disetujui (Sakit)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      {
+        id: 'req-sick',
+        employee_id: 'emp-101',
+        request_type: 'sick',
+        start_date: '2026-10-05',
+        end_date: '2026-10-05',
+        reason: 'Sakit demam tinggi',
+        status: 'approved',
+      },
+      null,
+      todayStr,
+      null,
+      new Date('2026-10-05T08:00:00+08:00')
+    );
+    expect(res.status).toBe('sick');
+    expect(res.statusLabel).toBe('Sakit');
+    expect(res.notes).toBe('Sakit demam tinggi');
+  });
 
-// 2. Attendance Late
-const res2 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  {
-    id: 'att-2',
-    employee_id: 'emp-101',
-    attendance_date: '2026-10-05',
-    check_in_at: '2026-10-05T08:15:00+08:00',
-    check_out_at: null,
-    check_in_status: 'late',
-    check_out_status: null,
-    notes: 'Macet jalanan',
-  },
-  null,
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T09:00:00+08:00')
-);
-console.assert(res2.status === 'present', '2. Status should be present');
-console.assert(res2.substatus === 'late', '2. Substatus should be late');
-console.assert(res2.substatusLabel === 'Terlambat', '2. Substatus label Terlambat');
-console.log('✓ 2. Attendance late verified: Hadir (Terlambat)');
+  it('3. Skenario 3: Hari kerja biasa dengan pengajuan izin disetujui (Izin)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      {
+        id: 'req-permit',
+        employee_id: 'emp-101',
+        request_type: 'other',
+        start_date: '2026-10-05',
+        end_date: '2026-10-05',
+        reason: 'Keperluan keluarga mendesak',
+        status: 'approved',
+      },
+      null,
+      todayStr,
+      null,
+      new Date('2026-10-05T08:00:00+08:00')
+    );
+    expect(res.status).toBe('permit');
+    expect(res.statusLabel).toBe('Izin');
+  });
 
-// 3. Approved Sick Request
-const res3 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  {
-    id: 'req-sick',
-    employee_id: 'emp-101',
-    request_type: 'sick',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Sakit demam tinggi',
-    status: 'approved',
-  },
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(res3.status === 'sick', '3. Status should be sick');
-console.assert(res3.statusLabel === 'Sakit', '3. Status label Sakit');
-console.assert(res3.notes === 'Sakit demam tinggi', '3. Notes reason preserved');
-console.log('✓ 3. Approved sick request verified: Sakit');
+  it('4. Skenario 4: Hari kerja biasa dengan pengajuan dinas luar disetujui (Dinas Luar)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      {
+        id: 'req-duty',
+        employee_id: 'emp-101',
+        request_type: 'official_duty',
+        start_date: '2026-10-05',
+        end_date: '2026-10-05',
+        reason: 'Rapat koordinasi Dinas Pendidikan',
+        status: 'approved',
+      },
+      null,
+      todayStr,
+      null,
+      new Date('2026-10-05T08:00:00+08:00')
+    );
+    expect(res.status).toBe('official_duty');
+    expect(res.statusLabel).toBe('Dinas Luar');
+  });
 
-// 4. Approved Permit (Other) Request
-const res4 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  {
-    id: 'req-permit',
-    employee_id: 'emp-101',
-    request_type: 'other',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Keperluan keluarga mendesak',
-    status: 'approved',
-  },
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(res4.status === 'permit', '4. Status should be permit');
-console.assert(res4.statusLabel === 'Izin', '4. Status label Izin');
-console.log('✓ 4. Approved permit request verified: Izin');
+  it('5. Skenario 5: Hari kerja biasa dengan pengajuan cuti disetujui (Cuti)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      {
+        id: 'req-leave',
+        employee_id: 'emp-101',
+        request_type: 'leave',
+        start_date: '2026-10-05',
+        end_date: '2026-10-05',
+        reason: 'Cuti tahunan',
+        status: 'approved',
+      },
+      null,
+      todayStr,
+      null,
+      new Date('2026-10-05T08:00:00+08:00')
+    );
+    expect(res.status).toBe('leave');
+    expect(res.statusLabel).toBe('Cuti');
+  });
 
-// 5. Approved Official Duty Request
-const res5 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  {
-    id: 'req-duty',
-    employee_id: 'emp-101',
-    request_type: 'official_duty',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Rapat koordinasi Dinas Pendidikan',
-    status: 'approved',
-  },
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(res5.status === 'official_duty', '5. Status should be official_duty');
-console.assert(res5.statusLabel === 'Dinas Luar', '5. Status label Dinas Luar');
-console.log('✓ 5. Approved official duty verified: Dinas Luar');
+  it('6. Skenario 6: Hari kerja biasa belum presensi & masih toleransi (Pending)', () => {
+    const currentTime = new Date();
+    currentTime.setHours(7, 0, 0, 0);
 
-// 6. Approved Leave Request
-const res6 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  {
-    id: 'req-leave',
-    employee_id: 'emp-101',
-    request_type: 'leave',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Cuti tahunan',
-    status: 'approved',
-  },
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(res6.status === 'leave', '6. Status should be leave');
-console.assert(res6.statusLabel === 'Cuti', '6. Status label Cuti');
-console.log('✓ 6. Approved leave verified: Cuti');
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      null,
+      null,
+      '2026-10-05',
+      {
+        id: 'sched-1',
+        name: 'Normal Schedule',
+        code: 'SCHED01',
+        description: null,
+        check_in_start_time: '06:30',
+        check_in_on_time_end: '07:30',
+        check_in_end_time: '10:00',
+        work_start_time: '07:30',
+        operational_end_time: '15:00',
+        work_end_time: '15:30',
+        check_out_start_time: '15:00',
+        check_out_end_time: '17:00',
+        working_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        is_active: true,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+      currentTime
+    );
+    expect(res.status).toBe('pending');
+    expect(res.statusLabel).toBe('Menunggu Presensi');
+  });
 
-// 7. Alpha / Unexcused Absence
-const res7 = evaluateDailyStatus('2026-10-05', testEmployee, null, null, null, todayStr, null, new Date('2026-10-05T15:00:00+08:00'));
-console.assert(res7.status === 'absent', '7. Status should be absent');
-console.assert(res7.statusLabel === 'Alpha', '7. Status label Alpha');
-console.assert(res7.notes === 'Tanpa Keterangan', '7. Notes should be Tanpa Keterangan');
-console.log('✓ 7. Alpha verified: Alpha (Tanpa Keterangan)');
+  it('7. Skenario 7: Hari kerja biasa melewati batas waktu tanpa presensi (Alpha)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      null,
+      null,
+      todayStr,
+      null,
+      new Date('2026-10-05T15:00:00+08:00')
+    );
+    expect(res.status).toBe('absent');
+    expect(res.statusLabel).toBe('Alpha');
+    expect(res.notes).toBe('Tanpa Keterangan');
+  });
 
-// 8. Weekend (Sunday 2026-10-04)
-const res8 = evaluateDailyStatus('2026-10-04', testEmployee, null, null, null, todayStr, null, new Date('2026-10-04T08:00:00+08:00'));
-console.assert(res8.status === 'holiday', '8. Status should be holiday');
-console.assert(res8.notes === 'Akhir Pekan', '8. Notes Akhir Pekan');
-console.log('✓ 8. Weekend verified: Libur (Akhir Pekan)');
+  it('8. Skenario 8: Hari libur resmi dengan data presensi tetap "Libur"', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      {
+        id: 'att-stray',
+        employee_id: 'emp-101',
+        attendance_date: '2026-10-05',
+        check_in_at: '2026-10-05T07:10:00+08:00',
+        check_out_at: null,
+        check_in_status: 'on_time',
+        check_out_status: null,
+        notes: 'Presensi di hari libur',
+      },
+      null,
+      {
+        id: 'hol-1',
+        holiday_date: '2026-10-05',
+        name: 'Hari Kesaktian Pancasila',
+        is_active: true,
+      },
+      todayStr
+    );
+    expect(res.status).toBe('holiday');
+    expect(res.statusLabel).toBe('Libur');
+    expect(res.notes).toBe('Hari Kesaktian Pancasila');
+  });
 
-// 9. Official Active Holiday
-const res9 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  null,
-  {
-    id: 'hol-1',
-    holiday_date: '2026-10-05',
-    name: 'Hari Kesaktian Pancasila',
-    is_active: true,
-  },
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(res9.status === 'holiday', '9. Status should be holiday');
-console.assert(res9.notes === 'Hari Kesaktian Pancasila', '9. Holiday name preserved');
-console.log('✓ 9. Official active holiday verified: Libur');
+  it('9. Skenario 9: Hari libur resmi dengan pengajuan sakit disetujui tetap "Libur"', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      {
+        id: 'req-sick-stray',
+        employee_id: 'emp-101',
+        request_type: 'sick',
+        start_date: '2026-10-05',
+        end_date: '2026-10-05',
+        reason: 'Demam',
+        status: 'approved',
+      },
+      {
+        id: 'hol-1',
+        holiday_date: '2026-10-05',
+        name: 'Hari Kesaktian Pancasila',
+        is_active: true,
+      },
+      todayStr
+    );
+    expect(res.status).toBe('holiday');
+    expect(res.statusLabel).toBe('Libur');
+  });
 
-// 10. Physical Attendance Overrides Approved Leave (PRIORITY 1 CHECK)
-const res10 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  {
-    id: 'att-override',
-    employee_id: 'emp-101',
-    attendance_date: '2026-10-05',
-    check_in_at: '2026-10-05T07:10:00+08:00',
-    check_out_at: null,
-    check_in_status: 'on_time',
-    check_out_status: null,
-    notes: 'Hadir langsung',
-  },
-  {
-    id: 'req-leave-approved',
-    employee_id: 'emp-101',
-    request_type: 'leave',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Cuti tahunan',
-    status: 'approved',
-  },
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(
-  res10.status === 'present',
-  '10. Physical attendance MUST override approved leave'
-);
-console.assert(res10.statusLabel === 'Hadir', '10. Status label must be Hadir');
-console.log('✓ 10. Priority 1 check passed: Physical attendance overrides approved leave');
+  it('10. Skenario 10: Hari libur resmi dengan pengajuan izin/cuti disetujui tetap "Libur"', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-05',
+      testEmployee,
+      null,
+      {
+        id: 'req-leave-stray',
+        employee_id: 'emp-101',
+        request_type: 'leave',
+        start_date: '2026-10-05',
+        end_date: '2026-10-05',
+        reason: 'Cuti',
+        status: 'approved',
+      },
+      {
+        id: 'hol-1',
+        holiday_date: '2026-10-05',
+        name: 'Hari Kesaktian Pancasila',
+        is_active: true,
+      },
+      todayStr
+    );
+    expect(res.status).toBe('holiday');
+    expect(res.statusLabel).toBe('Libur');
+  });
 
-// 11. Physical Attendance Overrides Approved Sick
-const res11 = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  {
-    id: 'att-override-2',
-    employee_id: 'emp-101',
-    attendance_date: '2026-10-05',
-    check_in_at: '2026-10-05T07:20:00+08:00',
-    check_out_at: null,
-    check_in_status: 'on_time',
-    check_out_status: null,
-    notes: null,
-  },
-  {
-    id: 'req-sick-approved',
-    employee_id: 'emp-101',
-    request_type: 'sick',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Sakit ringan',
-    status: 'approved',
-  },
-  null,
-  todayStr,
-  null,
-  new Date('2026-10-05T08:00:00+08:00')
-);
-console.assert(
-  res11.status === 'present',
-  '11. Physical attendance MUST override approved sick'
-);
-console.log('✓ 11. Priority 1 check passed: Physical attendance overrides approved sick');
+  it('11. Skenario 11: Akhir pekan dengan data presensi tetap "Libur" (Akhir Pekan)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-04', // Sunday
+      testEmployee,
+      {
+        id: 'att-weekend',
+        employee_id: 'emp-101',
+        attendance_date: '2026-10-04',
+        check_in_at: '2026-10-04T08:00:00+08:00',
+        check_out_at: null,
+        check_in_status: 'on_time',
+        check_out_status: null,
+        notes: 'Kerja minggu',
+      },
+      null,
+      null,
+      todayStr
+    );
+    expect(res.status).toBe('holiday');
+    expect(res.notes).toBe('Akhir Pekan');
+  });
 
-// 12. Pending, Rejected, Cancelled Requests Ignored
-const res12Pending = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  {
-    id: 'req-pending',
-    employee_id: 'emp-101',
-    request_type: 'leave',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Cuti pending',
-    status: 'pending',
-  },
-  null,
-  todayStr
-);
-console.assert(
-  res12Pending.status === 'absent',
-  '12. Pending request must be ignored (evaluates to Alpha on working day)'
-);
+  it('12. Skenario 12: Akhir pekan dengan pengajuan disetujui tetap "Libur" (Akhir Pekan)', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-04', // Sunday
+      testEmployee,
+      null,
+      {
+        id: 'req-duty-weekend',
+        employee_id: 'emp-101',
+        request_type: 'official_duty',
+        start_date: '2026-10-04',
+        end_date: '2026-10-04',
+        reason: 'Dinas luar minggu',
+        status: 'approved',
+      },
+      null,
+      todayStr
+    );
+    expect(res.status).toBe('holiday');
+    expect(res.notes).toBe('Akhir Pekan');
+  });
 
-const res12Rejected = evaluateDailyStatus(
-  '2026-10-05',
-  testEmployee,
-  null,
-  {
-    id: 'req-rejected',
-    employee_id: 'emp-101',
-    request_type: 'leave',
-    start_date: '2026-10-05',
-    end_date: '2026-10-05',
-    reason: 'Cuti ditolak',
-    status: 'rejected',
-  },
-  null,
-  todayStr
-);
-console.assert(
-  res12Rejected.status === 'absent',
-  '12. Rejected request must be ignored'
-);
-console.log('✓ 12. Non-approved requests (pending/rejected/cancelled) correctly ignored');
+  it('13. Skenario 13: Hari libur resmi bertepatan dengan akhir pekan diprioritaskan sebagai 1 libur resmi', () => {
+    const res = evaluateDailyStatus(
+      '2026-10-04', // Sunday
+      testEmployee,
+      null,
+      null,
+      {
+        id: 'hol-weekend',
+        holiday_date: '2026-10-04',
+        name: 'Hari Batik Nasional (Di Akhir Pekan)',
+        is_active: true,
+      },
+      todayStr
+    );
+    expect(res.status).toBe('holiday');
+    expect(res.source).toBe('holiday');
+    expect(res.notes).toBe('Hari Batik Nasional (Di Akhir Pekan)');
+  });
 
-// 13. Future Working Day
-const res13 = evaluateDailyStatus('2026-10-10', testEmployee, null, null, null, todayStr);
-console.assert(res13.status !== 'absent', '13. Future working day should not be Alpha');
-console.log('✓ 13. Future working days not evaluated as Alpha');
-
-console.log('\n=== ALL ATTENDANCE STATUS ENGINE TESTS PASSED! ===');
+  it('14. Skenario 14: Hari kerja mendatang tetap status holiday dengan statusLabel "Masa Depan"', () => {
+    const res = evaluateDailyStatus('2026-10-12', testEmployee, null, null, null, todayStr);
+    expect(res.status).toBe('holiday');
+    expect(res.statusLabel).toBe('Masa Depan');
+    expect(res.notes).toBe('Jadwal Kerja Mendatang');
+  });
+});
