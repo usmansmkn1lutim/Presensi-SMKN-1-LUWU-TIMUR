@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  User as UserIcon,
-  Mail,
   Briefcase,
-  Building,
-  Calendar,
   Phone,
-  Shield,
-  LogOut,
   Edit2,
   Check,
   CheckCircle2,
@@ -19,6 +12,7 @@ import {
   IdCard,
   ShieldCheck,
   FileText,
+  Pencil,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { profileService } from '../../services/profileService';
@@ -39,8 +33,7 @@ import { DeletePhotoConfirmModal } from '../../components/ui/DeletePhotoConfirmM
 import { APP_CONFIG } from '../../config/appConfig';
 
 export const ProfilePage: React.FC = () => {
-  const { user, profile, logout, refreshProfile } = useAuth();
-  const navigate = useNavigate();
+  const { user, profile, refreshProfile } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [fullNameInput, setFullNameInput] = useState(user?.name || '');
@@ -51,6 +44,7 @@ export const ProfilePage: React.FC = () => {
   const [signedPhotoUrl, setSignedPhotoUrl] = useState<string | null>(null);
   const [linkedEmployee, setLinkedEmployee] = useState<EmployeeWithRelations | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Monthly attendance summary state
@@ -122,11 +116,6 @@ export const ProfilePage: React.FC = () => {
   }, [linkedEmployee]);
 
   if (!user) return null;
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
 
   const handleStartEdit = () => {
     setFullNameInput(user.name);
@@ -250,125 +239,108 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-12">
-      {/* Top Action Bar / Logout */}
-      <div className="flex items-center justify-between">
+      {/* Top Action Bar */}
+      <div>
         <h1 className="text-lg font-bold text-[#111827]">Profil Saya</h1>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleLogout}
-          leftIcon={<LogOut className="w-4 h-4 text-red-600" />}
-          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-        >
-          Keluar
-        </Button>
       </div>
 
-      {/* 1. Foto Profil (1:1 square, full display, no border, no circle, no card wrapper) */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-xs">
-        <div className="relative w-full aspect-square sm:max-w-md sm:mx-auto bg-neutral-100 flex items-center justify-center overflow-hidden">
-          {signedPhotoUrl ? (
-            <img
-              src={signedPhotoUrl}
-              alt={user.name}
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="text-4xl sm:text-5xl font-bold text-[#F97316]">
-              {user.name.charAt(0)}
-            </span>
-          )}
+      {/* 1, 2, 3, 4. Single Horizontal Profile Card */}
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-xs space-y-5">
+        <div className="flex items-center justify-between gap-4">
+          {/* A. Profile Photo (Circular avatar, 64-72px, NO border/ring) */}
+          <div className="relative shrink-0">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-[#FFF7ED] text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden relative shadow-xs">
+              {signedPhotoUrl ? (
+                <img
+                  src={signedPhotoUrl}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span>{user.name.charAt(0)}</span>
+              )}
 
-          {isUploadingPhoto && (
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex items-center justify-center text-white">
-              <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              {isUploadingPhoto && (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-2xs flex items-center justify-center text-white">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Tombol Edit Profil (floating at bottom-right inside photo with 12-16px margin) */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploadingPhoto}
-            className="absolute bottom-4 right-4 p-3 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-full shadow-lg transition-transform hover:scale-105 cursor-pointer"
-            title="Unggah atau Ganti Foto"
-          >
-            <Camera className="w-5 h-5" />
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handlePhotoFileChange}
-          />
-        </div>
-
-        {signedPhotoUrl && !isUploadingPhoto && (
-          <div className="px-6 py-2 bg-neutral-50 border-t border-[#E5E7EB] flex justify-end">
+            {/* Pencil button at bottom-right of avatar */}
             <button
               type="button"
-              onClick={handleDeleteClick}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+              onClick={() => setIsPhotoMenuOpen(!isPhotoMenuOpen)}
+              disabled={isUploadingPhoto}
+              className="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-md border border-[#E5E7EB] text-[#F97316] flex items-center justify-center hover:bg-[#FFF7ED] transition-transform hover:scale-105 cursor-pointer z-10"
+              title="Atur Foto"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Hapus Foto</span>
+              <Pencil className="w-3.5 h-3.5" />
             </button>
+
+            {/* Dropdown Menu for Photo Actions (Responsive positioning) */}
+            {isPhotoMenuOpen && (
+              <div className="absolute left-0 mt-2 sm:left-auto sm:right-0 sm:top-auto sm:bottom-10 z-35 w-44 bg-white border border-[#E5E7EB] rounded-xl shadow-xl py-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPhotoMenuOpen(false);
+                    fileInputRef.current?.click();
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-[#FFF7ED] text-[#111827] flex items-center gap-2.5 cursor-pointer font-medium"
+                >
+                  <Camera className="w-4 h-4 text-[#F97316]" />
+                  <span>Ganti Foto</span>
+                </button>
+                {signedPhotoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsPhotoMenuOpen(false);
+                      handleDeleteClick();
+                    }}
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-red-50 text-red-600 flex items-center gap-2.5 cursor-pointer font-medium border-t border-[#F3F4F6]"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Hapus Foto</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhotoFileChange}
+            />
           </div>
-        )}
-      </div>
 
-      {/* Status Feedback Message */}
-      {saveMessage && (
-        <div
-          className={`p-3 rounded-xl border flex items-center gap-2 text-xs ${
-            saveMessage.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-              : 'bg-red-50 border-red-200 text-red-700'
-          }`}
-        >
-          {saveMessage.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          ) : (
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-          )}
-          <span>{saveMessage.text}</span>
-        </div>
-      )}
-
-      {/* 2. Informasi Singkat Pegawai (Left-aligned) */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
+          {/* B. Information User (Name, Jenis Kepegawaian | Jabatan, NO NIP) */}
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">{user.name}</h2>
+              <h2 className="text-base sm:text-lg font-bold text-[#111827] truncate">{user.name}</h2>
               {!isEditing && (
                 <button
                   onClick={handleStartEdit}
-                  className="p-1.5 text-[#6B7280] hover:text-[#F97316] hover:bg-[#FFF7ED] rounded-lg transition-colors cursor-pointer"
-                  title="Ubah nama tampilan"
+                  className="text-xs text-[#6B7280] hover:text-[#F97316] transition-colors cursor-pointer"
+                  title="Ubah nama"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
-            <p className="text-sm text-[#4B5563] mt-1">
-              {linkedEmployee?.departments?.name || user.department}
-            </p>
-            <p className="text-sm text-[#4B5563] mt-0.5">
-              {linkedEmployee?.positions?.name || user.position}
-            </p>
-            <p className="text-sm text-[#4B5563] mt-0.5">
-              {user.status === 'active' ? 'Pegawai Aktif' : 'Nonaktif'}
+            <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 truncate">
+              {linkedEmployee?.employee_type || 'Pegawai'} | {linkedEmployee?.positions?.name || user.position}
             </p>
           </div>
         </div>
 
-        {/* Edit Form Modal/Drawer in-place */}
+        {/* Edit Form Inline if isEditing */}
         {isEditing && (
-          <form onSubmit={handleSaveProfile} className="mt-4 pt-4 border-t border-[#E5E7EB] space-y-4">
+          <form onSubmit={handleSaveProfile} className="pt-3 border-t border-[#E5E7EB] space-y-3">
             <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider">
               Ubah Nama Lengkap & Gelar
             </h4>
@@ -405,40 +377,57 @@ export const ProfilePage: React.FC = () => {
             </div>
           </form>
         )}
+
+        {/* 3. Bagian Bawah — Statistik Presensi (3 equal Flexbox columns basis-0 flex-1 with 2-line controlled label) */}
+        <div className="pt-2">
+          {isLoadingAttendance ? (
+            <div className="py-4 flex justify-center text-[#9CA3AF]">
+              <div className="w-5 h-5 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="flex w-full items-stretch text-center">
+              <div className="flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 box-border">
+                <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+                  {attendanceSummary.present}
+                </p>
+                <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5 font-medium">Hadir</p>
+              </div>
+              <div className="flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 box-border">
+                <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+                  {attendanceSummary.sickPermitLeave}
+                </p>
+                <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5 font-medium">
+                  Sakit/Izin/Cuti
+                </p>
+              </div>
+              <div className="flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 box-border">
+                <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+                  {attendanceSummary.absent}
+                </p>
+                <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5 font-medium">Alfa</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* 3. Ringkasan Presensi Bulan Berjalan (3 columns aligned) */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6">
-        <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-4">
-          Ringkasan Presensi Bulan Berjalan
-        </h3>
-        {isLoadingAttendance ? (
-          <div className="py-6 flex justify-center text-[#9CA3AF]">
-            <div className="w-6 h-6 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-4 text-center divide-x divide-[#E5E7EB]">
-            <div>
-              <p className="text-2xl sm:text-3xl font-bold text-[#111827]">
-                {attendanceSummary.present}
-              </p>
-              <p className="text-xs sm:text-sm text-[#6B7280] mt-1 font-medium">Hadir</p>
-            </div>
-            <div>
-              <p className="text-2xl sm:text-3xl font-bold text-[#111827]">
-                {attendanceSummary.sickPermitLeave}
-              </p>
-              <p className="text-xs sm:text-sm text-[#6B7280] mt-1 font-medium">Sakit/Izin/Cuti</p>
-            </div>
-            <div>
-              <p className="text-2xl sm:text-3xl font-bold text-[#111827]">
-                {attendanceSummary.absent}
-              </p>
-              <p className="text-xs sm:text-sm text-[#6B7280] mt-1 font-medium">Alfa</p>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Status Feedback Message */}
+      {saveMessage && (
+        <div
+          className={`p-3 rounded-xl border flex items-center gap-2 text-xs ${
+            saveMessage.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}
+        >
+          {saveMessage.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+          )}
+          <span>{saveMessage.text}</span>
+        </div>
+      )}
 
       {/* 4. Navigasi Lima Tab */}
       <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden">
@@ -514,6 +503,12 @@ export const ProfilePage: React.FC = () => {
           {activeTab === 'identity' && (
             <div className="space-y-4 text-xs sm:text-sm">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
+                <span className="text-[#6B7280] font-medium">Nama Lengkap</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827]">
+                  {linkedEmployee?.full_name || user.name}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
                 <span className="text-[#6B7280] font-medium">NIP</span>
                 <span className="sm:col-span-2 font-semibold text-[#111827] font-mono">
                   {linkedEmployee?.nip || user.nip || '—'}
@@ -523,12 +518,6 @@ export const ProfilePage: React.FC = () => {
                 <span className="text-[#6B7280] font-medium">NIK</span>
                 <span className="sm:col-span-2 font-semibold text-[#111827] font-mono">
                   {linkedEmployee?.nik || '—'}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Nomor Pegawai</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827] font-mono">
-                  {linkedEmployee?.employee_number || '—'}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
@@ -542,17 +531,22 @@ export const ProfilePage: React.FC = () => {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Status Kepegawaian</span>
+                <span className="text-[#6B7280] font-medium">Tempat, Tanggal Lahir</span>
                 <span className="sm:col-span-2 font-medium text-[#111827]">
-                  {linkedEmployee?.status === 'active' ? 'Aktif' : 'Nonaktif'}
+                  {(linkedEmployee as any)?.birth_place || (linkedEmployee as any)?.birth_date
+                    ? [
+                        (linkedEmployee as any)?.birth_place,
+                        (linkedEmployee as any)?.birth_date
+                          ? new Date((linkedEmployee as any).birth_date).toLocaleDateString('id-ID', { dateStyle: 'long' })
+                          : null,
+                      ].filter(Boolean).join(', ')
+                    : '—'}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <span className="text-[#6B7280] font-medium">Tanggal Bergabung</span>
+                <span className="text-[#6B7280] font-medium">Agama</span>
                 <span className="sm:col-span-2 font-medium text-[#111827]">
-                  {linkedEmployee?.join_date
-                    ? new Date(linkedEmployee.join_date).toLocaleDateString('id-ID', { dateStyle: 'long' })
-                    : '—'}
+                  {(linkedEmployee as any)?.religion || '—'}
                 </span>
               </div>
             </div>
