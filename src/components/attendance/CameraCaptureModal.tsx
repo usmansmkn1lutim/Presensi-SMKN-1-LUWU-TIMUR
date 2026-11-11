@@ -784,9 +784,9 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={handleRetry}
+                  leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
                   className="text-xs text-white border-white/30 hover:bg-white/10"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                   Coba Lagi
                 </Button>
               </div>

@@ -623,9 +623,9 @@ export const DashboardPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={handleRefreshExecutive}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
               className="text-xs shrink-0 self-end sm:self-auto bg-white border-amber-300 hover:bg-amber-50"
             >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
               Coba Lagi
             </Button>
           </div>
@@ -868,9 +868,9 @@ export const DashboardPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={fetchPersonalDashboardData}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
               className="text-xs"
             >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
               Segarkan Halaman
             </Button>
           </div>
@@ -888,9 +888,9 @@ export const DashboardPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={fetchPersonalDashboardData}
+                leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
                 className="text-xs shrink-0"
               >
-                <RefreshCw className="w-3.5 h-3.5 mr-1" />
                 Coba Lagi
               </Button>
             </div>

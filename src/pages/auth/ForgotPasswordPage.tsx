@@ -119,7 +119,7 @@ export const ForgotPasswordPage: React.FC = () => {
                   size="md"
                   isLoading={isLoading}
                   className="w-full"
-                  rightIcon={<Send className="w-4 h-4 ml-1" />}
+                  rightIcon={<Send className="w-4 h-4" />}
                 >
                   {isLoading ? 'Memproses...' : 'Kirim Link Reset Password'}
                 </Button>

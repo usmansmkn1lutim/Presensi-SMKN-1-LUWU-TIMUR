@@ -273,10 +273,9 @@ export const NotificationsPage: React.FC = () => {
               size="sm"
               onClick={handleManualRefresh}
               disabled={refreshing || loading}
-              className="flex items-center gap-1.5"
+              leftIcon={<RotateCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />}
             >
-              <RotateCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
+              Refresh
             </Button>
 
             {unreadCount > 0 && (
@@ -285,10 +284,9 @@ export const NotificationsPage: React.FC = () => {
                 size="sm"
                 onClick={handleMarkAll}
                 disabled={isMarkingAll || loading}
-                className="flex items-center gap-1.5"
+                leftIcon={<CheckCheck className="w-3.5 h-3.5" />}
               >
-                <CheckCheck className="w-3.5 h-3.5" />
-                <span>{isMarkingAll ? 'Menandai...' : 'Tandai Semua Telah Dibaca'}</span>
+                {isMarkingAll ? 'Menandai...' : 'Tandai Semua Telah Dibaca'}
               </Button>
             )}
           </div>

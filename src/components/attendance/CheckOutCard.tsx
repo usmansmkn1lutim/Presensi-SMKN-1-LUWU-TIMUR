@@ -10,6 +10,7 @@ interface CheckOutCardProps {
   evalCheckOut: EvaluateCheckOutResult;
   loading: boolean;
   submitting: boolean;
+  disabled?: boolean;
   onCheckOut: () => void;
 }
 
@@ -19,6 +20,7 @@ export const CheckOutCard: React.FC<CheckOutCardProps> = ({
   evalCheckOut,
   loading,
   submitting,
+  disabled = false,
   onCheckOut,
 }) => {
   if (loading) {
@@ -33,7 +35,7 @@ export const CheckOutCard: React.FC<CheckOutCardProps> = ({
 
   const hasCheckedIn = Boolean(todayAttendance?.check_in_at);
   const hasCheckedOut = Boolean(todayAttendance?.check_out_at);
-  const isButtonDisabled = loading || submitting || !hasCheckedIn || hasCheckedOut || !evalCheckOut.allowed;
+  const isButtonDisabled = loading || submitting || disabled || !hasCheckedIn || hasCheckedOut || !evalCheckOut.allowed;
 
   const getStatusDisplay = () => {
     if (!hasCheckedIn) {
@@ -126,9 +128,9 @@ export const CheckOutCard: React.FC<CheckOutCardProps> = ({
           onClick={onCheckOut}
           disabled={isButtonDisabled}
           isLoading={submitting}
+          leftIcon={<LogOut className="w-4 h-4" />}
           className="w-full h-11 text-sm font-semibold rounded-xl transition-all"
         >
-          <LogOut className="w-4 h-4 mr-2" />
           {hasCheckedOut ? 'Sudah Check-out' : 'Check-out Sekarang'}
         </Button>
       </div>

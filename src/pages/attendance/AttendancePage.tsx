@@ -433,6 +433,7 @@ export const AttendancePage: React.FC = () => {
       return;
     }
     isActionLockedRef.current = true;
+    setPendingAttendanceType('check_in');
     setSubmitting(true);
     setBanner(null);
 
@@ -443,10 +444,10 @@ export const AttendancePage: React.FC = () => {
           type: 'error',
           message: initialGps.errorMessage || 'Verifikasi lokasi awal gagal.',
         });
+        setPendingAttendanceType(null);
         return;
       }
 
-      setPendingAttendanceType('check_in');
       setIsCameraOpen(true);
     } catch (err: unknown) {
       console.error('Check-in initial location error:', err);
@@ -455,6 +456,7 @@ export const AttendancePage: React.FC = () => {
         type: 'error',
         message: msg,
       });
+      setPendingAttendanceType(null);
     } finally {
       // Phase 1 finished: release lock and reset submitting state so user can interact with camera modal
       setSubmitting(false);
@@ -471,6 +473,7 @@ export const AttendancePage: React.FC = () => {
       return;
     }
     isActionLockedRef.current = true;
+    setPendingAttendanceType('check_out');
     setSubmitting(true);
     setBanner(null);
 
@@ -481,10 +484,10 @@ export const AttendancePage: React.FC = () => {
           type: 'error',
           message: initialGps.errorMessage || 'Verifikasi lokasi awal gagal.',
         });
+        setPendingAttendanceType(null);
         return;
       }
 
-      setPendingAttendanceType('check_out');
       setIsCameraOpen(true);
     } catch (err: unknown) {
       console.error('Check-out initial location error:', err);
@@ -493,6 +496,7 @@ export const AttendancePage: React.FC = () => {
         type: 'error',
         message: msg,
       });
+      setPendingAttendanceType(null);
     } finally {
       // Phase 1 finished: release lock and reset submitting state so user can interact with camera modal
       setSubmitting(false);
@@ -714,8 +718,13 @@ export const AttendancePage: React.FC = () => {
           </div>
 
           <div className="pt-2 flex flex-wrap justify-center gap-3">
-            <Button variant="outline" size="sm" onClick={loadData} className="text-xs">
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadData}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+              className="text-xs"
+            >
               Segarkan Halaman
             </Button>
             {isAdminRole && (
@@ -723,9 +732,9 @@ export const AttendancePage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={() => navigate('/employees')}
+                leftIcon={<Users className="w-3.5 h-3.5" />}
                 className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white"
               >
-                <Users className="w-3.5 h-3.5 mr-1.5" />
                 Manajemen Pegawai
               </Button>
             )}
@@ -944,7 +953,7 @@ export const AttendancePage: React.FC = () => {
                           disabled={loading || submitting || isCameraOpen || !evalCheckIn.allowed}
                           className="w-full h-12 text-xs font-bold rounded-xl transition-all shadow-2xs flex flex-row items-center justify-center gap-2 whitespace-nowrap bg-[#F97316] hover:bg-[#EA580C] text-white disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                         >
-                          {submitting ? (
+                          {submitting && pendingAttendanceType === 'check_in' ? (
                             <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                           ) : (
                             <LogIn className="w-4 h-4 shrink-0" />
@@ -970,7 +979,7 @@ export const AttendancePage: React.FC = () => {
                               : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
                           }`}
                         >
-                          {submitting ? (
+                          {submitting && pendingAttendanceType === 'check_out' ? (
                             <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                           ) : (
                             <LogOut className="w-4 h-4 shrink-0" />
@@ -1018,9 +1027,9 @@ export const AttendancePage: React.FC = () => {
                 size="sm"
                 onClick={loadData}
                 disabled={loading || submitting}
+                leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
                 className="text-xs self-start sm:self-auto"
               >
-                <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
                 Muat Ulang
               </Button>
             </div>
@@ -1039,7 +1048,8 @@ export const AttendancePage: React.FC = () => {
                 todayAttendance={todayAttendance}
                 evalCheckIn={evalCheckIn}
                 loading={loading}
-                submitting={submitting || isCameraOpen}
+                submitting={submitting && pendingAttendanceType === 'check_in'}
+                disabled={submitting || isCameraOpen}
                 onCheckIn={handleCheckIn}
               />
 
@@ -1048,7 +1058,8 @@ export const AttendancePage: React.FC = () => {
                 todayAttendance={todayAttendance}
                 evalCheckOut={evalCheckOut}
                 loading={loading}
-                submitting={submitting || isCameraOpen}
+                submitting={submitting && pendingAttendanceType === 'check_out'}
+                disabled={submitting || isCameraOpen}
                 onCheckOut={handleCheckOut}
               />
             </div>

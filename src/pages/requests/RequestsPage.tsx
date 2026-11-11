@@ -198,7 +198,7 @@ export const RequestsPage: React.FC = () => {
             className="w-full h-12 px-4 bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white font-bold rounded-2xl shadow-2xs inline-flex items-center justify-center gap-2 transition-colors cursor-pointer text-sm"
           >
             <Plus className="w-4 h-4 stroke-[2.5] text-white shrink-0" />
-            <span className="leading-none">Pengajuan baru</span>
+            <span>Pengajuan baru</span>
           </button>
         )}
       </div>
@@ -236,13 +236,15 @@ export const RequestsPage: React.FC = () => {
               }
             }}
             disabled={activeTab === 'review' ? loadingAll : loadingMy}
+            leftIcon={
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${
+                  (activeTab === 'review' ? loadingAll : loadingMy) ? 'animate-spin' : ''
+                }`}
+              />
+            }
             className="text-xs"
           >
-            <RefreshCw
-              className={`w-3.5 h-3.5 mr-1.5 ${
-                (activeTab === 'review' ? loadingAll : loadingMy) ? 'animate-spin' : ''
-              }`}
-            />
             Segarkan
           </Button>
 
@@ -251,9 +253,9 @@ export const RequestsPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={() => setIsFormOpen(true)}
+              leftIcon={<Plus className="w-4 h-4" />}
               className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold"
             >
-              <Plus className="w-4 h-4 mr-1" />
               Ajukan Permohonan
             </Button>
           )}
@@ -465,9 +467,9 @@ export const RequestsPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={loadMyRequests}
+                  leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
                   className="text-xs"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                   Segarkan Halaman
                 </Button>
               </div>
@@ -519,9 +521,9 @@ export const RequestsPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={() => setIsFormOpen(true)}
+                leftIcon={<Plus className="w-4 h-4" />}
                 className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold"
               >
-                <Plus className="w-4 h-4 mr-1" />
                 Buat Pengajuan
               </Button>
             </div>

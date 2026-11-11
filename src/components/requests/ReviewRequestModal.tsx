@@ -691,9 +691,9 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   size="sm"
                   onClick={() => setActionType('confirm_reject')}
                   disabled={submitting}
+                  leftIcon={<XCircle className="w-4 h-4 text-red-500" />}
                   className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 font-semibold"
                 >
-                  <XCircle className="w-4 h-4 mr-1 text-red-500" />
                   Tolak
                 </Button>
                 <Button
@@ -702,9 +702,9 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   size="sm"
                   onClick={() => setActionType('confirm_approve')}
                   disabled={submitting}
+                  leftIcon={<CheckCircle2 className="w-4 h-4 text-white" />}
                   className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-1 text-white" />
                   Setujui
                 </Button>
               </>

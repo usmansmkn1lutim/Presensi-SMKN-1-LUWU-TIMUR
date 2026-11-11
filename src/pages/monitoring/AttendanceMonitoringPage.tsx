@@ -88,9 +88,9 @@ export const AttendanceMonitoringPage: React.FC = () => {
           size="sm"
           onClick={loadMonitoringData}
           disabled={loading}
+          leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
           className="text-xs self-start sm:self-auto"
         >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
           Segarkan
         </Button>
       </div>

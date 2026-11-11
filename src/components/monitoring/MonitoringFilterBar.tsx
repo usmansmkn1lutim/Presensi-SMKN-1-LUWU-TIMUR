@@ -113,9 +113,9 @@ export const MonitoringFilterBar: React.FC<MonitoringFilterBarProps> = ({
           size="sm"
           onClick={onRefresh}
           disabled={loading}
+          leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
           className="text-xs font-medium h-9 px-4 rounded-xl"
         >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
           Segarkan Data
         </Button>
       </div>

@@ -10,6 +10,7 @@ interface CheckInCardProps {
   evalCheckIn: EvaluateCheckInResult;
   loading: boolean;
   submitting: boolean;
+  disabled?: boolean;
   onCheckIn: () => void;
 }
 
@@ -19,6 +20,7 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
   evalCheckIn,
   loading,
   submitting,
+  disabled = false,
   onCheckIn,
 }) => {
   if (loading) {
@@ -32,7 +34,7 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
   }
 
   const hasCheckedIn = Boolean(todayAttendance?.check_in_at);
-  const isButtonDisabled = loading || submitting || hasCheckedIn || !evalCheckIn.allowed;
+  const isButtonDisabled = loading || submitting || disabled || hasCheckedIn || !evalCheckIn.allowed;
 
   const getStatusDisplay = () => {
     if (hasCheckedIn) {
@@ -117,9 +119,9 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
           onClick={onCheckIn}
           disabled={isButtonDisabled}
           isLoading={submitting}
+          leftIcon={<LogIn className="w-4 h-4" />}
           className="w-full h-11 text-sm font-semibold rounded-xl transition-all"
         >
-          <LogIn className="w-4 h-4 mr-2" />
           {hasCheckedIn ? 'Sudah Check-in' : 'Check-in Sekarang'}
         </Button>
       </div>

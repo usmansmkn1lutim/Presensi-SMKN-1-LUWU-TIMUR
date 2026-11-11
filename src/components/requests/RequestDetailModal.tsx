@@ -405,9 +405,9 @@ export const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
                 size="sm"
                 onClick={() => setConfirmCancel(true)}
                 disabled={cancelling}
+                leftIcon={<Ban className="w-3.5 h-3.5" />}
                 className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 font-semibold"
               >
-                <Ban className="w-3.5 h-3.5 mr-1.5" />
                 Batalkan Permohonan
               </Button>
             )}

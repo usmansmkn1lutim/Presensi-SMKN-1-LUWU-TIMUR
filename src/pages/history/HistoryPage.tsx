@@ -599,8 +599,13 @@ export const HistoryPage: React.FC = () => {
           </div>
 
           <div className="pt-2 flex flex-wrap justify-center gap-3">
-            <Button variant="outline" size="sm" onClick={handleRefresh} className="text-xs">
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+              className="text-xs"
+            >
               Segarkan Halaman
             </Button>
             {isAdminRole && (
