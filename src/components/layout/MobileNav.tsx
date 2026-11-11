@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Users, BarChart3, LucideIcon } from 'lucide-react';
+import { Users, BarChart3, LucideIcon, Fingerprint } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 /* ==========================================================================
@@ -134,7 +134,7 @@ const NavProfileIcon: React.FC<{ isActive: boolean; className?: string }> = ({
 };
 
 /**
- * 5. Ikon FAB Presensi: Profil Pemindai (Profile Scan SVG Asset)
+ * 5. Ikon FAB Presensi: Fingerprint Icon dari Lucide React
  * - Berukuran 36px x 36px
  * - Posisi horizontal tepat di tengah menggunakan absolute centering
  */
@@ -142,10 +142,8 @@ const NavScannerFabIcon: React.FC<{ className?: string }> = ({
   className = 'w-[36px] h-[36px]',
 }) => {
   return (
-    <img
-      src="/assets/icons/profile-scan.svg"
-      alt="Presensi"
-      className={`${className} object-contain`}
+    <Fingerprint
+      className={`${className} text-white`}
     />
   );
 };
@@ -225,7 +223,7 @@ export const MobileBottomNav: React.FC = () => {
               >
                 {({ isActive }) => (
                   <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white relative shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                    <NavScannerFabIcon className="absolute left-1/2 -translate-x-1/2 bottom-1.5 w-[36px] h-[36px]" />
+                    <NavScannerFabIcon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[36px] h-[36px]" />
                   </div>
                 )}
               </NavLink>
