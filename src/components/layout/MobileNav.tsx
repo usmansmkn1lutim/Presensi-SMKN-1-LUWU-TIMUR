@@ -139,7 +139,7 @@ const NavProfileIcon: React.FC<{ isActive: boolean; className?: string }> = ({
  * - Posisi horizontal tepat di tengah menggunakan absolute centering
  */
 const NavScannerFabIcon: React.FC<{ className?: string }> = ({
-  className = 'w-[36px] h-[36px]',
+  className = 'w-[40px] h-[40px]',
 }) => {
   return (
     <Fingerprint
@@ -223,7 +223,7 @@ export const MobileBottomNav: React.FC = () => {
               >
                 {({ isActive }) => (
                   <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white relative shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
-                    <NavScannerFabIcon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[36px] h-[36px]" />
+                    <NavScannerFabIcon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px]" />
                   </div>
                 )}
               </NavLink>
