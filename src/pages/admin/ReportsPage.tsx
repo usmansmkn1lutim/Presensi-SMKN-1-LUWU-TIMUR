@@ -31,10 +31,13 @@ import { MonthlyReportTable } from '../../components/reports/MonthlyReportTable'
 import { DetailReportTable } from '../../components/reports/DetailReportTable';
 import { MonthlyRecapReportTable } from '../../components/reports/MonthlyRecapReportTable';
 import { Button } from '../../components/ui/Button';
+import { useInstitutionSettings } from '../../hooks/useInstitutionSettings';
 
 type ReportTab = 'daily' | 'employee' | 'monthly' | 'monthly_recap' | 'detail';
 
 export const ReportsPage: React.FC = () => {
+  const institutionSettings = useInstitutionSettings();
+
   // Initial default filter (Current Month in Asia/Makassar)
   const [filter, setFilter] = useState<AttendanceReportFilter>({
     startDate: getMakassarFirstDayOfMonthString(),
@@ -300,7 +303,14 @@ export const ReportsPage: React.FC = () => {
         attendancePdfExportService.exportAttendanceDetails(allDetails, filter, filterLabels);
       } else if (activeTab === 'monthly_recap' && monthlyRecapData) {
         const [year, month] = filter.startDate.split('-').map(Number);
-        attendancePdfExportService.exportMonthlyRecapToPdf(monthlyRecapData, year, month, filter, filterLabels);
+        await attendancePdfExportService.exportMonthlyRecapToPdf(
+          monthlyRecapData,
+          year,
+          month,
+          filter,
+          filterLabels,
+          institutionSettings.schoolLogo
+        );
       }
       setExportSuccess('Export PDF berhasil dibuat.');
       setTimeout(() => setExportSuccess(null), 4000);

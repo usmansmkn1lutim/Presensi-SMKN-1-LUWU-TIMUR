@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import XLSXStyle from 'xlsx-js-style';
 import {
   AttendanceReportFilter,
   DailyAttendanceSummary,
@@ -228,7 +229,11 @@ export const attendanceExcelExportService = {
   },
 
   /**
-   * Export Monthly Grid Matrix Recap (PHASE 9G-EXPORT)
+   * Export Monthly Grid Matrix Recap (PHASE 9G-EXPORT / REVISED)
+   *
+   * Urutan kolom:
+   * 1. No | Nama Pegawai | NIP | Status Pegawai | Tanggal 1...N
+   * 2. Hadir (total) | Tepat Waktu | Terlambat | Dinas Luar | Sakit | Izin | Cuti | Alfa | Persentase
    */
   exportMonthlyRecapToExcel(data: MonthlyRecapReportResponse, year: number, month: number): boolean {
     if (!data || data.rows.length === 0) {
@@ -247,25 +252,56 @@ export const attendanceExcelExportService = {
         rowData[String(d)] = row.dailyStatuses[d]?.code || '—';
       }
 
-      rowData['Hadir'] = row.totalPresent;
+      // Calculations:
+      // Hadir (total) = H + T + DL = totalPresent + totalOfficialDuty
+      // Tepat Waktu = H = Math.max(0, row.totalPresent - row.totalLate)
+      // Terlambat = T = row.totalLate
+      // Dinas Luar = DL = row.totalOfficialDuty
+      // Sakit = S = row.totalSick
+      // Izin = I = row.totalPermit
+      // Cuti = C = row.totalLeave
+      // Alfa = A = row.totalAbsent
+      // Persentase = row.attendancePercentageLabel
+      const totalHadir = row.totalPresent + row.totalOfficialDuty;
+      const totalTepatWaktu = Math.max(0, row.totalPresent - row.totalLate);
+
+      rowData['Hadir (total)'] = totalHadir;
+      rowData['Tepat Waktu'] = totalTepatWaktu;
       rowData['Terlambat'] = row.totalLate;
+      rowData['Dinas Luar'] = row.totalOfficialDuty;
       rowData['Sakit'] = row.totalSick;
       rowData['Izin'] = row.totalPermit;
-      rowData['Dinas Luar'] = row.totalOfficialDuty;
       rowData['Cuti'] = row.totalLeave;
-      rowData['Alpha'] = row.totalAbsent;
+      rowData['Alfa'] = row.totalAbsent;
       rowData['Persentase'] = row.attendancePercentageLabel;
 
       return rowData;
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const headerKeys = [
+      'No',
+      'Nama Pegawai',
+      'NIP',
+      'Status Pegawai',
+      ...Array.from({ length: data.daysInMonth }, (_, i) => String(i + 1)),
+      'Hadir (total)',
+      'Tepat Waktu',
+      'Terlambat',
+      'Dinas Luar',
+      'Sakit',
+      'Izin',
+      'Cuti',
+      'Alfa',
+      'Persentase',
+    ];
+
+    const worksheet = XLSXStyle.utils.json_to_sheet(rows, { header: headerKeys });
 
     const colWidths = [
       { wch: 6 },  // No
-      { wch: 26 }, // Nama
-      { wch: 18 }, // NIP
-      { wch: 15 }, // Status Pegawai
+      { wch: 28 }, // Nama Pegawai
+      { wch: 20 }, // NIP
+      { wch: 16 }, // Status Pegawai
     ];
 
     for (let d = 1; d <= data.daysInMonth; d++) {
@@ -273,23 +309,109 @@ export const attendanceExcelExportService = {
     }
 
     colWidths.push(
-      { wch: 8 },  // Hadir
+      { wch: 14 }, // Hadir (total)
+      { wch: 13 }, // Tepat Waktu
       { wch: 11 }, // Terlambat
+      { wch: 12 }, // Dinas Luar
       { wch: 8 },  // Sakit
       { wch: 8 },  // Izin
-      { wch: 12 }, // Dinas Luar
       { wch: 8 },  // Cuti
-      { wch: 8 },  // Alpha
+      { wch: 8 },  // Alfa
       { wch: 13 }  // Persentase
     );
 
     worksheet['!cols'] = colWidths;
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Rekap Bulanan');
+    // 1. Style Header Row (Row 1):
+    // - Background: #F97316 (Orange Sunset)
+    // - Text: White #FFFFFF, Bold
+    // - Alignment: Center (horizontal), Center (vertical)
+    // Applies to all columns from No to Persentase
+    for (let colIdx = 0; colIdx < headerKeys.length; colIdx++) {
+      const colLetter = XLSXStyle.utils.encode_col(colIdx);
+      const headerRef = `${colLetter}1`;
+      if (worksheet[headerRef]) {
+        worksheet[headerRef].s = {
+          fill: {
+            patternType: 'solid',
+            fgColor: { rgb: 'F97316' },
+          },
+          font: {
+            bold: true,
+            color: { rgb: 'FFFFFF' },
+          },
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center',
+          },
+        };
+      }
+    }
+
+    // 2. Identify weekend and holiday days
+    const holidayOrWeekendDays = new Set<number>();
+    for (let d = 1; d <= data.daysInMonth; d++) {
+      const dayOfWeek = new Date(year, month - 1, d, 12, 0, 0).getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = isWeekend || data.rows.some((r) => r.dailyStatuses[d]?.code === 'L');
+      if (isHoliday) {
+        holidayOrWeekendDays.add(d);
+      }
+    }
+
+    // 3. Style Body Data Cells (Rows 2 to rows.length + 1):
+    // - Vertical alignment: Center for ALL cells
+    // - Nama Pegawai (colIdx === 1): Left align
+    // - All other columns (No, NIP, Status, Tanggal, Summary): Center align
+    // - Weekend / Holiday date columns (colIdx = 3 + d, d in holidayOrWeekendDays):
+    //   Light Orange fill #FFEDD5 + Center align
+    for (let r = 2; r <= rows.length + 1; r++) {
+      for (let colIdx = 0; colIdx < headerKeys.length; colIdx++) {
+        const colLetter = XLSXStyle.utils.encode_col(colIdx);
+        const cellRef = `${colLetter}${r}`;
+        if (!worksheet[cellRef]) continue;
+
+        // Check if this cell is a holiday/weekend date cell
+        const isDateCol = colIdx >= 4 && colIdx <= 3 + data.daysInMonth;
+        const dayNum = isDateCol ? colIdx - 3 : 0;
+        const isHolidayOrWeekend = isDateCol && holidayOrWeekendDays.has(dayNum);
+
+        if (isHolidayOrWeekend) {
+          worksheet[cellRef].s = {
+            fill: {
+              patternType: 'solid',
+              fgColor: { rgb: 'FFEDD5' },
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center',
+            },
+          };
+        } else if (colIdx === 1) {
+          // Nama Pegawai: Left align, Center vertical
+          worksheet[cellRef].s = {
+            alignment: {
+              horizontal: 'left',
+              vertical: 'center',
+            },
+          };
+        } else {
+          // All other normal cells: Center horizontal, Center vertical
+          worksheet[cellRef].s = {
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center',
+            },
+          };
+        }
+      }
+    }
+
+    const workbook = XLSXStyle.utils.book_new();
+    XLSXStyle.utils.book_append_sheet(workbook, worksheet, 'Rekap Bulanan');
 
     const formattedPeriod = `${year}${String(month).padStart(2, '0')}`;
-    XLSX.writeFile(workbook, `Laporan_Matriks_Bulanan_${formattedPeriod}.xlsx`);
+    XLSXStyle.writeFile(workbook, `Laporan_Matriks_Bulanan_${formattedPeriod}.xlsx`);
     return true;
   },
 };

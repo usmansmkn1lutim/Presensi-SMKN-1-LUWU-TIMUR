@@ -9,6 +9,137 @@ import {
   MonthlyRecapReportResponse,
 } from '../types/attendanceReport.types';
 import { formatMakassarShortDate } from './attendanceReportService';
+import { systemSettingsService } from './systemSettingsService';
+
+/**
+ * Helper to safely convert an image URL to a Base64 data string with timeout and error protection.
+ * Supports CORS blob fetch and Canvas fallback. Safely guards against non-browser test environments.
+ */
+async function loadImageAsBase64(
+  url: string,
+  timeoutMs = 3500
+): Promise<{ dataUrl: string; width: number; height: number } | null> {
+  if (!url) return null;
+  if (typeof window === 'undefined' || typeof document === 'undefined') return null;
+
+  return new Promise((resolve) => {
+    let resolved = false;
+    const timer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve(null);
+      }
+    }, timeoutMs);
+
+    // If already data URL
+    if (url.startsWith('data:image/')) {
+      const img = new window.Image();
+      img.onload = () => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ dataUrl: url, width: img.naturalWidth || 100, height: img.naturalHeight || 100 });
+        }
+      };
+      img.onerror = () => {
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve(null);
+        }
+      };
+      img.src = url;
+      return;
+    }
+
+    // Attempt fetch as blob -> convert to base64
+    fetch(url, { mode: 'cors' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          const img = new window.Image();
+          img.onload = () => {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              resolve({
+                dataUrl,
+                width: img.naturalWidth || 100,
+                height: img.naturalHeight || 100,
+              });
+            }
+          };
+          img.onerror = () => {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              resolve({ dataUrl, width: 100, height: 100 });
+            }
+          };
+          img.src = dataUrl;
+        };
+        reader.onerror = () => {
+          if (!resolved) {
+            resolved = true;
+            clearTimeout(timer);
+            resolve(null);
+          }
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => {
+        // Fallback: crossOrigin Image
+        try {
+          const img = new window.Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.drawImage(img, 0, 0);
+                const dataUrl = canvas.toDataURL('image/png');
+                if (!resolved) {
+                  resolved = true;
+                  clearTimeout(timer);
+                  resolve({ dataUrl, width: img.naturalWidth, height: img.naturalHeight });
+                  return;
+                }
+              }
+            } catch {
+              // Canvas tainted or unsupported
+            }
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              resolve(null);
+            }
+          };
+          img.onerror = () => {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              resolve(null);
+            }
+          };
+          img.src = url;
+        } catch {
+          if (!resolved) {
+            resolved = true;
+            clearTimeout(timer);
+            resolve(null);
+          }
+        }
+      });
+  });
+}
 
 /**
  * Attendance PDF Export Service (PHASE 9D)
@@ -358,89 +489,233 @@ export const attendancePdfExportService = {
   },
 
   /**
-   * Export Monthly Grid Matrix Recap to PDF (PHASE 9G-EXPORT)
+   * Dedicated PDF Header block for Rekap Bulanan Grid (PHASE 9G / Specification Update)
+   *
+   * Displays:
+   * 1. Left: School Logo (from institution settings / Supabase Storage) with preserved aspect ratio
+   * 2. Center: 3 Title lines:
+   *    - REKAP DAN LAPORAN PRESENSI PEGAWAI
+   *    - SMK NEGERI 1 LUWU TIMUR
+   *    - TAHUN PELAJARAN 2026/2027
+   * 3. Horizontal divider line
+   * 4. Period information: "Periode: DD Mmm YYYY - DD Mmm YYYY"
+   * (Omits Pegawai, Departemen, Lokasi, Status Masuk, and Status Pulang)
    */
-  exportMonthlyRecapToPdf(
+  drawMonthlyRecapPdfHeader(
+    doc: jsPDF,
+    filter: AttendanceReportFilter,
+    logoImage?: { dataUrl: string; width: number; height: number } | null
+  ): number {
+    const pageWidth = doc.internal.pageSize.width;
+
+    // A. School Logo on Left (if available)
+    if (logoImage && logoImage.dataUrl) {
+      try {
+        const maxH = 17;
+        const maxW = 24;
+        const aspect = logoImage.width && logoImage.height ? logoImage.width / logoImage.height : 1;
+        let renderW = maxH * aspect;
+        let renderH = maxH;
+        if (renderW > maxW) {
+          renderW = maxW;
+          renderH = maxW / aspect;
+        }
+        const logoY = 9 + (maxH - renderH) / 2;
+        doc.addImage(logoImage.dataUrl, 'PNG', 10, logoY, renderW, renderH);
+      } catch (err) {
+        console.warn('drawMonthlyRecapPdfHeader: Gagal menyematkan gambar logo:', err);
+      }
+    }
+
+    // B. Title Block (Center aligned at pageWidth / 2, completely independent of left logo)
+    // All 3 lines use the exact same 11pt font size
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(17, 24, 39); // #111827
+    doc.text('REKAP PRESENSI PEGAWAI', pageWidth / 2, 13.5, { align: 'center' });
+
+    doc.setFontSize(11);
+    doc.setTextColor(17, 24, 39); // #111827
+    doc.text('SMK NEGERI 1 LUWU TIMUR', pageWidth / 2, 19, { align: 'center' });
+
+    doc.setFontSize(11);
+    doc.setTextColor(55, 65, 81); // #374151
+    doc.text('TAHUN PELAJARAN 2026/2027', pageWidth / 2, 24.5, { align: 'center' });
+
+    // C. Divider Line
+    doc.setDrawColor(229, 231, 235); // #E5E7EB
+    doc.setLineWidth(0.5);
+    doc.line(10, 28.5, pageWidth - 10, 28.5);
+
+    // D. Period Subheader (Only Periode, no other filter items)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(75, 85, 99); // #4B5563
+    const periStr = `Periode: ${formatMakassarShortDate(filter.startDate)} - ${formatMakassarShortDate(filter.endDate)}`;
+    doc.text(periStr, 10, 33.5);
+
+    return 36.5; // Y coordinate where table starts
+  },
+
+  /**
+   * Export Monthly Grid Matrix Recap to PDF (PHASE 9G-EXPORT / REVISED)
+   *
+   * Formatted strictly for A4 Landscape.
+   * Includes:
+   * - Identitas: No, Nama Pegawai, Status
+   * - Tanggal 1..N (kolom libur/akhir pekan diberi fill color oranye muda #FFEDD5 / [255, 237, 213])
+   * - Ringkasan: Hadir (total), Tepat Waktu, Terlambat, Dinas Luar, Sakit, Izin, Cuti, Alfa, % Kehadiran
+   */
+  async exportMonthlyRecapToPdf(
     data: MonthlyRecapReportResponse,
     year: number,
     month: number,
     filter: AttendanceReportFilter,
-    filterLabels?: { employee?: string; department?: string; location?: string }
-  ): boolean {
+    filterLabels?: { employee?: string; department?: string; location?: string },
+    schoolLogoUrl?: string | null
+  ): Promise<boolean> {
     if (!data || data.rows.length === 0) {
       throw new Error('Tidak ada data rekap bulanan grid untuk diekspor.');
     }
 
     // A4 Landscape is 297mm x 210mm
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const startY = this.drawPdfHeader(doc, `Rekap Bulanan Grid - ${year}/${String(month).padStart(2, '0')}`, filter, filterLabels);
+
+    // 1. Resolve and Load School Logo
+    const effectiveLogoUrl = schoolLogoUrl || systemSettingsService.getGeneralSettings().schoolLogo;
+    let logoImage: { dataUrl: string; width: number; height: number } | null = null;
+    if (effectiveLogoUrl) {
+      try {
+        logoImage = await loadImageAsBase64(effectiveLogoUrl, 3500);
+      } catch (err) {
+        console.warn('exportMonthlyRecapToPdf: Gagal memuat logo instansi:', err);
+      }
+    }
+
+    const startY = this.drawMonthlyRecapPdfHeader(doc, filter, logoImage);
+
+    // 2. Identify weekend and holiday days
+    const holidayOrWeekendDays = new Set<number>();
+    for (let d = 1; d <= data.daysInMonth; d++) {
+      const dow = new Date(year, month - 1, d, 12, 0, 0).getDay();
+      const isWeekend = dow === 0 || dow === 6;
+      const isHoliday = isWeekend || data.rows.some((r) => r.dailyStatuses[d]?.code === 'L');
+      if (isHoliday) {
+        holidayOrWeekendDays.add(d);
+      }
+    }
 
     const dayNumbers = Array.from({ length: data.daysInMonth }, (_, i) => i + 1);
 
-    // Build Table Headers
+    // 3. Build Table Headers
     const head = [
       [
         'No',
         'Nama Pegawai',
         'Status',
         ...dayNumbers.map(String),
-        'H',
-        'T',
-        'S',
-        'I',
-        'DL',
-        'C',
-        'A',
-        '%',
+        'Hadir\n(total)',
+        'Tepat\nWaktu',
+        'Ter\nlambat',
+        'Dinas\nLuar',
+        'Sakit',
+        'Izin',
+        'Cuti',
+        'Alfa',
+        '%\nKehadiran',
       ],
     ];
 
-    // Build Table Body Rows
+    // 4. Build Table Body Rows
     const body = data.rows.map((row, index) => {
       const dailyCodes = dayNumbers.map((d) => row.dailyStatuses[d]?.code || '—');
+
+      // Calculations:
+      // Hadir (total) = H + T + DL = totalPresent + totalOfficialDuty
+      // Tepat Waktu = H = Math.max(0, row.totalPresent - row.totalLate)
+      // Terlambat = T = row.totalLate
+      // Dinas Luar = DL = row.totalOfficialDuty
+      // Sakit = S = row.totalSick
+      // Izin = I = row.totalPermit
+      // Cuti = C = row.totalLeave
+      // Alfa = A = row.totalAbsent
+      // % Kehadiran = row.attendancePercentageLabel
+      const totalHadir = row.totalPresent + row.totalOfficialDuty;
+      const totalTepatWaktu = Math.max(0, row.totalPresent - row.totalLate);
 
       return [
         String(index + 1),
         row.employeeName,
         row.employeeType,
         ...dailyCodes,
-        String(row.totalPresent),
+        String(totalHadir),
+        String(totalTepatWaktu),
         String(row.totalLate),
+        String(row.totalOfficialDuty),
         String(row.totalSick),
         String(row.totalPermit),
-        String(row.totalOfficialDuty),
         String(row.totalLeave),
         String(row.totalAbsent),
         row.attendancePercentageLabel,
       ];
     });
 
+    // 5. Column Styles and Widths
+    const columnStyles: Record<number, any> = {
+      0: { cellWidth: 5.5, halign: 'center', fontStyle: 'bold' },
+      1: { cellWidth: 26, halign: 'left' },
+      2: { cellWidth: 10, halign: 'center' },
+    };
+
+    const firstSummaryColIdx = 3 + data.daysInMonth;
+    columnStyles[firstSummaryColIdx] = { halign: 'center', fontStyle: 'bold' };     // Hadir (total)
+    columnStyles[firstSummaryColIdx + 1] = { halign: 'center' };                     // Tepat Waktu
+    columnStyles[firstSummaryColIdx + 2] = { halign: 'center' };                     // Terlambat
+    columnStyles[firstSummaryColIdx + 3] = { halign: 'center' };                     // Dinas Luar
+    columnStyles[firstSummaryColIdx + 4] = { halign: 'center' };                     // Sakit
+    columnStyles[firstSummaryColIdx + 5] = { halign: 'center' };                     // Izin
+    columnStyles[firstSummaryColIdx + 6] = { halign: 'center' };                     // Cuti
+    columnStyles[firstSummaryColIdx + 7] = { halign: 'center', fontStyle: 'bold' }; // Alfa
+    columnStyles[firstSummaryColIdx + 8] = { halign: 'center', fontStyle: 'bold' }; // % Kehadiran
+
     autoTable(doc, {
       startY,
+      margin: { left: 7, right: 7 },
       head,
       body,
       theme: 'grid',
       styles: {
-        fontSize: 5.5,
-        cellPadding: 0.8,
+        fontSize: 4.8,
+        cellPadding: 0.4,
         valign: 'middle',
         halign: 'center',
-        overflow: 'visible',
+        overflow: 'ellipsize',
       },
       headStyles: {
         fillColor: [249, 115, 22],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 5.5,
+        fontSize: 4.6,
+        cellPadding: 0.4,
+        valign: 'middle',
+        halign: 'center',
       },
-      alternateRowStyles: { fillColor: [249, 250, 251] },
-      columnStyles: {
-        0: { cellWidth: 6, halign: 'center', fontStyle: 'bold' }, // No
-        1: { cellWidth: 26, halign: 'left' },                      // Nama Pegawai
-        2: { cellWidth: 12, halign: 'center' },                    // Status
-      },
+      alternateRowStyles: { fillColor: [250, 250, 250] },
+      columnStyles,
       didParseCell: (dataCell) => {
+        const colIdx = dataCell.column.index;
+
+        // Apply light orange fill color #FFEDD5 / [255, 237, 213] ONLY to body cells of weekend or holiday columns.
+        // Date headers (section === 'head') remain uniformly orange with white text.
         if (dataCell.section === 'body') {
+          if (colIdx >= 3 && colIdx <= 2 + data.daysInMonth) {
+            const dayNum = colIdx - 2;
+            if (holidayOrWeekendDays.has(dayNum)) {
+              dataCell.cell.styles.fillColor = [255, 237, 213];
+            }
+          }
+
+          // Color coding for body status codes
           const val = dataCell.cell.text[0];
           if (val === 'H') {
             dataCell.cell.styles.textColor = [16, 124, 65]; // green
@@ -460,10 +735,12 @@ export const attendancePdfExportService = {
             dataCell.cell.styles.textColor = [220, 38, 38]; // red
             dataCell.cell.styles.fontStyle = 'bold';
           } else if (val === 'L') {
-            dataCell.cell.styles.textColor = [107, 114, 128]; // gray
+            dataCell.cell.styles.textColor = [153, 27, 27]; // dark reddish-gray
+          } else if (val === '—') {
+            dataCell.cell.styles.textColor = [156, 163, 175]; // light gray
           }
         }
-      }
+      },
     });
 
     const printTs = this.getPrintTimestamp();
