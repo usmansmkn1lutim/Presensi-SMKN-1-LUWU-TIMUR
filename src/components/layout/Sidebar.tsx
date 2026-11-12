@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -23,9 +23,8 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { getNavItemsForRole } from '../../config/navigation';
 import { SchoolLogo } from '../ui/SchoolLogo';
-import { RoleBadge } from '../ui/Badge';
-import { UserAvatar } from '../ui/UserAvatar';
 import { APP_CONFIG } from '../../config/appConfig';
+import { LogoutConfirmModal } from '../ui/LogoutConfirmModal';
 
 // Map icon name string to Lucide icon component
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -60,6 +59,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   if (!user) return null;
 
   const navItems = getNavItemsForRole(user.role);
@@ -68,9 +70,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const managementItems = navItems.filter((i) => i.section === 'management');
   const systemItems = navItems.filter((i) => i.section === 'system');
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Gagal keluar dari sistem:', err);
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutConfirm(false);
+    }
   };
 
   const renderNavGroup = (title: string | null, items: typeof navItems, showDivider = false) => {
@@ -211,70 +222,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {renderNavGroup('Sistem Presensi', systemItems, true)}
       </div>
 
-      {/* User Footer Profile & Logout */}
+      {/* Footer LogOut Button */}
       {!isCollapsed ? (
         <div className="p-3 border-t border-white/10 bg-[#F97316] shrink-0">
-          <div className="p-2.5 rounded-2xl bg-white border border-white/20 flex items-center justify-between gap-2 shadow-xs">
-            <button
-              type="button"
-              onClick={() => navigate('/account')}
-              title="Buka Halaman Akun Saya"
-              className="min-w-0 flex items-center gap-2.5 text-left cursor-pointer group flex-1"
-            >
-              <UserAvatar
-                userId={user.id}
-                avatarUrl={profile?.avatar_url || user.avatarUrl}
-                photoUrl={user.photoUrl}
-                name={user.name}
-                className="w-8 h-8 rounded-full object-cover border border-orange-200 shrink-0 group-hover:scale-105 transition-transform"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-slate-900 truncate group-hover:text-[#F97316] transition-colors">
-                  {user.name}
-                </p>
-                <div className="mt-0.5">
-                  <RoleBadge role={user.role} size="sm" />
-                </div>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              title="Keluar"
-              aria-label="Keluar"
-              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer shrink-0 focus:outline-hidden focus:ring-2 focus:ring-red-400"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="p-2 border-t border-white/10 bg-[#F97316] shrink-0 flex flex-col items-center gap-2">
           <button
             type="button"
-            onClick={() => navigate('/account')}
-            className="cursor-pointer hover:scale-105 transition-transform"
-            title={`${user.name} (${user.role}) - Buka Akun Saya`}
-          >
-            <UserAvatar
-              userId={user.id}
-              avatarUrl={profile?.avatar_url || user.avatarUrl}
-              photoUrl={user.photoUrl}
-              name={user.name}
-              className="w-9 h-9 rounded-full object-cover border border-white/20 shadow-2xs shrink-0"
-            />
-          </button>
-          <button
-            type="button"
-            onClick={handleLogout}
+            onClick={() => setShowLogoutConfirm(true)}
             title="Keluar dari sistem"
             aria-label="Keluar dari sistem"
-            className="p-2 text-white/80 hover:text-white hover:bg-white/15 rounded-xl transition-colors cursor-pointer shrink-0 focus:outline-hidden focus:ring-2 focus:ring-white/40"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white transition-all cursor-pointer group"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 text-orange-100 group-hover:text-white transition-colors shrink-0" />
+            <span className="truncate">Keluar</span>
+          </button>
+        </div>
+      ) : (
+        <div className="p-2 border-t border-white/10 bg-[#F97316] shrink-0 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => setShowLogoutConfirm(true)}
+            title="Keluar dari sistem"
+            aria-label="Keluar dari sistem"
+            className="group relative flex items-center justify-center p-2.5 rounded-xl text-white/85 hover:bg-white/15 hover:text-white transition-all cursor-pointer"
+          >
+            <LogOut className="w-5 h-5 text-orange-100 group-hover:text-white transition-colors shrink-0" />
           </button>
         </div>
       )}
+
+      {/* Modal Dialog Konfirmasi Logout */}
+      <LogoutConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleConfirmLogout}
+        isLoggingOut={isLoggingOut}
+      />
     </aside>
   );
 };

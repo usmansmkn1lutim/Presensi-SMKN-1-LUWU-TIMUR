@@ -187,7 +187,7 @@ export const MobileBottomNav: React.FC = () => {
     if (tab.path === '/account' || tab.path === '/profile') {
       return (
         <UserRound
-          className="w-5 h-5 transition-colors"
+          className="w-5 h-5"
           fill={isActive ? '#F97316' : 'none'}
           color={isActive ? '#F97316' : '#6B7280'}
           strokeWidth={2}
@@ -197,7 +197,7 @@ export const MobileBottomNav: React.FC = () => {
     const FallbackIcon = tab.icon;
     return FallbackIcon ? (
       <FallbackIcon
-        className="w-5 h-5 transition-colors"
+        className="w-5 h-5"
         fill={isActive ? '#F97316' : 'none'}
         color={isActive ? '#F97316' : '#6B7280'}
         strokeWidth={2}
