@@ -1,27 +1,46 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Users, BarChart3, LucideIcon, Fingerprint } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { UserRound, UsersRound, BarChart3, LucideIcon, Fingerprint } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 /* ==========================================================================
-   Four Custom Navbar Icons (Home, Riwayat, Pengajuan, Profile)
+   Custom & Lucide Navbar Icons (Home, Riwayat, Pengajuan, Profil, Pegawai)
    - Consistent 24x24 viewBox, w-5 h-5 (20px), centered geometry.
    - Inactive: Outline with neutral gray (#6B7280) and transparent fill.
-   - Active: Solid Orange Sunset (#F97316) fill with white inner accents.
+   - Active: Solid Orange Sunset (#F97316) fill with cutout/white inner accents.
    ========================================================================== */
 
-/** 1. Home: Rumah sederhana dengan sudut membulat, tanpa pintu/jendela */
+/** 1. Home: Rumah sederhana dengan sudut membulat, dengan dash horizontal rounded cutout */
 const NavHomeIcon: React.FC<{ isActive: boolean; className?: string }> = ({
   isActive,
   className = 'w-5 h-5',
 }) => {
   const color = isActive ? '#F97316' : '#6B7280';
 
+  if (isActive) {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        {/* Fill rumah dengan evenodd fillRule untuk cutout dash transparan murni */}
+        <path
+          d="M3 10.5L10.707 3.586a1.8 1.8 0 0 1 2.586 0L21 10.5v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8.5z M9.5 15.5h5a1 1 0 0 1 1 1a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1a1 1 0 0 1 1-1z"
+          fill={color}
+          fillRule="evenodd"
+        />
+      </svg>
+    );
+  }
+
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
-      fill={isActive ? color : 'none'}
+      fill="none"
       stroke={color}
       strokeWidth="2"
       strokeLinecap="round"
@@ -30,6 +49,7 @@ const NavHomeIcon: React.FC<{ isActive: boolean; className?: string }> = ({
       aria-hidden="true"
     >
       <path d="M3 10.5L10.707 3.586a1.8 1.8 0 0 1 2.586 0L21 10.5v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8.5z" />
+      <line x1="9.5" y1="16.5" x2="14.5" y2="16.5" />
     </svg>
   );
 };
@@ -106,36 +126,9 @@ const NavRequestIcon: React.FC<{ isActive: boolean; className?: string }> = ({
   );
 };
 
-/** 4. Profile: Kepala lingkaran + lengkungan halus bahu dan badan tanpa lingkaran luar */
-const NavProfileIcon: React.FC<{ isActive: boolean; className?: string }> = ({
-  isActive,
-  className = 'w-5 h-5',
-}) => {
-  const color = isActive ? '#F97316' : '#6B7280';
-
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill={isActive ? color : 'none'}
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      {/* Kepala lingkaran sederhana */}
-      <circle cx="12" cy="7.5" r="4" />
-      {/* Bahu dan badan lengkungan halus */}
-      <path d="M4.5 20.5c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5Z" />
-    </svg>
-  );
-};
-
 /**
- * 5. Ikon FAB Presensi: Fingerprint Icon dari Lucide React
- * - Berukuran 36px x 36px
+ * 4. Ikon FAB Presensi: Fingerprint Icon dari Lucide React
+ * - Berukuran 40px x 40px
  * - Posisi horizontal tepat di tengah menggunakan absolute centering
  */
 const NavScannerFabIcon: React.FC<{ className?: string }> = ({
@@ -157,6 +150,7 @@ interface MobileNavTab {
 
 export const MobileBottomNav: React.FC = () => {
   const { user } = useAuth();
+  const shouldReduceMotion = useReducedMotion();
   const role = user?.role || 'employee';
 
   // Determine role-aware 5-item tabs for mobile & tablet navbar
@@ -164,10 +158,10 @@ export const MobileBottomNav: React.FC = () => {
   let middleRightTab: MobileNavTab = { label: 'Pengajuan', path: '/requests' };
 
   if (role === 'admin' || role === 'super_admin') {
-    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: Users };
+    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: UsersRound };
     middleRightTab = { label: 'Pengajuan', path: '/requests' };
   } else if (role === 'headmaster') {
-    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: Users };
+    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: UsersRound };
     middleRightTab = { label: 'Laporan', path: '/reports', icon: BarChart3 };
   }
 
@@ -191,14 +185,22 @@ export const MobileBottomNav: React.FC = () => {
       return <NavRequestIcon isActive={isActive} />;
     }
     if (tab.path === '/account' || tab.path === '/profile') {
-      return <NavProfileIcon isActive={isActive} />;
+      return (
+        <UserRound
+          className="w-5 h-5 transition-colors"
+          fill={isActive ? '#F97316' : 'none'}
+          color={isActive ? '#F97316' : '#6B7280'}
+          strokeWidth={2}
+        />
+      );
     }
     const FallbackIcon = tab.icon;
     return FallbackIcon ? (
       <FallbackIcon
-        className={`w-5 h-5 transition-colors ${
-          isActive ? 'text-[#F97316]' : 'text-[#6B7280]'
-        }`}
+        className="w-5 h-5 transition-colors"
+        fill={isActive ? '#F97316' : 'none'}
+        color={isActive ? '#F97316' : '#6B7280'}
+        strokeWidth={2}
       />
     ) : null;
   };
@@ -235,7 +237,7 @@ export const MobileBottomNav: React.FC = () => {
               key={tab.path}
               to={tab.path}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 px-2.5 rounded-lg transition-colors flex-1 max-w-[72px] ${
+                `flex flex-col items-center justify-center py-1 px-1.5 transition-colors flex-1 max-w-[72px] ${
                   isActive
                     ? 'text-[#F97316] font-semibold'
                     : 'text-[#6B7280] hover:text-[#111827]'
@@ -244,8 +246,23 @@ export const MobileBottomNav: React.FC = () => {
             >
               {({ isActive }) => (
                 <>
-                  {renderTabIcon(tab, isActive)}
-                  <span className="text-[10px] mt-1 truncate">{tab.label}</span>
+                  <div className="relative flex items-center justify-center w-12 h-7">
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTabPill"
+                        className="absolute inset-0 bg-[#FFEDD5] rounded-full"
+                        transition={
+                          shouldReduceMotion
+                            ? { duration: 0 }
+                            : { duration: 0.25, ease: 'easeInOut' }
+                        }
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center justify-center">
+                      {renderTabIcon(tab, isActive)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] mt-1 truncate relative z-10">{tab.label}</span>
                 </>
               )}
             </NavLink>
