@@ -249,18 +249,32 @@ export const MobileBottomNav: React.FC = () => {
                   <div className="relative flex items-center justify-center w-12 h-7">
                     {isActive && (
                       <motion.div
-                        layoutId="activeTabPill"
-                        className="absolute inset-0 bg-[#FFEDD5] rounded-full"
+                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.6 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         transition={
                           shouldReduceMotion
                             ? { duration: 0 }
-                            : { duration: 0.25, ease: 'easeInOut' }
+                            : { duration: 0.25, ease: 'easeOut' }
                         }
+                        className="absolute inset-0 bg-[#FFEDD5] rounded-full origin-center"
                       />
                     )}
-                    <span className="relative z-10 flex items-center justify-center">
+                    <motion.span
+                      initial={false}
+                      animate={
+                        isActive && !shouldReduceMotion
+                          ? { scale: [1, 1.10, 1] }
+                          : { scale: 1 }
+                      }
+                      transition={
+                        shouldReduceMotion
+                          ? { duration: 0 }
+                          : { duration: 0.25, ease: 'easeOut' }
+                      }
+                      className="relative z-10 flex items-center justify-center origin-center"
+                    >
                       {renderTabIcon(tab, isActive)}
-                    </span>
+                    </motion.span>
                   </div>
                   <span className="text-[10px] mt-1 truncate relative z-10">{tab.label}</span>
                 </>
