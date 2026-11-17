@@ -1,6 +1,7 @@
 import React from 'react';
 import { MonitoringRecord } from '../../types/attendanceMonitoring.types';
-import { User, Building2, Images } from 'lucide-react';
+import { Building2, Images } from 'lucide-react';
+import { UserAvatar } from '../ui/UserAvatar';
 
 interface MonitoringTableProps {
   records: MonitoringRecord[];
@@ -49,16 +50,20 @@ export const MonitoringTable: React.FC<MonitoringTableProps> = ({ records, onVie
                 <td className="py-3.5 px-4 font-medium text-[#111827]">
                   <div className="flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center shrink-0">
-                        <User className="w-4 h-4 text-[#F97316]" />
-                      </div>
+                      <UserAvatar
+                        photoUrl={row.photoUrl}
+                        name={row.fullName}
+                        className="w-8 h-8 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                      />
                       <div className="min-w-0">
                         <span className="font-bold block text-[#111827] truncate">
                           {row.fullName}
                         </span>
-                        <span className="text-[11px] text-[#6B7280] block">
-                          NIP: {row.nip || '-'}
-                        </span>
+                        {row.positionName && (
+                          <span className="text-[11px] text-[#6B7280] block truncate">
+                            {row.positionName}
+                          </span>
+                        )}
                       </div>
                     </div>
                     {hasAnyPhoto(row) && onViewPhoto && (

@@ -45,10 +45,18 @@ export const AppLayout: React.FC = () => {
 
         {/* Main Content Area */}
         <div
-          className={`flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen transition-all duration-300 ease-in-out ${
+          className={`relative flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:bg-[#F97316] transition-all duration-300 ease-in-out ${
             isCollapsed ? 'lg:pl-20' : 'lg:pl-64'
           }`}
         >
+          {/* Penutup lokal sudut kiri bawah kanvas agar area luar radius 32px tetap solid #F97316 menyatu dengan sidebar */}
+          <div
+            aria-hidden="true"
+            className={`hidden lg:block pointer-events-none absolute bottom-0 z-10 w-8 h-8 transition-all duration-300 ease-in-out bg-[radial-gradient(circle_at_100%_0%,transparent_31.5px,#F97316_32px)] ${
+              isCollapsed ? 'lg:left-20' : 'lg:left-64'
+            }`}
+          />
+
           {/* Kanvas Utama Desktop (lg: dan ke atas) / Alur Konten Standar (mobile & tablet) */}
           <div className="flex-1 flex flex-col min-w-0 bg-[#F7F7F7] lg:rounded-l-[32px] lg:rounded-r-none lg:bg-[#F2F2F2] lg:shadow-xl lg:overflow-y-auto lg:overflow-x-hidden lg:h-screen [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {/* Header Global di dalam Kanvas */}
