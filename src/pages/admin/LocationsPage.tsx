@@ -191,43 +191,22 @@ export const LocationsPage: React.FC = () => {
       )}
 
       {/* Header Section */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
-              Master Data & Geofencing
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
-              Lokasi
-            </h1>
-            <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-              Kelola lokasi yang digunakan dalam sistem presensi pegawai.
-            </p>
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          Lokasi
+        </h1>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <Button
-              variant="outline"
-              size="md"
-              leftIcon={<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />}
-              onClick={fetchLocations}
-              disabled={isLoading}
-            >
-              Segarkan
-            </Button>
-
-            {canManage && (
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<Plus className="w-4 h-4" />}
-                onClick={handleOpenAdd}
-              >
-                Tambah Lokasi
-              </Button>
-            )}
-          </div>
-        </div>
+        {canManage && (
+          <Button
+            variant="primary"
+            size="md"
+            leftIcon={<Plus className="w-3.5 h-3.5 lg:w-4 lg:h-4" />}
+            onClick={handleOpenAdd}
+            className="shrink-0 !h-9 !px-3 !py-1.5 !text-xs !gap-1.5 lg:!h-11 lg:!px-4 lg:!py-2.5 lg:!text-sm lg:!gap-2"
+          >
+            Tambah Lokasi
+          </Button>
+        )}
       </div>
 
       {/* Summary Cards */}

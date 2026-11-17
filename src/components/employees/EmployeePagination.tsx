@@ -10,6 +10,7 @@ interface EmployeePaginationProps {
   onPageSizeChange: (size: number) => void;
   pageSizeOptions?: number[];
   className?: string;
+  showPrefixLabel?: boolean;
 }
 
 export const EmployeePagination: React.FC<EmployeePaginationProps> = ({
@@ -21,6 +22,7 @@ export const EmployeePagination: React.FC<EmployeePaginationProps> = ({
   onPageSizeChange,
   pageSizeOptions = [10, 12, 20],
   className,
+  showPrefixLabel = true,
 }) => {
   if (totalItems === 0) {
     return null;
@@ -54,7 +56,7 @@ export const EmployeePagination: React.FC<EmployeePaginationProps> = ({
     >
       {/* Kelompok Kiri — Informasi Jumlah Data */}
       <div className="flex items-center gap-1.5 text-xs text-[#374151] whitespace-nowrap shrink-0">
-        <span>Tampilkan</span>
+        {showPrefixLabel && <span>Tampilkan</span>}
         <select
           value={pageSize}
           onChange={(e) => onPageSizeChange(Number(e.target.value))}

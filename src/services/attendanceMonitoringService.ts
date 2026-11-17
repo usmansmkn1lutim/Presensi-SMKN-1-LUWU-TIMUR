@@ -46,9 +46,15 @@ export const attendanceMonitoringService = {
         id,
         nip,
         full_name,
+        photo_url,
         status,
         department_id,
+        position_id,
         departments (
+          id,
+          name
+        ),
+        positions (
           id,
           name
         )
@@ -73,13 +79,28 @@ export const attendanceMonitoringService = {
         check_in_status,
         check_out_status,
         check_in_location_id,
-        check_out_location_id
+        check_out_location_id,
+        check_in_photo_path,
+        check_out_photo_path
       `)
       .eq('attendance_date', date);
 
     if (attError) {
       console.error('Error fetching attendance for monitoring from database:', attError);
       throw new Error(formatAttendanceError(attError));
+    }
+
+    // 2b. Query approved & pending requests covering the selected date
+    const { data: requestsData, error: reqError } = await supabase
+      .from('requests')
+      .select('id, employee_id, request_type, status, submitted_at, created_at')
+      .in('status', ['approved', 'pending'])
+      .lte('start_date', date)
+      .gte('end_date', date)
+      .order('created_at', { ascending: false });
+
+    if (reqError) {
+      console.error('Error fetching requests for monitoring:', reqError);
     }
 
     const effectiveAttendanceData = attendanceData || [];
@@ -92,9 +113,31 @@ export const attendanceMonitoringService = {
       }
     });
 
-    // 3. Combine active employees with attendance records
+    // Map requests by employee_id, prioritizing approved over pending if overlapping
+    const requestMap = new Map<
+      string,
+      {
+        requestType: 'official_duty' | 'sick' | 'other' | 'leave';
+        requestStatus: 'approved' | 'pending';
+      }
+    >();
+    (requestsData || []).forEach((req) => {
+      if (!req.employee_id) return;
+      const reqStatus = req.status as 'approved' | 'pending';
+      const reqType = req.request_type as 'official_duty' | 'sick' | 'other' | 'leave';
+      const existing = requestMap.get(req.employee_id);
+      if (!existing || (existing.requestStatus === 'pending' && reqStatus === 'approved')) {
+        requestMap.set(req.employee_id, {
+          requestType: reqType,
+          requestStatus: reqStatus,
+        });
+      }
+    });
+
+    // 3. Combine active employees with attendance & request records
     const allRecords: MonitoringRecord[] = (employeesData || []).map((emp) => {
       const att = attendanceMap.get(emp.id);
+      const req = requestMap.get(emp.id);
 
       const hasCheckIn = Boolean(att?.check_in_at);
       const hasCheckOut = Boolean(att?.check_out_at);
@@ -112,10 +155,18 @@ export const attendanceMonitoringService = {
         : emp.departments;
       const departmentName = deptObj?.name || 'Belum Ditentukan';
 
+      // Position name extraction (real data only, no fallback placeholder)
+      const posObj = Array.isArray((emp as any).positions)
+        ? (emp as any).positions[0]
+        : (emp as any).positions;
+      const positionName = posObj?.name ? String(posObj.name).trim() : null;
+
       return {
         employeeId: emp.id,
         fullName: emp.full_name,
         nip: emp.nip || null,
+        photoUrl: emp.photo_url || null,
+        positionName: positionName || null,
         departmentId: emp.department_id || null,
         departmentName,
         attendanceId: att?.id || null,
@@ -125,6 +176,10 @@ export const attendanceMonitoringService = {
         checkInStatus: (att?.check_in_status as 'on_time' | 'late' | null) || null,
         checkOutStatus: (att?.check_out_status as 'operational' | 'after_work' | null) || null,
         overallStatus,
+        checkInPhotoPath: att?.check_in_photo_path || null,
+        checkOutPhotoPath: att?.check_out_photo_path || null,
+        requestType: req?.requestType || null,
+        requestStatus: req?.requestStatus || null,
       };
     });
 

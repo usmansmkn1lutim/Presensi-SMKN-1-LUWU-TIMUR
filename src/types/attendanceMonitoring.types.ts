@@ -2,6 +2,8 @@ export interface MonitoringRecord {
   employeeId: string;
   fullName: string;
   nip: string | null;
+  photoUrl?: string | null;
+  positionName?: string | null;
   departmentId: string | null;
   departmentName: string;
   attendanceId: string | null;
@@ -11,6 +13,10 @@ export interface MonitoringRecord {
   checkInStatus: 'on_time' | 'late' | null;
   checkOutStatus: 'operational' | 'after_work' | null;
   overallStatus: 'belum_presensi' | 'sudah_masuk' | 'sudah_pulang';
+  checkInPhotoPath?: string | null;
+  checkOutPhotoPath?: string | null;
+  requestType?: 'official_duty' | 'sick' | 'other' | 'leave' | null;
+  requestStatus?: 'approved' | 'pending' | null;
 }
 
 export interface MonitoringSummary {

@@ -1,12 +1,18 @@
 import React from 'react';
 import { MonitoringRecord } from '../../types/attendanceMonitoring.types';
-import { User, Building2 } from 'lucide-react';
+import { User, Building2, Images } from 'lucide-react';
 
 interface MonitoringTableProps {
   records: MonitoringRecord[];
+  onViewPhoto?: (record: MonitoringRecord) => void;
 }
 
-export const MonitoringTable: React.FC<MonitoringTableProps> = ({ records }) => {
+export const MonitoringTable: React.FC<MonitoringTableProps> = ({ records, onViewPhoto }) => {
+  const hasAnyPhoto = (row: MonitoringRecord) => {
+    const checkIn = row.checkInPhotoPath ? row.checkInPhotoPath.trim() : '';
+    const checkOut = row.checkOutPhotoPath ? row.checkOutPhotoPath.trim() : '';
+    return Boolean(checkIn || checkOut);
+  };
   const formatTime = (isoString?: string | null) => {
     if (!isoString) return '-';
     try {
@@ -22,7 +28,7 @@ export const MonitoringTable: React.FC<MonitoringTableProps> = ({ records }) => 
   };
 
   return (
-    <div className="hidden md:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+    <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -41,18 +47,31 @@ export const MonitoringTable: React.FC<MonitoringTableProps> = ({ records }) => 
               <tr key={row.employeeId} className="hover:bg-[#F9FAFB] transition-colors">
                 {/* Pegawai */}
                 <td className="py-3.5 px-4 font-medium text-[#111827]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4 text-[#F97316]" />
+                  <div className="flex items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4 text-[#F97316]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="font-bold block text-[#111827] truncate">
+                          {row.fullName}
+                        </span>
+                        <span className="text-[11px] text-[#6B7280] block">
+                          NIP: {row.nip || '-'}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-bold block text-[#111827]">
-                        {row.fullName}
-                      </span>
-                      <span className="text-[11px] text-[#6B7280] block">
-                        NIP: {row.nip || '-'}
-                      </span>
-                    </div>
+                    {hasAnyPhoto(row) && onViewPhoto && (
+                      <button
+                        type="button"
+                        onClick={() => onViewPhoto(row)}
+                        className="w-8 h-8 rounded-lg bg-[#FFF7ED] hover:bg-[#FFEDD5] text-[#F97316] border border-[#FFEDD5] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                        title="Lihat foto presensi"
+                        aria-label={`Lihat foto presensi ${row.fullName}`}
+                      >
+                        <Images className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
 

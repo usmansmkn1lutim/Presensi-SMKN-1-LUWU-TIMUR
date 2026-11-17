@@ -5,7 +5,6 @@ import {
   LogIn,
   LogOut,
   Edit2,
-  RefreshCw,
   Info,
   CheckCircle2,
   AlertCircle,
@@ -90,43 +89,22 @@ export const SchedulesPage: React.FC = () => {
       )}
 
       {/* Header Section */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
-              Pengaturan Waktu Presensi
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
-              Jadwal Kerja
-            </h1>
-            <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-              Jadwal kerja standar yang berlaku untuk seluruh pegawai sekolah.
-            </p>
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          Jadwal Kerja
+        </h1>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <Button
-              variant="outline"
-              size="md"
-              leftIcon={<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />}
-              onClick={fetchActiveSchedule}
-              disabled={isLoading}
-            >
-              Segarkan
-            </Button>
-
-            {canManage && schedule && (
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<Edit2 className="w-4 h-4" />}
-                onClick={handleOpenEdit}
-              >
-                Edit Jadwal
-              </Button>
-            )}
-          </div>
-        </div>
+        {canManage && schedule && (
+          <Button
+            variant="primary"
+            size="md"
+            leftIcon={<Edit2 className="w-3.5 h-3.5 lg:w-4 lg:h-4" />}
+            onClick={handleOpenEdit}
+            className="shrink-0 !h-9 !px-3 !py-1.5 !text-xs !gap-1.5 lg:!h-11 lg:!px-4 lg:!py-2.5 lg:!text-sm lg:!gap-2"
+          >
+            Edit Jadwal
+          </Button>
+        )}
       </div>
 
       {/* Loading State */}
