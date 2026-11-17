@@ -16,6 +16,8 @@ import {
   Calendar,
   HeartPulse,
   Briefcase,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProfileMenu } from '../../context/ProfileMenuContext';
@@ -190,6 +192,7 @@ export const DashboardPage: React.FC = () => {
 
   // Monthly summary state (for desktop view compatibility)
   const [monthlySummary, setMonthlySummary] = useState<DashboardAttendanceSummary | null>(null);
+  const [isQuickMenuExpanded, setIsQuickMenuExpanded] = useState<boolean>(false);
 
   const fetchExecutiveData = async (isManualRefresh = false) => {
     if (!isManagerial) return;
@@ -215,6 +218,50 @@ export const DashboardPage: React.FC = () => {
   const handleRefreshExecutive = () => {
     fetchExecutiveData(true);
   };
+
+  useEffect(() => {
+    if (profile?.role === 'headmaster' && user) {
+      const fetchHeadmasterWeekly = async () => {
+        try {
+          const employee = await attendanceService.getCurrentEmployee(user.id);
+          const todayStr = getMakassarTodayDateString();
+          const [year, month, day] = todayStr.split('-').map(Number);
+          const todayDate = new Date(year, month - 1, day);
+          const dayOfWeek = todayDate.getDay();
+          const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          const mondayDate = new Date(year, month - 1, day - diffToMonday);
+          const mondayStr = [
+            mondayDate.getFullYear(),
+            String(mondayDate.getMonth() + 1).padStart(2, '0'),
+            String(mondayDate.getDate()).padStart(2, '0'),
+          ].join('-');
+
+          const historyMatrix = await attendanceStatusService.getEvaluatedMatrix(
+            mondayStr,
+            todayStr,
+            employee.id
+          );
+
+          const weeklyCardRecords = historyMatrix
+            .filter((r) => r.status !== 'holiday')
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .map((r) => ({
+              id: r.sourceId || `weekly-${r.date}`,
+              employee_id: employee.id,
+              attendance_date: r.date,
+              check_in_at: r.checkInAt,
+              check_out_at: r.checkOutAt,
+              check_in_status: r.substatus,
+              official_status: r.status,
+            })) as unknown as AttendanceHistoryRecord[];
+          setWeeklyRecords(weeklyCardRecords);
+        } catch (err) {
+          console.error('Failed to fetch headmaster weekly records:', err);
+        }
+      };
+      fetchHeadmasterWeekly();
+    }
+  }, [profile?.role, user]);
 
   const fetchPersonalDashboardData = async () => {
     if (isManagerial || authLoading || !user) return;
@@ -645,10 +692,102 @@ export const DashboardPage: React.FC = () => {
           />
         </section>
 
+        {/* 1.5. Headmaster Weekly Date Capsules (lg:hidden) */}
+        {profile?.role === 'headmaster' && weeklyRecords.length > 0 && (
+          <section aria-label="Rekap Presensi Mingguan Kepala Sekolah" className="lg:hidden">
+            <WeeklyDateCapsules records={weeklyRecords} />
+          </section>
+        )}
+
+        {/* 1.6. Mobile Managerial Quick Access Menu (Grid 1x4, lg:hidden) */}
+        <section aria-label="Menu Akses Cepat Manajerial Mobile" className="lg:hidden">
+          <div className="bg-white border border-[#E5E7EB] rounded-2xl p-3 shadow-2xs space-y-2.5">
+            {profile?.role === 'headmaster' && (
+              <div className="flex items-center justify-between px-1 pb-0.5">
+                <span className="text-xs font-bold text-[#111827]">Menu Utama</span>
+                <button
+                  type="button"
+                  onClick={() => setIsQuickMenuExpanded(!isQuickMenuExpanded)}
+                  className="flex items-center gap-1 text-xs font-medium text-[#6B7280] hover:text-[#111827] transition-colors cursor-pointer"
+                >
+                  <span>{isQuickMenuExpanded ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Semua'}</span>
+                  {isQuickMenuExpanded ? (
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+            )}
+            <div className="grid grid-cols-4 gap-2">
+              {(profile?.role === 'headmaster'
+                ? isQuickMenuExpanded
+                  ? [
+                      { label: 'Monitoring', path: '/attendance-monitoring', icon: '/assets/icons/menu/monitoring.svg', isSvg: true },
+                      { label: 'Jadwal Kerja', path: '/schedules', icon: '/assets/icons/menu/jadwal-kerja.svg', isSvg: true },
+                      { label: 'Lokasi', path: '/locations', icon: '/assets/icons/menu/lokasi.svg', isSvg: true },
+                      { label: 'Hari Libur', path: '/holidays', icon: '/assets/icons/menu/hari-libur.svg', isSvg: true },
+                      { label: 'Riwayat Presensi', path: '/history', iconComponent: CalendarCheck, isSvg: false },
+                      { label: 'Permohonan', path: '/requests', iconComponent: FileText, isSvg: false },
+                    ]
+                  : [
+                      { label: 'Monitoring', path: '/attendance-monitoring', icon: '/assets/icons/menu/monitoring.svg', isSvg: true },
+                      { label: 'Jadwal Kerja', path: '/schedules', icon: '/assets/icons/menu/jadwal-kerja.svg', isSvg: true },
+                      { label: 'Lokasi', path: '/locations', icon: '/assets/icons/menu/lokasi.svg', isSvg: true },
+                      { label: 'Hari Libur', path: '/holidays', icon: '/assets/icons/menu/hari-libur.svg', isSvg: true },
+                    ]
+                : [
+                    { label: 'Monitoring', path: '/attendance-monitoring', icon: '/assets/icons/menu/monitoring.svg', isSvg: true },
+                    { label: 'Jadwal Kerja', path: '/schedules', icon: '/assets/icons/menu/jadwal-kerja.svg', isSvg: true },
+                    { label: 'Lokasi', path: '/locations', icon: '/assets/icons/menu/lokasi.svg', isSvg: true },
+                    { label: 'Hari Libur', path: '/holidays', icon: '/assets/icons/menu/hari-libur.svg', isSvg: true },
+                  ]
+              ).map((menu) => (
+                <button
+                  key={menu.path}
+                  type="button"
+                  onClick={() => navigate(menu.path)}
+                  className={`flex flex-col items-center justify-center p-2 rounded-xl ${
+                    profile?.role === 'headmaster' ? 'bg-transparent' : 'bg-[#F9FAFB]'
+                  } hover:bg-slate-100 active:bg-slate-200 transition-colors cursor-pointer group`}
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform text-[#F97316]">
+                    {menu.isSvg ? (
+                      <img
+                        src={menu.icon}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0"
+                      />
+                    ) : (
+                      menu.iconComponent && <menu.iconComponent className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2]" />
+                    )}
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-[#3B485A] text-center leading-tight truncate w-full">
+                    {menu.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* 2. CHARTS SECTION (TREN & DISTRIBUSI PRESENSI) */}
         <section aria-label="Visualisasi Tren dan Distribusi Presensi">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-            <div className="lg:col-span-7 w-full flex flex-col">
+          <div
+            className={
+              profile?.role === 'headmaster'
+                ? 'flex lg:grid lg:grid-cols-12 gap-4 lg:gap-5 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-none items-stretch'
+                : 'grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch'
+            }
+          >
+            <div
+              className={
+                profile?.role === 'headmaster'
+                  ? 'w-full lg:w-auto lg:min-w-0 lg:col-span-7 shrink-0 snap-center flex flex-col'
+                  : 'lg:col-span-7 w-full flex flex-col'
+              }
+            >
               <AttendanceTrendChart
                 weeklyTrend={execData?.weeklyTrend}
                 monthlyTrend={execData?.monthlyTrend}
@@ -660,7 +799,13 @@ export const DashboardPage: React.FC = () => {
                 className="h-full flex flex-col"
               />
             </div>
-            <div className="lg:col-span-5 w-full flex flex-col">
+            <div
+              className={
+                profile?.role === 'headmaster'
+                  ? 'w-full lg:w-auto lg:min-w-0 lg:col-span-5 shrink-0 snap-center flex flex-col'
+                  : 'lg:col-span-5 w-full flex flex-col'
+              }
+            >
               <AttendanceDonutChart
                 distribution={execData?.donutDistribution}
                 loading={execLoading}
@@ -681,6 +826,7 @@ export const DashboardPage: React.FC = () => {
             leaderboard={execData?.leaderboard ?? null}
             loading={execLoading}
             error={execError}
+            horizontalScrollMobile={profile?.role === 'headmaster'}
           />
         </section>
       </div>

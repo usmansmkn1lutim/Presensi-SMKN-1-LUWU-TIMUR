@@ -31,6 +31,10 @@ export interface DisciplineLeaderboardProps {
    * Optional CSS className override untuk container utama.
    */
   className?: string;
+  /**
+   * Jika true, card leaderboard dapat digeser horizontal di mobile/tablet.
+   */
+  horizontalScrollMobile?: boolean;
 }
 
 /**
@@ -174,19 +178,28 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
   loading = false,
   error = null,
   className = '',
+  horizontalScrollMobile = false,
 }) => {
   // Skeleton Loader State
   if (loading) {
     return (
       <div
-        className={`grid grid-cols-1 lg:grid-cols-2 gap-5 ${className}`}
+        className={
+          horizontalScrollMobile
+            ? `flex lg:grid lg:grid-cols-2 gap-4 lg:gap-5 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-none items-stretch ${className}`
+            : `grid grid-cols-1 lg:grid-cols-2 gap-5 ${className}`
+        }
         aria-busy="true"
         aria-label="Memuat papan peringkat kedisiplinan GTK"
       >
         {[1, 2].map((cardIdx) => (
           <div
             key={cardIdx}
-            className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4 animate-pulse"
+            className={
+              horizontalScrollMobile
+                ? 'w-full lg:w-auto lg:min-w-0 shrink-0 snap-center bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4 animate-pulse'
+                : 'bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4 animate-pulse'
+            }
           >
             {/* Header skeleton */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -250,14 +263,24 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
   const topLate = leaderboard?.topLate ?? [];
   const monthLabel = leaderboard?.monthLabel || 'Bulan Berjalan';
 
+  const cardClassName = horizontalScrollMobile
+    ? 'w-full lg:w-auto lg:min-w-0 shrink-0 snap-center bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between'
+    : 'bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between';
+
   return (
     <div className={`space-y-3.5 ${className}`}>
       {/* Grid 2 Kolom untuk Top 5 Terdisiplin & Top 5 Sering Terlambat */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div
+        className={
+          horizontalScrollMobile
+            ? 'flex lg:grid lg:grid-cols-2 gap-4 lg:gap-5 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-none items-stretch'
+            : 'grid grid-cols-1 lg:grid-cols-2 gap-5'
+        }
+      >
         {/* ============================================================ */}
         {/* KOLOM 1: TOP 5 KETEPATAN WAKTU TERBAIK                       */}
         {/* ============================================================ */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+        <div className={cardClassName}>
           <div>
             {/* Header Kolom 1 */}
             <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-slate-100">
@@ -350,7 +373,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
         {/* ============================================================ */}
         {/* KOLOM 2: TOP 5 FREKUENSI KETERLAMBATAN TERTINGGI              */}
         {/* ============================================================ */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+        <div className={cardClassName}>
           <div>
             {/* Header Kolom 2 */}
             <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-slate-100">
