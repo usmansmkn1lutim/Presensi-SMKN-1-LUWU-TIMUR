@@ -101,6 +101,7 @@ export interface ExecutiveDashboardData {
   lastMonthTrend: TrendPoint[];
   leaderboard: DisciplineLeaderboard;
   lastUpdated: string;
+  checkInOnTimeEnd?: string;
 }
 
 /**
@@ -716,6 +717,7 @@ export const dashboardExecutiveService = {
         lastMonthTrend,
         leaderboard,
         lastUpdated: new Date().toISOString(),
+        checkInOnTimeEnd: activeSchedule?.check_in_on_time_end || '07:30:00',
       };
     } catch (error: any) {
       console.error('Error compiling executive dashboard data:', error);

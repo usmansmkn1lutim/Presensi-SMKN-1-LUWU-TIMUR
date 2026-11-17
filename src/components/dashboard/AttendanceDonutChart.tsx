@@ -63,10 +63,7 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
         aria-label="Memuat distribusi presensi hari ini"
       >
         <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-          <div className="space-y-1.5">
-            <div className="h-5 bg-[#E5E7EB] rounded w-48" />
-            <div className="h-3.5 bg-[#F3F4F6] rounded w-32" />
-          </div>
+          <div className="h-5 bg-[#E5E7EB] rounded w-48" />
           <div className="h-4 bg-[#F3F4F6] rounded w-20" />
         </div>
 
@@ -206,9 +203,6 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
               </>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Proporsi real-time seluruh GTK aktif berdasarkan status presensi
-          </p>
         </div>
 
         {isNonWorkingDay && (

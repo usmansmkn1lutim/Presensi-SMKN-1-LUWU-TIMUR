@@ -301,7 +301,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
               </div>
 
               {/* Badge Periode Bulan */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-medium shrink-0" style={{ backgroundColor: 'var(--color-status-present-bg)', color: 'var(--color-status-present)' }}>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0" style={{ backgroundColor: 'var(--color-status-present-bg)', color: 'var(--color-status-present)' }}>
                 <Calendar className="w-3 h-3" style={{ color: 'var(--color-status-present)' }} />
                 <span>{monthLabel}</span>
               </div>
@@ -317,7 +317,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                   <p className="text-xs font-medium text-slate-700">
                     Belum Ada Data Presensi Bulan Ini
                   </p>
-                  <p className="text-2xs text-slate-400 mt-0.5 max-w-xs mx-auto">
+                  <p className="text-[10px] text-slate-400 mt-0.5 max-w-xs mx-auto">
                     Data peringkat ketepatan waktu akan muncul setelah GTK melakukan presensi masuk.
                   </p>
                 </div>
@@ -362,7 +362,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
           </div>
 
           {/* Catatan Transparansi / Denominator di Footer Kolom 1 */}
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-2xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-[11px] text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
             <Info className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Diurutkan berdasarkan jumlah hadir tepat waktu dan rasio kepatuhan terhadap total hari kehadiran bulan berjalan.
@@ -394,7 +394,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
               </div>
 
               {/* Badge Periode Bulan */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-medium shrink-0" style={{ backgroundColor: 'var(--color-status-late-bg)', color: 'var(--color-status-late)' }}>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium shrink-0" style={{ backgroundColor: 'var(--color-status-late-bg)', color: 'var(--color-status-late)' }}>
                 <Calendar className="w-3 h-3" style={{ color: 'var(--color-status-late)' }} />
                 <span>{monthLabel}</span>
               </div>
@@ -410,7 +410,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
                   <p className="text-xs font-semibold text-emerald-800">
                     Nihil Keterlambatan Bulan Ini
                   </p>
-                  <p className="text-2xs text-emerald-700/80 mt-0.5 max-w-xs mx-auto">
+                  <p className="text-[10px] text-emerald-700/80 mt-0.5 max-w-xs mx-auto">
                     Seluruh GTK yang melakukan presensi hadir tepat waktu tanpa ada catatan keterlambatan.
                   </p>
                 </div>
@@ -455,7 +455,7 @@ export const DisciplineLeaderboard: React.FC<DisciplineLeaderboardProps> = ({
           </div>
 
           {/* Catatan Evaluasi di Footer Kolom 2 */}
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-2xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-[11px] text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
             <Info className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Hanya menampilkan GTK dengan catatan keterlambatan &gt; 0 sebagai rujukan evaluasi pembinaan disiplin kerja.

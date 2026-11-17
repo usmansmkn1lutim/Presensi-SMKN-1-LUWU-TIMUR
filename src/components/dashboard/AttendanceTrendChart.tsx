@@ -136,6 +136,44 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
   const periodRef = useRef<HTMLDivElement>(null);
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartMetrics, setChartMetrics] = useState<{ width: number; isSmUp: boolean }>(() => ({
+    width: typeof window !== 'undefined' && window.innerWidth < 640 ? 320 : 640,
+    isSmUp: typeof window !== 'undefined' ? window.innerWidth >= 640 : true,
+  }));
+
+  // Measure chart canvas width so SVG viewBox matches container 1:1 without distortion
+  useEffect(() => {
+    const el = chartContainerRef.current;
+    if (!el) return;
+
+    const updateMetrics = () => {
+      const nextWidth = Math.round(el.clientWidth);
+      const nextIsSmUp = typeof window !== 'undefined' ? window.innerWidth >= 640 : true;
+      if (nextWidth > 0) {
+        setChartMetrics((prev) =>
+          prev.width === nextWidth && prev.isSmUp === nextIsSmUp
+            ? prev
+            : { width: nextWidth, isSmUp: nextIsSmUp }
+        );
+      }
+    };
+
+    updateMetrics();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => updateMetrics());
+      observer.observe(el);
+      window.addEventListener('resize', updateMetrics);
+      return () => {
+        observer.disconnect();
+        window.removeEventListener('resize', updateMetrics);
+      };
+    }
+
+    window.addEventListener('resize', updateMetrics);
+    return () => window.removeEventListener('resize', updateMetrics);
+  }, [loading, controlledPeriod, controlledRange, internalPeriod, data, thisWeekTrend, thisMonthTrend, lastMonthTrend, weeklyTrend, monthlyTrend]);
 
   // Close dropdowns on click outside
   useEffect(() => {
@@ -215,22 +253,38 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs space-y-5 animate-pulse ${className}`}>
-        <div className="flex justify-between items-center">
-          <div className="h-5 bg-[#E5E7EB] rounded w-44" />
-          <div className="h-9 bg-[#F3F4F6] rounded-xl w-36" />
+      <div className={`bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 animate-pulse ${className}`}>
+        {/* Header & 2 Filter Controls Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="h-6 bg-[#E5E7EB] rounded w-44" />
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <div className="h-8 bg-[#F3F4F6] rounded-xl w-24" />
+            <div className="h-8 bg-[#F3F4F6] rounded-xl w-28" />
+          </div>
         </div>
-        <div className="h-64 bg-slate-50/70 rounded-xl" />
+        {/* Legend Skeleton */}
+        <div className="flex items-center gap-2 pt-0.5">
+          <div className="w-3.5 h-1 rounded-full bg-[#E5E7EB]" />
+          <div className="h-3.5 bg-[#F3F4F6] rounded w-36" />
+        </div>
+        {/* Chart Canvas Skeleton */}
+        <div className="h-52 sm:h-64 bg-slate-50/70 rounded-xl" />
+        {/* Footer Skeleton */}
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 mt-auto">
+          <div className="h-3.5 bg-[#F3F4F6] rounded w-56" />
+          <div className="hidden sm:block h-3.5 bg-[#F3F4F6] rounded w-24" />
+        </div>
       </div>
     );
   }
 
-  const svgWidth = 800;
-  const svgHeight = 240;
-  const paddingLeft = 44;
-  const paddingRight = 20;
-  const paddingTop = 18;
-  const paddingBottom = 42;
+  const svgWidth = Math.max(280, chartMetrics.width);
+  const isCompactChart = svgWidth < 480;
+  const svgHeight = chartMetrics.isSmUp ? 256 : 208;
+  const paddingLeft = isCompactChart ? 34 : 44;
+  const paddingRight = isCompactChart ? 14 : 20;
+  const paddingTop = isCompactChart ? 14 : 18;
+  const paddingBottom = isCompactChart ? 34 : 42;
   const plotWidth = svgWidth - paddingLeft - paddingRight;
   const plotHeight = svgHeight - paddingTop - paddingBottom;
 
@@ -299,9 +353,9 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
         </div>
 
         {/* Action Controls: Status Filter & Period Filter Dropdowns */}
-        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+        <div className="relative flex flex-wrap items-center gap-2 self-start sm:self-auto">
           {/* Status Single-select Filter Dropdown */}
-          <div className="relative" ref={filterRef}>
+          <div className="sm:relative" ref={filterRef}>
             <button
               type="button"
               onClick={() => {
@@ -322,7 +376,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
             </button>
 
             {isFilterOpen && (
-              <div className="absolute right-0 mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-52 max-w-[calc(100vw-4rem)] bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   Pilih Status
                 </div>
@@ -360,7 +414,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
           </div>
 
           {/* Period Filter Dropdown (Minggu ini / Bulan ini / Bulan lalu) */}
-          <div className="relative" ref={periodRef}>
+          <div className="sm:relative" ref={periodRef}>
             <button
               type="button"
               onClick={() => {
@@ -377,7 +431,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
             </button>
 
             {isPeriodOpen && (
-              <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-48 max-w-[calc(100vw-4rem)] bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   Pilih Periode
                 </div>
@@ -432,7 +486,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
       {/* Chart Canvas Area */}
       {count === 0 ? (
-        <div className="h-64 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-center p-6">
+        <div className="h-52 sm:h-64 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-center p-6">
           <Calendar className="w-8 h-8 text-slate-400 mb-2 stroke-[1.5]" />
           <p className="text-sm font-medium text-slate-700">
             Belum Ada Data untuk {activePeriodOption.label}
@@ -442,10 +496,10 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
           </p>
         </div>
       ) : (
-        <div className="relative w-full overflow-hidden select-none">
+        <div ref={chartContainerRef} className="relative w-full overflow-hidden select-none">
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            className="w-full h-56 sm:h-64 overflow-visible"
+            className="w-full h-52 sm:h-64 overflow-visible"
             aria-hidden="true"
           >
             {/* Gradient definition for active status color */}
@@ -527,13 +581,16 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
               const x = slotLeft + slotWidth / 2;
               const isHovered = hoveredIndex === index;
 
-              // Tentukan apakah label X axis ditampilkan
+              // Tentukan apakah label X axis ditampilkan tanpa tumpang tindih pada layar sempit
+              const step = Math.max(1, Math.floor(count / (isCompactChart ? 4 : 5)));
+              const isTooCloseToEnd =
+                index !== count - 1 && count - 1 - index < Math.ceil(step / 2);
               const shouldShowLabel =
                 activePeriod === 'this_week' ||
                 count <= 7 ||
                 index === 0 ||
                 index === count - 1 ||
-                index % Math.max(1, Math.floor(count / 5)) === 0;
+                (index % step === 0 && !isTooCloseToEnd);
 
               return (
                 <g
