@@ -7,8 +7,8 @@ export interface QuickMenuIconProps {
 const ORANGE_PRIMARY = '#F97316';
 
 /**
- * 1. Monitoring — Ref: Lucide Eye (Single-Tone Solid Filled + Negative Space)
- * Siluet mata orange solid dengan pupil lubang transparan.
+ * 1. Monitoring — Ref: Lucide Eye (Outline Kelopak + Solid Iris dengan Negative Space Bite)
+ * Kelopak mata menggunakan outline Orange Sunset, iris solid dengan potongan lengkung transparan di kanan atas.
  */
 export const MonitoringIcon: React.FC<QuickMenuIconProps> = ({
   className = 'w-7 h-7 sm:w-8 sm:h-8',
@@ -21,10 +21,16 @@ export const MonitoringIcon: React.FC<QuickMenuIconProps> = ({
     aria-hidden="true"
   >
     <path
-      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0Z M12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 1 0 0-7.2Z"
+      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0Z"
+      fill="none"
+      stroke={ORANGE_PRIMARY}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M15.298 10.556A3.6 3.6 0 1 1 13.444 8.702A1.35 1.35 0 0 0 15.298 10.556Z"
       fill={ORANGE_PRIMARY}
-      fillRule="evenodd"
-      clipRule="evenodd"
     />
   </svg>
 );

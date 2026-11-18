@@ -154,24 +154,33 @@ export const MobileBottomNav: React.FC = () => {
   const role = user?.role || 'employee';
 
   // Determine role-aware 5-item tabs for mobile & tablet navbar
-  let middleLeftTab: MobileNavTab = { label: 'Riwayat', path: '/history' };
-  let middleRightTab: MobileNavTab = { label: 'Pengajuan', path: '/requests' };
+  let navTabs: MobileNavTab[] = [];
 
   if (role === 'admin' || role === 'super_admin') {
-    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: UsersRound };
-    middleRightTab = { label: 'Pengajuan', path: '/requests' };
+    navTabs = [
+      { label: 'Beranda', path: '/dashboard' },
+      { label: 'Pegawai', path: '/employees', icon: UsersRound },
+      { label: 'Permohonan', path: '/requests' },
+      { label: 'Laporan', path: '/reports', icon: BarChart3 },
+      { label: 'Profile', path: '/account' },
+    ];
   } else if (role === 'headmaster') {
-    middleLeftTab = { label: 'Pegawai', path: '/employees', icon: UsersRound };
-    middleRightTab = { label: 'Laporan', path: '/reports', icon: BarChart3 };
+    navTabs = [
+      { label: 'Beranda', path: '/dashboard' },
+      { label: 'Pegawai', path: '/employees', icon: UsersRound },
+      { label: 'Presensi', path: '/attendance', isPrimary: true },
+      { label: 'Laporan', path: '/reports', icon: BarChart3 },
+      { label: 'Profil', path: '/account' },
+    ];
+  } else {
+    navTabs = [
+      { label: 'Beranda', path: '/dashboard' },
+      { label: 'Riwayat', path: '/history' },
+      { label: 'Presensi', path: '/attendance', isPrimary: true },
+      { label: 'Pengajuan', path: '/requests' },
+      { label: 'Profil', path: '/account' },
+    ];
   }
-
-  const navTabs: MobileNavTab[] = [
-    { label: 'Beranda', path: '/dashboard' },
-    middleLeftTab,
-    { label: 'Presensi', path: '/attendance', isPrimary: true },
-    middleRightTab,
-    { label: 'Profil', path: '/account' },
-  ];
 
   // Helper untuk me-render ikon navigasi sesuai desain spesifik
   const renderTabIcon = (tab: MobileNavTab, isActive: boolean) => {
@@ -183,6 +192,16 @@ export const MobileBottomNav: React.FC = () => {
     }
     if (tab.path === '/requests') {
       return <NavRequestIcon isActive={isActive} />;
+    }
+    if (tab.path === '/reports') {
+      return (
+        <BarChart3
+          className="w-5 h-5"
+          fill="none"
+          color={isActive ? '#F97316' : '#6B7280'}
+          strokeWidth={2}
+        />
+      );
     }
     if (tab.path === '/account' || tab.path === '/profile') {
       return (

@@ -71,9 +71,9 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
 
   return (
     <>
-      {/* Mobile & Tablet Pill Filter Row (<1024px) */}
+      {/* Mobile & Tablet Pill Filter Row (<1024px) - Single horizontal scrollable row */}
       <div className="block lg:hidden">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item) => {
             const isSelected = selectedStatus === item.status;
             return (
@@ -81,7 +81,7 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
                 key={item.status}
                 type="button"
                 onClick={() => onSelectStatus && onSelectStatus(item.status)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 ${
                   isSelected
                     ? 'bg-[#F97316] text-white font-bold shadow-2xs'
                     : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-gray-50'

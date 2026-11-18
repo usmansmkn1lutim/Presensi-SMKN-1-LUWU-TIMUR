@@ -204,17 +204,6 @@ export const RequestsPage: React.FC = () => {
         <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
           Pengajuan
         </h1>
-
-        {canHavePersonalRequests && (!isReviewer || activeTab === 'personal') && !isUnlinked && (
-          <button
-            type="button"
-            onClick={() => setIsFormOpen(true)}
-            className="w-full h-12 px-4 bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white font-bold rounded-2xl shadow-2xs inline-flex items-center justify-center gap-2 transition-colors cursor-pointer text-sm"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5] text-white shrink-0" />
-            <span>Pengajuan baru</span>
-          </button>
-        )}
       </div>
 
       {/* Header Banner (Desktop Only >= 1024px) */}
@@ -224,18 +213,6 @@ export const RequestsPage: React.FC = () => {
             ? 'Tinjauan Permohonan Pegawai'
             : 'Histori Permohonan Saya'}
         </h1>
-
-        {canHavePersonalRequests && (!isReviewer || activeTab === 'personal') && !isUnlinked && (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsFormOpen(true)}
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold"
-          >
-            Ajukan Permohonan
-          </Button>
-        )}
       </div>
 
       {/* Reviewer Top Navigation Tabs (only when reviewer can also submit personal requests, e.g., headmaster) */}
@@ -399,42 +376,64 @@ export const RequestsPage: React.FC = () => {
             </div>
           )}
 
-          {/* Desktop Only: Full Search & Filters (>= 1024px) */}
+          {/* Desktop Only: Full Search & Filters (>= 1024px) + Ajukan Permohonan Button */}
           {!isUnlinked && (
-            <div className="hidden lg:block">
-              <RequestHistoryFilters
-                values={myFilterValues}
-                onChange={setMyFilterValues}
-                onReset={() =>
-                  setMyFilterValues({
-                    status: 'all',
-                    requestType: 'all',
-                    datePreset: 'all',
-                    customStartDate: '',
-                    customEndDate: '',
-                    search: '',
-                  })
-                }
-                showSearch={true}
-                searchPlaceholder="Cari jenis pengajuan atau alasan..."
-              />
+            <div className="hidden lg:flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <RequestHistoryFilters
+                  values={myFilterValues}
+                  onChange={setMyFilterValues}
+                  onReset={() =>
+                    setMyFilterValues({
+                      status: 'all',
+                      requestType: 'all',
+                      datePreset: 'all',
+                      customStartDate: '',
+                      customEndDate: '',
+                      search: '',
+                    })
+                  }
+                  showSearch={true}
+                  searchPlaceholder="Cari jenis pengajuan atau alasan..."
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFormOpen(true)}
+                aria-label="Ajukan Permohonan"
+                title="Ajukan Permohonan"
+                className="w-11 h-11 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-xl shadow-2xs flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+              >
+                <Plus className="w-5 h-5 stroke-[2.5]" />
+              </button>
             </div>
           )}
 
-          {/* Mobile & Tablet Only: Unified Search + Filter Bar (< 1024px) */}
+          {/* Mobile & Tablet Only: Unified Search + Filter Bar (< 1024px) + Ajukan Permohonan Button */}
           {!isUnlinked && (
-            <div className="lg:hidden">
-              <RequestMobileSearchFilter
-                search={myFilterValues.search}
-                onSearchChange={(search) =>
-                  setMyFilterValues((prev) => ({ ...prev, search }))
-                }
-                status={myFilterValues.status}
-                onStatusChange={(status) =>
-                  setMyFilterValues((prev) => ({ ...prev, status }))
-                }
-                placeholder="Cari pengajuan..."
-              />
+            <div className="lg:hidden flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <RequestMobileSearchFilter
+                  search={myFilterValues.search}
+                  onSearchChange={(search) =>
+                    setMyFilterValues((prev) => ({ ...prev, search }))
+                  }
+                  status={myFilterValues.status}
+                  onStatusChange={(status) =>
+                    setMyFilterValues((prev) => ({ ...prev, status }))
+                  }
+                  placeholder="Cari pengajuan..."
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFormOpen(true)}
+                aria-label="Ajukan Permohonan"
+                title="Ajukan Permohonan"
+                className="w-9 h-9 bg-[#F97316] hover:bg-[#EA580C] text-white rounded-xl shadow-2xs flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+              </button>
             </div>
           )}
 
