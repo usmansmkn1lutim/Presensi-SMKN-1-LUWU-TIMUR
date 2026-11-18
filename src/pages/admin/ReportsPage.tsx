@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Calendar,
   Users,
@@ -70,6 +70,29 @@ export const ReportsPage: React.FC = () => {
 
   const [detailPage, setDetailPage] = useState<number>(1);
   const [detailPageSize, setDetailPageSize] = useState<number>(15);
+
+  // Controlled client-side & unified mobile/tablet search states
+  const [employeeSearch, setEmployeeSearch] = useState<string>('');
+  const [recapSearch, setRecapSearch] = useState<string>('');
+  const [recapEmployeeType, setRecapEmployeeType] = useState<string>('all');
+  const [recapPage, setRecapPage] = useState<number>(1);
+  const [mobileGlobalSearch, setMobileGlobalSearch] = useState<string>(filter.searchQuery || '');
+
+  const latestFilterRef = useRef<AttendanceReportFilter>(filter);
+  latestFilterRef.current = filter;
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setMobileGlobalSearch(filter.searchQuery || '');
+  }, [filter.searchQuery]);
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, []);
 
   // 1. Load Filter Selectors (departments, locations, employees)
   useEffect(() => {
@@ -163,12 +186,23 @@ export const ReportsPage: React.FC = () => {
 
   // 3. Filter Actions
   const handleApplyFilter = (newFilter: AttendanceReportFilter) => {
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
     setFilter(newFilter);
     setDetailPage(1);
     loadReport(newFilter, 1, detailPageSize);
   };
 
+  const applyFilterRef = useRef(handleApplyFilter);
+  applyFilterRef.current = handleApplyFilter;
+
   const handleResetFilter = () => {
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
     const defaultFilter: AttendanceReportFilter = {
       startDate: getMakassarFirstDayOfMonthString(),
       endDate: getMakassarTodayDateString(),
@@ -182,6 +216,62 @@ export const ReportsPage: React.FC = () => {
     setFilter(defaultFilter);
     setDetailPage(1);
     loadReport(defaultFilter, 1, detailPageSize);
+  };
+
+  const handleResetMobileAll = (overrides?: {
+    filter?: AttendanceReportFilter;
+    employeeTypeFilter?: string;
+  }) => {
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
+    setEmployeeSearch('');
+    setRecapSearch('');
+    setRecapPage(1);
+    setRecapEmployeeType(overrides?.employeeTypeFilter ?? 'all');
+    setMobileGlobalSearch('');
+
+    if (overrides?.filter) {
+      handleApplyFilter(overrides.filter);
+    } else {
+      handleResetFilter();
+    }
+  };
+
+  const handleRecapEmployeeTypeChange = (type: string) => {
+    setRecapEmployeeType(type);
+    setRecapPage(1);
+  };
+
+  const mobileSearchValue =
+    activeTab === 'employee'
+      ? employeeSearch
+      : activeTab === 'monthly_recap'
+        ? recapSearch
+        : mobileGlobalSearch;
+
+  const handleMobileSearchChange = (q: string) => {
+    if (activeTab === 'employee') {
+      setEmployeeSearch(q);
+      return;
+    }
+    if (activeTab === 'monthly_recap') {
+      setRecapSearch(q);
+      setRecapPage(1);
+      return;
+    }
+
+    setMobileGlobalSearch(q);
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+    searchDebounceRef.current = setTimeout(() => {
+      applyFilterRef.current({
+        ...latestFilterRef.current,
+        searchQuery: q.trim() || undefined,
+      });
+    }, 300);
   };
 
   // 4. Pagination handlers for Detail Tab
@@ -326,6 +416,21 @@ export const ReportsPage: React.FC = () => {
 
   const dateRangeLabel = `${formatMakassarShortDate(filter.startDate)} - ${formatMakassarShortDate(filter.endDate)}`;
 
+  const defStart = getMakassarFirstDayOfMonthString();
+  const defEnd = getMakassarTodayDateString();
+  const hasActiveFilter = Boolean(
+    filter.startDate !== defStart ||
+      filter.endDate !== defEnd ||
+      filter.employeeId ||
+      filter.departmentId ||
+      filter.locationId ||
+      filter.checkInStatus ||
+      filter.checkOutStatus ||
+      filter.searchQuery ||
+      (activeTab === 'employee' && employeeSearch.trim()) ||
+      (activeTab === 'monthly_recap' && (recapSearch.trim() || recapEmployeeType !== 'all'))
+  );
+
   const tabLabels: Record<ReportTab, string> = {
     daily: 'Rekap Harian',
     employee: 'Rekap Per Pegawai',
@@ -333,6 +438,14 @@ export const ReportsPage: React.FC = () => {
     monthly_recap: 'Rekap Bulanan Grid',
     detail: 'Detail Presensi',
   };
+
+  const mobilePillTabs: { id: ReportTab; label: string }[] = [
+    { id: 'daily', label: 'Harian' },
+    { id: 'employee', label: 'Pegawai' },
+    { id: 'monthly', label: 'Bulanan' },
+    { id: 'monthly_recap', label: 'Bulanan Grid' },
+    { id: 'detail', label: 'Detail' },
+  ];
 
   const tabItems = [
     {
@@ -368,7 +481,7 @@ export const ReportsPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto pb-12">
+    <div className="space-y-4 lg:space-y-5 max-w-7xl mx-auto pb-2 lg:pb-12">
       {/* 1. Header Banner */}
       <ReportHeader
         onRefresh={() => loadReport(filter, detailPage, detailPageSize)}
@@ -399,7 +512,7 @@ export const ReportsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 4. Filter Bar */}
+      {/* 4. Filter Bar (Mobile/Tablet: Search + Filter trigger; Desktop: Full Filter Card) */}
       <ReportFilterBar
         filter={filter}
         onApplyFilter={handleApplyFilter}
@@ -408,6 +521,12 @@ export const ReportsPage: React.FC = () => {
         locations={locations}
         employees={employees}
         isLoading={isLoading}
+        activeTab={activeTab}
+        mobileSearchValue={mobileSearchValue}
+        onMobileSearchChange={handleMobileSearchChange}
+        employeeTypeFilter={recapEmployeeType}
+        onEmployeeTypeChange={handleRecapEmployeeTypeChange}
+        onResetMobileAll={handleResetMobileAll}
       />
 
       {/* 5. Error Banner */}
@@ -434,11 +553,38 @@ export const ReportsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 6. Global Summary Cards */}
-      <ReportSummaryCards metrics={reportData?.metrics || null} isLoading={isLoading} />
+      {/* 6. Global Summary Cards (Desktop Only) */}
+      <div className="hidden lg:block">
+        <ReportSummaryCards metrics={reportData?.metrics || null} isLoading={isLoading} />
+      </div>
 
       {/* 7. Navigation Tabs */}
-      <div className="border-b border-[#E5E7EB]">
+      {/* Mobile & Tablet (<lg): Horizontal Scrollable Pill Tabs */}
+      <div className="lg:hidden overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex items-center gap-2 min-w-max">
+          {mobilePillTabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                disabled={isExporting}
+                className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors cursor-pointer disabled:opacity-60 ${
+                  isActive
+                    ? 'bg-[#F97316] text-white font-semibold'
+                    : 'bg-[#F3F4F6] text-[#6B7280] font-medium hover:text-[#111827]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Desktop (>=lg): Unchanged Original Underline Tabs */}
+      <div className="hidden lg:block border-b border-[#E5E7EB]">
         <div className="flex items-center gap-2 overflow-x-auto pb-px">
           {tabItems.map((tab) => {
             const Icon = tab.icon;
@@ -473,7 +619,7 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* 8. Active Tab Content Section */}
-      <div className="pt-1">
+      <div className="pt-0 lg:pt-1">
         {activeTab === 'daily' && (
           <DailyReportTable
             data={reportData?.dailySummaries || []}
@@ -493,6 +639,8 @@ export const ReportsPage: React.FC = () => {
             onExportPdf={handleExportPdf}
             isExporting={isExporting}
             exportingType={exportingType}
+            searchQuery={employeeSearch}
+            onSearchChange={setEmployeeSearch}
           />
         )}
 
@@ -504,6 +652,7 @@ export const ReportsPage: React.FC = () => {
             onExportPdf={handleExportPdf}
             isExporting={isExporting}
             exportingType={exportingType}
+            hasActiveFilter={hasActiveFilter}
           />
         )}
 
@@ -515,6 +664,15 @@ export const ReportsPage: React.FC = () => {
             onExportPdf={handleExportPdf}
             isExporting={isExporting}
             exportingType={exportingType}
+            searchQuery={recapSearch}
+            onSearchChange={(q) => {
+              setRecapSearch(q);
+              setRecapPage(1);
+            }}
+            employeeTypeFilter={recapEmployeeType}
+            onEmployeeTypeChange={handleRecapEmployeeTypeChange}
+            currentPage={recapPage}
+            onPageChange={setRecapPage}
           />
         )}
 
@@ -528,9 +686,11 @@ export const ReportsPage: React.FC = () => {
             onExportPdf={handleExportPdf}
             isExporting={isExporting}
             exportingType={exportingType}
+            hasActiveFilter={hasActiveFilter}
           />
         )}
       </div>
     </div>
   );
 };
+
