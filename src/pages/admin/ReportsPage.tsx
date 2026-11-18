@@ -15,6 +15,10 @@ import {
   getMakassarFirstDayOfMonthString,
   formatMakassarShortDate,
 } from '../../services/attendanceReportService';
+import {
+  attendanceStatusService,
+  EvaluatedStatusResult,
+} from '../../services/attendanceStatusService';
 import { attendanceExcelExportService } from '../../services/attendanceExcelExportService';
 import { attendancePdfExportService } from '../../services/attendancePdfExportService';
 import {
@@ -77,6 +81,20 @@ export const ReportsPage: React.FC = () => {
   const [recapEmployeeType, setRecapEmployeeType] = useState<string>('all');
   const [recapPage, setRecapPage] = useState<number>(1);
   const [mobileGlobalSearch, setMobileGlobalSearch] = useState<string>(filter.searchQuery || '');
+
+  // Isolated Local State & LRU Cache for Tab Harian Mobile/Tablet (<1024px)
+  const initialTodayWita = getMakassarTodayDateString();
+  const [dailySelectedDate, setDailySelectedDate] = useState<string>(initialTodayWita);
+  const [dailySelectedMonth, setDailySelectedMonth] = useState<string>(initialTodayWita.slice(5, 7));
+  const [dailySelectedYear, setDailySelectedYear] = useState<string>(initialTodayWita.slice(0, 4));
+  const [dailyDepartmentId, setDailyDepartmentId] = useState<string>('all');
+  const [dailyEvaluatedRecords, setDailyEvaluatedRecords] = useState<EvaluatedStatusResult[]>([]);
+  const [isDailyEvalLoading, setIsDailyEvalLoading] = useState<boolean>(false);
+  const [dailyEvalError, setDailyEvalError] = useState<string | null>(null);
+
+  const dailyCacheRef = useRef<Map<string, EvaluatedStatusResult[]>>(new Map());
+  const dailyInFlightRef = useRef<Map<string, Promise<EvaluatedStatusResult[]>>>(new Map());
+  const dailyRequestIdRef = useRef<number>(0);
 
   const latestFilterRef = useRef<AttendanceReportFilter>(filter);
   latestFilterRef.current = filter;
@@ -183,6 +201,112 @@ export const ReportsPage: React.FC = () => {
       mounted = false;
     };
   }, [activeTab, filter.startDate, filter.departmentId]);
+
+  // 2.6. Daily Mobile/Tablet Per-Date Evaluated Loader with LRU Cache (max 31), In-Flight Dedup & Stale Guard
+  const loadDailyEvaluated = useCallback(
+    async (targetDate: string, targetDeptId: string) => {
+      const normalizedDept = targetDeptId || 'all';
+      const cacheKey = `${targetDate}:${normalizedDept}`;
+
+      const cache = dailyCacheRef.current;
+      if (cache.has(cacheKey)) {
+        const cached = cache.get(cacheKey)!;
+        // Refresh LRU recency
+        cache.delete(cacheKey);
+        cache.set(cacheKey, cached);
+        dailyRequestIdRef.current += 1;
+        setDailyEvaluatedRecords(cached);
+        setDailyEvalError(null);
+        setIsDailyEvalLoading(false);
+        return;
+      }
+
+      const reqId = ++dailyRequestIdRef.current;
+      setIsDailyEvalLoading(true);
+      setDailyEvalError(null);
+      setDailyEvaluatedRecords([]);
+
+      let inFlightPromise = dailyInFlightRef.current.get(cacheKey);
+      if (!inFlightPromise) {
+        inFlightPromise = attendanceStatusService.getEvaluatedMatrix(
+          targetDate,
+          targetDate,
+          null,
+          normalizedDept === 'all' ? null : normalizedDept
+        );
+        dailyInFlightRef.current.set(cacheKey, inFlightPromise);
+      }
+
+      try {
+        const rows = await inFlightPromise;
+
+        // Store valid response in 31-entry LRU cache even if request became stale
+        const currentCache = dailyCacheRef.current;
+        if (currentCache.has(cacheKey)) {
+          currentCache.delete(cacheKey);
+        } else if (currentCache.size >= 31) {
+          const oldestKey = currentCache.keys().next().value;
+          if (oldestKey !== undefined) {
+            currentCache.delete(oldestKey);
+          }
+        }
+        currentCache.set(cacheKey, rows);
+
+        if (dailyRequestIdRef.current === reqId) {
+          setDailyEvaluatedRecords(rows);
+          setDailyEvalError(null);
+          setIsDailyEvalLoading(false);
+        }
+      } catch (err: any) {
+        if (dailyRequestIdRef.current === reqId) {
+          setDailyEvaluatedRecords([]);
+          setDailyEvalError(
+            err?.message || 'Gagal memuat data presensi harian. Silakan coba lagi.'
+          );
+          setIsDailyEvalLoading(false);
+        }
+      } finally {
+        if (dailyInFlightRef.current.get(cacheKey) === inFlightPromise) {
+          dailyInFlightRef.current.delete(cacheKey);
+        }
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (activeTab !== 'daily') return;
+    loadDailyEvaluated(dailySelectedDate, dailyDepartmentId);
+  }, [activeTab, dailySelectedDate, dailyDepartmentId, loadDailyEvaluated]);
+
+  const handleDailyMonthChange = (nextYear: string, nextMonth: string) => {
+    const todayStr = getMakassarTodayDateString();
+    const currentYear = todayStr.slice(0, 4);
+    const currentMonth = todayStr.slice(5, 7);
+    const nextDate =
+      nextYear === currentYear && nextMonth === currentMonth
+        ? todayStr
+        : `${nextYear}-${nextMonth}-01`;
+
+    setDailySelectedYear(nextYear);
+    setDailySelectedMonth(nextMonth);
+    setDailySelectedDate(nextDate);
+  };
+
+  const handleApplyDailyMobileFilter = (next: {
+    year: string;
+    month: string;
+    departmentId: string;
+  }) => {
+    const monthChanged =
+      next.year !== dailySelectedYear || next.month !== dailySelectedMonth;
+
+    setDailyDepartmentId(next.departmentId || 'all');
+
+    if (monthChanged) {
+      handleDailyMonthChange(next.year, next.month);
+    }
+  };
 
   // 3. Filter Actions
   const handleApplyFilter = (newFilter: AttendanceReportFilter) => {
@@ -512,109 +636,124 @@ export const ReportsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 4. Filter Bar (Mobile/Tablet: Search + Filter trigger; Desktop: Full Filter Card) */}
-      <ReportFilterBar
-        filter={filter}
-        onApplyFilter={handleApplyFilter}
-        onResetFilter={handleResetFilter}
-        departments={departments}
-        locations={locations}
-        employees={employees}
-        isLoading={isLoading}
-        activeTab={activeTab}
-        mobileSearchValue={mobileSearchValue}
-        onMobileSearchChange={handleMobileSearchChange}
-        employeeTypeFilter={recapEmployeeType}
-        onEmployeeTypeChange={handleRecapEmployeeTypeChange}
-        onResetMobileAll={handleResetMobileAll}
-      />
+      {/* 4. Filter Bar & Mobile Tabs (On <lg daily tab, pill tabs appear above calendar/filter area) */}
+      <div className="flex flex-col gap-4 lg:gap-5">
+        <div className={activeTab === 'daily' ? 'order-2 lg:order-none' : 'order-1 lg:order-none'}>
+          <ReportFilterBar
+            filter={filter}
+            onApplyFilter={handleApplyFilter}
+            onResetFilter={handleResetFilter}
+            departments={departments}
+            locations={locations}
+            employees={employees}
+            isLoading={isLoading}
+            activeTab={activeTab}
+            mobileSearchValue={mobileSearchValue}
+            onMobileSearchChange={handleMobileSearchChange}
+            employeeTypeFilter={recapEmployeeType}
+            onEmployeeTypeChange={handleRecapEmployeeTypeChange}
+            onResetMobileAll={handleResetMobileAll}
+            dailySelectedDate={dailySelectedDate}
+            dailySelectedMonth={dailySelectedMonth}
+            dailySelectedYear={dailySelectedYear}
+            dailyDepartmentId={dailyDepartmentId}
+            onDailySelectDate={setDailySelectedDate}
+            onDailyMonthChange={handleDailyMonthChange}
+            onApplyDailyFilter={handleApplyDailyMobileFilter}
+          />
+        </div>
 
-      {/* 5. Error Banner */}
-      {errorMessage && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-800">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-              <AlertTriangle className="w-5 h-5" />
+        {/* 5. Error Banner */}
+        {errorMessage && (
+          <div className="order-3 lg:order-none bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-800">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold">Peringatan / Kendala Laporan</h4>
+                <p className="text-xs text-red-700 mt-0.5">{errorMessage}</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-bold">Peringatan / Kendala Laporan</h4>
-              <p className="text-xs text-red-700 mt-0.5">{errorMessage}</p>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => loadReport(filter, detailPage, detailPageSize)}
+              className="border-red-300 text-red-700 hover:bg-red-100 self-start sm:self-auto shrink-0"
+              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+            >
+              Coba Lagi
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => loadReport(filter, detailPage, detailPageSize)}
-            className="border-red-300 text-red-700 hover:bg-red-100 self-start sm:self-auto shrink-0"
-            leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-          >
-            Coba Lagi
-          </Button>
+        )}
+
+        {/* 6. Global Summary Cards (Desktop Only) */}
+        <div className="hidden lg:block">
+          <ReportSummaryCards metrics={reportData?.metrics || null} isLoading={isLoading} />
         </div>
-      )}
 
-      {/* 6. Global Summary Cards (Desktop Only) */}
-      <div className="hidden lg:block">
-        <ReportSummaryCards metrics={reportData?.metrics || null} isLoading={isLoading} />
-      </div>
-
-      {/* 7. Navigation Tabs */}
-      {/* Mobile & Tablet (<lg): Horizontal Scrollable Pill Tabs */}
-      <div className="lg:hidden overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex items-center gap-2 min-w-max">
-          {mobilePillTabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                disabled={isExporting}
-                className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors cursor-pointer disabled:opacity-60 ${
-                  isActive
-                    ? 'bg-[#F97316] text-white font-semibold'
-                    : 'bg-[#F3F4F6] text-[#6B7280] font-medium hover:text-[#111827]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Desktop (>=lg): Unchanged Original Underline Tabs */}
-      <div className="hidden lg:block border-b border-[#E5E7EB]">
-        <div className="flex items-center gap-2 overflow-x-auto pb-px">
-          {tabItems.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                disabled={isExporting}
-                className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors cursor-pointer disabled:opacity-60 ${
-                  isActive
-                    ? 'border-[#F97316] text-[#F97316] bg-orange-50/40 rounded-t-xl'
-                    : 'border-transparent text-[#6B7280] hover:text-[#111827] hover:border-gray-300'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#F97316]' : 'text-[#9CA3AF]'}`} />
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+        {/* 7. Navigation Tabs */}
+        {/* Mobile & Tablet (<lg): Horizontal Scrollable Pill Tabs */}
+        <div
+          className={`lg:hidden overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            activeTab === 'daily' ? 'order-1' : 'order-2'
+          }`}
+        >
+          <div className="flex items-center gap-2 min-w-max">
+            {mobilePillTabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  disabled={isExporting}
+                  className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors cursor-pointer disabled:opacity-60 ${
                     isActive
-                      ? 'bg-orange-100 text-orange-800'
-                      : 'bg-gray-100 text-[#6B7280]'
+                      ? 'bg-[#F97316] text-white font-semibold'
+                      : 'bg-[#F3F4F6] text-[#6B7280] font-medium hover:text-[#111827]'
                   }`}
                 >
-                  {tab.count}
-                </span>
-              </button>
-            );
-          })}
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop (>=lg): Unchanged Original Underline Tabs */}
+        <div className="hidden lg:block border-b border-[#E5E7EB]">
+          <div className="flex items-center gap-2 overflow-x-auto pb-px">
+            {tabItems.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  disabled={isExporting}
+                  className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors cursor-pointer disabled:opacity-60 ${
+                    isActive
+                      ? 'border-[#F97316] text-[#F97316] bg-orange-50/40 rounded-t-xl'
+                      : 'border-transparent text-[#6B7280] hover:text-[#111827] hover:border-gray-300'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#F97316]' : 'text-[#9CA3AF]'}`} />
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                      isActive
+                        ? 'bg-orange-100 text-orange-800'
+                        : 'bg-gray-100 text-[#6B7280]'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -628,6 +767,11 @@ export const ReportsPage: React.FC = () => {
             onExportPdf={handleExportPdf}
             isExporting={isExporting}
             exportingType={exportingType}
+            dailySelectedDate={dailySelectedDate}
+            dailyEvaluatedRecords={dailyEvaluatedRecords}
+            isDailyLoading={isDailyEvalLoading}
+            dailyError={dailyEvalError}
+            onRetryDaily={() => loadDailyEvaluated(dailySelectedDate, dailyDepartmentId)}
           />
         )}
 

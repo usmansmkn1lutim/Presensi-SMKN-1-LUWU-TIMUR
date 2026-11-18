@@ -5,6 +5,8 @@ import {
   RotateCcw,
   Calendar,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Building2,
   MapPin,
   User,
@@ -16,7 +18,6 @@ import { AttendanceReportFilter } from '../../types/attendanceReport.types';
 import {
   getMakassarTodayDateString,
   getMakassarFirstDayOfMonthString,
-  formatMakassarShortDate,
 } from '../../services/attendanceReportService';
 
 export type PresetPeriod = 'today' | 'this_week' | 'this_month' | 'custom';
@@ -39,7 +40,20 @@ interface ReportFilterBarProps {
     filter?: AttendanceReportFilter;
     employeeTypeFilter?: string;
   }) => void;
+  dailySelectedDate?: string;
+  dailySelectedMonth?: string;
+  dailySelectedYear?: string;
+  dailyDepartmentId?: string;
+  onDailySelectDate?: (dateStr: string) => void;
+  onDailyMonthChange?: (year: string, month: string) => void;
+  onApplyDailyFilter?: (next: {
+    year: string;
+    month: string;
+    departmentId: string;
+  }) => void;
 }
+
+const SHORT_DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 const MONTH_OPTIONS = [
   { value: '01', label: 'Januari' },
@@ -109,6 +123,13 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   employeeTypeFilter = 'all',
   onEmployeeTypeChange,
   onResetMobileAll,
+  dailySelectedDate,
+  dailySelectedMonth,
+  dailySelectedYear,
+  dailyDepartmentId = 'all',
+  onDailySelectDate,
+  onDailyMonthChange,
+  onApplyDailyFilter,
 }) => {
   // Desktop filter states
   const [selectedPreset, setSelectedPreset] = useState<PresetPeriod>('this_month');
@@ -162,13 +183,35 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   );
   const [draftLocationId, setDraftLocationId] = useState<string>(filter.locationId || 'all');
   const [draftEmployeeType, setDraftEmployeeType] = useState<string>(employeeTypeFilter);
+  const [draftDailyMonth, setDraftDailyMonth] = useState<string>(
+    dailySelectedMonth || filter.startDate.slice(5, 7)
+  );
+  const [draftDailyYear, setDraftDailyYear] = useState<string>(
+    dailySelectedYear || filter.startDate.slice(0, 4)
+  );
+  const [draftDailyDepartmentId, setDraftDailyDepartmentId] = useState<string>(
+    dailyDepartmentId || 'all'
+  );
   const [wasResetDraft, setWasResetDraft] = useState<boolean>(false);
   const [didChangeRecapMonth, setDidChangeRecapMonth] = useState<boolean>(false);
   const [dateError, setDateError] = useState<string | null>(null);
+  const dailyPillRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
     setIsPanelOpen(false);
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== 'daily' || !dailySelectedDate) return;
+    const activeEl = dailyPillRefs.current[dailySelectedDate];
+    if (activeEl) {
+      activeEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  }, [activeTab, dailySelectedDate, dailySelectedMonth, dailySelectedYear]);
 
   useEffect(() => {
     if (!isPanelOpen) return;
@@ -193,6 +236,9 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
     setDraftCheckOutStatus(filter.checkOutStatus || 'all');
     setDraftLocationId(filter.locationId || 'all');
     setDraftEmployeeType(employeeTypeFilter);
+    setDraftDailyMonth(dailySelectedMonth || getMakassarTodayDateString().slice(5, 7));
+    setDraftDailyYear(dailySelectedYear || getMakassarTodayDateString().slice(0, 4));
+    setDraftDailyDepartmentId(dailyDepartmentId || 'all');
     setWasResetDraft(false);
     setDidChangeRecapMonth(false);
     setDateError(null);
@@ -288,6 +334,13 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   const handleResetDraft = () => {
     const defStart = getMakassarFirstDayOfMonthString();
     const defEnd = getMakassarTodayDateString();
+    if (activeTab === 'daily') {
+      setDraftDailyMonth(defEnd.slice(5, 7));
+      setDraftDailyYear(defEnd.slice(0, 4));
+      setDraftDailyDepartmentId('all');
+      setDateError(null);
+      return;
+    }
     setDraftPreset('this_month');
     setDraftStartDate(defStart);
     setDraftEndDate(defEnd);
@@ -305,6 +358,16 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   };
 
   const handleApplyDraft = () => {
+    if (activeTab === 'daily') {
+      onApplyDailyFilter?.({
+        year: draftDailyYear,
+        month: draftDailyMonth,
+        departmentId: draftDailyDepartmentId,
+      });
+      setIsPanelOpen(false);
+      return;
+    }
+
     if (activeTab !== 'monthly_recap' && draftStartDate > draftEndDate) {
       setDateError('Tanggal mulai tidak boleh lebih besar dari tanggal akhir.');
       return;
@@ -395,10 +458,19 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   const defEnd = getMakassarTodayDateString();
   const isDefaultPeriod = filter.startDate === defStart && filter.endDate === defEnd;
 
+  const effectiveDailyYear = dailySelectedYear || defEnd.slice(0, 4);
+  const effectiveDailyMonth = dailySelectedMonth || defEnd.slice(5, 7);
+  const effectiveDailyDate = dailySelectedDate || defEnd;
+
   let activeFilterCount = 0;
   if (activeTab === 'daily') {
-    if (!isDefaultPeriod) activeFilterCount++;
-    if (filter.departmentId) activeFilterCount++;
+    if (
+      effectiveDailyYear !== defEnd.slice(0, 4) ||
+      effectiveDailyMonth !== defEnd.slice(5, 7)
+    ) {
+      activeFilterCount++;
+    }
+    if (dailyDepartmentId && dailyDepartmentId !== 'all') activeFilterCount++;
   } else if (activeTab === 'employee') {
     if (!isDefaultPeriod) activeFilterCount++;
     if (filter.departmentId) activeFilterCount++;
@@ -430,137 +502,223 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
     currentMakassarYear,
     currentMakassarYear + 1,
     Number(draftYear) || currentMakassarYear,
+    Number(draftDailyYear) || currentMakassarYear,
   ]);
   const yearOptions = Array.from(yearSet).sort((a, b) => b - a);
+
+  // Pill Calendar items for Tab Harian Mobile/Tablet (<lg)
+  const dailyYearNum = Number(effectiveDailyYear);
+  const dailyMonthNum = Number(effectiveDailyMonth);
+  const dailyDaysInMonth = new Date(dailyYearNum, dailyMonthNum, 0).getDate();
+  const dailyMonthLabel =
+    MONTH_OPTIONS.find((m) => m.value === effectiveDailyMonth)?.label || effectiveDailyMonth;
+  const dailyCalendarDays = Array.from({ length: dailyDaysInMonth }, (_, idx) => {
+    const dayNum = idx + 1;
+    const dayStr = String(dayNum).padStart(2, '0');
+    const dateStr = `${effectiveDailyYear}-${effectiveDailyMonth}-${dayStr}`;
+    const weekdayIndex = new Date(dailyYearNum, dailyMonthNum - 1, dayNum, 12, 0, 0).getDay();
+    return {
+      dayNum,
+      dateStr,
+      dayShort: SHORT_DAY_LABELS[weekdayIndex],
+    };
+  });
+
+  const handleStepDailyMonth = (delta: -1 | 1) => {
+    let nextMonth = dailyMonthNum + delta;
+    let nextYear = dailyYearNum;
+    if (nextMonth < 1) {
+      nextMonth = 12;
+      nextYear -= 1;
+    } else if (nextMonth > 12) {
+      nextMonth = 1;
+      nextYear += 1;
+    }
+    onDailyMonthChange?.(String(nextYear), String(nextMonth).padStart(2, '0'));
+  };
 
   const searchPlaceholder =
     activeTab === 'employee'
       ? 'Cari pegawai, NIP, departemen...'
       : 'Cari nama atau NIP...';
 
-  const renderContextualPanelBody = () => (
-    <div className="space-y-4">
-      {/* Periode: daily, employee, monthly, detail */}
-      {activeTab !== 'monthly_recap' && (
-        <div className="space-y-2.5">
-          <label className="block text-xs font-semibold text-[#374151]">Periode</label>
-          <div className="grid grid-cols-2 gap-2">
-            {(
-              [
-                { id: 'today', label: 'Hari Ini' },
-                { id: 'this_week', label: 'Minggu Ini' },
-                { id: 'this_month', label: 'Bulan Ini' },
-                { id: 'custom', label: 'Rentang Tanggal' },
-              ] as const
-            ).map((p) => {
-              const active = draftPreset === p.id;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => handleSelectDraftPreset(p.id)}
-                  className={`px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer border ${
-                    active
-                      ? 'bg-[#F97316] text-white border-[#F97316] font-semibold'
-                      : 'bg-[#F9FAFB] text-[#4B5563] border-[#E5E7EB] hover:bg-[#F3F4F6]'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {draftPreset === 'custom' && (
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <div>
-                <label className="block text-[11px] font-medium text-[#6B7280] mb-1">Dari</label>
-                <input
-                  type="date"
-                  value={draftStartDate}
-                  onChange={(e) => {
-                    setDraftStartDate(e.target.value);
-                    setDateError(null);
-                  }}
-                  className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-medium text-[#6B7280] mb-1">Sampai</label>
-                <input
-                  type="date"
-                  value={draftEndDate}
-                  onChange={(e) => {
-                    setDraftEndDate(e.target.value);
-                    setDateError(null);
-                  }}
-                  className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
-                />
-              </div>
+  const renderContextualPanelBody = () => {
+    if (activeTab === 'daily') {
+      return (
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-[#374151]">Bulan &amp; Tahun</label>
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={draftDailyMonth}
+                onChange={(e) => setDraftDailyMonth(e.target.value)}
+                aria-label="Bulan"
+                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              >
+                {MONTH_OPTIONS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={draftDailyYear}
+                onChange={(e) => setDraftDailyYear(e.target.value)}
+                aria-label="Tahun"
+                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              >
+                {yearOptions.map((y) => (
+                  <option key={y} value={String(y)}>
+                    {y}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+          </div>
 
-          {dateError && (
-            <p className="text-[11px] font-medium text-red-600">{dateError}</p>
-          )}
-        </div>
-      )}
-
-      {/* Bulan / Tahun: monthly_recap only */}
-      {activeTab === 'monthly_recap' && (
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-[#374151]">Bulan &amp; Tahun</label>
-          <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-semibold text-[#374151] mb-1">Satuan Kerja</label>
             <select
-              value={draftMonth}
-              onChange={(e) => {
-                setDraftMonth(e.target.value);
-                setDidChangeRecapMonth(true);
-              }}
-              aria-label="Bulan"
+              value={draftDailyDepartmentId}
+              onChange={(e) => setDraftDailyDepartmentId(e.target.value)}
+              aria-label="Satuan Kerja"
               className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
-              {MONTH_OPTIONS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={draftYear}
-              onChange={(e) => {
-                setDraftYear(e.target.value);
-                setDidChangeRecapMonth(true);
-              }}
-              aria-label="Tahun"
-              className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
-            >
-              {yearOptions.map((y) => (
-                <option key={y} value={String(y)}>
-                  {y}
+              <option value="all">Semua Satuan Kerja</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
                 </option>
               ))}
             </select>
           </div>
         </div>
-      )}
+      );
+    }
 
-      {/* Satuan Kerja: all 5 tabs */}
-      <div>
-        <label className="block text-xs font-semibold text-[#374151] mb-1">Satuan Kerja</label>
-        <select
-          value={draftDepartmentId}
-          onChange={(e) => setDraftDepartmentId(e.target.value)}
-          className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
-        >
-          <option value="all">Semua Satuan Kerja</option>
-          {departments.map((dept) => (
-            <option key={dept.id} value={dept.id}>
-              {dept.name}
-            </option>
-          ))}
-        </select>
-      </div>
+    return (
+      <div className="space-y-4">
+        {/* Periode: employee, monthly, detail */}
+        {activeTab !== 'monthly_recap' && (
+          <div className="space-y-2.5">
+            <label className="block text-xs font-semibold text-[#374151]">Periode</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  { id: 'today', label: 'Hari Ini' },
+                  { id: 'this_week', label: 'Minggu Ini' },
+                  { id: 'this_month', label: 'Bulan Ini' },
+                  { id: 'custom', label: 'Rentang Tanggal' },
+                ] as const
+              ).map((p) => {
+                const active = draftPreset === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handleSelectDraftPreset(p.id)}
+                    className={`px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer border ${
+                      active
+                        ? 'bg-[#F97316] text-white border-[#F97316] font-semibold'
+                        : 'bg-[#F9FAFB] text-[#4B5563] border-[#E5E7EB] hover:bg-[#F3F4F6]'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {draftPreset === 'custom' && (
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <div>
+                  <label className="block text-[11px] font-medium text-[#6B7280] mb-1">Dari</label>
+                  <input
+                    type="date"
+                    value={draftStartDate}
+                    onChange={(e) => {
+                      setDraftStartDate(e.target.value);
+                      setDateError(null);
+                    }}
+                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-[#6B7280] mb-1">Sampai</label>
+                  <input
+                    type="date"
+                    value={draftEndDate}
+                    onChange={(e) => {
+                      setDraftEndDate(e.target.value);
+                      setDateError(null);
+                    }}
+                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {dateError && (
+              <p className="text-[11px] font-medium text-red-600">{dateError}</p>
+            )}
+          </div>
+        )}
+
+        {/* Bulan / Tahun: monthly_recap only */}
+        {activeTab === 'monthly_recap' && (
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-[#374151]">Bulan &amp; Tahun</label>
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={draftMonth}
+                onChange={(e) => {
+                  setDraftMonth(e.target.value);
+                  setDidChangeRecapMonth(true);
+                }}
+                aria-label="Bulan"
+                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              >
+                {MONTH_OPTIONS.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={draftYear}
+                onChange={(e) => {
+                  setDraftYear(e.target.value);
+                  setDidChangeRecapMonth(true);
+                }}
+                aria-label="Tahun"
+                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              >
+                {yearOptions.map((y) => (
+                  <option key={y} value={String(y)}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Satuan Kerja */}
+        <div>
+          <label className="block text-xs font-semibold text-[#374151] mb-1">Satuan Kerja</label>
+          <select
+            value={draftDepartmentId}
+            onChange={(e) => setDraftDepartmentId(e.target.value)}
+            className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+          >
+            <option value="all">Semua Satuan Kerja</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
       {/* Pegawai: employee, monthly, detail */}
       {(activeTab === 'employee' || activeTab === 'monthly' || activeTab === 'detail') && (
@@ -653,15 +811,56 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   return (
     <>
-      {/* Mobile & Tablet (<lg): Unified Search + Filter Bar */}
-      <div className="lg:hidden relative">
-        <div className="flex items-center gap-2 bg-white border border-[#E5E7EB] rounded-xl pl-3 pr-1.5 py-1 shadow-2xs focus-within:ring-1 focus-within:ring-[#F97316]">
-          {activeTab !== 'daily' ? (
-            <>
+      {/* Mobile & Tablet (<lg): Daily Pill Calendar OR Unified Search + Filter Bar */}
+      <div className="lg:hidden space-y-2.5">
+        <div className="relative">
+          {activeTab === 'daily' ? (
+            <div className="flex items-center justify-between gap-2">
+              {/* Calendar Header: Prev Month | Bulan Tahun | Next Month */}
+              <div className="inline-flex items-center gap-1 bg-white border border-[#E5E7EB] rounded-xl px-1.5 py-1 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => handleStepDailyMonth(-1)}
+                  aria-label="Bulan sebelumnya"
+                  className="p-1 rounded-lg text-[#4B5563] hover:bg-[#F9FAFB] hover:text-[#111827] cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="px-2 text-xs font-bold text-[#111827] whitespace-nowrap select-none">
+                  {dailyMonthLabel} {effectiveDailyYear}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleStepDailyMonth(1)}
+                  aria-label="Bulan berikutnya"
+                  className="p-1 rounded-lg text-[#4B5563] hover:bg-[#F9FAFB] hover:text-[#111827] cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Filter Trigger (Bulan, Tahun, Satuan Kerja) */}
+              <button
+                type="button"
+                onClick={() => (isPanelOpen ? setIsPanelOpen(false) : openMobileFilterPanel())}
+                aria-label="Filter laporan"
+                aria-expanded={isPanelOpen}
+                className={`p-2 rounded-xl border shrink-0 transition-colors cursor-pointer shadow-2xs ${
+                  isPanelOpen || activeFilterCount > 0
+                    ? 'bg-orange-50/70 border-[#F97316] text-[#F97316]'
+                    : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB]'
+                }`}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 bg-white border border-[#E5E7EB] rounded-xl pl-3 pr-1.5 py-1 shadow-2xs focus-within:ring-1 focus-within:ring-[#F97316]">
               <Search className="w-4 h-4 text-[#9CA3AF] shrink-0 pointer-events-none" />
               <input
                 type="text"
@@ -680,35 +879,27 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
-            </>
-          ) : (
-            <div className="flex-1 min-w-0 flex items-center gap-2 py-1.5 text-xs text-[#374151]">
-              <Calendar className="w-4 h-4 text-[#F97316] shrink-0 pointer-events-none" />
-              <span className="font-medium leading-snug">
-                {formatMakassarShortDate(filter.startDate)} – {formatMakassarShortDate(filter.endDate)}
-              </span>
+
+              <span className="h-4 w-px bg-[#E5E7EB] shrink-0" aria-hidden="true" />
+
+              {/* Unified Filter Icon Trigger */}
+              <button
+                type="button"
+                onClick={() => (isPanelOpen ? setIsPanelOpen(false) : openMobileFilterPanel())}
+                aria-label="Filter laporan"
+                aria-expanded={isPanelOpen}
+                className={`p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer ${
+                  isPanelOpen || activeFilterCount > 0
+                    ? 'text-[#F97316] hover:bg-orange-50'
+                    : 'text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB]'
+                }`}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+              </button>
             </div>
           )}
 
-          <span className="h-4 w-px bg-[#E5E7EB] shrink-0" aria-hidden="true" />
-
-          {/* Unified Filter Icon Trigger */}
-          <button
-            type="button"
-            onClick={() => (isPanelOpen ? setIsPanelOpen(false) : openMobileFilterPanel())}
-            aria-label="Filter laporan"
-            aria-expanded={isPanelOpen}
-            className={`p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer ${
-              isPanelOpen || activeFilterCount > 0
-                ? 'text-[#F97316] hover:bg-orange-50'
-                : 'text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB]'
-            }`}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Tablet Popover (768px - <1024px) */}
+          {/* Tablet Popover (768px - <1024px) */}
         {isPanelOpen && (
           <div className="hidden md:block lg:hidden">
             <div
@@ -804,6 +995,57 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                   Terapkan
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
+        </div>
+
+        {/* Horizontal Pill Calendar (Tab Harian <1024px) */}
+        {activeTab === 'daily' && (
+          <div
+            className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-0.5"
+            aria-label="Kalender tanggal harian"
+          >
+            <div className="flex items-center gap-1.5 min-w-max">
+              {dailyCalendarDays.map((item) => {
+                const isSelected = item.dateStr === effectiveDailyDate;
+                const isToday = item.dateStr === defEnd;
+                return (
+                  <button
+                    key={item.dateStr}
+                    ref={(el) => {
+                      dailyPillRefs.current[item.dateStr] = el;
+                    }}
+                    type="button"
+                    onClick={() => onDailySelectDate?.(item.dateStr)}
+                    aria-pressed={isSelected}
+                    className={`min-w-[44px] px-2.5 py-1.5 rounded-xl border flex flex-col items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                      isSelected
+                        ? 'bg-[#F97316] border-[#F97316] text-white'
+                        : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB]'
+                    }`}
+                  >
+                    <span
+                      className={`text-[10px] leading-tight ${
+                        isSelected ? 'text-white/90 font-medium' : 'text-[#6B7280] font-medium'
+                      }`}
+                    >
+                      {item.dayShort}
+                    </span>
+                    <span
+                      className={`text-xs font-bold leading-snug tabular-nums ${
+                        isSelected
+                          ? 'text-white'
+                          : isToday
+                            ? 'text-[#F97316]'
+                            : 'text-[#374151]'
+                      }`}
+                    >
+                      {item.dayNum}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

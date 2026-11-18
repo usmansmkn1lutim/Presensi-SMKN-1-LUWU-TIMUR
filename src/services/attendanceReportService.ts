@@ -521,37 +521,107 @@ export const attendanceReportService = {
       employeesMap.set(r.employeeId, list);
     });
 
-    // Count actual work days in the range to be fair
-    const holData = await supabase.from('holidays').select('holiday_date').eq('is_active', true).gte('holiday_date', startDate).lte('holiday_date', endDate);
+    const employeeIds = Array.from(employeesMap.keys());
+
+    // Fetch holidays & employee position names in parallel (additive, no duplicate rows)
+    const fetchPositionsMap = async (): Promise<Map<string, string | null>> => {
+      const posMap = new Map<string, string | null>();
+      if (!isSupabaseConfigured() || employeeIds.length === 0) {
+        return posMap;
+      }
+
+      let { data: empPosData, error: empPosError } = await supabase
+        .from('employees')
+        .select(`
+          id,
+          positions (
+            id,
+            name
+          )
+        `)
+        .in('id', employeeIds);
+
+      if (empPosError && empPosError.code === 'PGRST303') {
+        console.warn('JWT expired in getEmployeeSummary (positions), refreshing session...');
+        await supabase.auth.refreshSession();
+        const retry = await supabase
+          .from('employees')
+          .select(`
+            id,
+            positions (
+              id,
+              name
+            )
+          `)
+          .in('id', employeeIds);
+        empPosData = retry.data;
+        empPosError = retry.error;
+      }
+
+      if (empPosError) {
+        console.error('Error fetching employee positions for summary:', empPosError);
+        return posMap;
+      }
+
+      (empPosData || []).forEach((emp) => {
+        const posObj = Array.isArray(emp.positions) ? emp.positions[0] : emp.positions;
+        const trimmedName = posObj?.name ? String(posObj.name).trim() : null;
+        posMap.set(emp.id, trimmedName || null);
+      });
+
+      return posMap;
+    };
+
+    const [holData, positionMap] = await Promise.all([
+      supabase
+        .from('holidays')
+        .select('holiday_date')
+        .eq('is_active', true)
+        .gte('holiday_date', startDate)
+        .lte('holiday_date', endDate),
+      fetchPositionsMap(),
+    ]);
+
     const holidaySet = new Set(holData.data?.map(h => h.holiday_date) || []);
     const totalWorkDays = this.calculateWorkingDays(startDate, endDate, holidaySet);
 
-    return Array.from(employeesMap.entries()).map(([employeeId, records]) => {
+    return Array.from(employeesMap.entries()).map(([empId, records]) => {
       const totalAttendance = records.filter(r => r.status === 'present').length;
       const totalOnTime = records.filter((r) => r.status === 'present' && r.substatus === 'on_time').length;
       const totalLate = records.filter((r) => r.status === 'present' && r.substatus === 'late').length;
+      const totalOfficialDuty = records.filter((r) => r.status === 'official_duty').length;
+      const totalSick = records.filter((r) => r.status === 'sick').length;
+      const totalPermit = records.filter((r) => r.status === 'permit').length;
+      const totalLeave = records.filter((r) => r.status === 'leave').length;
+      const totalAbsent = records.filter(r => r.status === 'absent').length;
+      const totalPresentIncludingOfficialDuty = totalOnTime + totalLate + totalOfficialDuty;
       const totalCheckedOut = records.filter((r) => r.checkOutAt !== null).length;
       const totalNotCheckedOut = records.filter(
         (r) => r.status === 'present' && r.checkInAt !== null && r.checkOutAt === null
       ).length;
-      const totalAbsent = records.filter(r => r.status === 'absent').length;
-      
+
       const attendancePercentage =
         totalWorkDays > 0 ? Math.round((totalAttendance / totalWorkDays) * 1000) / 10 : 0;
 
       return {
-        employeeId: employeeId,
+        employeeId: empId,
         employeeName: records[0].employeeName,
+        positionName: positionMap.get(empId) ?? null,
         nip: records[0].nip,
         departmentId: null, // Simplified
         departmentName: records[0].departmentName,
         totalWorkDays,
         totalAttendance,
+        totalPresentIncludingOfficialDuty,
         totalOnTime,
         totalLate,
         totalCheckedOut,
         totalNotCheckedOut,
         totalAbsent,
+        totalSick,
+        totalPermit,
+        totalOfficialDuty,
+        totalLeave,
         attendancePercentage,
       };
     });

@@ -5,7 +5,6 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Building2,
   FileSpreadsheet,
   Download,
 } from 'lucide-react';
@@ -24,6 +23,18 @@ interface EmployeeReportTableProps {
   onSearchChange?: (q: string) => void;
 }
 
+type SortableEmployeeField =
+  | 'attendancePercentage'
+  | 'totalPresentIncludingOfficialDuty'
+  | 'totalLate';
+
+function getDisplayTotalHadir(row: EmployeeAttendanceSummary): number {
+  return (
+    row.totalPresentIncludingOfficialDuty ??
+    row.totalOnTime + row.totalLate + (row.totalOfficialDuty ?? 0)
+  );
+}
+
 export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
   data,
   isLoading,
@@ -34,7 +45,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
   searchQuery,
   onSearchChange,
 }) => {
-  const [sortField, setSortField] = useState<keyof EmployeeAttendanceSummary>('attendancePercentage');
+  const [sortField, setSortField] = useState<SortableEmployeeField>('attendancePercentage');
   const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [localSearch, setLocalSearch] = useState<string>('');
 
@@ -53,7 +64,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
         <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-3">
           <div className="h-5 bg-gray-100 rounded w-36 animate-pulse" />
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-gray-50 rounded-xl animate-pulse" />
+            <div key={i} className="h-24 bg-gray-50 rounded-xl animate-pulse" />
           ))}
         </div>
         <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
@@ -93,31 +104,35 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
     );
   }
 
-  // Filter local search
+  // Filter local search: nama pegawai (+ hidden NIP preservation), tanpa departemen
   const filtered = data.filter((row) => {
     if (!effectiveSearch.trim()) return true;
     const q = effectiveSearch.toLowerCase().trim();
     const nameMatch = row.employeeName.toLowerCase().includes(q);
     const nipMatch = row.nip ? row.nip.toLowerCase().includes(q) : false;
-    const deptMatch = row.departmentName.toLowerCase().includes(q);
-    return nameMatch || nipMatch || deptMatch;
+    return nameMatch || nipMatch;
   });
 
   // Sort rows
   const sorted = [...filtered].sort((a, b) => {
-    const valA = a[sortField];
-    const valB = b[sortField];
+    let valA = 0;
+    let valB = 0;
 
-    if (typeof valA === 'number' && typeof valB === 'number') {
-      return sortAsc ? valA - valB : valB - valA;
+    if (sortField === 'totalPresentIncludingOfficialDuty') {
+      valA = getDisplayTotalHadir(a);
+      valB = getDisplayTotalHadir(b);
+    } else if (sortField === 'totalLate') {
+      valA = a.totalLate;
+      valB = b.totalLate;
+    } else {
+      valA = a.attendancePercentage;
+      valB = b.attendancePercentage;
     }
-    if (typeof valA === 'string' && typeof valB === 'string') {
-      return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-    }
-    return 0;
+
+    return sortAsc ? valA - valB : valB - valA;
   });
 
-  const handleToggleSort = (field: keyof EmployeeAttendanceSummary) => {
+  const handleToggleSort = (field: SortableEmployeeField) => {
     if (sortField === field) {
       setSortAsc(!sortAsc);
     } else {
@@ -146,15 +161,15 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               <select
                 value={sortField}
                 onChange={(e) => {
-                  setSortField(e.target.value as keyof EmployeeAttendanceSummary);
+                  setSortField(e.target.value as SortableEmployeeField);
                   setSortAsc(false);
                 }}
                 aria-label="Urutkan rekap pegawai"
                 className="bg-transparent pl-2 pr-1 py-1 text-[11px] font-medium text-[#374151] focus:outline-none"
               >
                 <option value="attendancePercentage">Persentase</option>
-                <option value="totalAttendance">Hadir</option>
-                <option value="totalLate">Terlambat</option>
+                <option value="totalPresentIncludingOfficialDuty">Total Hadir</option>
+                <option value="totalLate">Telat</option>
               </select>
               <button
                 type="button"
@@ -201,21 +216,42 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
             {sorted.map((row) => {
               const isHistorical = row.employeeName.includes('(Arsip)');
               const perc = row.attendancePercentage;
+              const totalHadir = getDisplayTotalHadir(row);
+              const totalOfficialDuty = row.totalOfficialDuty ?? 0;
+              const totalSick = row.totalSick ?? 0;
+              const totalPermit = row.totalPermit ?? 0;
+              const totalLeave = row.totalLeave ?? 0;
 
               let percColor = 'text-emerald-700 bg-emerald-50 border-emerald-200';
               if (perc < 75) percColor = 'text-red-700 bg-red-50 border-red-200';
               else if (perc < 90) percColor = 'text-amber-700 bg-amber-50 border-amber-200';
 
+              const metricItems = [
+                { label: 'Total Hadir', value: totalHadir, highlight: true, valueClass: 'text-[#F97316]' },
+                { label: 'Tepat', value: row.totalOnTime, highlight: false, valueClass: 'text-emerald-600' },
+                { label: 'Telat', value: row.totalLate, highlight: false, valueClass: 'text-amber-600' },
+                { label: 'Dinas Luar', value: totalOfficialDuty, highlight: false, valueClass: 'text-purple-600' },
+                { label: 'Sakit', value: totalSick, highlight: false, valueClass: 'text-blue-600' },
+                { label: 'Izin', value: totalPermit, highlight: false, valueClass: 'text-indigo-600' },
+                { label: 'Cuti', value: totalLeave, highlight: false, valueClass: 'text-teal-600' },
+                {
+                  label: 'Alfa',
+                  value: row.totalAbsent,
+                  highlight: false,
+                  valueClass: row.totalAbsent > 0 ? 'text-rose-500' : 'text-[#111827]',
+                },
+              ];
+
               return (
-                <div key={row.employeeId} className="px-4 py-3 space-y-2">
-                  {/* Top Line: Employee Identity & Percentage */}
+                <div key={row.employeeId} className="px-3.5 sm:px-4 py-3 space-y-2.5">
+                  {/* Top Line: Employee Identity (Name + Position) & Percentage */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
                         {row.employeeName.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-semibold text-[#111827] flex items-center gap-1.5 flex-wrap">
+                        <div className="text-xs sm:text-sm font-semibold text-[#111827] flex items-center gap-1.5 flex-wrap">
                           <span className="truncate">{row.employeeName}</span>
                           {isHistorical && (
                             <Badge variant="warning" size="sm">
@@ -224,7 +260,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                           )}
                         </div>
                         <div className="text-[11px] text-[#6B7280] truncate">
-                          {row.nip ? `NIP: ${row.nip}` : 'NIP: -'} · {row.departmentName}
+                          {row.positionName || '-'}
                         </div>
                       </div>
                     </div>
@@ -236,42 +272,25 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                     </span>
                   </div>
 
-                  {/* Verified Metrics Grid */}
-                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-x-2 gap-y-1 text-[11px] pt-0.5">
-                    <div>
-                      <span className="text-[#6B7280]">Kerja: </span>
-                      <span className="font-semibold text-[#111827]">{row.totalWorkDays}h</span>
-                    </div>
-                    <div>
-                      <span className="text-[#6B7280]">Hadir: </span>
-                      <span className="font-bold text-blue-600">{row.totalAttendance}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#6B7280]">Tepat: </span>
-                      <span className="font-semibold text-emerald-600">{row.totalOnTime}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#6B7280]">Telat: </span>
-                      <span className="font-semibold text-amber-600">{row.totalLate}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#6B7280]">Pulang: </span>
-                      <span className="font-semibold text-purple-600">{row.totalCheckedOut}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#6B7280]">Blm Plg: </span>
-                      <span className="font-semibold text-rose-600">{row.totalNotCheckedOut}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#6B7280]">Alfa: </span>
-                      <span
-                        className={`font-semibold ${
-                          row.totalAbsent > 0 ? 'text-rose-500' : 'text-emerald-600'
+                  {/* 8 Attendance Summary Categories */}
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                    {metricItems.map((item) => (
+                      <div
+                        key={item.label}
+                        className={`min-w-0 rounded-lg border px-1 py-1.5 text-center ${
+                          item.highlight
+                            ? 'bg-white border-[#F97316]/35'
+                            : 'bg-[#F9FAFB] border-[#F3F4F6]'
                         }`}
                       >
-                        {row.totalAbsent}
-                      </span>
-                    </div>
+                        <div className={`text-xs sm:text-sm font-bold leading-none tabular-nums ${item.valueClass}`}>
+                          {item.value}
+                        </div>
+                        <div className="text-[9.5px] sm:text-[10px] font-medium text-[#6B7280] leading-tight tracking-[-0.01em] sm:tracking-normal mt-1">
+                          {item.label}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
@@ -284,7 +303,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
         </div>
       </div>
 
-      {/* Desktop (>=lg): Unchanged Original Table View */}
+      {/* Desktop (>=lg): Clean 8-Category Table View (Nama + Jabatan, tanpa NIP/Departemen/Pulang/Belum Pulang/Hari Kerja) */}
       <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
         {/* Table Header and Search */}
         <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -294,7 +313,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               Rekap Kehadiran Per Pegawai
             </h3>
             <p className="text-xs text-[#6B7280] mt-0.5">
-              Akumulasi kehadiran, keterlambatan, dan persentase kehadiran per pegawai
+              Akumulasi delapan kategori kehadiran dan persentase kehadiran per pegawai
             </p>
           </div>
 
@@ -339,30 +358,30 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
             <thead>
               <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4">Pegawai</th>
-                <th className="py-3 px-3">Departemen</th>
-                <th className="py-3 px-3 text-center">Hari Kerja</th>
                 <th
                   className="py-3 px-3 text-center cursor-pointer hover:text-[#111827]"
-                  onClick={() => handleToggleSort('totalAttendance')}
+                  onClick={() => handleToggleSort('totalPresentIncludingOfficialDuty')}
                 >
                   <div className="inline-flex items-center gap-1">
-                    <span>Hadir</span>
+                    <span>Total Hadir</span>
                     <ArrowUpDown className="w-3 h-3" />
                   </div>
                 </th>
-                <th className="py-3 px-3 text-center">Tepat Waktu</th>
+                <th className="py-3 px-3 text-center">Tepat</th>
                 <th
                   className="py-3 px-3 text-center cursor-pointer hover:text-[#111827]"
                   onClick={() => handleToggleSort('totalLate')}
                 >
                   <div className="inline-flex items-center gap-1">
-                    <span>Terlambat</span>
+                    <span>Telat</span>
                     <ArrowUpDown className="w-3 h-3" />
                   </div>
                 </th>
-                <th className="py-3 px-3 text-center">Check-out</th>
-                <th className="py-3 px-3 text-center">Belum Pulang</th>
-                <th className="py-3 px-3 text-center">Tidak Hadir</th>
+                <th className="py-3 px-3 text-center">Dinas Luar</th>
+                <th className="py-3 px-3 text-center">Sakit</th>
+                <th className="py-3 px-3 text-center">Izin</th>
+                <th className="py-3 px-3 text-center">Cuti</th>
+                <th className="py-3 px-3 text-center">Alfa</th>
                 <th
                   className="py-3 px-4 text-center cursor-pointer hover:text-[#111827]"
                   onClick={() => handleToggleSort('attendancePercentage')}
@@ -385,6 +404,11 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                 sorted.map((row) => {
                   const isHistorical = row.employeeName.includes('(Arsip)');
                   const perc = row.attendancePercentage;
+                  const totalHadir = getDisplayTotalHadir(row);
+                  const totalOfficialDuty = row.totalOfficialDuty ?? 0;
+                  const totalSick = row.totalSick ?? 0;
+                  const totalPermit = row.totalPermit ?? 0;
+                  const totalLeave = row.totalLeave ?? 0;
 
                   let percColor = 'text-emerald-700 bg-emerald-50 border-emerald-200';
                   if (perc < 75) percColor = 'text-red-700 bg-red-50 border-red-200';
@@ -393,7 +417,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                   return (
                     <tr key={row.employeeId} className="hover:bg-[#F9FAFB]/70 transition-colors">
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
                             {row.employeeName.charAt(0).toUpperCase()}
                           </div>
@@ -407,40 +431,37 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                               )}
                             </div>
                             <div className="text-[11px] text-[#6B7280]">
-                              {row.nip ? `NIP: ${row.nip}` : 'NIP: -'}
+                              {row.positionName || '-'}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-3 whitespace-nowrap text-[#4B5563]">
-                        <div className="flex items-center gap-1">
-                          <Building2 className="w-3 h-3 text-[#9CA3AF]" />
-                          <span>{row.departmentName}</span>
-                        </div>
+                      <td className="py-3 px-3 text-center font-bold text-[#F97316] tabular-nums">
+                        {totalHadir}
                       </td>
-                      <td className="py-3 px-3 text-center text-[#6B7280] font-medium">
-                        {row.totalWorkDays} hr
-                      </td>
-                      <td className="py-3 px-3 text-center font-bold text-blue-600">
-                        {row.totalAttendance}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-emerald-600">
+                      <td className="py-3 px-3 text-center font-semibold text-emerald-600 tabular-nums">
                         {row.totalOnTime}
                       </td>
-                      <td className="py-3 px-3 text-center font-semibold text-amber-600">
+                      <td className="py-3 px-3 text-center font-semibold text-amber-600 tabular-nums">
                         {row.totalLate}
                       </td>
-                      <td className="py-3 px-3 text-center font-semibold text-purple-600">
-                        {row.totalCheckedOut}
+                      <td className="py-3 px-3 text-center font-semibold text-purple-600 tabular-nums">
+                        {totalOfficialDuty}
                       </td>
-                      <td className="py-3 px-3 text-center font-semibold text-rose-600">
-                        {row.totalNotCheckedOut}
+                      <td className="py-3 px-3 text-center font-semibold text-blue-600 tabular-nums">
+                        {totalSick}
                       </td>
-                      <td className="py-3 px-3 text-center text-[#6B7280]">
+                      <td className="py-3 px-3 text-center font-semibold text-indigo-600 tabular-nums">
+                        {totalPermit}
+                      </td>
+                      <td className="py-3 px-3 text-center font-semibold text-teal-600 tabular-nums">
+                        {totalLeave}
+                      </td>
+                      <td className="py-3 px-3 text-center tabular-nums">
                         {row.totalAbsent > 0 ? (
                           <span className="font-semibold text-rose-500">{row.totalAbsent}</span>
                         ) : (
-                          <span className="text-emerald-600 font-semibold">0</span>
+                          <span className="text-[#6B7280] font-semibold">0</span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-center whitespace-nowrap">
@@ -460,7 +481,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
 
         <div className="p-3 bg-[#F9FAFB] border-t border-[#E5E7EB] text-[11px] text-[#6B7280] flex items-center justify-between">
           <span>Menampilkan {sorted.length} dari total {data.length} pegawai</span>
-          <span>Hari kerja efektif mengecualikan Sabtu, Minggu, & Hari Libur</span>
+          <span>Hari kerja efektif mengecualikan Sabtu, Minggu, &amp; Hari Libur</span>
         </div>
       </div>
     </>

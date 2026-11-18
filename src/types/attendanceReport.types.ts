@@ -52,11 +52,13 @@ export interface DailyAttendanceSummary {
 export interface EmployeeAttendanceSummary {
   employeeId: string;
   employeeName: string;
+  positionName?: string | null;
   nip: string | null;
   departmentId: string | null;
   departmentName: string;
   totalWorkDays: number;
   totalAttendance: number;
+  totalPresentIncludingOfficialDuty?: number;
   totalOnTime: number;
   totalLate: number;
   totalCheckedOut: number;
