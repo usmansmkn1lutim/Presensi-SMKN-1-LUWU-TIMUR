@@ -398,8 +398,8 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Header Panel */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+      {/* Header Panel Mobile/Tablet (< 1024px) */}
+      <div className="lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -441,6 +441,71 @@ export const SettingsPage: React.FC = () => {
               Kelola konfigurasi dan preferensi aplikasi sekolah. <span className="font-semibold text-slate-700">Tersinkronisasi terpusat via Cloud Database Supabase.</span>
             </p>
           </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetSettings}
+              disabled={!isDirty || isSaving || isUploadingLogo}
+              className="h-9"
+            >
+              Reset
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSaveSettings}
+              disabled={!isDirty || isSaving || isUploadingLogo || !canManageSettings}
+              className="h-9"
+              leftIcon={
+                isSaving ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Save className="w-3.5 h-3.5" />
+                )
+              }
+            >
+              {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Header Desktop (>= 1024px) */}
+      <div className="hidden lg:flex items-center justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          Pengaturan Sistem
+        </h1>
+
+        <div className="flex items-center gap-3">
+          {/* Ringkasan Status Sinkronisasi & Perubahan */}
+          {isLoadingRemote ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              Menyinkronkan Cloud...
+            </span>
+          ) : isSaving ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              Menyimpan ke Database...
+            </span>
+          ) : saveStatus === 'error' ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Penyimpanan Cloud Gagal
+            </span>
+          ) : isDirty ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 font-semibold animate-pulse">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Ada perubahan yang belum disimpan
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+              <Check className="w-3.5 h-3.5" />
+              Tersimpan di Cloud Supabase
+            </span>
+          )}
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"

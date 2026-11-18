@@ -301,8 +301,8 @@ export const AuditLogsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Header Panel */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+      {/* Header Panel Mobile/Tablet (< 1024px) */}
+      <div className="lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -343,6 +343,24 @@ export const AuditLogsPage: React.FC = () => {
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Header Panel Desktop (>= 1024px) */}
+      <div className="hidden lg:flex items-center justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          Log Audit Aktivitas Sistem
+        </h1>
+
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleResetFilters}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+          >
+            Reset Filter
+          </Button>
+        )}
       </div>
 
       {/* Filter Toolbar Card */}

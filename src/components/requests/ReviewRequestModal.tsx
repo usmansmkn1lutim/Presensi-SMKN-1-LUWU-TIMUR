@@ -31,6 +31,7 @@ import {
 import { RequestStatusBadge, RequestTypeBadge } from './RequestStatusBadge';
 import { requestService, formatRequestError } from '../../services/requestService';
 import { Button } from '../ui/Button';
+import { UserAvatar } from '../ui/UserAvatar';
 
 interface ReviewRequestModalProps {
   request: RequestWithRelations | null;
@@ -150,14 +151,6 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
     return gender;
   };
 
-  // Get initials for avatar fallback
-  const getInitials = (name: string) => {
-    if (!name || name === '—') return 'P';
-    const parts = name.trim().split(' ');
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-  };
-
   const handleApprove = async () => {
     setErrorMsg(null);
     setSubmitting(true);
@@ -257,17 +250,11 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 space-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                {employeePhoto ? (
-                  <img
-                    src={employeePhoto}
-                    alt={employeeName}
-                    className="w-12 h-12 rounded-xl object-cover border border-[#E5E7EB] shadow-2xs shrink-0"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-xl bg-orange-100 text-[#EA580C] border border-orange-200 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
-                    {getInitials(employeeName)}
-                  </div>
-                )}
+                <UserAvatar
+                  photoUrl={employeePhoto}
+                  name={employeeName}
+                  className="w-12 h-12 rounded-xl object-cover border border-[#E5E7EB] shadow-2xs shrink-0"
+                />
                 <div>
                   <div className="font-bold text-[#111827] text-sm sm:text-base leading-tight">
                     {employeeName}

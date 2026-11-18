@@ -245,8 +245,8 @@ export const NotificationsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+      {/* Header Banner Mobile/Tablet (< 1024px) */}
+      <div className="lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -293,8 +293,27 @@ export const NotificationsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Header Desktop Only (>= 1024px) */}
+      <div className="hidden lg:flex items-center justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          Notifikasi & Pengumuman
+        </h1>
+
+        {unreadCount > 0 && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleMarkAll}
+            disabled={isMarkingAll || loading}
+            leftIcon={<CheckCheck className="w-3.5 h-3.5" />}
+          >
+            {isMarkingAll ? 'Menandai...' : 'Tandai Semua Telah Dibaca'}
+          </Button>
+        )}
+      </div>
+
       {/* Filter Tabs Navigation */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-1.5 sm:p-2 shadow-2xs">
+      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-1.5 sm:p-2 shadow-2xs lg:bg-transparent lg:border-0 lg:p-0 lg:shadow-none lg:rounded-none">
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           <button
             type="button"

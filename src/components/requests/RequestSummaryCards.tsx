@@ -29,7 +29,7 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
   }[] = [
     {
       status: 'all',
-      label: 'Total Pengajuan',
+      label: 'Total',
       count: total,
       icon: <FileText className="w-4 h-4 text-[#F97316]" />,
       colorClasses: 'bg-white border-[#E5E7EB] text-[#111827]',
@@ -70,32 +70,65 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      {items.map((item) => {
-        const isSelected = selectedStatus === item.status;
-        return (
-          <button
-            key={item.status}
-            type="button"
-            onClick={() => onSelectStatus && onSelectStatus(item.status)}
-            className={`p-3.5 rounded-2xl border transition-all text-left shadow-2xs ${
-              item.colorClasses
-            } ${
-              isSelected ? item.activeClasses : 'hover:border-[#F97316]/40 hover:shadow-xs'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-[#6B7280]">
-                {item.label}
-              </span>
-              <div className="p-1 rounded-lg bg-[#F9FAFB]">{item.icon}</div>
-            </div>
-            <div className="text-xl sm:text-2xl font-bold tracking-tight">
-              {item.count}
-            </div>
-          </button>
-        );
-      })}
-    </div>
+    <>
+      {/* Mobile & Tablet Pill Filter Row (<1024px) */}
+      <div className="block lg:hidden">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {items.map((item) => {
+            const isSelected = selectedStatus === item.status;
+            return (
+              <button
+                key={item.status}
+                type="button"
+                onClick={() => onSelectStatus && onSelectStatus(item.status)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-[#F97316] text-white font-bold shadow-2xs'
+                    : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-gray-50'
+                }`}
+              >
+                <span>{item.label}</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-gray-100 text-[#374151]'
+                  }`}
+                >
+                  {item.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Desktop Cards Grid (≥1024px) */}
+      <div className="hidden lg:grid lg:grid-cols-5 gap-3">
+        {items.map((item) => {
+          const isSelected = selectedStatus === item.status;
+          return (
+            <button
+              key={item.status}
+              type="button"
+              onClick={() => onSelectStatus && onSelectStatus(item.status)}
+              className={`p-3.5 rounded-2xl border transition-all text-left shadow-2xs cursor-pointer ${
+                item.colorClasses
+              } ${
+                isSelected ? item.activeClasses : 'hover:border-[#F97316]/40 hover:shadow-xs'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold text-[#6B7280]">
+                  {item.label}
+                </span>
+                <div className="p-1 rounded-lg bg-[#F9FAFB]">{item.icon}</div>
+              </div>
+              <div className="text-xl sm:text-2xl font-bold tracking-tight">
+                {item.count}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 };

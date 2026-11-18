@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, ChevronRight, User } from 'lucide-react';
+import { Calendar, Clock, ChevronRight } from 'lucide-react';
 import {
   RequestRow,
   RequestWithRelations,
@@ -8,6 +8,7 @@ import {
   formatRequestDuration,
 } from '../../types/request.types';
 import { RequestStatusBadge, RequestTypeBadge } from './RequestStatusBadge';
+import { UserAvatar } from '../ui/UserAvatar';
 
 interface RequestHistoryTableProps {
   requests: (RequestRow | RequestWithRelations)[];
@@ -69,23 +70,21 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
                 {/* Pegawai (Reviewer only) */}
                 {mode === 'reviewer' && (
                   <td className="py-3.5 px-4 font-semibold text-[#111827]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center shrink-0">
-                        <User className="w-3.5 h-3.5" />
-                      </div>
+                    <div className="flex items-center gap-2.5">
+                      <UserAvatar
+                        photoUrl={relReq.employees?.photo_url}
+                        name={relReq.employees?.full_name}
+                        className="w-8 h-8 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                      />
                       <div className="min-w-0">
                         <div className="font-bold text-[#111827] truncate">
                           {relReq.employees?.full_name || '—'}
                         </div>
-                        <div className="text-[11px] text-[#6B7280] flex items-center gap-1.5">
-                          <span>NIP: {relReq.employees?.nip || '—'}</span>
-                          {relReq.employees?.departments?.name && (
-                            <>
-                              <span>•</span>
-                              <span>{relReq.employees.departments.name}</span>
-                            </>
-                          )}
-                        </div>
+                        {relReq.employees?.positions?.name && (
+                          <span className="text-[11px] text-[#6B7280] block truncate">
+                            {relReq.employees.positions.name}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>

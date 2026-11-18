@@ -32,7 +32,7 @@ import { RequestMobileSearchFilter } from '../../components/requests/RequestMobi
 import { Button } from '../../components/ui/Button';
 
 export const RequestsPage: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
 
   // Check if current user is an active reviewer
   const isReviewer =
@@ -41,19 +41,23 @@ export const RequestsPage: React.FC = () => {
       profile?.role === 'headmaster') &&
     profile?.is_active === true;
 
-  // Active top-level tab for reviewers
+  // super_admin and admin are managerial roles without employee records and cannot have personal requests
+  const canHavePersonalRequests =
+    profile?.role === 'employee' || profile?.role === 'headmaster';
+
+  // Active top-level tab for reviewers who can also submit personal requests (headmaster)
   const [activeTab, setActiveTab] = useState<'review' | 'personal'>(
     isReviewer ? 'review' : 'personal'
   );
 
-  // Sync activeTab when isReviewer loads
+  // Sync activeTab when profile/role loads
   useEffect(() => {
-    if (isReviewer) {
+    if (isReviewer || !canHavePersonalRequests) {
       setActiveTab('review');
     } else {
       setActiveTab('personal');
     }
-  }, [isReviewer]);
+  }, [isReviewer, canHavePersonalRequests]);
 
   // ==========================================
   // STATE: PERSONAL REQUESTS (EMPLOYEE VIEW)
@@ -75,6 +79,13 @@ export const RequestsPage: React.FC = () => {
   });
 
   const loadMyRequests = useCallback(async () => {
+    if (!canHavePersonalRequests) {
+      setMyRequests([]);
+      setErrorMsgMy(null);
+      setLoadingMy(false);
+      return;
+    }
+
     setLoadingMy(true);
     setErrorMsgMy(null);
     setIsUnlinked(false);
@@ -109,13 +120,14 @@ export const RequestsPage: React.FC = () => {
     } finally {
       setLoadingMy(false);
     }
-  }, [myFilterValues.status, myFilterValues.requestType, myFilterValues.datePreset, myFilterValues.customStartDate, myFilterValues.customEndDate]);
+  }, [canHavePersonalRequests, myFilterValues.status, myFilterValues.requestType, myFilterValues.datePreset, myFilterValues.customStartDate, myFilterValues.customEndDate]);
 
   useEffect(() => {
-    if (!isReviewer || activeTab === 'personal') {
+    if (authLoading || !profile) return;
+    if (canHavePersonalRequests && (!isReviewer || activeTab === 'personal')) {
       loadMyRequests();
     }
-  }, [loadMyRequests, activeTab, isReviewer]);
+  }, [authLoading, profile, canHavePersonalRequests, loadMyRequests, activeTab, isReviewer]);
 
   // Client-side search for employee's own requests (bounded strictly to their own data)
   const filteredMyRequests = useMemo(() => {
@@ -177,11 +189,13 @@ export const RequestsPage: React.FC = () => {
     }
   }, [isReviewer, reviewFilterValues]);
 
+  const isReviewMode = isReviewer && (activeTab === 'review' || !canHavePersonalRequests);
+
   useEffect(() => {
-    if (isReviewer && activeTab === 'review') {
+    if (isReviewMode) {
       loadReviewRequests();
     }
-  }, [loadReviewRequests, activeTab, isReviewer]);
+  }, [loadReviewRequests, isReviewMode]);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
@@ -191,7 +205,7 @@ export const RequestsPage: React.FC = () => {
           Pengajuan
         </h1>
 
-        {(!isReviewer || activeTab === 'personal') && !isUnlinked && (
+        {canHavePersonalRequests && (!isReviewer || activeTab === 'personal') && !isUnlinked && (
           <button
             type="button"
             onClick={() => setIsFormOpen(true)}
@@ -203,67 +217,29 @@ export const RequestsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Header Banner (Desktop Only >= 1024px - Untouched) */}
-      <div className="hidden lg:flex bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-[#F97316]" />
-            {isReviewer && activeTab === 'review'
-              ? 'Pusat Persetujuan & Peninjauan'
-              : 'Histori & Pengajuan Pegawai'}
-          </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
-            {isReviewer && activeTab === 'review'
-              ? 'Tinjauan Permohonan Pegawai'
-              : 'Histori Permohonan Saya'}
-          </h2>
-          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            {isReviewer && activeTab === 'review'
-              ? 'Kelola, tinjau, dan putuskan persetujuan permohonan ketidakhadiran pegawai.'
-              : 'Pantau histori permohonan cuti, sakit, dan dinas beserta status peninjauan.'}
-          </p>
-        </div>
+      {/* Header Banner (Desktop Only >= 1024px) */}
+      <div className="hidden lg:flex items-center justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          {isReviewMode
+            ? 'Tinjauan Permohonan Pegawai'
+            : 'Histori Permohonan Saya'}
+        </h1>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        {canHavePersonalRequests && (!isReviewer || activeTab === 'personal') && !isUnlinked && (
           <Button
-            variant="outline"
+            variant="primary"
             size="sm"
-            onClick={() => {
-              if (isReviewer && activeTab === 'review') {
-                loadReviewRequests();
-              } else {
-                loadMyRequests();
-              }
-            }}
-            disabled={activeTab === 'review' ? loadingAll : loadingMy}
-            leftIcon={
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${
-                  (activeTab === 'review' ? loadingAll : loadingMy) ? 'animate-spin' : ''
-                }`}
-              />
-            }
-            className="text-xs"
+            onClick={() => setIsFormOpen(true)}
+            leftIcon={<Plus className="w-4 h-4" />}
+            className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold"
           >
-            Segarkan
+            Ajukan Permohonan
           </Button>
-
-          {(!isReviewer || activeTab === 'personal') && !isUnlinked && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setIsFormOpen(true)}
-              leftIcon={<Plus className="w-4 h-4" />}
-              className="text-xs bg-[#F97316] hover:bg-[#EA580C] text-white font-semibold"
-            >
-              Ajukan Permohonan
-            </Button>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Reviewer Top Navigation Tabs */}
-      {isReviewer && (
+      {/* Reviewer Top Navigation Tabs (only when reviewer can also submit personal requests, e.g., headmaster) */}
+      {isReviewer && canHavePersonalRequests && (
         <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-1">
           <button
             type="button"
@@ -295,16 +271,18 @@ export const RequestsPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* VIEW 1: REVIEWER REQUESTS LIST (Reviewer view)                            */}
       {/* ========================================================================= */}
-      {isReviewer && activeTab === 'review' ? (
+      {isReviewer && (activeTab === 'review' || !canHavePersonalRequests) ? (
         <div className="space-y-4">
-          {/* Status Summary Cards */}
-          <RequestSummaryCards
-            requests={allRequests}
-            selectedStatus={reviewFilterValues.status}
-            onSelectStatus={(st) =>
-              setReviewFilterValues((prev) => ({ ...prev, status: st }))
-            }
-          />
+          {/* Desktop Only: Status Summary Cards (>= 1024px) */}
+          <div className="hidden lg:block">
+            <RequestSummaryCards
+              requests={allRequests}
+              selectedStatus={reviewFilterValues.status}
+              onSelectStatus={(st) =>
+                setReviewFilterValues((prev) => ({ ...prev, status: st }))
+              }
+            />
+          </div>
 
           {/* Search & Filters */}
           <RequestHistoryFilters
@@ -323,6 +301,17 @@ export const RequestsPage: React.FC = () => {
             showSearch={true}
             searchPlaceholder="Cari nama pegawai atau NIP..."
           />
+
+          {/* Mobile & Tablet Only: Status Summary Pills (< 1024px) - placed below search bar */}
+          <div className="block lg:hidden">
+            <RequestSummaryCards
+              requests={allRequests}
+              selectedStatus={reviewFilterValues.status}
+              onSelectStatus={(st) =>
+                setReviewFilterValues((prev) => ({ ...prev, status: st }))
+              }
+            />
+          </div>
 
           {/* Content States */}
           {errorMsgReview ? (
@@ -363,14 +352,17 @@ export const RequestsPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
-              <div className="hidden lg:block">
+            <>
+              {/* Desktop Table View (>= 1024px) */}
+              <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
                 <RequestHistoryTable
                   requests={allRequests}
                   mode="reviewer"
                   onSelect={(req) => setSelectedReviewRequest(req as RequestWithRelations)}
                 />
               </div>
+
+              {/* Mobile & Tablet Card List View (< 1024px) */}
               <div className="lg:hidden">
                 <RequestHistoryCard
                   requests={allRequests}
@@ -378,7 +370,7 @@ export const RequestsPage: React.FC = () => {
                   onSelect={(req) => setSelectedReviewRequest(req as RequestWithRelations)}
                 />
               </div>
-            </div>
+            </>
           )}
 
           {/* Modal Reviewer */}
