@@ -636,9 +636,9 @@ export const ReportsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 4. Filter Bar & Mobile Tabs (On <lg daily tab, pill tabs appear above calendar/filter area) */}
+      {/* 4. Filter Bar & Mobile Tabs (On <lg, pill tabs always appear below active tab control area) */}
       <div className="flex flex-col gap-4 lg:gap-5">
-        <div className={activeTab === 'daily' ? 'order-2 lg:order-none' : 'order-1 lg:order-none'}>
+        <div className="order-1 lg:order-none">
           <ReportFilterBar
             filter={filter}
             onApplyFilter={handleApplyFilter}
@@ -695,8 +695,8 @@ export const ReportsPage: React.FC = () => {
         {/* 7. Navigation Tabs */}
         {/* Mobile & Tablet (<lg): Horizontal Scrollable Pill Tabs */}
         <div
-          className={`lg:hidden overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-            activeTab === 'daily' ? 'order-1' : 'order-2'
+          className={`lg:hidden order-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            activeTab === 'daily' ? 'pt-3 border-t border-[#E5E7EB]' : ''
           }`}
         >
           <div className="flex items-center gap-2 min-w-max">

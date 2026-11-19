@@ -337,7 +337,7 @@ export const attendancePdfExportService = {
         row.departmentName,
         isHistorical ? 'Arsip' : 'Aktif',
         `${row.totalWorkDays} Hari`,
-        row.totalAttendance,
+        row.totalPresentIncludingOfficialDuty ?? row.totalAttendance,
         row.totalOnTime,
         row.totalLate,
         row.totalCheckedOut,

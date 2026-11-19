@@ -572,18 +572,7 @@ export const attendanceReportService = {
       return posMap;
     };
 
-    const [holData, positionMap] = await Promise.all([
-      supabase
-        .from('holidays')
-        .select('holiday_date')
-        .eq('is_active', true)
-        .gte('holiday_date', startDate)
-        .lte('holiday_date', endDate),
-      fetchPositionsMap(),
-    ]);
-
-    const holidaySet = new Set(holData.data?.map(h => h.holiday_date) || []);
-    const totalWorkDays = this.calculateWorkingDays(startDate, endDate, holidaySet);
+    const positionMap = await fetchPositionsMap();
 
     return Array.from(employeesMap.entries()).map(([empId, records]) => {
       const totalAttendance = records.filter(r => r.status === 'present').length;
@@ -595,13 +584,24 @@ export const attendanceReportService = {
       const totalLeave = records.filter((r) => r.status === 'leave').length;
       const totalAbsent = records.filter(r => r.status === 'absent').length;
       const totalPresentIncludingOfficialDuty = totalOnTime + totalLate + totalOfficialDuty;
+      const totalWorkDays = records.filter(
+        (r) =>
+          r.status === 'present' ||
+          r.status === 'official_duty' ||
+          r.status === 'sick' ||
+          r.status === 'permit' ||
+          r.status === 'leave' ||
+          r.status === 'absent'
+      ).length;
       const totalCheckedOut = records.filter((r) => r.checkOutAt !== null).length;
       const totalNotCheckedOut = records.filter(
         (r) => r.status === 'present' && r.checkInAt !== null && r.checkOutAt === null
       ).length;
 
       const attendancePercentage =
-        totalWorkDays > 0 ? Math.round((totalAttendance / totalWorkDays) * 1000) / 10 : 0;
+        totalWorkDays > 0
+          ? Math.round((totalPresentIncludingOfficialDuty / totalWorkDays) * 1000) / 10
+          : 0;
 
       return {
         employeeId: empId,

@@ -12,7 +12,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = () => {
   return (
     <div>
       <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
-        Rekap dan Laporan Presensi
+        Rekap dan Laporan
       </h1>
     </div>
   );

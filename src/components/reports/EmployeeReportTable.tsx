@@ -25,8 +25,7 @@ interface EmployeeReportTableProps {
 
 type SortableEmployeeField =
   | 'attendancePercentage'
-  | 'totalPresentIncludingOfficialDuty'
-  | 'totalLate';
+  | 'totalPresentIncludingOfficialDuty';
 
 function getDisplayTotalHadir(row: EmployeeAttendanceSummary): number {
   return (
@@ -34,6 +33,106 @@ function getDisplayTotalHadir(row: EmployeeAttendanceSummary): number {
     row.totalOnTime + row.totalLate + (row.totalOfficialDuty ?? 0)
   );
 }
+
+function formatIndonesianPercentage(value: number): string {
+  const safe = Number.isFinite(value) ? value : 0;
+  const rounded = Math.round(safe * 10) / 10;
+  return Number.isInteger(rounded)
+    ? `${rounded}%`
+    : `${rounded.toFixed(1).replace('.', ',')}%`;
+}
+
+const AttendanceSummaryVisual: React.FC<{ row: EmployeeAttendanceSummary }> = ({ row }) => {
+  const hadir = getDisplayTotalHadir(row);
+  const sakitIzinCuti = (row.totalSick ?? 0) + (row.totalPermit ?? 0) + (row.totalLeave ?? 0);
+  const alfa = row.totalAbsent ?? 0;
+  const totalCategories = hadir + sakitIzinCuti + alfa;
+  const hasEvaluatedDays = totalCategories > 0;
+
+  const hadirPct = hasEvaluatedDays ? (hadir / totalCategories) * 100 : 0;
+  const sakitIzinCutiPct = hasEvaluatedDays ? (sakitIzinCuti / totalCategories) * 100 : 0;
+  const alfaPct = hasEvaluatedDays ? (alfa / totalCategories) * 100 : 0;
+
+  const displayPerc = hasEvaluatedDays
+    ? formatIndonesianPercentage(row.attendancePercentage)
+    : '0%';
+
+  let percTextClass = 'text-[#6B7280]';
+  if (hasEvaluatedDays) {
+    if (row.attendancePercentage < 75) percTextClass = 'text-rose-600';
+    else if (row.attendancePercentage < 90) percTextClass = 'text-amber-600';
+    else percTextClass = 'text-emerald-600';
+  }
+
+  return (
+    <div className="space-y-1.5 min-w-0">
+      {/* Persentase Utama */}
+      <div className="flex items-baseline gap-1.5">
+        <span className={`text-sm sm:text-base font-bold tabular-nums leading-none ${percTextClass}`}>
+          {displayPerc}
+        </span>
+        <span className="text-[11px] sm:text-xs font-medium text-[#6B7280]">
+          Kehadiran
+        </span>
+      </div>
+
+      {/* Segment Bar Horizontal 3 Kategori */}
+      <div
+        className="w-full h-2 rounded-full bg-[#E5E7EB] overflow-hidden flex"
+        role="img"
+        aria-label={`Komposisi kehadiran: Hadir ${hadir} hari, Sakit/Izin/Cuti ${sakitIzinCuti} hari, Alfa ${alfa} hari`}
+      >
+        {hasEvaluatedDays && (
+          <>
+            {hadir > 0 && (
+              <div
+                className="h-full bg-emerald-500 transition-all duration-300"
+                style={{ width: `${hadirPct}%` }}
+              />
+            )}
+            {sakitIzinCuti > 0 && (
+              <div
+                className="h-full bg-amber-400 transition-all duration-300"
+                style={{ width: `${sakitIzinCutiPct}%` }}
+              />
+            )}
+            {alfa > 0 && (
+              <div
+                className="h-full bg-rose-500 transition-all duration-300"
+                style={{ width: `${alfaPct}%` }}
+              />
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Legenda Satu Baris Rata Kiri */}
+      <div className="flex flex-nowrap items-center justify-start gap-2 min-[360px]:gap-3 sm:gap-4 text-[10px] min-[360px]:text-[11px] sm:text-xs text-[#6B7280] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <span className="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+          <span>Hadir</span>
+          <span className="font-semibold text-[#111827] tabular-nums">{hadir}</span>
+          <span className="min-[360px]:hidden">hr</span>
+          <span className="hidden min-[360px]:inline">hari</span>
+        </span>
+        <span className="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
+          <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+          <span>Sakit/Izin/Cuti</span>
+          <span className="font-semibold text-[#111827] tabular-nums">{sakitIzinCuti}</span>
+          <span className="min-[360px]:hidden">hr</span>
+          <span className="hidden min-[360px]:inline">hari</span>
+        </span>
+        <span className="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
+          <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+          <span>Alfa</span>
+          <span className="font-semibold text-[#111827] tabular-nums">{alfa}</span>
+          <span className="min-[360px]:hidden">hr</span>
+          <span className="hidden min-[360px]:inline">hari</span>
+        </span>
+      </div>
+    </div>
+  );
+};
 
 export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
   data,
@@ -70,7 +169,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
         <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
           <div className="h-6 bg-gray-100 rounded w-48 animate-pulse mb-4" />
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-10 bg-gray-50 rounded-xl animate-pulse" />
+            <div key={i} className="h-12 bg-gray-50 rounded-xl animate-pulse" />
           ))}
         </div>
       </>
@@ -121,9 +220,6 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
     if (sortField === 'totalPresentIncludingOfficialDuty') {
       valA = getDisplayTotalHadir(a);
       valB = getDisplayTotalHadir(b);
-    } else if (sortField === 'totalLate') {
-      valA = a.totalLate;
-      valB = b.totalLate;
     } else {
       valA = a.attendancePercentage;
       valB = b.attendancePercentage;
@@ -143,7 +239,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
 
   return (
     <>
-      {/* Mobile & Tablet (<lg): Compact List View */}
+      {/* Mobile & Tablet (<lg): Compact List View with Unified Attendance Summary */}
       <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
         {/* Compact Data Header */}
         <div className="px-4 py-3 border-b border-[#E5E7EB] flex flex-wrap items-center justify-between gap-2 bg-white">
@@ -169,7 +265,6 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               >
                 <option value="attendancePercentage">Persentase</option>
                 <option value="totalPresentIncludingOfficialDuty">Total Hadir</option>
-                <option value="totalLate">Telat</option>
               </select>
               <button
                 type="button"
@@ -215,83 +310,31 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
           <div className="divide-y divide-[#E5E7EB]">
             {sorted.map((row) => {
               const isHistorical = row.employeeName.includes('(Arsip)');
-              const perc = row.attendancePercentage;
-              const totalHadir = getDisplayTotalHadir(row);
-              const totalOfficialDuty = row.totalOfficialDuty ?? 0;
-              const totalSick = row.totalSick ?? 0;
-              const totalPermit = row.totalPermit ?? 0;
-              const totalLeave = row.totalLeave ?? 0;
-
-              let percColor = 'text-emerald-700 bg-emerald-50 border-emerald-200';
-              if (perc < 75) percColor = 'text-red-700 bg-red-50 border-red-200';
-              else if (perc < 90) percColor = 'text-amber-700 bg-amber-50 border-amber-200';
-
-              const metricItems = [
-                { label: 'Total Hadir', value: totalHadir, highlight: true, valueClass: 'text-[#F97316]' },
-                { label: 'Tepat', value: row.totalOnTime, highlight: false, valueClass: 'text-emerald-600' },
-                { label: 'Telat', value: row.totalLate, highlight: false, valueClass: 'text-amber-600' },
-                { label: 'Dinas Luar', value: totalOfficialDuty, highlight: false, valueClass: 'text-purple-600' },
-                { label: 'Sakit', value: totalSick, highlight: false, valueClass: 'text-blue-600' },
-                { label: 'Izin', value: totalPermit, highlight: false, valueClass: 'text-indigo-600' },
-                { label: 'Cuti', value: totalLeave, highlight: false, valueClass: 'text-teal-600' },
-                {
-                  label: 'Alfa',
-                  value: row.totalAbsent,
-                  highlight: false,
-                  valueClass: row.totalAbsent > 0 ? 'text-rose-500' : 'text-[#111827]',
-                },
-              ];
 
               return (
                 <div key={row.employeeId} className="px-3.5 sm:px-4 py-3 space-y-2.5">
-                  {/* Top Line: Employee Identity (Name + Position) & Percentage */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
-                        {row.employeeName.charAt(0).toUpperCase()}
+                  {/* Employee Identity (Name + Position) */}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
+                      {row.employeeName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm font-semibold text-[#111827] flex items-center gap-1.5 flex-wrap">
+                        <span className="truncate">{row.employeeName}</span>
+                        {isHistorical && (
+                          <Badge variant="warning" size="sm">
+                            Arsip
+                          </Badge>
+                        )}
                       </div>
-                      <div className="min-w-0">
-                        <div className="text-xs sm:text-sm font-semibold text-[#111827] flex items-center gap-1.5 flex-wrap">
-                          <span className="truncate">{row.employeeName}</span>
-                          {isHistorical && (
-                            <Badge variant="warning" size="sm">
-                              Arsip
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-[#6B7280] truncate">
-                          {row.positionName || '-'}
-                        </div>
+                      <div className="text-[11px] text-[#6B7280] truncate">
+                        {row.positionName || '-'}
                       </div>
                     </div>
-
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border shrink-0 ${percColor}`}
-                    >
-                      {perc}%
-                    </span>
                   </div>
 
-                  {/* 8 Attendance Summary Categories */}
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-                    {metricItems.map((item) => (
-                      <div
-                        key={item.label}
-                        className={`min-w-0 rounded-lg border px-1 py-1.5 text-center ${
-                          item.highlight
-                            ? 'bg-white border-[#F97316]/35'
-                            : 'bg-[#F9FAFB] border-[#F3F4F6]'
-                        }`}
-                      >
-                        <div className={`text-xs sm:text-sm font-bold leading-none tabular-nums ${item.valueClass}`}>
-                          {item.value}
-                        </div>
-                        <div className="text-[9.5px] sm:text-[10px] font-medium text-[#6B7280] leading-tight tracking-[-0.01em] sm:tracking-normal mt-1">
-                          {item.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Unified Attendance Summary */}
+                  <AttendanceSummaryVisual row={row} />
                 </div>
               );
             })}
@@ -303,7 +346,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
         </div>
       </div>
 
-      {/* Desktop (>=lg): Clean 8-Category Table View (Nama + Jabatan, tanpa NIP/Departemen/Pulang/Belum Pulang/Hari Kerja) */}
+      {/* Desktop (>=lg): Simplified 2-Column Table (Identitas Pegawai + Ringkasan Kehadiran) */}
       <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
         {/* Table Header and Search */}
         <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -313,7 +356,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               Rekap Kehadiran Per Pegawai
             </h3>
             <p className="text-xs text-[#6B7280] mt-0.5">
-              Akumulasi delapan kategori kehadiran dan persentase kehadiran per pegawai
+              Ringkasan persentase dan komposisi kehadiran per pegawai
             </p>
           </div>
 
@@ -357,38 +400,52 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
-                <th className="py-3 px-4">Pegawai</th>
-                <th
-                  className="py-3 px-3 text-center cursor-pointer hover:text-[#111827]"
-                  onClick={() => handleToggleSort('totalPresentIncludingOfficialDuty')}
-                >
-                  <div className="inline-flex items-center gap-1">
-                    <span>Total Hadir</span>
-                    <ArrowUpDown className="w-3 h-3" />
-                  </div>
-                </th>
-                <th className="py-3 px-3 text-center">Tepat</th>
-                <th
-                  className="py-3 px-3 text-center cursor-pointer hover:text-[#111827]"
-                  onClick={() => handleToggleSort('totalLate')}
-                >
-                  <div className="inline-flex items-center gap-1">
-                    <span>Telat</span>
-                    <ArrowUpDown className="w-3 h-3" />
-                  </div>
-                </th>
-                <th className="py-3 px-3 text-center">Dinas Luar</th>
-                <th className="py-3 px-3 text-center">Sakit</th>
-                <th className="py-3 px-3 text-center">Izin</th>
-                <th className="py-3 px-3 text-center">Cuti</th>
-                <th className="py-3 px-3 text-center">Alfa</th>
-                <th
-                  className="py-3 px-4 text-center cursor-pointer hover:text-[#111827]"
-                  onClick={() => handleToggleSort('attendancePercentage')}
-                >
-                  <div className="inline-flex items-center gap-1">
-                    <span>Persentase</span>
-                    <ArrowUpDown className="w-3 h-3" />
+                <th className="py-3 px-4 w-[36%]">Pegawai</th>
+                <th className="py-3 px-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>Ringkasan Kehadiran</span>
+                    <div className="inline-flex items-center gap-2 normal-case tracking-normal font-medium">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSort('attendancePercentage')}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] cursor-pointer transition-colors ${
+                          sortField === 'attendancePercentage'
+                            ? 'bg-orange-50 border-orange-200 text-[#EA580C] font-semibold'
+                            : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:text-[#111827]'
+                        }`}
+                      >
+                        <span>Persentase</span>
+                        {sortField === 'attendancePercentage' ? (
+                          sortAsc ? (
+                            <ArrowUp className="w-3 h-3" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSort('totalPresentIncludingOfficialDuty')}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] cursor-pointer transition-colors ${
+                          sortField === 'totalPresentIncludingOfficialDuty'
+                            ? 'bg-orange-50 border-orange-200 text-[#EA580C] font-semibold'
+                            : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:text-[#111827]'
+                        }`}
+                      >
+                        <span>Total Hadir</span>
+                        {sortField === 'totalPresentIncludingOfficialDuty' ? (
+                          sortAsc ? (
+                            <ArrowUp className="w-3 h-3" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3" />
+                          )
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </th>
               </tr>
@@ -396,27 +453,17 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
             <tbody className="divide-y divide-[#F3F4F6]">
               {sorted.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-10 px-4 text-center text-xs text-[#6B7280]">
+                  <td colSpan={2} className="py-10 px-4 text-center text-xs text-[#6B7280]">
                     Tidak ada pegawai yang cocok dengan pencarian &ldquo;{effectiveSearch}&rdquo;.
                   </td>
                 </tr>
               ) : (
                 sorted.map((row) => {
                   const isHistorical = row.employeeName.includes('(Arsip)');
-                  const perc = row.attendancePercentage;
-                  const totalHadir = getDisplayTotalHadir(row);
-                  const totalOfficialDuty = row.totalOfficialDuty ?? 0;
-                  const totalSick = row.totalSick ?? 0;
-                  const totalPermit = row.totalPermit ?? 0;
-                  const totalLeave = row.totalLeave ?? 0;
-
-                  let percColor = 'text-emerald-700 bg-emerald-50 border-emerald-200';
-                  if (perc < 75) percColor = 'text-red-700 bg-red-50 border-red-200';
-                  else if (perc < 90) percColor = 'text-amber-700 bg-amber-50 border-amber-200';
 
                   return (
                     <tr key={row.employeeId} className="hover:bg-[#F9FAFB]/70 transition-colors">
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 align-middle whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
                           <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
                             {row.employeeName.charAt(0).toUpperCase()}
@@ -436,40 +483,8 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-3 text-center font-bold text-[#F97316] tabular-nums">
-                        {totalHadir}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-emerald-600 tabular-nums">
-                        {row.totalOnTime}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-amber-600 tabular-nums">
-                        {row.totalLate}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-purple-600 tabular-nums">
-                        {totalOfficialDuty}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-blue-600 tabular-nums">
-                        {totalSick}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-indigo-600 tabular-nums">
-                        {totalPermit}
-                      </td>
-                      <td className="py-3 px-3 text-center font-semibold text-teal-600 tabular-nums">
-                        {totalLeave}
-                      </td>
-                      <td className="py-3 px-3 text-center tabular-nums">
-                        {row.totalAbsent > 0 ? (
-                          <span className="font-semibold text-rose-500">{row.totalAbsent}</span>
-                        ) : (
-                          <span className="text-[#6B7280] font-semibold">0</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 text-center whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${percColor}`}
-                        >
-                          {perc}%
-                        </span>
+                      <td className="py-3.5 px-4 align-middle">
+                        <AttendanceSummaryVisual row={row} />
                       </td>
                     </tr>
                   );

@@ -106,7 +106,7 @@ export const attendanceExcelExportService = {
         'Departemen / Unit': row.departmentName,
         'Status Pegawai': isHistorical ? 'Arsip' : 'Aktif',
         'Hari Kerja Efektif': `${row.totalWorkDays} Hari`,
-        'Total Hadir': row.totalAttendance,
+        'Total Hadir': row.totalPresentIncludingOfficialDuty ?? row.totalAttendance,
         'Tepat Waktu': row.totalOnTime,
         'Terlambat': row.totalLate,
         'Sudah Check-out': row.totalCheckedOut,
