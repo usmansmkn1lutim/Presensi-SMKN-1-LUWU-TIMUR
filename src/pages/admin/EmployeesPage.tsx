@@ -22,6 +22,7 @@ import {
   ArrowUpDown,
   Check,
   MoreVertical,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -44,6 +45,8 @@ import { PositionModal } from '../../components/employees/PositionModal';
 import { DeleteEmployeeModal } from '../../components/employees/DeleteEmployeeModal';
 import { EmployeeGridCard } from '../../components/employees/EmployeeGridCard';
 import { EmployeePagination } from '../../components/employees/EmployeePagination';
+import { EmployeeImportModal } from '../../components/employees/EmployeeImportModal';
+import { BulkEmployeeImportSummaryResponse } from '../../types/employeeImport.types';
 
 type SortOption = 'name_asc' | 'name_desc' | 'nip_asc' | 'nip_desc' | 'newest' | 'oldest';
 
@@ -108,6 +111,7 @@ export const EmployeesPage: React.FC = () => {
   const [isDepartmentModalOpen, setIsDepartmentModalOpen] = useState(false);
   const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRelations | null>(null);
   const [employeeForDelete, setEmployeeForDelete] = useState<EmployeeWithRelations | null>(null);
@@ -305,6 +309,14 @@ export const EmployeesPage: React.FC = () => {
     setTimeout(() => setSuccessToast(null), 6000);
   };
 
+  const handleImportCompleted = (summary: BulkEmployeeImportSummaryResponse) => {
+    fetchEmployeesData();
+    setSuccessToast(
+      `Impor massal selesai: ${summary.importedCount} pegawai berhasil diimpor, ${summary.failedCount} gagal, ${summary.skippedCount} dilewati.`
+    );
+    setTimeout(() => setSuccessToast(null), 6000);
+  };
+
   const handleResetFilter = () => {
     setSearchQuery('');
     setStatusFilter('all');
@@ -449,6 +461,16 @@ export const EmployeesPage: React.FC = () => {
                   className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
                 >
                   Jabatan
+                </Button>
+                <Button
+                  variant="outline"
+                  size="md"
+                  leftIcon={<FileSpreadsheet className="w-4 h-4 text-[#F97316]" />}
+                  onClick={() => setIsImportModalOpen(true)}
+                  title="Impor Data Pegawai Massal dari Excel"
+                  className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
+                >
+                  Impor Pegawai
                 </Button>
               </>
             )}
@@ -911,17 +933,28 @@ export const EmployeesPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Tombol Tambah Pegawai Ikon Plus (+) di Ujung Kanan Mobile */}
+          {/* Tombol Impor & Tambah Pegawai di Ujung Kanan Mobile */}
           {canManage && (
-            <button
-              type="button"
-              onClick={handleOpenAddModal}
-              className="w-9 h-9 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
-              title="Tambah Pegawai"
-              aria-label="Tambah Pegawai Baru"
-            >
-              <UserPlus className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(true)}
+                className="w-9 h-9 rounded-xl bg-white border border-[#E5E7EB] hover:bg-gray-50 text-[#F97316] flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
+                title="Impor Pegawai dari Excel"
+                aria-label="Impor Pegawai dari Excel"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenAddModal}
+                className="w-9 h-9 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
+                title="Tambah Pegawai"
+                aria-label="Tambah Pegawai Baru"
+              >
+                <UserPlus className="w-4 h-4" />
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -1339,6 +1372,14 @@ export const EmployeesPage: React.FC = () => {
         employee={employeeForDelete}
         onSuccess={handleDeleteSuccess}
       />
+
+      {canManage && (
+        <EmployeeImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onImportCompleted={handleImportCompleted}
+        />
+      )}
     </div>
   );
 };

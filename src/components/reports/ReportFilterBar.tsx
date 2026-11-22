@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { AttendanceReportFilter } from '../../types/attendanceReport.types';
+import { COMMON_EMPLOYEE_TYPES } from '../../types/employee';
 import {
   getMakassarTodayDateString,
   getMakassarFirstDayOfMonthString,
@@ -803,9 +804,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
           >
             <option value="all">Semua Tipe</option>
-            <option value="PNS">PNS</option>
-            <option value="PPPK">PPPK</option>
-            <option value="HONORER">HONORER</option>
+            {COMMON_EMPLOYEE_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
             <option value="Tidak diketahui">Tidak diketahui</option>
           </select>
         </div>

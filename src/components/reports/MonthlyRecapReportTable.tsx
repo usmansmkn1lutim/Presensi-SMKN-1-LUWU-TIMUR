@@ -9,6 +9,7 @@ import {
   Download,
 } from 'lucide-react';
 import { MonthlyRecapReportResponse } from '../../types/attendanceReport.types';
+import { COMMON_EMPLOYEE_TYPES } from '../../types/employee';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
@@ -350,9 +351,11 @@ export const MonthlyRecapReportTable: React.FC<MonthlyRecapReportTableProps> = (
               className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Tipe</option>
-              <option value="PNS">PNS</option>
-              <option value="PPPK">PPPK</option>
-              <option value="HONORER">HONORER</option>
+              {COMMON_EMPLOYEE_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
               <option value="Tidak diketahui">Tidak diketahui</option>
             </select>
 
@@ -541,7 +544,7 @@ export const MonthlyRecapReportTable: React.FC<MonthlyRecapReportTableProps> = (
                           <Badge
                             variant="default"
                             size="sm"
-                            className="font-semibold px-2 py-0.5 text-[10px]"
+                            className="font-semibold px-2 py-0.5 text-[10px] whitespace-nowrap"
                           >
                             {row.employeeType}
                           </Badge>

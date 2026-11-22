@@ -15,7 +15,9 @@ import {
   PaginatedAttendanceDetailResponse,
   MonthlyRecapRow,
   MonthlyRecapReportResponse,
+  NormalizedEmployeeType,
 } from '../types/attendanceReport.types';
+import { COMMON_EMPLOYEE_TYPES } from '../types/employee';
 
 /**
  * Pure Calendar Date & Timezone Utilities for Asia/Makassar (WITA, UTC+8)
@@ -1095,13 +1097,26 @@ export const attendanceReportService = {
   },
 };
 
-function normalizeEmployeeType(type: string | null | undefined): string {
-  if (!type) return 'Tidak diketahui';
-  const t = type.trim().toUpperCase();
-  if (t === 'PNS') return 'PNS';
-  if (t === 'PPPK') return 'PPPK';
-  if (t === 'GTT' || t === 'PTT' || t === 'HONORER' || t.includes('GTT') || t.includes('PTT') || t.includes('HONORER')) {
-    return 'HONORER';
+const EMPLOYEE_TYPE_LOOKUP: Record<string, NormalizedEmployeeType> = (() => {
+  const map: Record<string, NormalizedEmployeeType> = {};
+
+  for (const label of COMMON_EMPLOYEE_TYPES) {
+    const key = label.trim().replace(/\s+/g, ' ').toUpperCase();
+    map[key] = label as NormalizedEmployeeType;
   }
-  return 'Tidak diketahui';
+
+  // Shorthand aliases for legacy/abbreviated records mapped to distinct official categories
+  map['GTT'] = 'GTT (Guru Tidak Tetap)';
+  map['PTT'] = 'PTT (Pegawai Tidak Tetap)';
+
+  return map;
+})();
+
+export function normalizeEmployeeType(
+  type: string | null | undefined
+): NormalizedEmployeeType {
+  if (!type || typeof type !== 'string') return 'Tidak diketahui';
+  const normalizedKey = type.trim().replace(/\s+/g, ' ').toUpperCase();
+  if (!normalizedKey) return 'Tidak diketahui';
+  return EMPLOYEE_TYPE_LOOKUP[normalizedKey] ?? 'Tidak diketahui';
 }

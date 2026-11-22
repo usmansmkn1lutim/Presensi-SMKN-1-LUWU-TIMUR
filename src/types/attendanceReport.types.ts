@@ -164,11 +164,23 @@ export interface MonthlyRecapDailyStatus {
   notes: string | null;
 }
 
+export type EmployeeTypeCategory =
+  | 'PNS'
+  | 'PPPK'
+  | 'GTT (Guru Tidak Tetap)'
+  | 'PTT (Pegawai Tidak Tetap)'
+  | 'Honorer Sekolah'
+  | 'Tenaga Kependidikan'
+  | 'Guru Tetap Yayasan'
+  | 'Lainnya';
+
+export type NormalizedEmployeeType = EmployeeTypeCategory | 'Tidak diketahui';
+
 export interface MonthlyRecapRow {
   employeeId: string;
   employeeName: string;
   nip: string | null;
-  employeeType: string; // 'PNS' | 'PPPK' | 'HONORER' | 'Tidak diketahui'
+  employeeType: NormalizedEmployeeType;
   departmentName: string;
   dailyStatuses: { [day: number]: MonthlyRecapDailyStatus };
   totalPresent: number;     // H (total of on_time + late)
