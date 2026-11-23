@@ -187,16 +187,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Brand Header */}
       {!isCollapsed ? (
-        <div className="p-4 border-b border-white/10 flex items-center justify-between gap-2 bg-[#F97316] shrink-0">
+        <div className="h-16 px-4 border-b border-white/10 flex items-center bg-[#F97316] shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="shrink-0">
               <SchoolLogo size="sm" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg font-normal text-white truncate leading-tight tracking-tight font-casual">
+              <h1 className="text-[28px] font-normal text-white whitespace-nowrap truncate leading-none tracking-tight font-casual">
                 Tamaki
               </h1>
-              <p className="text-xs text-orange-100/90 truncate font-medium">Presensi Digital GTK</p>
             </div>
           </div>
         </div>
