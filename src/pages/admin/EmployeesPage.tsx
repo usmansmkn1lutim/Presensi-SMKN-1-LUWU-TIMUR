@@ -1378,6 +1378,7 @@ export const EmployeesPage: React.FC = () => {
           isOpen={isImportModalOpen}
           onClose={() => setIsImportModalOpen(false)}
           onImportCompleted={handleImportCompleted}
+          onAccountsCreated={fetchEmployeesData}
         />
       )}
     </div>

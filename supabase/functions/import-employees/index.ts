@@ -157,6 +157,10 @@ function translateDbError(code?: string, message?: string): string {
   return 'Gagal menyimpan data pegawai ke database.';
 }
 
+function isValidRowObject(value: unknown): value is IncomingImportRow {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 interface IncomingImportRow {
   excelRowNumber?: unknown;
   full_name?: unknown;
@@ -326,40 +330,74 @@ Deno.serve(async (req: Request) => {
         ? body.fileName.trim().slice(0, 200)
         : 'import.xlsx';
 
-    // Load master departments & positions once (read-only)
-    const [{ data: departmentsData }, { data: positionsData }] = await Promise.all([
+    // Load master departments & positions once (read-only) and abort on query failure
+    const [departmentsResult, positionsResult] = await Promise.all([
       supabaseAdmin.from('departments').select('id, name, is_active'),
       supabaseAdmin.from('positions').select('id, name, is_active'),
     ]);
 
+    if (
+      departmentsResult.error ||
+      positionsResult.error ||
+      !departmentsResult.data ||
+      !positionsResult.data
+    ) {
+      const deptFailed = Boolean(departmentsResult.error || !departmentsResult.data);
+      const posFailed = Boolean(positionsResult.error || !positionsResult.data);
+      console.error('Failed to load master data for employee import:', {
+        departmentsError: departmentsResult.error?.code || (deptFailed ? 'query_failed' : null),
+        positionsError: positionsResult.error?.code || (posFailed ? 'query_failed' : null),
+      });
+
+      const failureMessage =
+        deptFailed && posFailed
+          ? 'Gagal membaca data master departemen dan jabatan dari database. Proses impor dibatalkan.'
+          : deptFailed
+          ? 'Gagal membaca data master departemen dari database. Proses impor dibatalkan.'
+          : 'Gagal membaca data master jabatan dari database. Proses impor dibatalkan.';
+
+      return jsonResponse(
+        { success: false, message: failureMessage },
+        500,
+        requestOrigin
+      );
+    }
+
+    const departmentsData = departmentsResult.data;
+    const positionsData = positionsResult.data;
+
     const deptMap = new Map<string, { id: string; name: string; is_active: boolean }>();
-    for (const d of departmentsData || []) {
+    for (const d of departmentsData) {
       deptMap.set(normalizeLookupName(d.name), d);
     }
 
     const posMap = new Map<string, { id: string; name: string; is_active: boolean }>();
-    for (const p of positionsData || []) {
+    for (const p of positionsData) {
       posMap.set(normalizeLookupName(p.name), p);
     }
 
     // Track duplicate keys inside request payload (all rows involved in batch duplicates are rejected)
-    const rawRows = body.rows as IncomingImportRow[];
+    const rawRows: unknown[] = body.rows;
     const emailCounts = new Map<string, number>();
     const nipCounts = new Map<string, number>();
     const nikCounts = new Map<string, number>();
     const empNumCounts = new Map<string, number>();
 
-    for (const r of rawRows) {
-      const em = normalizeNullableString(r.email)?.toLowerCase();
+    for (const rawItem of rawRows) {
+      if (!isValidRowObject(rawItem)) {
+        continue;
+      }
+
+      const em = normalizeNullableString(rawItem.email)?.toLowerCase();
       if (em) emailCounts.set(em, (emailCounts.get(em) || 0) + 1);
 
-      const nip = normalizeNullableString(r.nip);
+      const nip = normalizeNullableString(rawItem.nip);
       if (nip) nipCounts.set(nip, (nipCounts.get(nip) || 0) + 1);
 
-      const nik = normalizeNullableString(r.nik);
+      const nik = normalizeNullableString(rawItem.nik);
       if (nik) nikCounts.set(nik, (nikCounts.get(nik) || 0) + 1);
 
-      const empNum = normalizeNullableString(r.employee_number);
+      const empNum = normalizeNullableString(rawItem.employee_number);
       if (empNum) empNumCounts.set(empNum, (empNumCounts.get(empNum) || 0) + 1);
     }
 
@@ -369,6 +407,7 @@ Deno.serve(async (req: Request) => {
       email: string;
       status: 'imported' | 'imported_with_warning' | 'failed';
       employeeId: string | null;
+      employeeStatus: 'active' | 'inactive' | null;
       warnings: string[];
       errorReason: string | null;
     }> = [];
@@ -378,7 +417,24 @@ Deno.serve(async (req: Request) => {
     let failedCount = 0;
 
     for (let idx = 0; idx < rawRows.length; idx++) {
-      const item = rawRows[idx];
+      const rawItem = rawRows[idx];
+      if (!isValidRowObject(rawItem)) {
+        failedCount++;
+        results.push({
+          excelRowNumber: idx + 2,
+          fullName: '(Tanpa Nama)',
+          email: '',
+          status: 'failed',
+          employeeId: null,
+          employeeStatus: null,
+          warnings: [],
+          errorReason:
+            'Format elemen baris impor tidak valid (harus berupa objek data pegawai).',
+        });
+        continue;
+      }
+
+      const item = rawItem;
       const excelRowNumber =
         typeof item.excelRowNumber === 'number' && Number.isInteger(item.excelRowNumber) && item.excelRowNumber > 0
           ? item.excelRowNumber
@@ -495,6 +551,7 @@ Deno.serve(async (req: Request) => {
           email,
           status: 'failed',
           employeeId: null,
+          employeeStatus: null,
           warnings: rowWarnings,
           errorReason: rowErrors.join(' '),
         });
@@ -520,7 +577,7 @@ Deno.serve(async (req: Request) => {
           email,
           notes,
         })
-        .select('id')
+        .select('id, status')
         .single();
 
       if (insertError || !insertedRow) {
@@ -531,11 +588,17 @@ Deno.serve(async (req: Request) => {
           email,
           status: 'failed',
           employeeId: null,
+          employeeStatus: null,
           warnings: rowWarnings,
           errorReason: translateDbError(insertError?.code, insertError?.message),
         });
         continue;
       }
+
+      const savedEmployeeStatus: 'active' | 'inactive' | null =
+        insertedRow.status === 'active' || insertedRow.status === 'inactive'
+          ? insertedRow.status
+          : null;
 
       if (rowWarnings.length > 0) {
         importedWithWarningCount++;
@@ -545,6 +608,7 @@ Deno.serve(async (req: Request) => {
           email,
           status: 'imported_with_warning',
           employeeId: insertedRow.id,
+          employeeStatus: savedEmployeeStatus,
           warnings: rowWarnings,
           errorReason: null,
         });
@@ -556,6 +620,7 @@ Deno.serve(async (req: Request) => {
           email,
           status: 'imported',
           employeeId: insertedRow.id,
+          employeeStatus: savedEmployeeStatus,
           warnings: [],
           errorReason: null,
         });

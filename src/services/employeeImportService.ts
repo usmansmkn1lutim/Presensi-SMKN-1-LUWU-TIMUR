@@ -1,17 +1,29 @@
 import * as XLSX from 'xlsx';
 import XLSXStyle from 'xlsx-js-style';
+import {
+  FunctionsFetchError,
+  FunctionsHttpError,
+  FunctionsRelayError,
+} from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { DepartmentRow, EmployeeStatus, Gender, PositionRow } from '../types/database.types';
 import { COMMON_EMPLOYEE_TYPES } from '../types/employee';
 import {
   AuthCheckExecutionStatus,
   AuthEmailCheckResponse,
+  BULK_ACCOUNT_CHUNK_SIZE,
+  BulkAccountCreationItemStatus,
+  BulkCreateAccountChunkError,
+  BulkCreateAccountsAggregatedSummary,
+  BulkCreateEmployeeAccountRowResult,
+  BulkCreateEmployeeAccountsChunkResponse,
   BulkEmployeeImportSummaryResponse,
   EMPLOYEE_IMPORT_GUIDE_SHEET_NAME,
   EMPLOYEE_IMPORT_HEADERS,
   EMPLOYEE_IMPORT_MAX_FILE_SIZE_BYTES,
   EMPLOYEE_IMPORT_MAX_ROWS,
   EMPLOYEE_IMPORT_SHEET_NAME,
+  EmployeeAccountCandidate,
   EmployeeImportRowExecutionResult,
   EmployeeImportServerRowInput,
   ImportRowValidationStatus,
@@ -998,13 +1010,15 @@ export async function processPartialInsertRows(
 
   for (const row of rows) {
     if (row.validationStatus === 'rejected' || !row.normalized) {
-      skippedCount++;
+        skippedCount++;
       results.push({
         excelRowNumber: row.excelRowNumber,
         fullName: row.raw.fullName.trim() || '(Tanpa Nama)',
         email: row.raw.email.trim().toLowerCase(),
         status: 'skipped',
         employeeId: null,
+        employeeStatus: null,
+        existsInAuth: row.existsInAuth,
         warnings: row.warnings,
         errorReason: row.errors.join(' '),
       });
@@ -1021,6 +1035,8 @@ export async function processPartialInsertRows(
           email: row.normalized.email,
           status: 'failed',
           employeeId: null,
+          employeeStatus: null,
+          existsInAuth: row.existsInAuth,
           warnings: row.warnings,
           errorReason: mapDatabaseConstraintError(res.error?.code, res.error?.message),
         });
@@ -1035,6 +1051,8 @@ export async function processPartialInsertRows(
           email: row.normalized.email,
           status: 'imported_with_warning',
           employeeId: res.id,
+          employeeStatus: row.normalized.status,
+          existsInAuth: row.existsInAuth,
           warnings: row.warnings,
           errorReason: null,
         });
@@ -1046,6 +1064,8 @@ export async function processPartialInsertRows(
           email: row.normalized.email,
           status: 'imported',
           employeeId: res.id,
+          employeeStatus: row.normalized.status,
+          existsInAuth: row.existsInAuth,
           warnings: [],
           errorReason: null,
         });
@@ -1059,6 +1079,8 @@ export async function processPartialInsertRows(
         email: row.normalized.email,
         status: 'failed',
         employeeId: null,
+        employeeStatus: null,
+        existsInAuth: row.existsInAuth,
         warnings: row.warnings,
         errorReason: msg,
       });
@@ -1082,13 +1104,642 @@ export async function processPartialInsertRows(
   };
 }
 
+export function getBulkAccountStatusLabel(
+  status: BulkAccountCreationItemStatus,
+  retryable?: boolean
+): string {
+  if (status === 'failed') {
+    return retryable === true ? 'Gagal (Bisa Ulang)' : 'Gagal (Perlu Periksa)';
+  }
+
+  const labels: Record<Exclude<BulkAccountCreationItemStatus, 'failed'>, string> = {
+    created: 'Akun Dibuat & Dikaitkan (Wajib Ganti Password)',
+    already_linked: 'Sudah Memiliki Akun Terhubung',
+    auth_exists: 'Dilewati (Email Sudah Ada di Auth)',
+    ineligible: 'Tidak Eligible',
+    reconciliation_required: 'Perlu Rekonsiliasi Manual Admin',
+  };
+
+  return labels[status];
+}
+
+export function getBulkAccountStatusBadge(
+  status: BulkAccountCreationItemStatus,
+  retryable?: boolean
+): { label: string; variant: 'success' | 'warning' | 'danger' | 'default' } {
+  if (status === 'failed') {
+    return {
+      label: retryable === true ? 'Gagal (Bisa Ulang)' : 'Gagal (Perlu Periksa)',
+      variant: 'danger',
+    };
+  }
+
+  const badgeMap: Record<
+    Exclude<BulkAccountCreationItemStatus, 'failed'>,
+    { label: string; variant: 'success' | 'warning' | 'danger' | 'default' }
+  > = {
+    created: { label: 'Akun Dibuat & Dikaitkan', variant: 'success' },
+    already_linked: { label: 'Sudah Tertaut', variant: 'default' },
+    auth_exists: { label: 'Email Auth Sudah Ada', variant: 'warning' },
+    ineligible: { label: 'Tidak Eligible', variant: 'default' },
+    reconciliation_required: { label: 'Perlu Rekonsiliasi', variant: 'danger' },
+  };
+
+  return badgeMap[status];
+}
+
+export function deduplicateChunkErrorMessages(
+  chunkErrors: BulkCreateAccountChunkError[]
+): string[] {
+  const unique: string[] = [];
+  const seen = new Set<string>();
+  for (const item of chunkErrors) {
+    const trimmed = (item.message || '').trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      unique.push(trimmed);
+    }
+  }
+  return unique;
+}
+
+export class BulkAccountChunkHttpError extends Error {
+  readonly httpStatus: number | null;
+  readonly isPermanentStop: boolean;
+
+  constructor(message: string, httpStatus: number | null) {
+    super(message);
+    this.name = 'BulkAccountChunkHttpError';
+    this.httpStatus = httpStatus;
+    this.isPermanentStop =
+      httpStatus === 401 || httpStatus === 403 || httpStatus === 400;
+  }
+}
+
+export function extractEdgeFunctionHttpStatus(error: unknown): number | null {
+  if (!error || typeof error !== 'object') return null;
+  const errObj = error as {
+    status?: unknown;
+    statusCode?: unknown;
+    httpStatus?: unknown;
+    context?: { status?: unknown };
+  };
+
+  if (typeof errObj.context?.status === 'number') {
+    return errObj.context.status;
+  }
+  if (typeof errObj.httpStatus === 'number') {
+    return errObj.httpStatus;
+  }
+  if (typeof errObj.status === 'number') {
+    return errObj.status;
+  }
+  if (typeof errObj.statusCode === 'number') {
+    return errObj.statusCode;
+  }
+  return null;
+}
+
+const SENSITIVE_OR_RAW_ERROR_PATTERNS = [
+  /<(?:!doctype|html|head|body|script|style)\b/i,
+  /\n\s*at\s+/,
+  /\bBearer\s+[A-Za-z0-9\-._~+/]+=*/i,
+  /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/,
+];
+
+function isSafeClientErrorMessage(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  return !SENSITIVE_OR_RAW_ERROR_PATTERNS.some((pattern) => pattern.test(trimmed));
+}
+
 /**
- * Exports import preview or final execution result to Excel with formula-injection protection.
+ * Extracts a safe, user-facing error message from supabase.functions.invoke responses/errors.
+ * Clones Response context before reading body and never makes extra requests or leaks raw HTML/traces/tokens.
  */
-export function exportImportResultReport(
+export async function extractEdgeFunctionErrorMessage(
+  data: unknown,
+  error: unknown,
+  fallbackMessage: string
+): Promise<string> {
+  if (data && typeof data === 'object' && 'message' in data) {
+    const dataMessage = (data as { message?: unknown }).message;
+    if (isSafeClientErrorMessage(dataMessage)) {
+      return dataMessage.trim();
+    }
+  }
+
+  if (error && typeof error === 'object') {
+    const errObj = error as {
+      name?: unknown;
+      message?: unknown;
+      context?: unknown;
+    };
+    const errName = typeof errObj.name === 'string' ? errObj.name : '';
+
+    if (error instanceof FunctionsHttpError || errName === 'FunctionsHttpError') {
+      const ctx = errObj.context;
+      if (ctx && typeof ctx === 'object') {
+        try {
+          const responseLike = ctx as {
+            clone?: () => { text?: () => Promise<string>; json?: () => Promise<unknown> };
+            text?: () => Promise<string>;
+            json?: () => Promise<unknown>;
+          };
+          const readable =
+            typeof responseLike.clone === 'function' ? responseLike.clone() : responseLike;
+
+          let parsed: unknown = null;
+          if (typeof readable.text === 'function') {
+            const rawText = await readable.text();
+            if (rawText && rawText.trim().length > 0) {
+              try {
+                parsed = JSON.parse(rawText);
+              } catch {
+                parsed = null;
+              }
+            }
+          } else if (typeof readable.json === 'function') {
+            parsed = await readable.json();
+          }
+
+          if (parsed && typeof parsed === 'object' && 'message' in parsed) {
+            const ctxMsg = (parsed as { message?: unknown }).message;
+            if (isSafeClientErrorMessage(ctxMsg)) {
+              return ctxMsg.trim();
+            }
+          }
+        } catch {
+          // Ignore malformed or unreadable body; fall through to safe fallback
+        }
+      }
+    }
+
+    if (error instanceof FunctionsFetchError || errName === 'FunctionsFetchError') {
+      return 'Gagal terhubung ke layanan Edge Function (gangguan jaringan atau fungsi belum tersedia).';
+    }
+
+    if (error instanceof FunctionsRelayError || errName === 'FunctionsRelayError') {
+      return 'Layanan relay Edge Function mengalami gangguan saat meneruskan permintaan.';
+    }
+
+    if (isSafeClientErrorMessage(errObj.message)) {
+      return errObj.message.trim();
+    }
+  } else if (isSafeClientErrorMessage(error)) {
+    return error.trim();
+  }
+
+  return fallbackMessage;
+}
+
+const GENERIC_NON_2XX_SDK_MESSAGE = 'Edge Function returned a non-2xx status code';
+
+async function resolveChunkHttpErrorDetails(
+  httpStatus: number | null,
+  data: unknown,
+  error: unknown
+): Promise<{
+  message: string;
+  httpStatus: number | null;
+  isPermanentStop: boolean;
+}> {
+  if (httpStatus === 401) {
+    return {
+      httpStatus: 401,
+      isPermanentStop: true,
+      message:
+        'Sesi login Anda tidak valid atau telah kedaluwarsa. Silakan login ulang sebelum melanjutkan.',
+    };
+  }
+
+  if (httpStatus === 403) {
+    return {
+      httpStatus: 403,
+      isPermanentStop: true,
+      message:
+        'Akses ditolak: akun Anda tidak memiliki izin Admin atau Super Admin untuk membuat akun pegawai massal.',
+    };
+  }
+
+  if (httpStatus === 400) {
+    const extracted = await extractEdgeFunctionErrorMessage(
+      data,
+      error,
+      'Permintaan ditolak oleh validasi server. Periksa kembali daftar pegawai dan kata sandi awal.'
+    );
+    const safeMsg =
+      extracted === GENERIC_NON_2XX_SDK_MESSAGE
+        ? 'Validasi permintaan ditolak oleh server. Periksa kembali daftar pegawai dan kata sandi awal.'
+        : extracted;
+    return {
+      httpStatus: 400,
+      isPermanentStop: true,
+      message: safeMsg,
+    };
+  }
+
+  const extracted = await extractEdgeFunctionErrorMessage(
+    data,
+    error,
+    'Gagal menjalankan Edge Function bulk-create-employee-accounts.'
+  );
+  return {
+    httpStatus,
+    isPermanentStop: false,
+    message: extracted,
+  };
+}
+
+export async function parseBulkAccountChunkInvokeResult(
+  data: unknown,
+  error: unknown
+): Promise<BulkCreateEmployeeAccountsChunkResponse> {
+  if (error) {
+    const httpStatus = extractEdgeFunctionHttpStatus(error);
+    const details = await resolveChunkHttpErrorDetails(httpStatus, data, error);
+    throw new BulkAccountChunkHttpError(details.message, details.httpStatus);
+  }
+
+  const serverRes = data as BulkCreateEmployeeAccountsChunkResponse | null;
+  if (!serverRes || typeof serverRes !== 'object' || !serverRes.success) {
+    throw new Error(
+      serverRes?.message || 'Respons dari server pembuatan akun tidak valid.'
+    );
+  }
+
+  return serverRes;
+}
+
+/**
+ * Determines whether a bulk account execution or retry actually produced at least 1 new account.
+ */
+export function hasNewlyCreatedAccounts(
+  previousCreatedCount: number,
+  nextCreatedCount: number
+): boolean {
+  return nextCreatedCount > previousCreatedCount;
+}
+
+/**
+ * Validates batch initial password using the same minimum rules as SecurityPage.
+ */
+export function validateBatchInitialPassword(
+  password: string,
+  confirmPassword: string
+): string | null {
+  if (!password) {
+    return 'Kata sandi awal wajib diisi.';
+  }
+  if (password.trim().length === 0) {
+    return 'Kata sandi awal tidak boleh hanya berisi spasi.';
+  }
+  if (password.length < 6) {
+    return 'Kata sandi awal minimal 6 karakter.';
+  }
+  if (password.length > 128) {
+    return 'Kata sandi awal maksimal 128 karakter.';
+  }
+  if (password !== confirmPassword) {
+    return 'Konfirmasi kata sandi awal tidak cocok.';
+  }
+  return null;
+}
+
+/**
+ * Builds candidate selection rows from import execution results.
+ * Auto-selects ONLY active, successfully imported rows whose email does NOT exist in Auth.
+ */
+export function buildEmployeeAccountCandidates(
+  importSummary: BulkEmployeeImportSummaryResponse
+): EmployeeAccountCandidate[] {
+  return importSummary.results.map((row) => {
+    const isImportedSuccess =
+      (row.status === 'imported' || row.status === 'imported_with_warning') &&
+      Boolean(row.employeeId);
+    const existsInAuth =
+      Boolean(row.existsInAuth) || row.warnings.includes(AUTH_EXISTS_WARNING_MESSAGE);
+    const employeeStatus = row.employeeStatus ?? null;
+    const normalizedEmail = (row.email || '').trim().toLowerCase();
+
+    let eligible = false;
+    let ineligibleReason: string | null = null;
+
+    if (!isImportedSuccess) {
+      ineligibleReason =
+        row.status === 'skipped'
+          ? row.errorReason || 'Baris ditolak pada tahap validasi.'
+          : row.errorReason || 'Pegawai gagal disimpan ke database.';
+    } else if (existsInAuth) {
+      ineligibleReason =
+        'Email sudah terdaftar di Supabase Auth (tidak dibuat otomatis; kaitkan manual bila perlu).';
+    } else if (employeeStatus === 'inactive') {
+      ineligibleReason = 'Pegawai berstatus Tidak Aktif.';
+    } else if (employeeStatus !== 'active') {
+      ineligibleReason = 'Status keaktifan pegawai tidak terverifikasi aktif.';
+    } else if (!normalizedEmail || !EMAIL_REGEX.test(normalizedEmail)) {
+      ineligibleReason = 'Alamat email pegawai tidak valid.';
+    } else {
+      eligible = true;
+    }
+
+    return {
+      excelRowNumber: row.excelRowNumber,
+      employeeId: row.employeeId,
+      fullName: row.fullName,
+      email: normalizedEmail,
+      importStatus: row.status,
+      employeeStatus,
+      existsInAuth,
+      eligible,
+      ineligibleReason,
+      selected: eligible,
+    };
+  });
+}
+
+/**
+ * Splits unique employee IDs into sequential chunks of 15–20 items (default 20).
+ */
+export function chunkEmployeeIds(
+  employeeIds: string[],
+  chunkSize = BULK_ACCOUNT_CHUNK_SIZE
+): string[][] {
+  const safeSize = Math.max(1, Math.min(20, Math.floor(chunkSize)));
+  const uniqueIds: string[] = [];
+  const seen = new Set<string>();
+
+  for (const id of employeeIds) {
+    const clean = id.trim();
+    if (clean && !seen.has(clean)) {
+      seen.add(clean);
+      uniqueIds.push(clean);
+    }
+  }
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < uniqueIds.length; i += safeSize) {
+    chunks.push(uniqueIds.slice(i, i + safeSize));
+  }
+  return chunks;
+}
+
+/**
+ * Aggregates chunk results by employeeId while preserving already-completed non-retryable items.
+ */
+export function aggregateBulkAccountResults(
+  existing: BulkCreateAccountsAggregatedSummary | null,
+  chunkResults: BulkCreateEmployeeAccountRowResult[],
+  completedChunks: number,
+  totalChunks: number,
+  chunkError?: BulkCreateAccountChunkError | null
+): BulkCreateAccountsAggregatedSummary {
+  const nextMap: Record<string, BulkCreateEmployeeAccountRowResult> = {
+    ...(existing?.resultsByEmployeeId || {}),
+  };
+
+  for (const item of chunkResults) {
+    const prev = nextMap[item.employeeId];
+    // Never overwrite a previously settled non-retryable outcome
+    if (prev && !prev.retryable) {
+      continue;
+    }
+    nextMap[item.employeeId] = item;
+  }
+
+  const allItems = Object.values(nextMap);
+  const createdCount = allItems.filter((r) => r.status === 'created').length;
+  const alreadyLinkedCount = allItems.filter((r) => r.status === 'already_linked').length;
+  const authExistsCount = allItems.filter((r) => r.status === 'auth_exists').length;
+  const ineligibleCount = allItems.filter((r) => r.status === 'ineligible').length;
+  const failedCount = allItems.filter((r) => r.status === 'failed').length;
+  const reconciliationRequiredCount = allItems.filter(
+    (r) => r.status === 'reconciliation_required'
+  ).length;
+
+  const chunkErrors = [...(existing?.chunkErrors || [])];
+  if (chunkError) {
+    chunkErrors.push(chunkError);
+  }
+
+  return {
+    totalAttempted: allItems.length,
+    createdCount,
+    alreadyLinkedCount,
+    authExistsCount,
+    ineligibleCount,
+    failedCount,
+    reconciliationRequiredCount,
+    completedChunks,
+    totalChunks,
+    chunkErrors,
+    resultsByEmployeeId: nextMap,
+  };
+}
+
+/**
+ * Returns ONLY employee IDs that failed safely and are eligible for retry.
+ * Excludes created, already_linked, auth_exists, ineligible, and reconciliation_required.
+ */
+export function getRetryableEmployeeIds(
+  summary: BulkCreateAccountsAggregatedSummary | null
+): string[] {
+  if (!summary) return [];
+  return Object.values(summary.resultsByEmployeeId)
+    .filter(
+      (item) =>
+        item.status === 'failed' &&
+        item.retryable === true &&
+        item.needsReconciliation === false
+    )
+    .map((item) => item.employeeId);
+}
+
+/**
+ * Executes bulk account creation sequentially in chunks, preserving successful chunks
+ * even if a subsequent chunk fails.
+ */
+export async function executeBulkAccountCreationInChunks(
+  targets: { employeeId: string; fullName: string; email: string }[],
+  password: string,
+  invokeChunkFn: (
+    employeeIds: string[],
+    password: string
+  ) => Promise<BulkCreateEmployeeAccountsChunkResponse>,
+  options?: {
+    chunkSize?: number;
+    initialSummary?: BulkCreateAccountsAggregatedSummary | null;
+    onChunkProgress?: (summary: BulkCreateAccountsAggregatedSummary) => void;
+  }
+): Promise<BulkCreateAccountsAggregatedSummary> {
+  const targetMap = new Map<string, { employeeId: string; fullName: string; email: string }>();
+  for (const t of targets) {
+    if (t.employeeId && !targetMap.has(t.employeeId)) {
+      targetMap.set(t.employeeId, t);
+    }
+  }
+
+  const existingSummary = options?.initialSummary || null;
+  // Filter out any already settled non-retryable targets to prevent duplicate attempts
+  const runnableIds = Array.from(targetMap.keys()).filter((id) => {
+    const prev = existingSummary?.resultsByEmployeeId[id];
+    return !prev || prev.retryable;
+  });
+
+  const chunks = chunkEmployeeIds(runnableIds, options?.chunkSize ?? BULK_ACCOUNT_CHUNK_SIZE);
+  const totalChunks = chunks.length;
+
+  let summary: BulkCreateAccountsAggregatedSummary = existingSummary
+    ? {
+        ...existingSummary,
+        completedChunks: 0,
+        totalChunks,
+        chunkErrors: [],
+      }
+    : aggregateBulkAccountResults(null, [], 0, totalChunks, null);
+
+  for (let i = 0; i < chunks.length; i++) {
+    const chunkIds = chunks[i];
+    try {
+      const response = await invokeChunkFn(chunkIds, password);
+      if (!response || !response.success || !Array.isArray(response.results)) {
+        const msg =
+          response?.message || 'Respons pembuatan akun massal dari server tidak valid.';
+        const fallbackFailures: BulkCreateEmployeeAccountRowResult[] = chunkIds.map((id) => {
+          const info = targetMap.get(id);
+          return {
+            employeeId: id,
+            fullName: info?.fullName || '(Pegawai)',
+            email: info?.email || '',
+            status: 'failed',
+            profileId: null,
+            retryable: true,
+            needsReconciliation: false,
+            message: msg,
+          };
+        });
+        summary = aggregateBulkAccountResults(summary, fallbackFailures, i + 1, totalChunks, {
+          chunkIndex: i + 1,
+          employeeIds: chunkIds,
+          message: msg,
+        });
+      } else {
+        // Ensure every requested ID in this chunk has a deterministic result
+        const returnedIds = new Set(response.results.map((r) => r.employeeId));
+        const normalizedChunkResults = [...response.results];
+        for (const id of chunkIds) {
+          if (!returnedIds.has(id)) {
+            const info = targetMap.get(id);
+            normalizedChunkResults.push({
+              employeeId: id,
+              fullName: info?.fullName || '(Pegawai)',
+              email: info?.email || '',
+              status: 'failed',
+              profileId: null,
+              retryable: true,
+              needsReconciliation: false,
+              message: 'Server tidak mengembalikan status untuk pegawai ini.',
+            });
+          }
+        }
+
+        summary = aggregateBulkAccountResults(
+          summary,
+          normalizedChunkResults,
+          i + 1,
+          totalChunks,
+          null
+        );
+      }
+    } catch (err: unknown) {
+      const httpStatus =
+        err instanceof BulkAccountChunkHttpError
+          ? err.httpStatus
+          : extractEdgeFunctionHttpStatus(err);
+      const isPermanentStop =
+        httpStatus === 401 || httpStatus === 403 || httpStatus === 400;
+
+      const msg =
+        err instanceof BulkAccountChunkHttpError
+          ? err.message
+          : (
+              await resolveChunkHttpErrorDetails(
+                httpStatus,
+                null,
+                err instanceof Error
+                  ? err
+                  : 'Gagal menghubungi server pembuatan akun untuk batch ini.'
+              )
+            ).message;
+
+      const syntheticFailures: BulkCreateEmployeeAccountRowResult[] = chunkIds.map((id) => {
+        const info = targetMap.get(id);
+        return {
+          employeeId: id,
+          fullName: info?.fullName || '(Pegawai)',
+          email: info?.email || '',
+          status: 'failed',
+          profileId: null,
+          retryable: !isPermanentStop,
+          needsReconciliation: false,
+          message: msg,
+        };
+      });
+      summary = aggregateBulkAccountResults(summary, syntheticFailures, i + 1, totalChunks, {
+        chunkIndex: i + 1,
+        employeeIds: chunkIds,
+        message: msg,
+      });
+
+      options?.onChunkProgress?.(summary);
+
+      if (isPermanentStop) {
+        break;
+      }
+      continue;
+    }
+
+    options?.onChunkProgress?.(summary);
+  }
+
+  return summary;
+}
+
+const mergedRowRetryableMap = new WeakMap<EmployeeImportRowExecutionResult, boolean>();
+
+/**
+ * Merges account creation execution summary into import execution rows for unified reporting/export.
+ */
+export function mergeAccountResultsIntoImportSummary(
+  importResults: EmployeeImportRowExecutionResult[],
+  accountSummary: BulkCreateAccountsAggregatedSummary | null
+): EmployeeImportRowExecutionResult[] {
+  if (!accountSummary) return importResults;
+
+  return importResults.map((row) => {
+    const accountRes = row.employeeId
+      ? accountSummary.resultsByEmployeeId[row.employeeId]
+      : undefined;
+
+    if (!accountRes) {
+      return row;
+    }
+
+    const mergedRow: EmployeeImportRowExecutionResult = {
+      ...row,
+      accountCreationStatus: accountRes.status,
+      accountCreationMessage: accountRes.message,
+    };
+    mergedRowRetryableMap.set(mergedRow, accountRes.retryable);
+    return mergedRow;
+  });
+}
+
+export function buildImportResultReportRows(
   results: EmployeeImportRowExecutionResult[],
-  sourceFileName: string
-): void {
+  accountSummary?: BulkCreateAccountsAggregatedSummary | null
+): Record<string, string | number>[] {
   const statusLabels: Record<EmployeeImportRowExecutionResult['status'], string> = {
     imported: 'Berhasil',
     imported_with_warning: 'Berhasil (Dengan Peringatan)',
@@ -1096,24 +1747,80 @@ export function exportImportResultReport(
     skipped: 'Ditolak Validasi',
   };
 
-  const rows = results.map((r) => ({
-    'Baris Excel': r.excelRowNumber,
-    'Nama Pegawai': sanitizeSpreadsheetCellForExport(r.fullName),
-    'Email': sanitizeSpreadsheetCellForExport(r.email),
-    'Status': statusLabels[r.status],
-    'Peringatan': sanitizeSpreadsheetCellForExport(r.warnings.join('; ')),
-    'Alasan Penolakan / Kegagalan': sanitizeSpreadsheetCellForExport(r.errorReason || ''),
-  }));
+  const hasAccountResults =
+    Boolean(accountSummary && Object.keys(accountSummary.resultsByEmployeeId).length > 0) ||
+    results.some(
+      (r) => r.accountCreationStatus !== undefined && r.accountCreationStatus !== null
+    );
+
+  return results.map((r) => {
+    const baseRow: Record<string, string | number> = {
+      'Baris Excel': r.excelRowNumber,
+      'Nama Pegawai': sanitizeSpreadsheetCellForExport(r.fullName),
+      'Email': sanitizeSpreadsheetCellForExport(r.email),
+      'Status Impor': statusLabels[r.status],
+      'Peringatan': sanitizeSpreadsheetCellForExport(r.warnings.join('; ')),
+      'Alasan Penolakan / Kegagalan': sanitizeSpreadsheetCellForExport(r.errorReason || ''),
+    };
+
+    if (hasAccountResults) {
+      const summaryAcc =
+        accountSummary && r.employeeId
+          ? accountSummary.resultsByEmployeeId[r.employeeId]
+          : undefined;
+      const effectiveStatus = summaryAcc?.status ?? r.accountCreationStatus ?? null;
+      const effectiveRetryable = summaryAcc
+        ? summaryAcc.retryable
+        : mergedRowRetryableMap.get(r);
+
+      baseRow['Status Pembuatan Akun'] = effectiveStatus
+        ? getBulkAccountStatusLabel(effectiveStatus, effectiveRetryable)
+        : 'Tidak Dipilih / Tidak Diproses';
+      baseRow['Keterangan Akun'] = sanitizeSpreadsheetCellForExport(
+        summaryAcc?.message ?? r.accountCreationMessage ?? ''
+      );
+    }
+
+    return baseRow;
+  });
+}
+
+/**
+ * Exports import preview or final execution result to Excel with formula-injection protection.
+ */
+export function exportImportResultReport(
+  results: EmployeeImportRowExecutionResult[],
+  sourceFileName: string,
+  accountSummary?: BulkCreateAccountsAggregatedSummary | null
+): void {
+  const hasAccountResults =
+    Boolean(accountSummary && Object.keys(accountSummary.resultsByEmployeeId).length > 0) ||
+    results.some(
+      (r) => r.accountCreationStatus !== undefined && r.accountCreationStatus !== null
+    );
+
+  const rows = buildImportResultReportRows(results, accountSummary);
 
   const worksheet = XLSXStyle.utils.json_to_sheet(rows);
-  worksheet['!cols'] = [
-    { wch: 12 },
-    { wch: 28 },
-    { wch: 30 },
-    { wch: 26 },
-    { wch: 44 },
-    { wch: 48 },
-  ];
+  worksheet['!cols'] = hasAccountResults
+    ? [
+        { wch: 12 },
+        { wch: 28 },
+        { wch: 30 },
+        { wch: 26 },
+        { wch: 40 },
+        { wch: 40 },
+        { wch: 36 },
+        { wch: 48 },
+      ]
+    : [
+        { wch: 12 },
+        { wch: 28 },
+        { wch: 30 },
+        { wch: 26 },
+        { wch: 44 },
+        { wch: 48 },
+      ];
 
   const workbook = XLSXStyle.utils.book_new();
   XLSXStyle.utils.book_append_sheet(workbook, worksheet, 'Hasil_Impor_Pegawai');
@@ -1276,10 +1983,11 @@ class EmployeeImportService {
     });
 
     if (error) {
-      const errMsg =
-        (data as { message?: string } | null)?.message ||
-        error.message ||
-        'Gagal menjalankan Edge Function import-employees.';
+      const errMsg = await extractEdgeFunctionErrorMessage(
+        data,
+        error,
+        'Gagal menjalankan Edge Function import-employees.'
+      );
       throw new Error(errMsg);
     }
 
@@ -1292,13 +2000,15 @@ class EmployeeImportService {
 
     // Merge server execution results with pre-validation skipped rows and Auth warnings
     const authWarningMap = new Map<number, boolean>();
+    const rowStatusMap = new Map<number, 'active' | 'inactive'>();
     for (const r of importableRows) {
       if (r.existsInAuth) authWarningMap.set(r.excelRowNumber, true);
+      if (r.normalized?.status) rowStatusMap.set(r.excelRowNumber, r.normalized.status);
     }
 
     const mergedResults: EmployeeImportRowExecutionResult[] = [
       ...serverRes.results.map((r) => {
-        const hasAuthWarning = authWarningMap.get(r.excelRowNumber);
+        const hasAuthWarning = authWarningMap.get(r.excelRowNumber) ?? false;
         const warnings =
           hasAuthWarning && !r.warnings.includes(AUTH_EXISTS_WARNING_MESSAGE)
             ? [...r.warnings, AUTH_EXISTS_WARNING_MESSAGE]
@@ -1309,9 +2019,18 @@ class EmployeeImportService {
             ? 'imported_with_warning'
             : r.status;
 
+        const resolvedEmployeeStatus =
+          r.employeeStatus !== undefined
+            ? r.employeeStatus
+            : nextStatus === 'imported' || nextStatus === 'imported_with_warning'
+            ? rowStatusMap.get(r.excelRowNumber) ?? null
+            : null;
+
         return {
           ...r,
           status: nextStatus,
+          employeeStatus: resolvedEmployeeStatus,
+          existsInAuth: hasAuthWarning,
           warnings,
         };
       }),
@@ -1321,6 +2040,8 @@ class EmployeeImportService {
         email: r.raw.email.trim().toLowerCase(),
         status: 'skipped' as const,
         employeeId: null,
+        employeeStatus: null,
+        existsInAuth: r.existsInAuth,
         warnings: r.warnings,
         errorReason: r.errors.join(' '),
       })),
@@ -1343,8 +2064,47 @@ class EmployeeImportService {
       importedWithWarningCount,
       failedCount,
       skippedCount,
+      authCheckStatus: summary.authCheckStatus,
       results: mergedResults,
     };
+  }
+
+  async bulkCreateEmployeeAccountsChunk(
+    employeeIds: string[],
+    password: string
+  ): Promise<BulkCreateEmployeeAccountsChunkResponse> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase belum dikonfigurasi.');
+    }
+
+    const { data, error } = await supabase.functions.invoke(
+      'bulk-create-employee-accounts',
+      {
+        body: {
+          employeeIds,
+          password,
+        },
+      }
+    );
+
+    return parseBulkAccountChunkInvokeResult(data, error);
+  }
+
+  async executeBulkAccountCreation(
+    targets: { employeeId: string; fullName: string; email: string }[],
+    password: string,
+    options?: {
+      chunkSize?: number;
+      initialSummary?: BulkCreateAccountsAggregatedSummary | null;
+      onChunkProgress?: (summary: BulkCreateAccountsAggregatedSummary) => void;
+    }
+  ): Promise<BulkCreateAccountsAggregatedSummary> {
+    return executeBulkAccountCreationInChunks(
+      targets,
+      password,
+      (chunkIds, pwd) => this.bulkCreateEmployeeAccountsChunk(chunkIds, pwd),
+      options
+    );
   }
 }
 

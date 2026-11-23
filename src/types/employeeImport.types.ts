@@ -117,14 +117,28 @@ export interface EmployeeImportServerRowInput {
   notes: string | null;
 }
 
+export const BULK_ACCOUNT_CHUNK_SIZE = 20;
+
+export type BulkAccountCreationItemStatus =
+  | 'created'
+  | 'already_linked'
+  | 'auth_exists'
+  | 'ineligible'
+  | 'failed'
+  | 'reconciliation_required';
+
 export interface EmployeeImportRowExecutionResult {
   excelRowNumber: number;
   fullName: string;
   email: string;
   status: 'imported' | 'imported_with_warning' | 'failed' | 'skipped';
   employeeId: string | null;
+  employeeStatus?: EmployeeStatus | null;
+  existsInAuth?: boolean;
   warnings: string[];
   errorReason: string | null;
+  accountCreationStatus?: BulkAccountCreationItemStatus | null;
+  accountCreationMessage?: string | null;
 }
 
 export interface BulkEmployeeImportSummaryResponse {
@@ -136,5 +150,69 @@ export interface BulkEmployeeImportSummaryResponse {
   importedWithWarningCount: number;
   failedCount: number;
   skippedCount: number;
+  authCheckStatus?: AuthCheckExecutionStatus;
   results: EmployeeImportRowExecutionResult[];
 }
+
+export interface EmployeeAccountCandidate {
+  excelRowNumber: number;
+  employeeId: string | null;
+  fullName: string;
+  email: string;
+  importStatus: EmployeeImportRowExecutionResult['status'];
+  employeeStatus: EmployeeStatus | null;
+  existsInAuth: boolean;
+  eligible: boolean;
+  ineligibleReason: string | null;
+  selected: boolean;
+}
+
+export interface BulkCreateEmployeeAccountsRequest {
+  employeeIds: string[];
+  password: string;
+}
+
+export interface BulkCreateEmployeeAccountRowResult {
+  employeeId: string;
+  fullName: string;
+  email: string;
+  status: BulkAccountCreationItemStatus;
+  profileId: string | null;
+  retryable: boolean;
+  needsReconciliation: boolean;
+  message: string;
+}
+
+export interface BulkCreateEmployeeAccountsChunkResponse {
+  success: boolean;
+  message: string;
+  totalProcessed: number;
+  createdCount: number;
+  alreadyLinkedCount: number;
+  authExistsCount: number;
+  ineligibleCount: number;
+  failedCount: number;
+  reconciliationRequiredCount: number;
+  results: BulkCreateEmployeeAccountRowResult[];
+}
+
+export interface BulkCreateAccountChunkError {
+  chunkIndex: number;
+  employeeIds: string[];
+  message: string;
+}
+
+export interface BulkCreateAccountsAggregatedSummary {
+  totalAttempted: number;
+  createdCount: number;
+  alreadyLinkedCount: number;
+  authExistsCount: number;
+  ineligibleCount: number;
+  failedCount: number;
+  reconciliationRequiredCount: number;
+  completedChunks: number;
+  totalChunks: number;
+  chunkErrors: BulkCreateAccountChunkError[];
+  resultsByEmployeeId: Record<string, BulkCreateEmployeeAccountRowResult>;
+}
+
