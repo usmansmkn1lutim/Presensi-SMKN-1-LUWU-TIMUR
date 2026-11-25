@@ -46,20 +46,20 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#171717] flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8">
       <div className="h-2" />
 
       <div className="w-full max-w-md mx-auto">
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 shadow-xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 sm:p-8 shadow-xs">
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex justify-center mb-3">
               <SchoolLogo size="lg" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
               Pemulihan Kata Sandi
             </h1>
-            <p className="text-xs sm:text-sm font-medium text-[#6B7280] mt-1">
+            <p className="text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               {APP_CONFIG.schoolName}
             </p>
           </div>
@@ -67,9 +67,9 @@ export const ForgotPasswordPage: React.FC = () => {
           {/* Success State */}
           {isSubmitted ? (
             <div className="space-y-4 animate-in fade-in duration-200">
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div className="text-xs text-emerald-800">
+              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-emerald-800 dark:text-emerald-300">
                   <p className="font-bold">Permintaan reset password berhasil diproses.</p>
                   <p className="mt-1">
                     Tautan pemulihan kata sandi telah dikirim ke <strong>{email}</strong> jika terdaftar di sistem.
@@ -87,13 +87,13 @@ export const ForgotPasswordPage: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 Masukkan alamat email resmi pegawai yang terdaftar. Kami akan mengirimkan tautan untuk mengatur ulang kata sandi Anda.
               </p>
 
               {errorMessage && (
-                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in duration-150">
-                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 animate-in fade-in duration-150">
+                  <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                   <div className="flex-1 font-medium">{errorMessage}</div>
                 </div>
               )}
@@ -136,7 +136,7 @@ export const ForgotPasswordPage: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="text-center text-xs text-[#9CA3AF] py-4">
+      <footer className="text-center text-xs text-[#9CA3AF] dark:text-[#737373] py-4">
         <p>
           © {APP_CONFIG.copyrightYear} {APP_CONFIG.appName} · {APP_CONFIG.schoolName}
         </p>

@@ -47,15 +47,15 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
 
     return (
       <div className="min-h-[50vh] flex items-center justify-center p-4">
-        <div className="max-w-md w-full p-6 rounded-2xl bg-white border border-[#E5E7EB] text-center space-y-4 shadow-xs">
-          <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+        <div className="max-w-md w-full p-6 rounded-2xl bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] text-center space-y-4 shadow-xs">
+          <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
             <ShieldAlert className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#111827]">403 — Akses Ditolak</h2>
-            <p className="text-xs text-[#6B7280] mt-1">
+            <h2 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">403 — Akses Ditolak</h2>
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               Anda tidak memiliki izin untuk mengakses fitur ini. Hak akses akun Anda adalah{' '}
-              <strong className="text-[#111827] capitalize">{currentRole || 'Tidak Terdefinisi'}</strong>.
+              <strong className="text-[#111827] dark:text-[#F9FAFB] capitalize">{currentRole || 'Tidak Terdefinisi'}</strong>.
             </p>
           </div>
           <div className="pt-2">

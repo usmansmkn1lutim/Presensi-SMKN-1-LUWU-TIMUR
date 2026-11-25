@@ -108,7 +108,7 @@ const SegmentedSemiCircleGauge: React.FC<SegmentedSemiCircleGaugeProps> = ({
             y={cy - 6}
             textAnchor="middle"
             dominantBaseline="central"
-            className="text-2xl font-black fill-[#111827] tracking-tight"
+            className="text-2xl font-black fill-[#111827] dark:fill-[#F3F4F6] tracking-tight"
             style={{ fontSize: '26px', fontWeight: 900 }}
           >
             {percentageText}
@@ -118,7 +118,7 @@ const SegmentedSemiCircleGauge: React.FC<SegmentedSemiCircleGaugeProps> = ({
             y={cy + 18}
             textAnchor="middle"
             dominantBaseline="central"
-            className="text-[11px] font-bold fill-[#6B7280]"
+            className="text-[11px] font-bold fill-[#6B7280] dark:fill-[#9CA3AF]"
             style={{ fontSize: '11px', fontWeight: 700 }}
           >
             {totalAttendance} dari {effectiveWorkingDays} Hari Efektif
@@ -192,11 +192,11 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
           {/* Baris 1: Hadir (Terluar - Y_hadir = 15) */}
           <g transform={`translate(0, ${Y_hadir})`}>
             {/* Nama Kategori */}
-            <text x={X_name} y={4} textAnchor="start" className="text-xs font-bold fill-[#374151]" style={{ fontSize: '12px', fontWeight: 700 }}>
+            <text x={X_name} y={4} textAnchor="start" className="text-xs font-bold fill-[#374151] dark:fill-[#D1D5DB]" style={{ fontSize: '12px', fontWeight: 700 }}>
               Hadir
             </text>
             {/* Persentase (Rata Kanan) */}
-            <text x={X_pct} y={4} textAnchor="end" className="text-xs font-mono font-bold fill-[#111827]" style={{ fontSize: '12px', fontWeight: 700 }}>
+            <text x={X_pct} y={4} textAnchor="end" className="text-xs font-mono font-bold fill-[#111827] dark:fill-[#F3F4F6]" style={{ fontSize: '12px', fontWeight: 700 }}>
               {formatPercentage(hadirPct)}
             </text>
             {/* Ikon Hijau */}
@@ -207,11 +207,11 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
           {/* Baris 2: Perizinan (Tengah - Y_perizinan = 33) */}
           <g transform={`translate(0, ${Y_perizinan})`}>
             {/* Nama Kategori */}
-            <text x={X_name} y={4} textAnchor="start" className="text-xs font-bold fill-[#374151]" style={{ fontSize: '12px', fontWeight: 700 }}>
+            <text x={X_name} y={4} textAnchor="start" className="text-xs font-bold fill-[#374151] dark:fill-[#D1D5DB]" style={{ fontSize: '12px', fontWeight: 700 }}>
               Perizinan
             </text>
             {/* Persentase (Rata Kanan) */}
-            <text x={X_pct} y={4} textAnchor="end" className="text-xs font-mono font-bold fill-[#111827]" style={{ fontSize: '12px', fontWeight: 700 }}>
+            <text x={X_pct} y={4} textAnchor="end" className="text-xs font-mono font-bold fill-[#111827] dark:fill-[#F3F4F6]" style={{ fontSize: '12px', fontWeight: 700 }}>
               {formatPercentage(perizinanPct)}
             </text>
             {/* Ikon Kuning */}
@@ -222,11 +222,11 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
           {/* Baris 3: Tanpa Ket. (Terdalam - Y_tanpaKet = 51) */}
           <g transform={`translate(0, ${Y_tanpaKet})`}>
             {/* Nama Kategori */}
-            <text x={X_name} y={4} textAnchor="start" className="text-xs font-bold fill-[#374151]" style={{ fontSize: '12px', fontWeight: 700 }}>
+            <text x={X_name} y={4} textAnchor="start" className="text-xs font-bold fill-[#374151] dark:fill-[#D1D5DB]" style={{ fontSize: '12px', fontWeight: 700 }}>
               Tanpa Ket.
             </text>
             {/* Persentase (Rata Kanan) */}
-            <text x={X_pct} y={4} textAnchor="end" className="text-xs font-mono font-bold fill-[#111827]" style={{ fontSize: '12px', fontWeight: 700 }}>
+            <text x={X_pct} y={4} textAnchor="end" className="text-xs font-mono font-bold fill-[#111827] dark:fill-[#F3F4F6]" style={{ fontSize: '12px', fontWeight: 700 }}>
               {formatPercentage(tanpaKetPct)}
             </text>
             {/* Ikon Merah */}
@@ -245,6 +245,7 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
             r={R_hadir}
             fill="none"
             stroke="#E2E8F0"
+            className="dark:stroke-zinc-800"
             strokeWidth={strokeWidth}
             strokeDasharray={`${arcHadir.trackLength} ${arcHadir.circumference}`}
             strokeLinecap="round"
@@ -272,6 +273,7 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
             r={R_perizinan}
             fill="none"
             stroke="#E2E8F0"
+            className="dark:stroke-zinc-800"
             strokeWidth={strokeWidth}
             strokeDasharray={`${arcPerizinan.trackLength} ${arcPerizinan.circumference}`}
             strokeLinecap="round"
@@ -299,6 +301,7 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
             r={R_tanpaKet}
             fill="none"
             stroke="#E2E8F0"
+            className="dark:stroke-zinc-800"
             strokeWidth={strokeWidth}
             strokeDasharray={`${arcTanpaKet.trackLength} ${arcTanpaKet.circumference}`}
             strokeLinecap="round"
@@ -320,7 +323,7 @@ const RadialBarChartWithLegend: React.FC<RadialBarChartWithLegendProps> = ({
           )}
 
           {/* Center Info in Radial Ring */}
-          <text x={cx} y={cy + 2} textAnchor="middle" className="text-sm font-black fill-[#111827]" style={{ fontSize: '14px', fontWeight: 800 }}>
+          <text x={cx} y={cy + 2} textAnchor="middle" className="text-sm font-black fill-[#111827] dark:fill-[#F3F4F6]" style={{ fontSize: '14px', fontWeight: 800 }}>
             {effectiveWorkingDays > 0 ? `${effectiveWorkingDays} H` : '—'}
           </text>
         </svg>
@@ -451,15 +454,15 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
   }, [matrixData, statsMonth]);
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+    <div className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
       {/* Header: Title & Dropdown Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB] dark:border-[#333]">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316]">
+          <div className="p-2 rounded-xl bg-[#FFF7ED] dark:bg-orange-950/50 border border-orange-200 dark:border-orange-900 text-[#F97316]">
             <CalendarCheck className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#111827]">
+            <h2 className="text-base font-bold text-[#111827] dark:text-[#F3F4F6]">
               Statistik Kehadiran Bulanan
             </h2>
           </div>
@@ -467,7 +470,7 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
 
         {/* Independent Month & Year Dropdown Filters */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <Calendar className="w-4 h-4 text-[#6B7280] shrink-0" />
+          <Calendar className="w-4 h-4 text-[#6B7280] dark:text-[#9CA3AF] shrink-0" />
           {/* Month Selector */}
           <select
             value={statsMonth.month}
@@ -477,10 +480,10 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
                 month: Number(e.target.value),
               })
             }
-            className="bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316] cursor-pointer"
+            className="bg-white dark:bg-zinc-800 border border-[#E5E7EB] dark:border-[#333] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#111827] dark:text-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-[#F97316] cursor-pointer"
           >
             {MONTH_NAMES_INDONESIAN.map((name, idx) => (
-              <option key={idx} value={idx}>
+              <option key={idx} value={idx} className="dark:bg-zinc-800">
                 {name}
               </option>
             ))}
@@ -495,10 +498,10 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
                 year: Number(e.target.value),
               })
             }
-            className="bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316] cursor-pointer"
+            className="bg-white dark:bg-zinc-800 border border-[#E5E7EB] dark:border-[#333] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#111827] dark:text-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-[#F97316] cursor-pointer"
           >
             {[2024, 2025, 2026, 2027].map((y) => (
-              <option key={y} value={y}>
+              <option key={y} value={y} className="dark:bg-zinc-800">
                 {y}
               </option>
             ))}
@@ -510,10 +513,10 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
       {isLoading ? (
         <div className="min-h-[150px] flex flex-col items-center justify-center gap-3 py-6">
           <div className="w-7 h-7 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs text-[#6B7280]">Memuat statistik kehadiran...</p>
+          <p className="text-xs text-[#6B7280] dark:text-[#9CA3AF]">Memuat statistik kehadiran...</p>
         </div>
       ) : error ? (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-center text-xs text-red-700">
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 text-center text-xs text-red-700 dark:text-red-300">
           Gagal memuat statistik kehadiran: {error}
         </div>
       ) : (
@@ -523,7 +526,7 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
             
             {/* CHART 1: SEGMENTED SEMI-CIRCLE GAUGE (180° Rotated 90°) */}
             <div className="flex flex-col items-center justify-start space-y-3">
-              <h3 className="text-xs font-bold text-[#374151] uppercase tracking-wider text-center h-4 flex items-center justify-center">
+              <h3 className="text-xs font-bold text-[#374151] dark:text-[#D1D5DB] uppercase tracking-wider text-center h-4 flex items-center justify-center">
                 Persentase Kehadiran
               </h3>
 
@@ -538,7 +541,7 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
 
             {/* CHART 2: RADIAL BAR CHART (CENTERED) */}
             <div className="flex flex-col items-center justify-start space-y-3">
-              <h3 className="text-xs font-bold text-[#374151] uppercase tracking-wider text-center h-4 flex items-center justify-center">
+              <h3 className="text-xs font-bold text-[#374151] dark:text-[#D1D5DB] uppercase tracking-wider text-center h-4 flex items-center justify-center">
                 Distribusi Kategori Kehadiran
               </h3>
 
@@ -553,48 +556,48 @@ export const MonthlyStatisticsSection: React.FC<MonthlyStatisticsSectionProps> =
           </div>
 
           {/* Rincian Sub-Kategori Kehadiran (Breakdown Stats Bar) */}
-          <div className="p-3 sm:p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3 text-center text-xs">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3 text-center text-xs">
             <div className="space-y-0.5">
-              <span className="text-[10px] text-emerald-700 font-semibold flex items-center justify-center gap-1">
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-semibold flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-[#10B981]" /> Tepat Waktu
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.presentOnTime}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.presentOnTime}</p>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] text-amber-700 font-semibold flex items-center justify-center gap-1">
+              <span className="text-[10px] text-amber-700 dark:text-amber-300 font-semibold flex items-center justify-center gap-1">
                 <ClockAlert className="w-3 h-3 text-[#F59E0B]" /> Terlambat
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.presentLate}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.presentLate}</p>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] text-purple-700 font-semibold flex items-center justify-center gap-1">
-                <BriefcaseBusiness className="w-3 h-3 text-purple-600" /> Dinas Luar
+              <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold flex items-center justify-center gap-1">
+                <BriefcaseBusiness className="w-3 h-3 text-purple-600 dark:text-purple-400" /> Dinas Luar
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.officialDuty}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.officialDuty}</p>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] text-blue-700 font-semibold flex items-center justify-center gap-1">
-                <Thermometer className="w-3 h-3 text-blue-600" /> Sakit
+              <span className="text-[10px] text-blue-700 dark:text-blue-300 font-semibold flex items-center justify-center gap-1">
+                <Thermometer className="w-3 h-3 text-blue-600 dark:text-blue-400" /> Sakit
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.sick}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.sick}</p>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] text-indigo-700 font-semibold flex items-center justify-center gap-1">
-                <FileCheck className="w-3 h-3 text-indigo-600" /> Izin
+              <span className="text-[10px] text-indigo-700 dark:text-indigo-300 font-semibold flex items-center justify-center gap-1">
+                <FileCheck className="w-3 h-3 text-indigo-600 dark:text-indigo-400" /> Izin
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.permit}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.permit}</p>
             </div>
             <div className="space-y-0.5">
-              <span className="text-[10px] text-teal-700 font-semibold flex items-center justify-center gap-1">
-                <CalendarDays className="w-3 h-3 text-teal-600" /> Cuti
+              <span className="text-[10px] text-teal-700 dark:text-teal-300 font-semibold flex items-center justify-center gap-1">
+                <CalendarDays className="w-3 h-3 text-teal-600 dark:text-teal-400" /> Cuti
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.leave}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.leave}</p>
             </div>
             <div className="space-y-0.5 col-span-2 sm:col-span-1">
-              <span className="text-[10px] text-red-700 font-semibold flex items-center justify-center gap-1">
+              <span className="text-[10px] text-red-700 dark:text-red-300 font-semibold flex items-center justify-center gap-1">
                 <UserX className="w-3 h-3 text-[#EF4444]" /> Tanpa Ket.
               </span>
-              <p className="font-bold text-[#111827] text-sm">{stats.absent}</p>
+              <p className="font-bold text-[#111827] dark:text-[#F3F4F6] text-sm">{stats.absent}</p>
             </div>
           </div>
         </div>

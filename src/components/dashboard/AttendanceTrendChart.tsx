@@ -253,26 +253,26 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
   if (loading) {
     return (
-      <div className={`bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 animate-pulse ${className}`}>
+      <div className={`bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 animate-pulse ${className}`}>
         {/* Header & 2 Filter Controls Skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-          <div className="h-6 bg-[#E5E7EB] rounded w-44" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-[#303030]">
+          <div className="h-6 bg-[#E5E7EB] dark:bg-[#404040] rounded w-44" />
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <div className="h-8 bg-[#F3F4F6] rounded-xl w-24" />
-            <div className="h-8 bg-[#F3F4F6] rounded-xl w-28" />
+            <div className="h-8 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl w-24" />
+            <div className="h-8 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl w-28" />
           </div>
         </div>
         {/* Legend Skeleton */}
         <div className="flex items-center gap-2 pt-0.5">
-          <div className="w-3.5 h-1 rounded-full bg-[#E5E7EB]" />
-          <div className="h-3.5 bg-[#F3F4F6] rounded w-36" />
+          <div className="w-3.5 h-1 rounded-full bg-[#E5E7EB] dark:bg-[#404040]" />
+          <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-36" />
         </div>
         {/* Chart Canvas Skeleton */}
-        <div className="h-52 sm:h-64 bg-slate-50/70 rounded-xl" />
+        <div className="h-52 sm:h-64 bg-slate-50/70 dark:bg-[#303030]/60 rounded-xl" />
         {/* Footer Skeleton */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100 mt-auto">
-          <div className="h-3.5 bg-[#F3F4F6] rounded w-56" />
-          <div className="hidden sm:block h-3.5 bg-[#F3F4F6] rounded w-24" />
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-[#303030] mt-auto">
+          <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-56" />
+          <div className="hidden sm:block h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-24" />
         </div>
       </div>
     );
@@ -338,15 +338,15 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
   return (
     <div
-      className={`bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 ${className}`}
+      className={`bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 ${className}`}
       aria-labelledby={`${chartId}-title`}
     >
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-[#303030]">
         <div>
           <h3
             id={`${chartId}-title`}
-            className="text-base font-semibold text-slate-900 tracking-tight"
+            className="text-base font-semibold text-slate-900 dark:text-[#F9FAFB] tracking-tight"
           >
             Tren Kehadiran GTK
           </h3>
@@ -364,20 +364,20 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
               }}
               aria-expanded={isFilterOpen}
               aria-haspopup="true"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200/80 rounded-xl transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200/80 dark:bg-[#303030] dark:hover:bg-[#404040] dark:text-[#F9FAFB] dark:border-[#404040] rounded-xl transition-all cursor-pointer shadow-2xs"
             >
-              <Filter className="w-3.5 h-3.5 text-slate-500" />
+              <Filter className="w-3.5 h-3.5 text-slate-500 dark:text-[#A3A3A3]" />
               <span
                 className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: activeOption.color }}
               />
               <span>{activeOption.label}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 dark:text-[#A3A3A3] transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isFilterOpen && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-52 max-w-[calc(100vw-4rem)] bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-52 max-w-[calc(100vw-4rem)] bg-white dark:bg-[#262626] rounded-xl shadow-xl border border-slate-200 dark:border-[#404040] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-3 py-1.5 border-b border-slate-100 dark:border-[#303030] text-[11px] font-semibold text-slate-500 dark:text-[#A3A3A3] uppercase tracking-wider">
                   Pilih Status
                 </div>
 
@@ -391,8 +391,8 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                         onClick={() => handleSelectStatus(opt.key)}
                         className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left ${
                           isSelected
-                            ? 'bg-orange-50 font-semibold text-slate-900'
-                            : 'text-slate-600 hover:bg-slate-50 font-medium'
+                            ? 'bg-orange-50 font-semibold text-slate-900 dark:bg-[#431F0B] dark:text-[#FDBA74]'
+                            : 'text-slate-600 hover:bg-slate-50 font-medium dark:text-[#D4D4D4] dark:hover:bg-[#303030]'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                           <span>{opt.label}</span>
                         </div>
                         {isSelected && (
-                          <Check className="w-3.5 h-3.5 text-orange-600 stroke-[2.5]" />
+                          <Check className="w-3.5 h-3.5 text-orange-600 dark:text-[#F97316] stroke-[2.5]" />
                         )}
                       </button>
                     );
@@ -423,16 +423,16 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
               }}
               aria-expanded={isPeriodOpen}
               aria-haspopup="true"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200/80 rounded-xl transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200/80 dark:bg-[#303030] dark:hover:bg-[#404040] dark:text-[#F9FAFB] dark:border-[#404040] rounded-xl transition-all cursor-pointer shadow-2xs"
             >
-              <Calendar className="w-3.5 h-3.5 text-slate-500" />
+              <Calendar className="w-3.5 h-3.5 text-slate-500 dark:text-[#A3A3A3]" />
               <span>{activePeriodOption.label}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isPeriodOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 dark:text-[#A3A3A3] transition-transform ${isPeriodOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isPeriodOpen && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-48 max-w-[calc(100vw-4rem)] bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-48 max-w-[calc(100vw-4rem)] bg-white dark:bg-[#262626] rounded-xl shadow-xl border border-slate-200 dark:border-[#404040] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-3 py-1.5 border-b border-slate-100 dark:border-[#303030] text-[11px] font-semibold text-slate-500 dark:text-[#A3A3A3] uppercase tracking-wider">
                   Pilih Periode
                 </div>
 
@@ -446,20 +446,20 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                         onClick={() => handleSelectPeriod(opt.key)}
                         className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer text-left ${
                           isSelected
-                            ? 'bg-orange-50 font-semibold text-slate-900'
-                            : 'text-slate-600 hover:bg-slate-50 font-medium'
+                            ? 'bg-orange-50 font-semibold text-slate-900 dark:bg-[#431F0B] dark:text-[#FDBA74]'
+                            : 'text-slate-600 hover:bg-slate-50 font-medium dark:text-[#D4D4D4] dark:hover:bg-[#303030]'
                         }`}
                       >
                         <div className="flex flex-col">
                           <span>{opt.label}</span>
                           {opt.hint && (
-                            <span className="text-[10px] text-slate-400 font-normal mt-0.5">
+                            <span className="text-[10px] text-slate-400 dark:text-[#A3A3A3] font-normal mt-0.5">
                               {opt.hint}
                             </span>
                           )}
                         </div>
                         {isSelected && (
-                          <Check className="w-3.5 h-3.5 text-orange-600 stroke-[2.5] shrink-0 ml-2" />
+                          <Check className="w-3.5 h-3.5 text-orange-600 dark:text-[#F97316] stroke-[2.5] shrink-0 ml-2" />
                         )}
                       </button>
                     );
@@ -472,26 +472,26 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
       </div>
 
       {/* Dynamic Single-Status Legend */}
-      <div className="flex items-center gap-2 text-xs text-slate-600 pt-0.5">
+      <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-[#A3A3A3] pt-0.5">
         <div className="flex items-center gap-1.5">
           <span
             className="w-3.5 h-1 rounded-full shrink-0"
             style={{ backgroundColor: activeOption.color }}
             aria-hidden="true"
           />
-          <span className="font-semibold text-slate-800">{activeOption.label}</span>
-          <span className="text-slate-400 text-[11px]">(Garis & Area Shadow)</span>
+          <span className="font-semibold text-slate-800 dark:text-[#F9FAFB]">{activeOption.label}</span>
+          <span className="text-slate-400 dark:text-[#737373] text-[11px]">(Garis & Area Shadow)</span>
         </div>
       </div>
 
       {/* Chart Canvas Area */}
       {count === 0 ? (
-        <div className="h-52 sm:h-64 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-center p-6">
-          <Calendar className="w-8 h-8 text-slate-400 mb-2 stroke-[1.5]" />
-          <p className="text-sm font-medium text-slate-700">
+        <div className="h-52 sm:h-64 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-[#303030]/40 rounded-xl border border-dashed border-slate-200 dark:border-[#404040] text-center p-6">
+          <Calendar className="w-8 h-8 text-slate-400 dark:text-[#737373] mb-2 stroke-[1.5]" />
+          <p className="text-sm font-medium text-slate-700 dark:text-[#F9FAFB]">
             Belum Ada Data untuk {activePeriodOption.label}
           </p>
-          <p className="text-xs text-slate-500 mt-0.5 max-w-sm">
+          <p className="text-xs text-slate-500 dark:text-[#A3A3A3] mt-0.5 max-w-sm">
             Tidak ditemukan catatan presensi pada hari kerja efektif untuk periode yang dipilih.
           </p>
         </div>
@@ -521,7 +521,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                     y1={y}
                     x2={paddingLeft + plotWidth}
                     y2={y}
-                    stroke="#F1F5F9"
+                    className="stroke-[#F1F5F9] dark:stroke-[#383838]"
                     strokeWidth="1"
                     strokeDasharray={tick.val === 0 ? 'none' : '3 3'}
                   />
@@ -530,7 +530,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                     y={y + 3.5}
                     textAnchor="end"
                     fontSize="10"
-                    fill="#94A3B8"
+                    className="fill-[#94A3B8] dark:fill-[#737373]"
                     fontFamily="inherit"
                   >
                     {tick.label}
@@ -614,7 +614,11 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                       textAnchor="middle"
                       fontSize={activePeriod === 'this_week' ? '11' : '10'}
                       fontWeight={isHovered ? '600' : '500'}
-                      fill={isHovered ? '#0F172A' : '#64748B'}
+                      className={
+                        isHovered
+                          ? 'fill-[#0F172A] dark:fill-[#F9FAFB]'
+                          : 'fill-[#64748B] dark:fill-[#A3A3A3]'
+                      }
                       fontFamily="inherit"
                     >
                       {activePeriod === 'this_week' ? point.dayName.slice(0, 3) : point.shortDate}
@@ -645,11 +649,11 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                   top: '4px',
                 }}
               >
-                <div className="bg-white text-slate-700 rounded-xl px-3 py-2 shadow-lg text-[11px] space-y-1.5 border border-slate-200 min-w-[170px]">
+                <div className="bg-white dark:bg-[#1E1E1E] text-slate-700 dark:text-[#E5E5E5] rounded-xl px-3 py-2 shadow-lg text-[11px] space-y-1.5 border border-slate-200 dark:border-[#404040] min-w-[170px]">
                   {/* Header Tooltip */}
-                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5">
-                    <div className="font-semibold text-slate-900 flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-500 shrink-0" />
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-[#303030] pb-1.5">
+                    <div className="font-semibold text-slate-900 dark:text-[#F9FAFB] flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-slate-500 dark:text-[#A3A3A3] shrink-0" />
                       <span>
                         {hoveredPoint.dayName}, {hoveredPoint.shortDate}
                       </span>
@@ -658,7 +662,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
                   {/* Nilai Kategori Aktif */}
                   <div className="space-y-0.5">
-                    <div className="flex items-center justify-between text-slate-600">
+                    <div className="flex items-center justify-between text-slate-600 dark:text-[#A3A3A3]">
                       <span className="flex items-center gap-1.5 font-medium">
                         <span
                           className="w-2 h-2 rounded-xs shrink-0"
@@ -666,7 +670,7 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
                         />
                         {activeOption.label}:
                       </span>
-                      <span className="font-bold text-slate-900">
+                      <span className="font-bold text-slate-900 dark:text-[#F9FAFB]">
                         {activeOption.getValue(hoveredPoint)} GTK
                       </span>
                     </div>
@@ -674,9 +678,9 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
 
                   {/* Ringkasan Tingkat Kehadiran jika Hadir aktif */}
                   {activeOption.key === 'hadir' && (
-                    <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
-                      <span className="text-slate-500 font-medium">Tingkat Hadir:</span>
-                      <span className="font-bold text-emerald-600">
+                    <div className="border-t border-slate-100 dark:border-[#303030] pt-1.5 flex items-center justify-between text-[10px]">
+                      <span className="text-slate-500 dark:text-[#A3A3A3] font-medium">Tingkat Hadir:</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
                         {hoveredPoint.attendanceRate}%
                       </span>
                     </div>
@@ -689,9 +693,9 @@ export const AttendanceTrendChart: React.FC<AttendanceTrendChartProps> = ({
       )}
 
       {/* Footer Info note */}
-      <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] text-slate-400 mt-auto">
+      <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-[#303030] text-[11px] text-slate-400 dark:text-[#737373] mt-auto">
         <div className="flex items-center gap-1.5">
-          <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <Info className="w-3.5 h-3.5 text-slate-400 dark:text-[#737373] shrink-0" />
           <span>
             {activePeriod === 'this_week'
               ? 'Menampilkan 5 hari kerja efektif minggu ini (Senin–Jumat)'

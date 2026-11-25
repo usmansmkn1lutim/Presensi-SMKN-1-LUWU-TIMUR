@@ -61,16 +61,16 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   if (isLoading) {
     return (
       <>
-        <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-3">
-          <div className="h-5 bg-gray-100 rounded w-36 animate-pulse" />
+        <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs space-y-3">
+          <div className="h-5 bg-gray-100 dark:bg-[#303030] rounded w-36 animate-pulse" />
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-20 bg-gray-50 rounded-xl animate-pulse" />
+            <div key={i} className="h-20 bg-gray-50 dark:bg-[#303030]/50 rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
-          <div className="h-6 bg-gray-100 rounded w-48 animate-pulse mb-4" />
+        <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-3">
+          <div className="h-6 bg-gray-100 dark:bg-[#303030] rounded w-48 animate-pulse mb-4" />
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-10 bg-gray-50 rounded-xl animate-pulse" />
+            <div key={i} className="h-10 bg-gray-50 dark:bg-[#303030]/50 rounded-xl animate-pulse" />
           ))}
         </div>
       </>
@@ -80,25 +80,25 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   if (!data || data.records.length === 0) {
     return (
       <>
-        <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-6 text-center shadow-2xs">
-          <div className="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-2.5">
+        <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 text-center shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#303030] text-gray-400 dark:text-[#A3A3A3] flex items-center justify-center mx-auto mb-2.5">
             <FileText className="w-5 h-5" />
           </div>
-          <h4 className="text-sm font-bold text-[#111827]">
+          <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">
             {hasActiveFilter ? 'Tidak Ada Log yang Cocok' : 'Belum Ada Rincian Presensi'}
           </h4>
-          <p className="text-xs text-[#6B7280] max-w-xs mx-auto mt-1">
+          <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-xs mx-auto mt-1">
             {hasActiveFilter
               ? 'Tidak ditemukan log presensi yang sesuai dengan pencarian atau filter aktif.'
               : 'Tidak ditemukan catatan transaksi presensi individual pada periode ini.'}
           </p>
         </div>
-        <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-12 text-center shadow-2xs">
-          <div className="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-3">
+        <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-12 text-center shadow-2xs">
+          <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-[#303030] text-gray-400 dark:text-[#A3A3A3] flex items-center justify-center mx-auto mb-3">
             <FileText className="w-6 h-6" />
           </div>
-          <h4 className="text-base font-bold text-[#111827]">Belum Ada Rincian Presensi</h4>
-          <p className="text-xs text-[#6B7280] max-w-sm mx-auto mt-1">
+          <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Belum Ada Rincian Presensi</h4>
+          <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto mt-1">
             Tidak ditemukan catatan transaksi presensi individual pada filter yang ditentukan.
           </p>
         </div>
@@ -192,16 +192,16 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
   return (
     <>
       {/* Mobile & Tablet (<lg): Compact List View */}
-      <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {/* Compact Data Header */}
-        <div className="px-4 py-3 border-b border-[#E5E7EB] flex items-center justify-between gap-2 bg-white">
-          <span className="text-xs font-bold text-[#111827]">{totalCount} log</span>
+        <div className="px-4 py-3 border-b border-[#E5E7EB] dark:border-[#404040] flex items-center justify-between gap-2 bg-white dark:bg-[#262626]">
+          <span className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">{totalCount} log</span>
 
           <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={toggleSort}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] text-[11px] font-medium text-[#374151] cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] text-[11px] font-medium text-[#374151] dark:text-[#F9FAFB] cursor-pointer"
             >
               <span>Tanggal</span>
               {sortAsc ? (
@@ -214,35 +214,35 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
               type="button"
               onClick={onExportExcel}
               disabled={isLoading || isExporting}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50/50 text-emerald-800 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
             >
-              <FileSpreadsheet className="w-3 h-3 text-emerald-600" />
+              <FileSpreadsheet className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               <span>{isExporting && exportingType === 'excel' ? '...' : 'Excel'}</span>
             </button>
             <button
               type="button"
               onClick={onExportPdf}
               disabled={isLoading || isExporting}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50/50 text-rose-800 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800/60 bg-rose-50/50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
             >
-              <Download className="w-3 h-3 text-rose-600" />
+              <Download className="w-3 h-3 text-rose-600 dark:text-rose-400" />
               <span>{isExporting && exportingType === 'pdf' ? '...' : 'PDF'}</span>
             </button>
           </div>
         </div>
 
         {/* Log List Items */}
-        <div className="divide-y divide-[#E5E7EB]">
+        <div className="divide-y divide-[#E5E7EB] dark:divide-[#404040]">
           {sortedRecords.map((row) => {
             const isHistorical = !row.employeeId || row.employeeName.includes('(Arsip)');
             const isPresent = row.officialStatus === 'present';
 
             return (
-              <div key={row.attendanceId} className="px-4 py-3 space-y-1.5">
+              <div key={row.attendanceId} className="px-4 py-3 space-y-1.5 hover:bg-[#F9FAFB]/50 dark:hover:bg-[#303030]/40 transition-colors">
                 {/* Row 1: Employee & Status */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold text-[#111827] flex items-center gap-1.5 flex-wrap">
+                    <div className="text-xs font-semibold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1.5 flex-wrap">
                       <span className="truncate">{row.employeeName}</span>
                       {isHistorical && (
                         <Badge variant="warning" size="sm">
@@ -250,7 +250,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
                         </Badge>
                       )}
                     </div>
-                    <div className="text-[11px] text-[#6B7280] truncate">
+                    <div className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] truncate">
                       {row.attendanceDate} · {row.departmentName}
                     </div>
                   </div>
@@ -267,28 +267,28 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
 
                 {/* Row 2: Physical Check-In / Check-Out OR Non-Physical Notes */}
                 {isPresent ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] text-[#4B5563]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] text-[#4B5563] dark:text-[#A3A3A3]">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[#6B7280] shrink-0">Masuk:</span>
-                      <span className="font-semibold text-blue-600 shrink-0">
+                      <span className="text-[#6B7280] dark:text-[#A3A3A3] shrink-0">Masuk:</span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0">
                         {row.checkInTimeFormatted} WITA
                       </span>
                       {row.checkInLocation && (
-                        <span className="inline-flex items-center gap-0.5 text-[#6B7280] truncate">
-                          <MapPin className="w-3 h-3 shrink-0 text-[#9CA3AF]" />
+                        <span className="inline-flex items-center gap-0.5 text-[#6B7280] dark:text-[#A3A3A3] truncate">
+                          <MapPin className="w-3 h-3 shrink-0 text-[#9CA3AF] dark:text-[#6B7280]" />
                           <span className="truncate">{row.checkInLocation}</span>
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[#6B7280] shrink-0">Pulang:</span>
-                      <span className="font-semibold text-purple-600 shrink-0">
+                      <span className="text-[#6B7280] dark:text-[#A3A3A3] shrink-0">Pulang:</span>
+                      <span className="font-semibold text-purple-600 dark:text-purple-400 shrink-0">
                         {row.checkOutAt ? `${row.checkOutTimeFormatted} WITA` : '-'}
                       </span>
                       {row.checkOutLocation && (
-                        <span className="inline-flex items-center gap-0.5 text-[#6B7280] truncate">
-                          <MapPin className="w-3 h-3 shrink-0 text-[#9CA3AF]" />
+                        <span className="inline-flex items-center gap-0.5 text-[#6B7280] dark:text-[#A3A3A3] truncate">
+                          <MapPin className="w-3 h-3 shrink-0 text-[#9CA3AF] dark:text-[#6B7280]" />
                           <span className="truncate">{row.checkOutLocation}</span>
                         </span>
                       )}
@@ -297,7 +297,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
                 ) : null}
 
                 {row.notes && (
-                  <p className="text-[11px] text-[#6B7280] line-clamp-2">
+                  <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] line-clamp-2">
                     Catatan: {row.notes}
                   </p>
                 )}
@@ -307,21 +307,21 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
         </div>
 
         {/* Compact Local Pagination Controls */}
-        <div className="px-4 py-3 bg-[#F9FAFB] border-t border-[#E5E7EB] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#6B7280]">
+        <div className="px-4 py-3 bg-[#F9FAFB] dark:bg-[#171717] border-t border-[#E5E7EB] dark:border-[#404040] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
           <div className="flex items-center gap-2">
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
               aria-label="Baris per halaman"
-              className="bg-white border border-[#E5E7EB] rounded-lg px-2 py-1 text-[11px] font-semibold text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-lg px-2 py-1 text-[11px] font-semibold text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value={15}>15 / hal</option>
               <option value={30}>30 / hal</option>
               <option value={50}>50 / hal</option>
             </select>
             <span>
-              <strong className="text-[#111827]">{startItem}-{endItem}</strong> dari{' '}
-              <strong className="text-[#111827]">{totalCount}</strong>
+              <strong className="text-[#111827] dark:text-[#F9FAFB]">{startItem}-{endItem}</strong> dari{' '}
+              <strong className="text-[#111827] dark:text-[#F9FAFB]">{totalCount}</strong>
             </span>
           </div>
 
@@ -331,11 +331,11 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
               aria-label="Halaman sebelumnya"
-              className="p-1.5 rounded-lg border border-[#E5E7EB] bg-white text-[#374151] disabled:opacity-40 cursor-pointer"
+              className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] bg-white dark:bg-[#262626] text-[#374151] dark:text-[#F9FAFB] disabled:opacity-40 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#303030]"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="font-semibold text-[#111827] px-1">
+            <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] px-1">
               {page} / {totalPages}
             </span>
             <button
@@ -343,7 +343,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
               aria-label="Halaman berikutnya"
-              className="p-1.5 rounded-lg border border-[#E5E7EB] bg-white text-[#374151] disabled:opacity-40 cursor-pointer"
+              className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] bg-white dark:bg-[#262626] text-[#374151] dark:text-[#F9FAFB] disabled:opacity-40 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#303030]"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -352,33 +352,33 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
       </div>
 
       {/* Desktop (>=lg): Unchanged Original Table View */}
-      <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {/* Table Header and Counter */}
-        <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 border-b border-[#F3F4F6] dark:border-[#404040] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-[#111827] flex items-center gap-2">
+            <h3 className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-2">
               <FileText className="w-4 h-4 text-[#F97316]" />
               Detail Rincian Presensi
             </h3>
-            <p className="text-xs text-[#6B7280] mt-0.5">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-0.5">
               Log individual presensi masuk dan pulang pegawai beserta titik lokasi
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+            <div className="flex items-center gap-1.5 text-xs text-[#6B7280] dark:text-[#A3A3A3]">
               <span>Baris per halaman:</span>
               <select
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg px-2 py-1 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] rounded-lg px-2 py-1 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 <option value={15}>15</option>
                 <option value={30}>30</option>
                 <option value={50}>50</option>
               </select>
             </div>
-            <span className="text-xs font-semibold text-[#111827] mr-1">
+            <span className="text-xs font-semibold text-[#111827] dark:text-[#F9FAFB] mr-1">
               Total {totalCount} log
             </span>
 
@@ -388,8 +388,8 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
               onClick={onExportExcel}
               disabled={isLoading || isExporting}
               isLoading={isExporting && exportingType === 'excel'}
-              leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />}
-              className="border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs py-1.5"
+              leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+              className="border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-semibold text-xs py-1.5"
             >
               Excel
             </Button>
@@ -399,8 +399,8 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
               onClick={onExportPdf}
               disabled={isLoading || isExporting}
               isLoading={isExporting && exportingType === 'pdf'}
-              leftIcon={<Download className="w-3.5 h-3.5 text-rose-600" />}
-              className="border border-rose-200 hover:bg-rose-50 text-rose-800 font-semibold text-xs py-1.5"
+              leftIcon={<Download className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />}
+              className="border border-rose-200 dark:border-rose-800/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-800 dark:text-rose-300 font-semibold text-xs py-1.5"
             >
               PDF
             </Button>
@@ -411,7 +411,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="bg-[#F9FAFB] dark:bg-[#303030] text-[#4B5563] dark:text-[#A3A3A3] border-b border-[#E5E7EB] dark:border-[#404040] font-semibold text-[11px] uppercase tracking-wider">
                 <th
                   scope="col"
                   aria-sort={sortAsc ? 'ascending' : 'descending'}
@@ -420,7 +420,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
                   <button
                     type="button"
                     onClick={toggleSort}
-                    className="group inline-flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[11px] text-[#4B5563] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] rounded transition-colors py-1 cursor-pointer"
+                    className="group inline-flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[11px] text-[#4B5563] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] rounded transition-colors py-1 cursor-pointer"
                     aria-label={
                       sortAsc
                         ? 'Tanggal dan Waktu, urutan terlama ke terbaru. Klik untuk mengubah ke terbaru ke terlama.'
@@ -446,17 +446,17 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
                 <th className="py-3 px-4">Catatan</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F3F4F6]">
+            <tbody className="divide-y divide-[#F3F4F6] dark:divide-[#404040]">
               {sortedRecords.map((row) => {
                 const isHistorical = !row.employeeId || row.employeeName.includes('(Arsip)');
 
                 return (
-                  <tr key={row.attendanceId} className="hover:bg-[#F9FAFB]/70 transition-colors">
-                    <td className="py-3 px-4 font-medium text-[#111827] whitespace-nowrap">
+                  <tr key={row.attendanceId} className="hover:bg-[#F9FAFB]/70 dark:hover:bg-[#303030]/50 transition-colors">
+                    <td className="py-3 px-4 font-medium text-[#111827] dark:text-[#F9FAFB] whitespace-nowrap">
                       {row.attendanceDate}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <div className="font-semibold text-[#111827] flex items-center gap-1.5">
+                      <div className="font-semibold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1.5">
                         <span>{row.employeeName}</span>
                         {isHistorical && (
                           <Badge variant="warning" size="sm">
@@ -464,49 +464,49 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
                           </Badge>
                         )}
                       </div>
-                      <div className="text-[11px] text-[#6B7280]">
+                      <div className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                         {row.nip ? `NIP: ${row.nip}` : 'NIP: -'}
                       </div>
                     </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-[#4B5563]">
+                    <td className="py-3 px-3 whitespace-nowrap text-[#4B5563] dark:text-[#D1D5DB]">
                       <div className="flex items-center gap-1">
-                        <Building2 className="w-3 h-3 text-[#9CA3AF]" />
+                        <Building2 className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                         <span>{row.departmentName}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-3 font-semibold text-blue-600 whitespace-nowrap">
+                    <td className="py-3 px-3 font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                       {row.checkInTimeFormatted} WITA
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       {renderCheckInBadge(row.checkInStatus)}
                     </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-[#4B5563]">
+                    <td className="py-3 px-3 whitespace-nowrap text-[#4B5563] dark:text-[#D1D5DB]">
                       {row.checkInLocation ? (
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#9CA3AF]" />
+                          <MapPin className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                           <span className="truncate max-w-[130px]">{row.checkInLocation}</span>
                         </div>
                       ) : (
-                        <span className="text-[#9CA3AF]">-</span>
+                        <span className="text-[#9CA3AF] dark:text-[#6B7280]">-</span>
                       )}
                     </td>
-                    <td className="py-3 px-3 font-semibold text-purple-600 whitespace-nowrap">
+                    <td className="py-3 px-3 font-semibold text-purple-600 dark:text-purple-400 whitespace-nowrap">
                       {row.checkOutAt ? `${row.checkOutTimeFormatted} WITA` : '-'}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       {renderCheckOutBadge(row.checkOutStatus, row.checkOutAt)}
                     </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-[#4B5563]">
+                    <td className="py-3 px-3 whitespace-nowrap text-[#4B5563] dark:text-[#D1D5DB]">
                       {row.checkOutLocation ? (
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#9CA3AF]" />
+                          <MapPin className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                           <span className="truncate max-w-[130px]">{row.checkOutLocation}</span>
                         </div>
                       ) : (
-                        <span className="text-[#9CA3AF]">-</span>
+                        <span className="text-[#9CA3AF] dark:text-[#6B7280]">-</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-[#6B7280] max-w-[180px] truncate">
+                    <td className="py-3 px-4 text-[#6B7280] dark:text-[#A3A3A3] max-w-[180px] truncate">
                       {row.notes || '-'}
                     </td>
                   </tr>
@@ -517,17 +517,17 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
         </div>
 
         {/* Pagination Controls */}
-        <div className="p-3 sm:p-4 bg-[#F9FAFB] border-t border-[#E5E7EB] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="text-xs text-[#6B7280]">
+        <div className="p-3 sm:p-4 bg-[#F9FAFB] dark:bg-[#171717] border-t border-[#E5E7EB] dark:border-[#404040] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
             Menampilkan{' '}
-            <span className="font-semibold text-[#111827]">
+            <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">
               {(page - 1) * pageSize + 1}
             </span>{' '}
             -{' '}
-            <span className="font-semibold text-[#111827]">
+            <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">
               {Math.min(page * pageSize, totalCount)}
             </span>{' '}
-            dari <span className="font-semibold text-[#111827]">{totalCount}</span> data
+            dari <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">{totalCount}</span> data
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -540,7 +540,7 @@ export const DetailReportTable: React.FC<DetailReportTableProps> = ({
             >
               Sebelumnya
             </Button>
-            <span className="text-xs font-semibold px-2 py-1 text-[#374151]">
+            <span className="text-xs font-semibold px-2 py-1 text-[#374151] dark:text-[#F9FAFB]">
               {page} / {totalPages}
             </span>
             <Button

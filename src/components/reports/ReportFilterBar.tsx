@@ -548,13 +548,13 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       return (
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#374151]">Bulan &amp; Tahun</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB]">Bulan &amp; Tahun</label>
             <div className="grid grid-cols-2 gap-2">
               <select
                 value={draftDailyMonth}
                 onChange={(e) => setDraftDailyMonth(e.target.value)}
                 aria-label="Bulan"
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 {MONTH_OPTIONS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -566,7 +566,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                 value={draftDailyYear}
                 onChange={(e) => setDraftDailyYear(e.target.value)}
                 aria-label="Tahun"
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 {yearOptions.map((y) => (
                   <option key={y} value={String(y)}>
@@ -578,12 +578,12 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">Satuan Kerja</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">Satuan Kerja</label>
             <select
               value={draftDailyDepartmentId}
               onChange={(e) => setDraftDailyDepartmentId(e.target.value)}
               aria-label="Satuan Kerja"
-              className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Satuan Kerja</option>
               {departments.map((dept) => (
@@ -602,7 +602,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
         {/* Periode: employee, monthly, detail */}
         {activeTab !== 'monthly_recap' && (
           <div className="space-y-2.5">
-            <label className="block text-xs font-semibold text-[#374151]">Periode</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB]">Periode</label>
             <div className="grid grid-cols-2 gap-2">
               {(
                 [
@@ -621,7 +621,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     className={`px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer border ${
                       active
                         ? 'bg-[#F97316] text-white border-[#F97316] font-semibold'
-                        : 'bg-[#F9FAFB] text-[#4B5563] border-[#E5E7EB] hover:bg-[#F3F4F6]'
+                        : 'bg-[#F9FAFB] dark:bg-[#171717] text-[#4B5563] dark:text-[#A3A3A3] border-[#E5E7EB] dark:border-[#404040] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] dark:hover:text-[#F9FAFB]'
                     }`}
                   >
                     {p.label}
@@ -633,7 +633,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             {draftPreset === 'custom' && (
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <div>
-                  <label className="block text-[11px] font-medium text-[#6B7280] mb-1">Dari</label>
+                  <label className="block text-[11px] font-medium text-[#6B7280] dark:text-[#A3A3A3] mb-1">Dari</label>
                   <input
                     type="date"
                     value={draftStartDate}
@@ -641,11 +641,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                       setDraftStartDate(e.target.value);
                       setDateError(null);
                     }}
-                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                    className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-2.5 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-[#6B7280] mb-1">Sampai</label>
+                  <label className="block text-[11px] font-medium text-[#6B7280] dark:text-[#A3A3A3] mb-1">Sampai</label>
                   <input
                     type="date"
                     value={draftEndDate}
@@ -653,14 +653,14 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                       setDraftEndDate(e.target.value);
                       setDateError(null);
                     }}
-                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                    className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-2.5 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                   />
                 </div>
               </div>
             )}
 
             {dateError && (
-              <p className="text-[11px] font-medium text-red-600">{dateError}</p>
+              <p className="text-[11px] font-medium text-red-600 dark:text-red-400">{dateError}</p>
             )}
           </div>
         )}
@@ -668,7 +668,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
         {/* Bulan / Tahun: monthly_recap only */}
         {activeTab === 'monthly_recap' && (
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#374151]">Bulan &amp; Tahun</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB]">Bulan &amp; Tahun</label>
             <div className="grid grid-cols-2 gap-2">
               <select
                 value={draftMonth}
@@ -677,7 +677,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                   setDidChangeRecapMonth(true);
                 }}
                 aria-label="Bulan"
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 {MONTH_OPTIONS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -692,7 +692,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                   setDidChangeRecapMonth(true);
                 }}
                 aria-label="Tahun"
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 {yearOptions.map((y) => (
                   <option key={y} value={String(y)}>
@@ -706,11 +706,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
         {/* Satuan Kerja */}
         <div>
-          <label className="block text-xs font-semibold text-[#374151] mb-1">Satuan Kerja</label>
+          <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">Satuan Kerja</label>
           <select
             value={draftDepartmentId}
             onChange={(e) => setDraftDepartmentId(e.target.value)}
-            className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+            className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
           >
             <option value="all">Semua Satuan Kerja</option>
             {departments.map((dept) => (
@@ -724,11 +724,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       {/* Pegawai: employee, monthly, detail */}
       {(activeTab === 'employee' || activeTab === 'monthly' || activeTab === 'detail') && (
         <div>
-          <label className="block text-xs font-semibold text-[#374151] mb-1">Pegawai</label>
+          <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">Pegawai</label>
           <select
             value={draftEmployeeId}
             onChange={(e) => setDraftEmployeeId(e.target.value)}
-            className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+            className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
           >
             <option value="all">Semua Pegawai ({employees.length})</option>
             {employees.map((emp) => (
@@ -743,13 +743,13 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       {/* Status Presensi (checkInStatus): monthly, detail */}
       {(activeTab === 'monthly' || activeTab === 'detail') && (
         <div>
-          <label className="block text-xs font-semibold text-[#374151] mb-1">
+          <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">
             Status Presensi
           </label>
           <select
             value={draftCheckInStatus}
             onChange={(e) => setDraftCheckInStatus(e.target.value)}
-            className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+            className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
           >
             <option value="all">Semua Status Presensi</option>
             <option value="on_time">Tepat Waktu</option>
@@ -762,13 +762,13 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       {activeTab === 'monthly' && (
         <>
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">
               Status Check-out
             </label>
             <select
               value={draftCheckOutStatus}
               onChange={(e) => setDraftCheckOutStatus(e.target.value)}
-              className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Status Check-out</option>
               <option value="operational">Jam Operasional</option>
@@ -777,11 +777,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">Lokasi</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">Lokasi</label>
             <select
               value={draftLocationId}
               onChange={(e) => setDraftLocationId(e.target.value)}
-              className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+              className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
             >
               <option value="all">Semua Lokasi</option>
               {locations.map((loc) => (
@@ -797,11 +797,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       {/* Jenis Pegawai: monthly_recap only */}
       {activeTab === 'monthly_recap' && (
         <div>
-          <label className="block text-xs font-semibold text-[#374151] mb-1">Jenis Pegawai</label>
+          <label className="block text-xs font-semibold text-[#374151] dark:text-[#E5E7EB] mb-1">Jenis Pegawai</label>
           <select
             value={draftEmployeeType}
             onChange={(e) => setDraftEmployeeType(e.target.value)}
-            className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+            className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
           >
             <option value="all">Semua Tipe</option>
             {COMMON_EMPLOYEE_TYPES.map((type) => (
@@ -825,23 +825,23 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
           {activeTab === 'daily' ? (
             <div className="flex items-center justify-between gap-2">
               {/* Calendar Header: Prev Month | Bulan Tahun | Next Month */}
-              <div className="inline-flex items-center gap-1 bg-white border border-[#E5E7EB] rounded-xl px-1.5 py-1 shadow-2xs">
+              <div className="inline-flex items-center gap-1 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-1.5 py-1 shadow-2xs">
                 <button
                   type="button"
                   onClick={() => handleStepDailyMonth(-1)}
                   aria-label="Bulan sebelumnya"
-                  className="p-1 rounded-lg text-[#4B5563] hover:bg-[#F9FAFB] hover:text-[#111827] cursor-pointer"
+                  className="p-1 rounded-lg text-[#4B5563] dark:text-[#A3A3A3] hover:bg-[#F9FAFB] dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="px-2 text-xs font-bold text-[#111827] whitespace-nowrap select-none">
+                <span className="px-2 text-xs font-bold text-[#111827] dark:text-[#F9FAFB] whitespace-nowrap select-none">
                   {dailyMonthLabel} {effectiveDailyYear}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleStepDailyMonth(1)}
                   aria-label="Bulan berikutnya"
-                  className="p-1 rounded-lg text-[#4B5563] hover:bg-[#F9FAFB] hover:text-[#111827] cursor-pointer"
+                  className="p-1 rounded-lg text-[#4B5563] dark:text-[#A3A3A3] hover:bg-[#F9FAFB] dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -855,35 +855,35 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                 aria-expanded={isPanelOpen}
                 className={`p-2 rounded-xl border shrink-0 transition-colors cursor-pointer shadow-2xs ${
                   isPanelOpen || activeFilterCount > 0
-                    ? 'bg-orange-50/70 border-[#F97316] text-[#F97316]'
-                    : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB]'
+                    ? 'bg-orange-50/70 dark:bg-[#431F0B]/50 border-[#F97316] text-[#F97316]'
+                    : 'bg-white dark:bg-[#262626] border-[#E5E7EB] dark:border-[#404040] text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#374151] dark:hover:text-[#F9FAFB] hover:bg-[#F9FAFB] dark:hover:bg-[#303030]'
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 bg-white border border-[#E5E7EB] rounded-xl pl-3 pr-1.5 py-1 shadow-2xs focus-within:ring-1 focus-within:ring-[#F97316]">
-              <Search className="w-4 h-4 text-[#9CA3AF] shrink-0 pointer-events-none" />
+            <div className="flex items-center gap-2 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl pl-3 pr-1.5 py-1 shadow-2xs focus-within:ring-1 focus-within:ring-[#F97316]">
+              <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#6B7280] shrink-0 pointer-events-none" />
               <input
                 type="text"
                 placeholder={searchPlaceholder}
                 value={mobileSearchValue}
                 onChange={(e) => onMobileSearchChange?.(e.target.value)}
-                className="flex-1 min-w-0 bg-transparent py-1.5 text-xs text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none"
+                className="flex-1 min-w-0 bg-transparent py-1.5 text-xs text-[#111827] dark:text-[#F9FAFB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] focus:outline-none"
               />
               {mobileSearchValue && (
                 <button
                   type="button"
                   onClick={() => onMobileSearchChange?.('')}
                   aria-label="Hapus pencarian"
-                  className="p-1 text-[#9CA3AF] hover:text-[#374151] shrink-0 cursor-pointer"
+                  className="p-1 text-[#9CA3AF] dark:text-[#6B7280] hover:text-[#374151] dark:hover:text-[#F9FAFB] shrink-0 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
 
-              <span className="h-4 w-px bg-[#E5E7EB] shrink-0" aria-hidden="true" />
+              <span className="h-4 w-px bg-[#E5E7EB] dark:bg-[#404040] shrink-0" aria-hidden="true" />
 
               {/* Unified Filter Icon Trigger */}
               <button
@@ -893,8 +893,8 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                 aria-expanded={isPanelOpen}
                 className={`p-1.5 rounded-lg shrink-0 transition-colors cursor-pointer ${
                   isPanelOpen || activeFilterCount > 0
-                    ? 'text-[#F97316] hover:bg-orange-50'
-                    : 'text-[#6B7280] hover:text-[#374151] hover:bg-[#F9FAFB]'
+                    ? 'text-[#F97316] hover:bg-orange-50 dark:hover:bg-[#431F0B]/40'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#374151] dark:hover:text-[#F9FAFB] hover:bg-[#F9FAFB] dark:hover:bg-[#303030]'
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4" />
@@ -913,15 +913,15 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             <div
               role="dialog"
               aria-label="Filter Laporan"
-              className="absolute right-0 top-full mt-2 z-50 w-[380px] max-h-[75vh] bg-white border border-[#E5E7EB] rounded-2xl shadow-xl flex flex-col overflow-hidden"
+              className="absolute right-0 top-full mt-2 z-50 w-[380px] max-h-[75vh] bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl flex flex-col overflow-hidden"
             >
-              <div className="px-4 py-3 border-b border-[#F3F4F6] flex items-center justify-between">
-                <h4 className="text-sm font-bold text-[#111827]">Filter Laporan</h4>
+              <div className="px-4 py-3 border-b border-[#F3F4F6] dark:border-[#404040] flex items-center justify-between">
+                <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">Filter Laporan</h4>
                 <button
                   type="button"
                   onClick={() => setIsPanelOpen(false)}
                   aria-label="Tutup filter"
-                  className="p-1 rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] cursor-pointer"
+                  className="p-1 rounded-lg text-[#6B7280] dark:text-[#A3A3A3] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] dark:hover:text-[#F9FAFB] cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -929,7 +929,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
               <div className="p-4 overflow-y-auto flex-1">{renderContextualPanelBody()}</div>
 
-              <div className="px-4 py-3 border-t border-[#F3F4F6] bg-[#F9FAFB] flex items-center justify-end gap-2">
+              <div className="px-4 py-3 border-t border-[#F3F4F6] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#171717] flex items-center justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -958,18 +958,18 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             <div
               role="dialog"
               aria-label="Filter Laporan"
-              className="relative z-10 bg-white rounded-t-2xl max-h-[85vh] flex flex-col shadow-xl"
+              className="relative z-10 bg-white dark:bg-[#262626] rounded-t-2xl max-h-[85vh] flex flex-col shadow-xl border-t dark:border-[#404040]"
             >
               <div className="pt-2.5 pb-1 flex justify-center">
-                <span className="w-10 h-1 rounded-full bg-gray-300" />
+                <span className="w-10 h-1 rounded-full bg-gray-300 dark:bg-[#525252]" />
               </div>
-              <div className="px-4 py-2.5 border-b border-[#F3F4F6] flex items-center justify-between">
-                <h4 className="text-sm font-bold text-[#111827]">Filter Laporan</h4>
+              <div className="px-4 py-2.5 border-b border-[#F3F4F6] dark:border-[#404040] flex items-center justify-between">
+                <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">Filter Laporan</h4>
                 <button
                   type="button"
                   onClick={() => setIsPanelOpen(false)}
                   aria-label="Tutup filter"
-                  className="p-1 rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] cursor-pointer"
+                  className="p-1 rounded-lg text-[#6B7280] dark:text-[#A3A3A3] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] dark:hover:text-[#F9FAFB] cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -977,7 +977,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
               <div className="p-4 overflow-y-auto flex-1">{renderContextualPanelBody()}</div>
 
-              <div className="px-4 py-3 border-t border-[#F3F4F6] bg-white grid grid-cols-2 gap-2.5">
+              <div className="px-4 py-3 border-t border-[#F3F4F6] dark:border-[#404040] bg-white dark:bg-[#262626] grid grid-cols-2 gap-2.5">
                 <Button
                   type="button"
                   variant="outline"
@@ -1025,12 +1025,12 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     className={`min-w-[44px] px-2.5 py-1.5 rounded-xl border flex flex-col items-center justify-center transition-colors cursor-pointer shrink-0 ${
                       isSelected
                         ? 'bg-[#F97316] border-[#F97316] text-white'
-                        : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB]'
+                        : 'bg-white dark:bg-[#262626] border-[#E5E7EB] dark:border-[#404040] text-[#6B7280] dark:text-[#A3A3A3] hover:border-[#D1D5DB] dark:hover:border-[#525252]'
                     }`}
                   >
                     <span
                       className={`text-[10px] leading-tight ${
-                        isSelected ? 'text-white/90 font-medium' : 'text-[#6B7280] font-medium'
+                        isSelected ? 'text-white/90 font-medium' : 'text-[#6B7280] dark:text-[#A3A3A3] font-medium'
                       }`}
                     >
                       {item.dayShort}
@@ -1041,7 +1041,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                           ? 'text-white'
                           : isToday
                             ? 'text-[#F97316]'
-                            : 'text-[#374151]'
+                            : 'text-[#374151] dark:text-[#E5E7EB]'
                       }`}
                     >
                       {item.dayNum}
@@ -1055,14 +1055,14 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       </div>
 
       {/* Desktop (>=lg): Unchanged Original Filter Card */}
-      <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+      <div className="hidden lg:block bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
         <form onSubmit={handleApply} className="space-y-4">
           {/* Preset Period Buttons & Custom Range */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#F3F4F6]">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#F3F4F6] dark:border-[#404040]">
             {/* Preset Buttons */}
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-semibold text-[#6B7280] mr-1 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-[#9CA3AF]" />
+              <span className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] mr-1 flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-[#9CA3AF] dark:text-[#6B7280]" />
                 Periode:
               </span>
               {(
@@ -1082,7 +1082,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                       active
                         ? 'bg-[#F97316] text-white shadow-xs font-semibold'
-                        : 'bg-[#F9FAFB] text-[#4B5563] hover:bg-[#F3F4F6] border border-[#E5E7EB]'
+                        : 'bg-[#F9FAFB] dark:bg-[#171717] text-[#4B5563] dark:text-[#A3A3A3] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] dark:hover:text-[#F9FAFB] border border-[#E5E7EB] dark:border-[#404040]'
                     }`}
                   >
                     {p.label}
@@ -1094,7 +1094,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             {/* Date Picker Controls (Native YYYY-MM-DD in Asia/Makassar) */}
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-[#6B7280]">Dari:</span>
+                <span className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">Dari:</span>
                 <input
                   type="date"
                   value={startDate}
@@ -1112,11 +1112,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                       searchQuery
                     );
                   }}
-                  className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                  className="bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                 />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-[#6B7280]">Sampai:</span>
+                <span className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">Sampai:</span>
                 <input
                   type="date"
                   value={endDate}
@@ -1134,7 +1134,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                       searchQuery
                     );
                   }}
-                  className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                  className="bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-2.5 py-1.5 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                 />
               </div>
             </div>
@@ -1144,8 +1144,8 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {/* Search Query */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] mb-1 flex items-center gap-1">
-                <Search className="w-3 h-3 text-[#9CA3AF]" />
+              <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1 flex items-center gap-1">
+                <Search className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                 Cari Nama / NIP
               </label>
               <input
@@ -1165,14 +1165,14 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     e.target.value
                   );
                 }}
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316] placeholder:text-[#9CA3AF]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280]"
               />
             </div>
 
             {/* Pegawai Dropdown */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] mb-1 flex items-center gap-1">
-                <User className="w-3 h-3 text-[#9CA3AF]" />
+              <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1 flex items-center gap-1">
+                <User className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                 Pegawai
               </label>
               <select
@@ -1190,7 +1190,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     searchQuery
                   );
                 }}
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 <option value="all">Semua Pegawai ({employees.length})</option>
                 {employees.map((emp) => (
@@ -1203,8 +1203,8 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
             {/* Status Masuk */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] mb-1 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-[#9CA3AF]" />
+              <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                 Status Masuk
               </label>
               <select
@@ -1222,7 +1222,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     searchQuery
                   );
                 }}
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 <option value="all">Semua Status Masuk</option>
                 <option value="on_time">Tepat Waktu</option>
@@ -1232,8 +1232,8 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
             {/* Status Pulang */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] mb-1 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-[#9CA3AF]" />
+              <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                 Status Pulang
               </label>
               <select
@@ -1251,7 +1251,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     searchQuery
                   );
                 }}
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               >
                 <option value="all">Semua Status Pulang</option>
                 <option value="operational">Jam Operasional</option>
@@ -1262,11 +1262,11 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
           {/* Advanced Filters Toggle */}
           {isAdvancedOpen && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#F3F4F6]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#F3F4F6] dark:border-[#404040]">
               {/* Departemen */}
               <div>
-                <label className="block text-[11px] font-semibold text-[#6B7280] mb-1 flex items-center gap-1">
-                  <Building2 className="w-3 h-3 text-[#9CA3AF]" />
+                <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1 flex items-center gap-1">
+                  <Building2 className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                   Departemen / Unit
                 </label>
                 <select
@@ -1284,7 +1284,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                       searchQuery
                     );
                   }}
-                  className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                  className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                 >
                   <option value="all">Semua Departemen</option>
                   {departments.map((dept) => (
@@ -1297,8 +1297,8 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
 
               {/* Lokasi Presensi */}
               <div>
-                <label className="block text-[11px] font-semibold text-[#6B7280] mb-1 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-[#9CA3AF]" />
+                <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1 flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-[#9CA3AF] dark:text-[#6B7280]" />
                   Lokasi Presensi
                 </label>
                 <select
@@ -1316,7 +1316,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                       searchQuery
                     );
                   }}
-                  className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 py-2 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                  className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                 >
                   <option value="all">Semua Lokasi</option>
                   {locations.map((loc) => (

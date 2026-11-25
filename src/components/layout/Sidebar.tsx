@@ -93,7 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="my-2 border-t border-white/15 mx-1" />
         )}
         {!isCollapsed && title && (
-          <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-orange-100/90 truncate">
+          <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-orange-100/90 dark:text-[#F9FAFB]/85 truncate">
             {title}
           </p>
         )}
@@ -112,15 +112,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={({ isActive }) =>
                     `group relative flex items-center justify-center p-2.5 rounded-xl transition-all ${
                       isActive
-                        ? 'bg-white text-[#F97316] font-semibold shadow-xs'
-                        : 'text-white/85 hover:bg-white/15 hover:text-white'
+                        ? 'bg-white dark:bg-[#262626] text-[#F97316] dark:text-[#F9FAFB] font-semibold shadow-xs'
+                        : 'text-white/85 dark:text-[#F9FAFB]/90 hover:bg-white/15 dark:hover:bg-[#171717]/20 hover:text-white'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <Icon
                       className={`w-5 h-5 transition-colors shrink-0 ${
-                        isActive ? 'text-[#F97316]' : 'text-orange-100 group-hover:text-white'
+                        isActive
+                          ? 'text-[#F97316]'
+                          : 'text-orange-100 dark:text-[#F9FAFB]/85 group-hover:text-white'
                       }`}
                     />
                   )}
@@ -137,8 +139,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className={({ isActive }) =>
                   `group flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-white text-[#F97316] font-semibold shadow-xs'
-                      : 'text-white/85 hover:bg-white/10 hover:text-white'
+                      ? 'bg-white dark:bg-[#262626] text-[#F97316] dark:text-[#F9FAFB] font-semibold shadow-xs'
+                      : 'text-white/85 dark:text-[#F9FAFB]/90 hover:bg-white/10 dark:hover:bg-[#171717]/20 hover:text-white'
                   }`
                 }
               >
@@ -147,13 +149,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <div className="flex items-center gap-3 min-w-0">
                       <Icon
                         className={`w-4 h-4 transition-colors shrink-0 ${
-                          isActive ? 'text-[#F97316]' : 'text-orange-100 group-hover:text-white'
+                          isActive
+                            ? 'text-[#F97316]'
+                            : 'text-orange-100 dark:text-[#F9FAFB]/85 group-hover:text-white'
                         }`}
                       />
                       <span className="truncate">{item.label}</span>
                     </div>
                     {!isActive && (
-                      <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-75 transition-opacity text-orange-200 shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-75 transition-opacity text-orange-200 dark:text-[#F9FAFB]/80 shrink-0" />
                     )}
                   </>
                 )}
@@ -174,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={onToggleCollapse}
           aria-label={isCollapsed ? 'Perluas bilah samping' : 'Ciutkan bilah samping'}
           title={isCollapsed ? 'Perluas bilah samping' : 'Ciutkan bilah samping'}
-          className="absolute top-6 right-0 translate-x-1/2 z-50 w-6 h-6 rounded-full bg-[#F97316] border border-white text-white flex items-center justify-center shadow-md hover:bg-[#EA580C] cursor-pointer transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F97316]"
+          className="absolute top-6 right-0 translate-x-1/2 z-50 w-6 h-6 rounded-full bg-[#F97316] border border-white dark:border-[#171717] text-white flex items-center justify-center shadow-md hover:bg-[#EA580C] cursor-pointer transition-all duration-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F97316]"
         >
           <ChevronRight
             size={14}
@@ -229,9 +233,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setShowLogoutConfirm(true)}
             title="Keluar dari sistem"
             aria-label="Keluar dari sistem"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white transition-all cursor-pointer group"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/85 dark:text-[#F9FAFB]/90 hover:bg-white/10 dark:hover:bg-[#171717]/20 hover:text-white transition-all cursor-pointer group"
           >
-            <LogOut className="w-4 h-4 text-orange-100 group-hover:text-white transition-colors shrink-0" />
+            <LogOut className="w-4 h-4 text-orange-100 dark:text-[#F9FAFB]/85 group-hover:text-white transition-colors shrink-0" />
             <span className="truncate">Keluar</span>
           </button>
         </div>
@@ -242,9 +246,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setShowLogoutConfirm(true)}
             title="Keluar dari sistem"
             aria-label="Keluar dari sistem"
-            className="group relative flex items-center justify-center p-2.5 rounded-xl text-white/85 hover:bg-white/15 hover:text-white transition-all cursor-pointer"
+            className="group relative flex items-center justify-center p-2.5 rounded-xl text-white/85 dark:text-[#F9FAFB]/90 hover:bg-white/15 dark:hover:bg-[#171717]/20 hover:text-white transition-all cursor-pointer"
           >
-            <LogOut className="w-5 h-5 text-orange-100 group-hover:text-white transition-colors shrink-0" />
+            <LogOut className="w-5 h-5 text-orange-100 dark:text-[#F9FAFB]/85 group-hover:text-white transition-colors shrink-0" />
           </button>
         </div>
       )}

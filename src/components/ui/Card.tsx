@@ -13,15 +13,15 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    default: 'bg-[#FFFFFF] border border-[#E5E7EB]',
-    secondary: 'bg-[#F9FAFB] border border-[#E5E7EB]',
-    accent: 'bg-[#FFF7ED] border border-orange-200',
+    default: 'bg-[#FFFFFF] border border-[#E5E7EB] dark:bg-[#262626] dark:border-[#404040]',
+    secondary: 'bg-[#F9FAFB] border border-[#E5E7EB] dark:bg-[#303030] dark:border-[#404040]',
+    accent: 'bg-[#FFF7ED] border border-orange-200 dark:bg-[#431F0B] dark:border-orange-800/60',
   };
 
   return (
     <div
       className={`rounded-2xl p-5 md:p-6 transition-all duration-150 ${variantStyles[variant]} ${
-        hoverable ? 'hover:border-[#D1D5DB] hover:shadow-xs' : ''
+        hoverable ? 'hover:border-[#D1D5DB] dark:hover:border-[#525252] hover:shadow-xs' : ''
       } ${className}`}
       {...props}
     >

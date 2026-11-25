@@ -182,16 +182,16 @@ export const AttendanceRecapPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">
       {/* Header Banner */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center gap-1.5">
             <FileSpreadsheet className="w-3.5 h-3.5 text-[#F97316]" />
             Laporan & Analisis Kehadiran Pegawai
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-0.5">
             Rekap dan Laporan Presensi
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#A3A3A3] mt-1">
             Rekapitulasi kehadiran pegawai sekolah, tren harian, dan laporan rincian presensi
           </p>
         </div>
@@ -229,7 +229,7 @@ export const AttendanceRecapPage: React.FC = () => {
 
       {/* Error State */}
       {errorState && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 space-y-3">
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 text-amber-800 dark:text-amber-200 space-y-3">
           <div className="flex items-center gap-2 font-bold text-sm">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
             <span>Gagal Memuat Rekap Presensi</span>
@@ -246,22 +246,22 @@ export const AttendanceRecapPage: React.FC = () => {
 
       {/* Loading Skeleton / Content */}
       {loading ? (
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
-          <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
+          <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/4" />
           <div className="space-y-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-12 bg-[#F3F4F6] rounded-xl" />
+              <div key={i} className="h-12 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl" />
             ))}
           </div>
         </div>
       ) : !errorState && records.length === 0 ? (
         /* Empty State */
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-10 text-center shadow-2xs space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto">
             <Users className="w-6 h-6 text-[#9CA3AF]" />
           </div>
-          <h4 className="text-base font-bold text-[#111827]">Tidak Ada Data Rekap</h4>
-          <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+          <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Tidak Ada Data Rekap</h4>
+          <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto">
             Tidak ditemukan pegawai yang sesuai dengan filter atau kata kunci pencarian pada periode ini.
           </p>
         </div>
@@ -271,8 +271,8 @@ export const AttendanceRecapPage: React.FC = () => {
           <RecapTable records={records} onSelectEmployee={setSelectedRecapEmployee} />
           <RecapMobileList records={records} onSelectEmployee={setSelectedRecapEmployee} />
 
-          <div className="text-xs text-[#6B7280] text-right font-medium pr-1">
-            Menampilkan rekap untuk <strong className="text-[#111827]">{records.length}</strong> pegawai
+          <div className="text-xs text-[#6B7280] dark:text-[#A3A3A3] text-right font-medium pr-1">
+            Menampilkan rekap untuk <strong className="text-[#111827] dark:text-[#F9FAFB]">{records.length}</strong> pegawai
           </div>
         </div>
       ) : null}
@@ -296,10 +296,10 @@ export const AttendanceRecapPage: React.FC = () => {
       />
 
       {/* Footer Info */}
-      <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-3 text-xs text-[#6B7280]">
+      <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] flex items-start gap-3 text-xs text-[#6B7280] dark:text-[#A3A3A3]">
         <Info className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold text-[#111827]">Informasi Detail Read-Only:</span> Seluruh
+          <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">Informasi Detail Read-Only:</span> Seluruh
           rincian detail presensi bersifat read-only untuk keperluan verifikasi operasional dan
           transparansi data kehadiran.
         </div>

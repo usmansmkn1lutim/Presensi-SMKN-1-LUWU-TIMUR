@@ -16,7 +16,7 @@ const NavHomeIcon: React.FC<{ isActive: boolean; className?: string }> = ({
   isActive,
   className = 'w-5 h-5',
 }) => {
-  const color = isActive ? '#F97316' : '#6B7280';
+  const color = isActive ? '#F97316' : 'currentColor';
 
   if (isActive) {
     return (
@@ -59,14 +59,66 @@ const NavHistoryIcon: React.FC<{ isActive: boolean; className?: string }> = ({
   isActive,
   className = 'w-5 h-5',
 }) => {
-  const primaryColor = isActive ? '#F97316' : '#6B7280';
-  const dividerColor = isActive ? '#FFFFFF' : '#6B7280';
+  const maskId = `nav-history-mask-${React.useId().replace(/:/g, '')}`;
+
+  if (isActive) {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className={className}
+        fill="none"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <mask
+            id={maskId}
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width="24"
+            height="24"
+          >
+            <rect x="0" y="0" width="24" height="24" fill="white" />
+            {/* Garis horizontal pemisah header (cutout transparan) */}
+            <line
+              x1="3.5"
+              y1="10.5"
+              x2="20.5"
+              y2="10.5"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </mask>
+        </defs>
+        {/* Badan kalender bersudut membulat dengan mask cutout transparan */}
+        <rect
+          x="3.5"
+          y="5"
+          width="17"
+          height="16"
+          rx="2.5"
+          fill="#F97316"
+          stroke="#F97316"
+          mask={`url(#${maskId})`}
+        />
+        {/* Dua pengait pendek di atas */}
+        <line x1="8" y1="2.5" x2="8" y2="6.5" stroke="#F97316" />
+        <line x1="16" y1="2.5" x2="16" y2="6.5" stroke="#F97316" />
+      </svg>
+    );
+  }
 
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
       fill="none"
+      stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -74,20 +126,12 @@ const NavHistoryIcon: React.FC<{ isActive: boolean; className?: string }> = ({
       aria-hidden="true"
     >
       {/* Badan kalender bersudut membulat */}
-      <rect
-        x="3.5"
-        y="5"
-        width="17"
-        height="16"
-        rx="2.5"
-        fill={isActive ? primaryColor : 'none'}
-        stroke={primaryColor}
-      />
+      <rect x="3.5" y="5" width="17" height="16" rx="2.5" />
       {/* Dua pengait pendek di atas */}
-      <line x1="8" y1="2.5" x2="8" y2="6.5" stroke={primaryColor} />
-      <line x1="16" y1="2.5" x2="16" y2="6.5" stroke={primaryColor} />
+      <line x1="8" y1="2.5" x2="8" y2="6.5" />
+      <line x1="16" y1="2.5" x2="16" y2="6.5" />
       {/* Garis horizontal pemisah header */}
-      <line x1="3.5" y1="10.5" x2="20.5" y2="10.5" stroke={dividerColor} />
+      <line x1="3.5" y1="10.5" x2="20.5" y2="10.5" />
     </svg>
   );
 };
@@ -97,14 +141,77 @@ const NavRequestIcon: React.FC<{ isActive: boolean; className?: string }> = ({
   isActive,
   className = 'w-5 h-5',
 }) => {
-  const primaryColor = isActive ? '#F97316' : '#6B7280';
-  const innerColor = isActive ? '#FFFFFF' : '#6B7280';
+  const maskId = `nav-request-mask-${React.useId().replace(/:/g, '')}`;
+
+  if (isActive) {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className={className}
+        fill="none"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <mask
+            id={maskId}
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width="24"
+            height="24"
+          >
+            <rect x="0" y="0" width="24" height="24" fill="white" />
+            {/* Lipatan kanan atas (cutout transparan) */}
+            <polyline
+              points="14 3.5 14 9 19.5 9"
+              fill="none"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {/* Dua garis horizontal isi dokumen (cutout transparan) */}
+            <line
+              x1="8"
+              y1="13.5"
+              x2="16"
+              y2="13.5"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <line
+              x1="8"
+              y1="17"
+              x2="13"
+              y2="17"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </mask>
+        </defs>
+        {/* Siluet badan dokumen dengan mask cutout transparan */}
+        <path
+          d="M5 3.5h9l5.5 5.5v10.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2z"
+          fill="#F97316"
+          stroke="#F97316"
+          mask={`url(#${maskId})`}
+        />
+      </svg>
+    );
+  }
 
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
       fill="none"
+      stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -112,16 +219,12 @@ const NavRequestIcon: React.FC<{ isActive: boolean; className?: string }> = ({
       aria-hidden="true"
     >
       {/* Siluet badan dokumen dengan lipatan */}
-      <path
-        d="M5 3.5h9l5.5 5.5v10.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2z"
-        fill={isActive ? primaryColor : 'none'}
-        stroke={primaryColor}
-      />
+      <path d="M5 3.5h9l5.5 5.5v10.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2z" />
       {/* Lipatan kanan atas */}
-      <polyline points="14 3.5 14 9 19.5 9" stroke={innerColor} />
+      <polyline points="14 3.5 14 9 19.5 9" />
       {/* Dua garis horizontal isi dokumen */}
-      <line x1="8" y1="13.5" x2="16" y2="13.5" stroke={innerColor} />
-      <line x1="8" y1="17" x2="13" y2="17" stroke={innerColor} />
+      <line x1="8" y1="13.5" x2="16" y2="13.5" />
+      <line x1="8" y1="17" x2="13" y2="17" />
     </svg>
   );
 };
@@ -198,7 +301,7 @@ export const MobileBottomNav: React.FC = () => {
         <BarChart3
           className="w-5 h-5"
           fill="none"
-          color={isActive ? '#F97316' : '#6B7280'}
+          color={isActive ? '#F97316' : 'currentColor'}
           strokeWidth={2}
         />
       );
@@ -208,7 +311,7 @@ export const MobileBottomNav: React.FC = () => {
         <UserRound
           className="w-5 h-5"
           fill={isActive ? '#F97316' : 'none'}
-          color={isActive ? '#F97316' : '#6B7280'}
+          color={isActive ? '#F97316' : 'currentColor'}
           strokeWidth={2}
         />
       );
@@ -218,7 +321,7 @@ export const MobileBottomNav: React.FC = () => {
       <FallbackIcon
         className="w-5 h-5"
         fill={isActive ? '#F97316' : 'none'}
-        color={isActive ? '#F97316' : '#6B7280'}
+        color={isActive ? '#F97316' : 'currentColor'}
         strokeWidth={2}
       />
     ) : null;
@@ -227,7 +330,7 @@ export const MobileBottomNav: React.FC = () => {
   return (
     <nav
       aria-label="Navigasi Utama Mobile & Tablet"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#FFFFFF] border-t border-[#E5E7EB] px-3 py-1.5 shadow-sm"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#FFFFFF] dark:bg-[#262626] border-t border-[#E5E7EB] dark:border-[#404040] px-3 py-1.5 shadow-sm"
     >
       <div className="flex items-center justify-around max-w-xl mx-auto">
         {navTabs.map((tab) => {
@@ -243,7 +346,7 @@ export const MobileBottomNav: React.FC = () => {
                 }
               >
                 {({ isActive }) => (
-                  <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white relative shadow-md border-3 border-white hover:bg-[#EA580C] transition-colors">
+                  <div className="w-[60px] h-[60px] rounded-full bg-[#F97316] text-white relative shadow-md border-3 border-white dark:border-[#262626] hover:bg-[#EA580C] transition-colors">
                     <NavScannerFabIcon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px]" />
                   </div>
                 )}
@@ -259,7 +362,7 @@ export const MobileBottomNav: React.FC = () => {
                 `flex flex-col items-center justify-center py-1 px-1.5 transition-colors flex-1 max-w-[72px] ${
                   isActive
                     ? 'text-[#F97316] font-semibold'
-                    : 'text-[#6B7280] hover:text-[#111827]'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`
               }
             >
@@ -275,7 +378,7 @@ export const MobileBottomNav: React.FC = () => {
                             ? { duration: 0 }
                             : { duration: 0.25, ease: 'easeOut' }
                         }
-                        className="absolute inset-0 bg-[#FFEDD5] rounded-full origin-center"
+                        className="absolute inset-0 bg-[#FFEDD5] dark:bg-[#431F0B] rounded-full origin-center"
                       />
                     )}
                     <motion.span

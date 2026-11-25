@@ -500,11 +500,11 @@ export const EmployeeImportModal: React.FC<EmployeeImportModalProps> = ({
       aria-modal="true"
       aria-labelledby="employee-import-modal-title"
     >
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#222222] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 py-4 border-b border-[#E5E7EB] dark:border-[#404040] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-[#FFEDD5] border border-orange-200 text-[#F97316] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#FFEDD5] dark:bg-orange-950/50 border border-orange-200 dark:border-orange-800 text-[#F97316] flex items-center justify-center shrink-0">
               {step === 'account-prep' ||
               step === 'account-confirm' ||
               step === 'account-progress' ||
@@ -517,11 +517,11 @@ export const EmployeeImportModal: React.FC<EmployeeImportModalProps> = ({
             <div className="min-w-0">
               <h3
                 id="employee-import-modal-title"
-                className="text-sm sm:text-base font-bold text-[#111827] truncate"
+                className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] truncate"
               >
                 Impor Pegawai Massal & Pembuatan Akun
               </h3>
-              <p className="text-[11px] sm:text-xs text-[#6B7280] truncate">
+              <p className="text-[11px] sm:text-xs text-[#6B7280] dark:text-[#A3A3A3] truncate">
                 {step === 'upload' &&
                   'Unduh template resmi Tamaki, isi data pegawai, lalu unggah untuk pratinjau.'}
                 {step === 'preview' &&
@@ -544,7 +544,7 @@ export const EmployeeImportModal: React.FC<EmployeeImportModalProps> = ({
             onClick={handleSafeClose}
             disabled={isBusy}
             aria-label="Tutup modal impor"
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer disabled:opacity-40"
+            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer disabled:opacity-40"
           >
             <X className="w-5 h-5" />
           </button>

@@ -192,7 +192,7 @@ export const LocationsPage: React.FC = () => {
 
       {/* Header Section */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Lokasi
         </h1>
 
@@ -212,50 +212,50 @@ export const LocationsPage: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Total Lokasi */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs">
-          <div className="w-12 h-12 rounded-xl bg-zinc-100 text-[#111827] flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-[#111827] dark:text-zinc-200 flex items-center justify-center shrink-0">
             <Building2 className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs font-medium text-[#6B7280]">Total Lokasi</p>
-            <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+            <p className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Total Lokasi</p>
+            <p className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB]">
               {isLoading ? '-' : totalCount}
             </p>
-            <p className="text-[11px] text-[#9CA3AF]">Terdaftar dalam sistem</p>
+            <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373]">Terdaftar dalam sistem</p>
           </div>
         </div>
 
         {/* Card 2: Lokasi Aktif */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Power className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs font-medium text-[#6B7280]">Lokasi Aktif</p>
-            <p className="text-xl sm:text-2xl font-bold text-emerald-700">
+            <p className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Lokasi Aktif</p>
+            <p className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400">
               {isLoading ? '-' : activeCount}
             </p>
-            <p className="text-[11px] text-[#9CA3AF]">Status operasional aktif</p>
+            <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373]">Status operasional aktif</p>
           </div>
         </div>
 
         {/* Card 3: Lokasi Presensi Aktif */}
-        <div className="bg-white border border-[#F97316]/30 rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs bg-gradient-to-br from-white to-orange-50/30">
-          <div className="w-12 h-12 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-[#262626] border border-[#F97316]/30 dark:border-orange-800 rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-2xs bg-gradient-to-br from-white to-orange-50/30 dark:from-[#262626] dark:to-orange-950/20">
+          <div className="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-950/50 text-[#F97316] flex items-center justify-center shrink-0">
             <Radio className="w-6 h-6" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-[#F97316] uppercase tracking-wide">
               Titik Presensi Aktif
             </p>
-            <p className="text-sm sm:text-base font-bold text-[#111827] truncate mt-0.5">
+            <p className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] truncate mt-0.5">
               {isLoading
                 ? '...'
                 : attendanceActiveLocations.length > 0
                 ? `${attendanceActiveLocations.length} Titik Presensi Aktif`
                 : 'Belum Ditentukan'}
             </p>
-            <p className="text-[11px] text-[#6B7280] truncate">
+            <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] truncate">
               {attendanceActiveLocations.length > 0
                 ? attendanceActiveLocations
                     .map((l) => l.name)
@@ -271,17 +271,17 @@ export const LocationsPage: React.FC = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-3">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs space-y-3">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari lokasi berdasarkan nama, kode, atau alamat..."
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
             />
           </div>
 
@@ -291,22 +291,22 @@ export const LocationsPage: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-              className="px-3 py-2 text-xs bg-white border border-[#E5E7EB] rounded-xl text-[#374151] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
+              className="px-3 py-2 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#374151] dark:text-[#D4D4D4] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
             >
-              <option value="all">Semua Status</option>
-              <option value="active">Aktif</option>
-              <option value="inactive">Nonaktif</option>
+              <option value="all" className="dark:bg-[#202020]">Semua Status</option>
+              <option value="active" className="dark:bg-[#202020]">Aktif</option>
+              <option value="inactive" className="dark:bg-[#202020]">Nonaktif</option>
             </select>
 
             {/* Attendance Filter */}
             <select
               value={attendanceFilter}
               onChange={(e) => setAttendanceFilter(e.target.value as 'all' | 'enabled' | 'disabled')}
-              className="px-3 py-2 text-xs bg-white border border-[#E5E7EB] rounded-xl text-[#374151] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
+              className="px-3 py-2 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#374151] dark:text-[#D4D4D4] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
             >
-              <option value="all">Semua Fungsi Presensi</option>
-              <option value="enabled">Lokasi Presensi</option>
-              <option value="disabled">Bukan Lokasi Presensi</option>
+              <option value="all" className="dark:bg-[#202020]">Semua Fungsi Presensi</option>
+              <option value="enabled" className="dark:bg-[#202020]">Lokasi Presensi</option>
+              <option value="disabled" className="dark:bg-[#202020]">Bukan Lokasi Presensi</option>
             </select>
 
             {(searchQuery || statusFilter !== 'all' || attendanceFilter !== 'all') && (
@@ -317,7 +317,7 @@ export const LocationsPage: React.FC = () => {
                   setStatusFilter('all');
                   setAttendanceFilter('all');
                 }}
-                className="px-2.5 py-2 text-xs font-semibold text-[#F97316] hover:bg-orange-50 rounded-xl transition-colors cursor-pointer"
+                className="px-2.5 py-2 text-xs font-semibold text-[#F97316] hover:bg-orange-50 dark:hover:bg-orange-950/40 rounded-xl transition-colors cursor-pointer"
               >
                 Reset
               </button>
@@ -410,10 +410,10 @@ export const LocationsPage: React.FC = () => {
         {!isLoading && !errorMessage && filteredLocations.length > 0 && (
           <div className="space-y-4">
             {/* Desktop Table View */}
-            <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+            <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-zinc-50/80 border-b border-[#E5E7EB] text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+                  <tr className="bg-zinc-50/80 dark:bg-[#212121] border-b border-[#E5E7EB] dark:border-[#404040] text-[11px] font-bold uppercase tracking-wider text-[#6B7280] dark:text-[#D4D4D4]">
                     <th className="py-3.5 px-5">Nama Lokasi & Kode</th>
                     <th className="py-3.5 px-4">Tipe</th>
                     <th className="py-3.5 px-4">Koordinat GPS</th>
@@ -423,15 +423,15 @@ export const LocationsPage: React.FC = () => {
                     <th className="py-3.5 px-5 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB] text-xs">
+                <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#333333] text-xs">
                   {filteredLocations.map((loc) => {
                     const hasCoords = loc.latitude !== null && loc.longitude !== null;
 
                     return (
                       <tr
                         key={loc.id}
-                        className={`hover:bg-zinc-50/60 transition-colors ${
-                          loc.isAttendanceEnabled ? 'bg-orange-50/20' : ''
+                        className={`hover:bg-zinc-50/60 dark:hover:bg-[#202020] transition-colors ${
+                          loc.isAttendanceEnabled ? 'bg-orange-50/20 dark:bg-orange-950/20' : ''
                         }`}
                       >
                         {/* Name & Code */}
@@ -440,22 +440,22 @@ export const LocationsPage: React.FC = () => {
                             <div
                               className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                                 loc.isAttendanceEnabled
-                                  ? 'bg-orange-100 text-[#F97316]'
-                                  : 'bg-zinc-100 text-[#6B7280]'
+                                  ? 'bg-orange-100 dark:bg-orange-950/50 text-[#F97316]'
+                                  : 'bg-zinc-100 dark:bg-zinc-800 text-[#6B7280] dark:text-zinc-300'
                               }`}
                             >
                               <MapPin className="w-4 h-4" />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-bold text-sm text-[#111827] truncate">
+                              <p className="font-bold text-sm text-[#111827] dark:text-[#F9FAFB] truncate">
                                 {loc.name}
                               </p>
                               <div className="flex items-center gap-2 mt-0.5">
-                                <span className="font-mono text-[11px] font-bold text-[#6B7280]">
+                                <span className="font-mono text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3]">
                                   {loc.code}
                                 </span>
                                 {loc.address && (
-                                  <span className="text-[11px] text-[#9CA3AF] truncate max-w-[200px]">
+                                  <span className="text-[11px] text-[#9CA3AF] dark:text-[#737373] truncate max-w-[200px]">
                                     • {loc.address}
                                   </span>
                                 )}
@@ -472,30 +472,30 @@ export const LocationsPage: React.FC = () => {
                         {/* Coordinates */}
                         <td className="py-4 px-4">
                           {hasCoords ? (
-                            <div className="font-mono text-xs font-semibold text-[#111827]">
+                            <div className="font-mono text-xs font-semibold text-[#111827] dark:text-[#F9FAFB]">
                               {loc.latitude?.toFixed(6)}, {loc.longitude?.toFixed(6)}
                             </div>
                           ) : (
-                            <span className="text-amber-700 italic text-[11px]">
+                            <span className="text-amber-700 dark:text-amber-400 italic text-[11px]">
                               Koordinat belum diatur
                             </span>
                           )}
                         </td>
 
                         {/* Radius */}
-                        <td className="py-4 px-4 font-semibold text-[#111827]">
+                        <td className="py-4 px-4 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                           {loc.radiusMeters} Meter
                         </td>
 
                         {/* Attendance Status */}
                         <td className="py-4 px-4">
                           {loc.isAttendanceEnabled ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-orange-800 bg-orange-100/90 rounded-full">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-orange-800 dark:text-orange-300 bg-orange-100/90 dark:bg-orange-950/60 rounded-full">
                               <Radio className="w-3 h-3 text-[#F97316]" />
                               Lokasi Presensi
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium text-[#6B7280] bg-zinc-100 rounded-full">
+                            <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium text-[#6B7280] dark:text-[#A3A3A3] bg-zinc-100 dark:bg-zinc-800 rounded-full">
                               Bukan Lokasi Presensi
                             </span>
                           )}
@@ -504,11 +504,11 @@ export const LocationsPage: React.FC = () => {
                         {/* Active Status */}
                         <td className="py-4 px-4">
                           {loc.isActive ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full">
+                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 rounded-full">
                               Aktif
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-zinc-500 bg-zinc-100 rounded-full">
+                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-full">
                               Nonaktif
                             </span>
                           )}
@@ -521,7 +521,7 @@ export const LocationsPage: React.FC = () => {
                               type="button"
                               onClick={() => handleOpenDetail(loc)}
                               title="Lihat Detail Lokasi"
-                              className="p-1.5 text-[#6B7280] hover:text-[#111827] hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
+                              className="p-1.5 text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
@@ -532,7 +532,7 @@ export const LocationsPage: React.FC = () => {
                                   type="button"
                                   onClick={() => handleOpenEdit(loc)}
                                   title="Edit Lokasi"
-                                  className="p-1.5 text-[#6B7280] hover:text-[#F97316] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                                  className="p-1.5 text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#F97316] hover:bg-orange-50 dark:hover:bg-orange-950/40 rounded-lg transition-colors cursor-pointer"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
@@ -556,8 +556,8 @@ export const LocationsPage: React.FC = () => {
                                     }
                                     className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                                       loc.isAttendanceEnabled
-                                        ? 'text-orange-600 hover:bg-orange-50'
-                                        : 'text-[#6B7280] hover:text-orange-600 hover:bg-orange-50'
+                                        ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/40'
+                                        : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/40'
                                     }`}
                                   >
                                     <Radio className="w-4 h-4" />
@@ -576,8 +576,8 @@ export const LocationsPage: React.FC = () => {
                                   title={loc.isActive ? 'Nonaktifkan Lokasi' : 'Aktifkan Lokasi'}
                                   className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                                     loc.isActive
-                                      ? 'text-[#6B7280] hover:text-red-600 hover:bg-red-50'
-                                      : 'text-emerald-600 hover:bg-emerald-50'
+                                      ? 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
+                                      : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                                   }`}
                                 >
                                   <Power className="w-4 h-4" />
@@ -601,10 +601,10 @@ export const LocationsPage: React.FC = () => {
                 return (
                   <div
                     key={loc.id}
-                    className={`bg-white border rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs ${
+                    className={`bg-white dark:bg-[#262626] border rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs ${
                       loc.isAttendanceEnabled
-                        ? 'border-orange-200 bg-gradient-to-br from-white to-orange-50/20'
-                        : 'border-[#E5E7EB]'
+                        ? 'border-orange-200 dark:border-orange-800 bg-gradient-to-br from-white to-orange-50/20 dark:from-[#262626] dark:to-orange-950/20'
+                        : 'border-[#E5E7EB] dark:border-[#404040]'
                     }`}
                   >
                     {/* Header: Name, Code & Status */}

@@ -689,19 +689,19 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/75 backdrop-blur-xs p-3 sm:p-4">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#E5E7EB] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-[#E5E7EB] dark:border-[#404040] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] border border-orange-200 dark:border-[#9A3412]/60 text-[#F97316] flex items-center justify-center shrink-0">
               <Camera className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#111827] leading-tight">
+              <h3 className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight">
                 {title}
               </h3>
-              <p className="text-xs text-[#6B7280] mt-0.5">{description}</p>
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-0.5">{description}</p>
             </div>
           </div>
           <button
@@ -709,7 +709,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
             onClick={handleCancel}
             disabled={isConfirming}
             aria-label="Tutup modal kamera"
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" />
           </button>
@@ -795,13 +795,13 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
 
           {/* Feedback / Error Message Banner (When in captured or streaming state) */}
           {errorMessage && cameraStatus !== 'error' && (
-            <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-[11px] text-red-700">
+            <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 flex items-start gap-2 text-[11px] text-red-700 dark:text-red-300">
               <p className="font-medium">{errorMessage}</p>
             </div>
           )}
 
           {/* Micro-copy information banner */}
-          <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-2 text-[11px] text-[#6B7280]">
+          <div className="p-2.5 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] flex items-start gap-2 text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
             <Info className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
             <p>
               Pastikan pencahayaan cukup dan wajah terlihat jelas tanpa mengenakan masker tebal atau kacamata hitam.
@@ -810,7 +810,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-[#E5E7EB] bg-gray-50 flex items-center justify-end gap-2.5">
+        <div className="p-4 sm:p-5 border-t border-[#E5E7EB] dark:border-[#404040] bg-gray-50 dark:bg-[#1E1E1E] flex items-center justify-end gap-2.5">
           <Button
             type="button"
             variant="outline"

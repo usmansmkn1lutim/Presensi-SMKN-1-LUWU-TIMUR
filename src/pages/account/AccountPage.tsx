@@ -5,7 +5,7 @@ import {
   ShieldCheck,
   Languages,
   Bell,
-  Sun,
+  Moon,
   Info,
   LogOut,
   ChevronRight,
@@ -15,11 +15,14 @@ import {
   FileText,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { UserAvatar } from '../../components/ui/UserAvatar';
 import { LogoutConfirmModal } from '../../components/ui/LogoutConfirmModal';
+import { ThemePreferenceControl } from '../../components/ui/ThemePreferenceControl';
 
 export const AccountPage: React.FC = () => {
   const { user, profile, session, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -59,63 +62,63 @@ export const AccountPage: React.FC = () => {
     <div className="space-y-6 pb-12 font-sans max-w-2xl mx-auto">
       {/* Header Halaman */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Akun Saya
         </h1>
       </div>
 
       {/* Identitas Pengguna: Nama dan Email (Tanpa Role dan Tanpa Badge Status) */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-xs flex items-center gap-4">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-xs flex items-center gap-4">
         <div className="shrink-0">
           <UserAvatar
             userId={user?.id}
             avatarUrl={profile?.avatar_url || user?.avatarUrl}
             photoUrl={user?.photoUrl}
             name={displayName}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border border-[#E5E7EB] shadow-2xs"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shadow-2xs"
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-base sm:text-lg font-bold text-[#111827] truncate leading-tight">
+          <h2 className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F9FAFB] truncate leading-tight">
             {displayName}
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B7280] truncate mt-1 leading-tight">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#A3A3A3] truncate mt-1 leading-tight">
             {displayEmail}
           </p>
         </div>
       </div>
 
       {/* Kelompok Menu Pertama (Menu Akun & Tema) */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-xs overflow-hidden divide-y divide-[#F3F4F6]">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xs overflow-hidden divide-y divide-[#F3F4F6] dark:divide-[#404040]">
         {/* 1. Profil Saya */}
         <button
           type="button"
           onClick={() => navigate('/profile')}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <UserIcon className="w-5 h-5 text-[#6B7280] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <UserIcon className="w-5 h-5 text-[#6B7280] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Profil Saya
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
 
-        {/* 2. Tema */}
-        <div className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left select-none">
+        {/* 2. Dark mode */}
+        <div className="w-full flex items-center justify-between gap-3 min-h-[52px] px-4 py-2.5 text-left">
           <div className="flex items-center gap-3.5 min-w-0">
-            <Sun className="w-5 h-5 text-[#F97316] shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
-              Tema
+            <Moon
+              className={`w-5 h-5 shrink-0 transition-colors ${
+                theme === 'dark' ? 'text-[#F97316]' : 'text-[#4B5563] dark:text-[#A3A3A3]'
+              }`}
+            />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
+              Dark mode
             </span>
           </div>
-          <div
-            className="w-11 h-6 bg-[#F97316] rounded-full p-0.5 transition-colors cursor-not-allowed opacity-90"
-            aria-hidden="true"
-            title="Tema Gelap belum tersedia"
-          >
-            <div className="w-5 h-5 bg-white rounded-full shadow-md transform translate-x-5 transition-transform" />
+          <div className="shrink-0">
+            <ThemePreferenceControl variant="toggle" />
           </div>
         </div>
 
@@ -123,108 +126,108 @@ export const AccountPage: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('/account/language')}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <Languages className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <Languages className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Bahasa
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
 
         {/* 4. Notifikasi */}
         <button
           type="button"
           onClick={() => navigate('/account/notifications')}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <Bell className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <Bell className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Notifikasi
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
 
         {/* 5. Keamanan */}
         <button
           type="button"
           onClick={() => navigate('/account/security')}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <ShieldCheck className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <ShieldCheck className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Keamanan
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
       </div>
 
       {/* Kelompok Menu Kedua (Informasi) */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-xs overflow-hidden divide-y divide-[#F3F4F6]">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xs overflow-hidden divide-y divide-[#F3F4F6] dark:divide-[#404040]">
         {/* 1. Tentang Tamaki */}
         <button
           type="button"
           onClick={() => navigate('/about')}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <Info className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <Info className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Tentang Tamaki
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
 
         {/* 2. Bantuan & Dukungan */}
         <button
           type="button"
           onClick={() => {}}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <Headset className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <Headset className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Bantuan & Dukungan
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
 
         {/* 3. Syarat & Ketentuan */}
         <button
           type="button"
           onClick={() => {}}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <FileText className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <FileText className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Syarat & Ketentuan
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
 
         {/* 4. Kebijakan Privasi */}
         <button
           type="button"
           onClick={() => {}}
-          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+          className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#303030] transition-colors cursor-pointer group"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <ShieldCheck className="w-5 h-5 text-[#4B5563] group-hover:text-[#F97316] transition-colors shrink-0" />
-            <span className="text-sm font-semibold text-[#111827] truncate">
+            <ShieldCheck className="w-5 h-5 text-[#4B5563] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
+            <span className="text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] truncate">
               Kebijakan Privasi
             </span>
           </div>
-          <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] transition-colors shrink-0" />
         </button>
       </div>
 

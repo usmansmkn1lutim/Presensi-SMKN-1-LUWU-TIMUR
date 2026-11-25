@@ -99,34 +99,34 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
 
   const resolveStatusClass = (label?: string | null, customClass?: string) => {
     if (customClass) return customClass;
-    if (!label) return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+    if (!label) return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900';
 
     if (label.includes('Tepat Waktu') || label === 'Hadir' || label === 'Jam Operasional') {
-      return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900';
     }
     if (label.includes('Terlambat')) {
-      return 'bg-amber-50 text-amber-700 border border-amber-200';
+      return 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900';
     }
     if (label === 'Sakit') {
-      return 'bg-blue-50 text-blue-700 border border-blue-200';
+      return 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
     }
     if (label === 'Izin') {
-      return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
+      return 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900';
     }
     if (label === 'Dinas Luar') {
-      return 'bg-purple-50 text-purple-700 border border-purple-200';
+      return 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-900';
     }
     if (label === 'Cuti') {
-      return 'bg-teal-50 text-teal-700 border border-teal-200';
+      return 'bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-900';
     }
     if (label === 'Alpha' || label === 'Alfa') {
-      return 'bg-rose-50 text-rose-700 border border-rose-200';
+      return 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900';
     }
     if (label === 'Libur' || label === 'Akhir Pekan') {
-      return 'bg-gray-100 text-gray-700 border border-gray-200';
+      return 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 border border-gray-200 dark:border-zinc-700';
     }
 
-    return 'bg-[#FFF7ED] text-[#F97316] border border-orange-200';
+    return 'bg-[#FFF7ED] dark:bg-orange-950/50 text-[#F97316] border border-orange-200 dark:border-orange-900';
   };
 
   const isCheckIn = type === 'check_in';
@@ -138,18 +138,18 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
 
   return (
     <>
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col gap-3 transition-all hover:border-slate-300">
+      <div className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col gap-3 transition-all hover:border-slate-300 dark:hover:border-zinc-700">
         <div className="flex items-center gap-4">
           {/* Left: Selfie Photo Preview */}
           <div className="shrink-0">
             {loadingUrl ? (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-100 border border-slate-200 animate-pulse flex items-center justify-center">
-                <span className="text-[10px] text-slate-400">Memuat...</span>
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 animate-pulse flex items-center justify-center">
+                <span className="text-[10px] text-slate-400 dark:text-zinc-500">Memuat...</span>
               </div>
             ) : signedUrl && !imageError ? (
               <div
                 onClick={() => setIsModalOpen(true)}
-                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer group shadow-2xs"
+                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 cursor-pointer group shadow-2xs"
                 title="Klik untuk memperbesar foto"
               >
                 <img
@@ -165,9 +165,9 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center justify-center text-slate-400 text-center p-2">
-                <ImageIcon className="w-5 h-5 text-slate-300 mb-1" />
-                <span className="text-[10px] leading-tight text-slate-500 font-medium">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 flex flex-col items-center justify-center text-slate-400 dark:text-zinc-500 text-center p-2">
+                <ImageIcon className="w-5 h-5 text-slate-300 dark:text-zinc-600 mb-1" />
+                <span className="text-[10px] leading-tight text-slate-500 dark:text-zinc-400 font-medium">
                   Foto tidak tersedia
                 </span>
               </div>
@@ -177,7 +177,7 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
           {/* Right: Info */}
           <div className="flex-1 min-w-0 space-y-1.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
                 <IconComponent className="w-4 h-4 text-[#F97316]" />
                 {labelText}
               </span>
@@ -194,20 +194,20 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
               )}
             </div>
 
-            <div className="text-sm font-bold text-[#111827]">
+            <div className="text-sm font-bold text-[#111827] dark:text-[#F3F4F6]">
               {formattedTime}
             </div>
 
-            <hr className="border-t border-[#E5E7EB] my-1" />
+            <hr className="border-t border-[#E5E7EB] dark:border-[#333] my-1" />
 
-            <div className="space-y-1 text-xs text-slate-500">
+            <div className="space-y-1 text-xs text-slate-500 dark:text-zinc-400">
               <div className="flex items-center gap-1.5 truncate">
-                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 shrink-0" />
                 <span className="truncate">{formattedDate}</span>
               </div>
               <div className="flex items-center gap-1.5 truncate">
                 <MapPin className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
-                <span className="truncate font-medium text-slate-700">{resolvedLocation}</span>
+                <span className="truncate font-medium text-slate-700 dark:text-zinc-300">{resolvedLocation}</span>
               </div>
             </div>
           </div>
@@ -215,17 +215,17 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
 
         {/* Accordion Catatan */}
         {notes && notes.trim().length > 0 && (
-          <div className="pt-2.5 border-t border-[#E5E7EB] mt-0.5">
+          <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#333] mt-0.5">
             <button
               type="button"
               onClick={() => setIsNotesOpen((prev) => !prev)}
-              className="w-full flex items-center justify-between text-xs font-semibold text-[#4B5563] hover:text-[#F97316] transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between text-xs font-semibold text-[#4B5563] dark:text-zinc-300 hover:text-[#F97316] dark:hover:text-orange-400 transition-colors cursor-pointer"
             >
               <span className="flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-[#F97316]" />
                 <span>Catatan / Alasan</span>
               </span>
-              <span className="text-[11px] text-[#6B7280] flex items-center gap-1 font-normal">
+              <span className="text-[11px] text-[#6B7280] dark:text-zinc-400 flex items-center gap-1 font-normal">
                 {isNotesOpen ? 'Sembunyikan' : 'Lihat Catatan'}
                 {isNotesOpen ? (
                   <ChevronUp className="w-3.5 h-3.5" />
@@ -235,7 +235,7 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
               </span>
             </button>
             {isNotesOpen && (
-              <div className="mt-2 p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-[#374151] leading-relaxed animate-in fade-in duration-150">
+              <div className="mt-2 p-2.5 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] text-xs text-[#374151] dark:text-zinc-200 leading-relaxed animate-in fade-in duration-150">
                 {notes}
               </div>
             )}
@@ -250,17 +250,17 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="relative bg-white rounded-2xl max-w-md w-full p-4 shadow-2xl space-y-3"
+            className="relative bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl max-w-md w-full p-4 shadow-2xl space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-[#333]">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
                 <IconComponent className="w-4 h-4 text-[#F97316]" />
                 Pratinjau Foto {labelText} — {formattedDate}
               </span>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -274,11 +274,11 @@ export const AttendanceSelfieCard: React.FC<AttendanceSelfieCardProps> = ({
               />
             </div>
 
-            <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
-              <span>Waktu: <strong className="text-slate-800">{formattedTime}</strong></span>
+            <div className="flex justify-between items-center text-xs text-slate-500 dark:text-zinc-400 pt-1">
+              <span>Waktu: <strong className="text-slate-800 dark:text-zinc-200">{formattedTime}</strong></span>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 rounded-xl font-medium transition-colors cursor-pointer"
               >
                 Tutup
               </button>

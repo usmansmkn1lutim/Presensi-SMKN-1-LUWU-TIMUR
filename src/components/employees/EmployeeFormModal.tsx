@@ -274,19 +274,19 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-2xl w-full my-8 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/75 backdrop-blur-2xs p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xl max-w-2xl w-full my-8 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 border-b border-[#E5E7EB] dark:border-[#404040] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-[#F97316] dark:text-orange-400 flex items-center justify-center">
               <User className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">
+              <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
                 {isEditMode ? 'Ubah Data Pegawai' : 'Tambah Pegawai Baru'}
               </h3>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 {isEditMode
                   ? 'Perbarui rincian kepegawaian dan informasi kontak'
                   : 'Lengkapi biodata dan informasi penugasan pegawai'}
@@ -295,7 +295,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -305,20 +305,20 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 flex-1 text-xs">
           {/* Error Alert */}
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
 
           {/* Section 0: Foto Profil GTK */}
-          <div className="space-y-3 pb-3 border-b border-[#E5E7EB]">
-            <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] text-[#F97316]">
+          <div className="space-y-3 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+            <h4 className="font-bold text-[#111827] dark:text-[#F9FAFB] uppercase tracking-wider text-[11px] text-[#F97316] dark:text-orange-400">
               Foto Profil GTK (Opsional)
             </h4>
 
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-[#FFF7ED] border border-[#E5E7EB] text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden relative">
+              <div className="w-16 h-16 rounded-full bg-[#FFF7ED] dark:bg-orange-950/40 border border-[#E5E7EB] dark:border-[#404040] text-[#F97316] dark:text-orange-400 flex items-center justify-center font-bold text-xl overflow-hidden relative">
                 {photoPreviewUrl ? (
                   <img
                     src={photoPreviewUrl}
@@ -351,14 +351,14 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                       size="sm"
                       onClick={handleRemovePhotoClick}
                       disabled={isSubmitting}
-                      leftIcon={<Trash2 className="w-3.5 h-3.5 text-red-600" />}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      leftIcon={<Trash2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />}
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 border-red-200 dark:border-red-800/60"
                     >
                       Hapus
                     </Button>
                   )}
                 </div>
-                <p className="text-[11px] text-[#6B7280]">
+                <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                   Format otomatis dikonversi ke WebP, rasio persegi, ukuran maksimal 2MB.
                 </p>
 
@@ -375,7 +375,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
           {/* Section 1: Data Pokok */}
           <div className="space-y-3.5">
-            <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] text-[#F97316]">
+            <h4 className="font-bold text-[#111827] dark:text-[#F9FAFB] uppercase tracking-wider text-[11px] text-[#F97316] dark:text-orange-400">
               1. Identitas Pokok Pegawai
             </h4>
 
@@ -422,33 +422,33 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-[#374151] mb-1.5">
+                <label className="block font-semibold text-[#374151] dark:text-slate-300 mb-1.5">
                   Jenis Kelamin
                 </label>
                 <select
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value as 'male' | 'female' | '' })}
                   disabled={isSubmitting}
-                  className="w-full h-10 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                  className="w-full h-10 px-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
                 >
-                  <option value="">Pilih Jenis Kelamin</option>
-                  <option value="male">Laki-laki</option>
-                  <option value="female">Perempuan</option>
+                  <option value="" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Pilih Jenis Kelamin</option>
+                  <option value="male" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Laki-laki</option>
+                  <option value="female" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Perempuan</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-semibold text-[#374151] mb-1.5">
+                <label className="block font-semibold text-[#374151] dark:text-slate-300 mb-1.5">
                   Jenis / Status Kepegawaian
                 </label>
                 <select
                   value={formData.employee_type}
                   onChange={(e) => setFormData({ ...formData, employee_type: e.target.value })}
                   disabled={isSubmitting}
-                  className="w-full h-10 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                  className="w-full h-10 px-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
                 >
                   {COMMON_EMPLOYEE_TYPES.map((type) => (
-                    <option key={type} value={type}>
+                    <option key={type} value={type} className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">
                       {type}
                     </option>
                   ))}
@@ -458,25 +458,25 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
           </div>
 
           {/* Section 2: Unit Kerja & Jabatan */}
-          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB]">
-            <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] text-[#F97316]">
+          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB] dark:border-[#404040]">
+            <h4 className="font-bold text-[#111827] dark:text-[#F9FAFB] uppercase tracking-wider text-[11px] text-[#F97316] dark:text-orange-400">
               2. Satuan Kerja & Jabatan
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-[#374151] mb-1.5">
+                <label className="block font-semibold text-[#374151] dark:text-slate-300 mb-1.5">
                   Departemen / Unit Kerja
                 </label>
                 <select
                   value={formData.department_id}
                   onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
                   disabled={isSubmitting || isLoadingMaster}
-                  className="w-full h-10 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                  className="w-full h-10 px-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
                 >
-                  <option value="">Pilih Departemen</option>
+                  <option value="" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Pilih Departemen</option>
                   {departments.map((dept) => (
-                    <option key={dept.id} value={dept.id}>
+                    <option key={dept.id} value={dept.id} className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">
                       {dept.name}
                     </option>
                   ))}
@@ -484,18 +484,18 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-[#374151] mb-1.5">
+                <label className="block font-semibold text-[#374151] dark:text-slate-300 mb-1.5">
                   Jabatan / Tugas Pokok
                 </label>
                 <select
                   value={formData.position_id}
                   onChange={(e) => setFormData({ ...formData, position_id: e.target.value })}
                   disabled={isSubmitting || isLoadingMaster}
-                  className="w-full h-10 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                  className="w-full h-10 px-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
                 >
-                  <option value="">Pilih Jabatan</option>
+                  <option value="" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Pilih Jabatan</option>
                   {positions.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
+                    <option key={pos.id} value={pos.id} className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">
                       {pos.name}
                     </option>
                   ))}
@@ -515,25 +515,25 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-[#374151] mb-1.5">
+                <label className="block font-semibold text-[#374151] dark:text-slate-300 mb-1.5">
                   Status Keaktifan Pegawai
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
                   disabled={isSubmitting}
-                  className="w-full h-10 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                  className="w-full h-10 px-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
                 >
-                  <option value="active">Aktif (Aktif Bekerja)</option>
-                  <option value="inactive">Tidak Aktif (Cuti / Mutasi / Nonaktif)</option>
+                  <option value="active" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Aktif (Aktif Bekerja)</option>
+                  <option value="inactive" className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">Tidak Aktif (Cuti / Mutasi / Nonaktif)</option>
                 </select>
               </div>
             </div>
           </div>
 
           {/* Section 3: Kontak & Informasi Tambahan */}
-          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB]">
-            <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] text-[#F97316]">
+          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB] dark:border-[#404040]">
+            <h4 className="font-bold text-[#111827] dark:text-[#F9FAFB] uppercase tracking-wider text-[11px] text-[#F97316] dark:text-orange-400">
               3. Kontak & Catatan
             </h4>
 
@@ -560,7 +560,7 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-[#374151] mb-1.5">
+              <label className="block font-semibold text-[#374151] dark:text-slate-300 mb-1.5">
                 Catatan Tambahan (Opsional)
               </label>
               <textarea
@@ -569,13 +569,13 @@ export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 disabled={isSubmitting}
-                className="w-full p-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                className="w-full p-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
               />
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="pt-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2.5">
+          <div className="pt-4 border-t border-[#E5E7EB] dark:border-[#404040] flex items-center justify-end gap-2.5">
             <Button
               type="button"
               variant="outline"

@@ -320,7 +320,7 @@ export const SettingsPage: React.FC = () => {
           className={`fixed bottom-5 right-5 z-[100] text-white px-4 py-3 rounded-xl shadow-lg border flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200 ${
             toastType === 'error'
               ? 'bg-[#991B1B] border-[#B91C1C]'
-              : 'bg-[#1F2937] border-[#374151]'
+              : 'bg-[#1F2937] dark:bg-[#303030] border-[#374151] dark:border-[#525252]'
           }`}
         >
           {toastType === 'error' ? (
@@ -334,13 +334,13 @@ export const SettingsPage: React.FC = () => {
 
       {/* Permission Restriction Banner */}
       {!canManageSettings && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-amber-900 shadow-2xs">
-          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-            <Lock className="w-4 h-4 text-amber-700" />
+        <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 flex items-center gap-3 text-amber-900 dark:text-amber-200 shadow-2xs">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4 text-amber-700 dark:text-amber-300" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold">Mode Hanya Lihat (Read-Only)</p>
-            <p className="text-[11px] text-amber-700 mt-0.5">
+            <p className="text-[11px] text-amber-700 dark:text-amber-300/90 mt-0.5">
               Akun Anda ({user?.role || 'Pengguna'}) tidak memiliki hak akses administrator. Pengaturan sistem hanya dapat diubah dan disimpan oleh Administrator atau Super Admin.
             </p>
           </div>
@@ -349,14 +349,14 @@ export const SettingsPage: React.FC = () => {
 
       {/* Remote Sync Warning Banner (Offline / Cloud Error) */}
       {remoteFetchError && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-3 text-amber-900 shadow-2xs">
+        <div className="bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 shadow-2xs">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4 h-4 text-amber-700" />
+            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-4 h-4 text-amber-700 dark:text-amber-300" />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold">Sinkronisasi Cloud Terkendala</p>
-              <p className="text-[11px] text-amber-700 truncate mt-0.5">
+              <p className="text-[11px] text-amber-700 dark:text-amber-300/90 truncate mt-0.5">
                 {remoteFetchError}. Menampilkan konfigurasi dari penyimpanan lokal.
               </p>
             </div>
@@ -376,14 +376,14 @@ export const SettingsPage: React.FC = () => {
 
       {/* Save Error Dismissible Banner */}
       {saveError && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start justify-between gap-3 text-red-900 shadow-2xs">
+        <div className="bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 rounded-2xl p-4 flex items-start justify-between gap-3 text-red-900 dark:text-red-200 shadow-2xs">
           <div className="flex items-start gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-              <AlertCircle className="w-4 h-4 text-red-700" />
+            <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/60 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-300" />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold">Gagal Menyimpan ke Supabase Database</p>
-              <p className="text-[11px] text-red-700 mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-red-700 dark:text-red-300/90 mt-0.5 leading-relaxed">
                 {saveError}. Formulir Anda tetap aman dan tidak di-reset. Silakan periksa koneksi lalu coba simpan kembali.
               </p>
             </div>
@@ -391,7 +391,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSaveError(null)}
-            className="text-red-400 hover:text-red-700 p-1 rounded-lg transition-colors"
+            className="text-red-400 hover:text-red-700 dark:hover:text-red-300 p-1 rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -399,46 +399,46 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Header Panel Mobile/Tablet (< 1024px) */}
-      <div className="lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+      <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#F97316]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#F97316] dark:text-orange-400">
                 Konfigurasi Sistem
               </span>
-              <span className="w-1 h-1 rounded-full bg-slate-300" />
+              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
               {isLoadingRemote ? (
-                <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   Menyinkronkan Cloud...
                 </span>
               ) : isSaving ? (
-                <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   Menyimpan ke Database...
                 </span>
               ) : saveStatus === 'error' ? (
-                <span className="inline-flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-semibold">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Penyimpanan Cloud Gagal
                 </span>
               ) : isDirty ? (
-                <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 font-semibold animate-pulse">
+                <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Ada perubahan yang belum disimpan
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
                   <Check className="w-3.5 h-3.5" />
                   Tersimpan di Cloud Supabase
                 </span>
               )}
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#111827] mt-1">
+            <h2 className="text-lg sm:text-xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1">
               Pengaturan Sistem
             </h2>
-            <p className="text-xs text-[#6B7280] mt-1">
-              Kelola konfigurasi dan preferensi aplikasi sekolah. <span className="font-semibold text-slate-700">Tersinkronisasi terpusat via Cloud Database Supabase.</span>
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-1">
+              Kelola konfigurasi dan preferensi aplikasi sekolah. <span className="font-semibold text-slate-700 dark:text-slate-300">Tersinkronisasi terpusat via Cloud Database Supabase.</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -473,34 +473,33 @@ export const SettingsPage: React.FC = () => {
 
       {/* Header Desktop (>= 1024px) */}
       <div className="hidden lg:flex items-center justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Pengaturan Sistem
         </h1>
 
         <div className="flex items-center gap-3">
-          {/* Ringkasan Status Sinkronisasi & Perubahan */}
           {isLoadingRemote ? (
-            <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+            <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               Menyinkronkan Cloud...
             </span>
           ) : isSaving ? (
-            <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold">
+            <span className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               Menyimpan ke Database...
             </span>
           ) : saveStatus === 'error' ? (
-            <span className="inline-flex items-center gap-1.5 text-xs text-red-600 font-semibold">
+            <span className="inline-flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-semibold">
               <AlertTriangle className="w-3.5 h-3.5" />
               Penyimpanan Cloud Gagal
             </span>
           ) : isDirty ? (
-            <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 font-semibold animate-pulse">
+            <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-semibold animate-pulse">
               <AlertTriangle className="w-3.5 h-3.5" />
               Ada perubahan yang belum disimpan
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
               <Check className="w-3.5 h-3.5" />
               Tersimpan di Cloud Supabase
             </span>
@@ -543,8 +542,8 @@ export const SettingsPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-3">
           
           {/* Desktop Left Sidebar Navigation */}
-          <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-4.5 shadow-2xs space-y-1">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3 mb-3">
+          <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4.5 shadow-2xs space-y-1">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 mb-3">
               Kategori Pengaturan
             </h3>
             {CATEGORIES.map((cat) => {
@@ -557,11 +556,11 @@ export const SettingsPage: React.FC = () => {
                   onClick={() => handleCategoryClick(cat.id)}
                   className={`w-full text-left px-3.5 py-3 rounded-xl transition-all duration-150 flex items-center gap-3 ${
                     isActive 
-                      ? 'bg-orange-50 text-[#EA580C] font-semibold border border-orange-100 shadow-3xs' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                      ? 'bg-orange-50 dark:bg-orange-950/40 text-[#EA580C] dark:text-orange-400 font-semibold border border-orange-100 dark:border-orange-900/50 shadow-3xs' 
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#303030] border border-transparent'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#EA580C]' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#EA580C] dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'}`} />
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs truncate leading-normal">{cat.label}</span>
                   </div>
@@ -571,7 +570,7 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Tablet Tab Bar (Visible on Tablet screen size) */}
-          <div className="hidden sm:block lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-2.5 shadow-2xs">
+          <div className="hidden sm:block lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-2.5 shadow-2xs">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
               {CATEGORIES.map((cat) => {
                 const Icon = cat.icon;
@@ -583,8 +582,8 @@ export const SettingsPage: React.FC = () => {
                     onClick={() => handleCategoryClick(cat.id)}
                     className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all ${
                       isActive 
-                        ? 'bg-orange-50 text-[#EA580C] border-orange-100 shadow-3xs' 
-                        : 'text-slate-600 hover:bg-slate-50 border-transparent'
+                        ? 'bg-orange-50 dark:bg-orange-950/40 text-[#EA580C] dark:text-orange-400 border-orange-100 dark:border-orange-900/50 shadow-3xs' 
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#303030] border-transparent'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -596,15 +595,15 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Mobile Select Dropdown Box (Visible on Phone screens) */}
-          <div className="block sm:hidden bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs">
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kategori Aktif</label>
+          <div className="block sm:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Kategori Aktif</label>
             <select
               value={activeCategory}
               onChange={(e) => handleCategoryClick(e.target.value as SettingsCategory)}
-              className="w-full h-11 text-sm font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316]"
+              className="w-full h-11 text-sm font-semibold text-slate-800 dark:text-white bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316]"
             >
               {CATEGORIES.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+                <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#262626] text-slate-800 dark:text-white">
                   {cat.label}
                 </option>
               ))}
@@ -613,16 +612,16 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Content Panel Area */}
-        <div className="lg:col-span-9 bg-white border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+        <div className="lg:col-span-9 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs">
           
           {/* 1. Kategori UMUM */}
           {activeCategory === 'umum' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#404040] pb-2">
                   Pengaturan Umum Instansi
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                   Konfigurasikan nama instansi, deskripsi sistem, dan logo resmi sekolah.
                 </p>
               </div>
@@ -630,7 +629,7 @@ export const SettingsPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Application Name */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">Nama Aplikasi</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Nama Aplikasi</label>
                   <input
                     type="text"
                     value={formSettings.general.appName}
@@ -639,13 +638,13 @@ export const SettingsPage: React.FC = () => {
                       general: { ...prev.general, appName: e.target.value }
                     }))}
                     disabled={!canManageSettings || isSaving}
-                    className="w-full h-11 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                    className="w-full h-11 text-sm bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl px-3 text-slate-800 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors disabled:bg-slate-100 dark:disabled:bg-[#303030] disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* School Name */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     Nama Sekolah <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -657,13 +656,13 @@ export const SettingsPage: React.FC = () => {
                     }))}
                     disabled={!canManageSettings || isSaving}
                     placeholder="Contoh: SMK NEGERI 1 LUWU TIMUR"
-                    className="w-full h-11 text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                    className="w-full h-11 text-sm bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl px-3 text-slate-800 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors disabled:bg-slate-100 dark:disabled:bg-[#303030] disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* Application Description */}
                 <div className="col-span-1 md:col-span-2 space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">Deskripsi Aplikasi</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Deskripsi Aplikasi</label>
                   <textarea
                     rows={2}
                     value={formSettings.general.appDesc}
@@ -672,13 +671,13 @@ export const SettingsPage: React.FC = () => {
                       general: { ...prev.general, appDesc: e.target.value }
                     }))}
                     disabled={!canManageSettings || isSaving}
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                    className="w-full text-sm bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl p-3 text-slate-800 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none disabled:bg-slate-100 dark:disabled:bg-[#303030] disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* School Address */}
                 <div className="col-span-1 md:col-span-2 space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">Alamat Sekolah</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Alamat Sekolah</label>
                   <textarea
                     rows={2}
                     value={formSettings.general.schoolAddress}
@@ -688,24 +687,24 @@ export const SettingsPage: React.FC = () => {
                     }))}
                     disabled={!canManageSettings || isSaving}
                     placeholder="Masukkan alamat sekolah secara lengkap..."
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                    className="w-full text-sm bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl p-3 text-slate-800 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:ring-2 focus:ring-orange-500/10 focus:border-[#F97316] transition-colors resize-none disabled:bg-slate-100 dark:disabled:bg-[#303030] disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 {/* School Logo */}
                 <div className="col-span-1 md:col-span-2 space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700">Logo Resmi Sekolah</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Logo Resmi Sekolah</label>
                     {formSettings.general.schoolLogo?.includes('school-assets') && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        <Check className="w-3 h-3 text-emerald-600" /> Supabase Storage (school-assets)
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800/60">
+                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Supabase Storage (school-assets)
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4.5 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                    <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4.5 p-4 bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl">
+                    <div className="w-16 h-16 rounded-xl bg-white dark:bg-[#262626] border border-slate-200 dark:border-[#404040] flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
                       {isUploadingLogo ? (
-                        <div className="w-full h-full bg-orange-50 flex flex-col items-center justify-center text-[#EA580C]">
+                        <div className="w-full h-full bg-orange-50 dark:bg-orange-950/40 flex flex-col items-center justify-center text-[#EA580C] dark:text-orange-400">
                           <RefreshCw className="w-5 h-5 animate-spin" />
                           <span className="text-[9px] font-bold mt-1">Upload...</span>
                         </div>
@@ -717,7 +716,7 @@ export const SettingsPage: React.FC = () => {
                           referrerPolicy="no-referrer"
                         />
                       ) : (
-                        <Building2 className="w-8 h-8 text-slate-300" />
+                        <Building2 className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                       )}
                     </div>
                     <div className="space-y-1.5 flex-1 min-w-0">
@@ -735,10 +734,10 @@ export const SettingsPage: React.FC = () => {
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
                           disabled={isUploadingLogo || isSaving || !canManageSettings}
-                          className="h-9 px-3.5 text-xs font-bold rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 bg-white flex items-center gap-1.5 shadow-3xs disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          className="h-9 px-3.5 text-xs font-bold rounded-xl border border-slate-200 dark:border-[#404040] hover:bg-slate-100 dark:hover:bg-[#303030] text-slate-700 dark:text-slate-200 bg-white dark:bg-[#262626] flex items-center gap-1.5 shadow-3xs disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                           {isUploadingLogo ? (
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#EA580C]" />
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#EA580C] dark:text-orange-400" />
                           ) : (
                             <Upload className="w-3.5 h-3.5" />
                           )}
@@ -749,29 +748,29 @@ export const SettingsPage: React.FC = () => {
                             type="button"
                             onClick={handleRemoveLogo}
                             disabled={isUploadingLogo || isSaving || !canManageSettings}
-                            className="h-9 px-3 text-xs font-bold rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="h-9 px-3 text-xs font-bold rounded-xl border border-red-200 dark:border-red-800/60 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/60 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             Hapus
                           </button>
                         )}
                       </div>
-                      <p className="text-[10px] text-slate-500">
-                        Format: PNG, JPG, JPEG, atau WebP. Maksimal ukuran: 2 MB. Logo disimpan di bucket <code className="text-[#EA580C] font-mono">school-assets</code>.
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        Format: PNG, JPG, JPEG, atau WebP. Maksimal ukuran: 2 MB. Logo disimpan di bucket <code className="text-[#EA580C] dark:text-orange-400 font-mono">school-assets</code>.
                       </p>
                       {isUploadingLogo && (
-                        <p className="text-[11px] text-orange-600 font-semibold animate-pulse flex items-center gap-1">
+                        <p className="text-[11px] text-orange-600 dark:text-orange-400 font-semibold animate-pulse flex items-center gap-1">
                           <RefreshCw className="w-3 h-3 animate-spin" /> Sedang mengunggah file ke Supabase Storage...
                         </p>
                       )}
                       {logoSuccessMsg && !isUploadingLogo && (
-                        <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                          <Check className="w-3 h-3 text-emerald-600" /> {logoSuccessMsg}
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                          <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> {logoSuccessMsg}
                         </p>
                       )}
                       {logoError && !isUploadingLogo && (
-                        <p className="text-[11px] text-red-600 font-semibold flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3 text-red-600 shrink-0" /> {logoError}
+                        <p className="text-[11px] text-red-600 dark:text-red-400 font-semibold flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3 text-red-600 dark:text-red-400 shrink-0" /> {logoError}
                         </p>
                       )}
                     </div>
@@ -785,32 +784,32 @@ export const SettingsPage: React.FC = () => {
           {activeCategory === 'presensi' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#404040] pb-2">
                   Kebijakan & Toleransi Presensi
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                   Atur kepatuhan geolokasi, batas toleransi waktu, dan aturan jam kerja.
                 </p>
               </div>
 
               <div className="space-y-5 text-xs">
                 {/* Timezone (Read Only) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-2">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Zona Waktu Default</p>
-                    <p className="text-slate-500 text-[11px]">Waktu default acuan sistem pencatatan database utama.</p>
+                    <p className="font-bold text-slate-900 dark:text-white">Zona Waktu Default</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px]">Waktu default acuan sistem pencatatan database utama.</p>
                   </div>
-                  <div className="bg-[#F3F4F6] border border-[#E5E7EB] text-[#4B5563] text-xs px-3.5 py-1.5 rounded-xl font-bold font-mono">
+                  <div className="bg-[#F3F4F6] dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] text-[#4B5563] dark:text-slate-300 text-xs px-3.5 py-1.5 rounded-xl font-bold font-mono">
                     {formSettings.attendance.timezone}
                   </div>
                 </div>
 
                 {/* Late Tolerance (Minutes input) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-3">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Toleransi Keterlambatan</p>
-                    <p className="text-slate-500 text-[11px] leading-relaxed">
-                      Nilai toleransi kelonggaran jam masuk (dalam menit). <span className="font-medium text-slate-700">Nilai ini merupakan konfigurasi tampilan. Aturan presensi produksi tetap mengikuti Work Schedule.</span>
+                    <p className="font-bold text-slate-900 dark:text-white">Toleransi Keterlambatan</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                      Nilai toleransi kelonggaran jam masuk (dalam menit). <span className="font-medium text-slate-700 dark:text-slate-300">Nilai ini merupakan konfigurasi tampilan. Aturan presensi produksi tetap mengikuti Work Schedule.</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -823,17 +822,17 @@ export const SettingsPage: React.FC = () => {
                         ...prev,
                         attendance: { ...prev.attendance, lateTolerance: Math.max(0, parseInt(e.target.value) || 0) }
                       }))}
-                      className="w-20 h-10 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-2 focus:outline-none focus:bg-white focus:border-[#F97316] font-mono"
+                      className="w-20 h-10 text-center text-sm font-semibold bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl px-2 text-slate-800 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:border-[#F97316] font-mono"
                     />
-                    <span className="font-semibold text-slate-600">menit</span>
+                    <span className="font-semibold text-slate-600 dark:text-slate-400">menit</span>
                   </div>
                 </div>
 
                 {/* Location GPS Verification (Toggle) */}
-                <div className="flex items-center justify-between py-3.5 border-b border-slate-100 gap-4">
+                <div className="flex items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-4">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Verifikasi Koordinat GPS & Lokasi</p>
-                    <p className="text-slate-500 text-[11px] leading-relaxed">
+                    <p className="font-bold text-slate-900 dark:text-white">Verifikasi Koordinat GPS & Lokasi</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
                       Mewajibkan verifikasi jarak radius presensi pegawai. Pengaturan ini masih bersifat UI foundation dan belum mengubah logic backend.
                     </p>
                   </div>
@@ -844,7 +843,7 @@ export const SettingsPage: React.FC = () => {
                       attendance: { ...prev.attendance, gpsValidation: !prev.attendance.gpsValidation }
                     }))}
                     className={`relative inline-flex h-6.5 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      formSettings.attendance.gpsValidation ? 'bg-[#F97316]' : 'bg-slate-200'
+                      formSettings.attendance.gpsValidation ? 'bg-[#F97316]' : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                   >
                     <span
@@ -858,9 +857,9 @@ export const SettingsPage: React.FC = () => {
                 {/* Default radius (meters input) */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Radius Validasi Default</p>
-                    <p className="text-slate-500 text-[11px] leading-relaxed">
-                      Jarak geofencing default dalam satuan meter. <span className="font-medium text-slate-700">Konfigurasi ini belum mengubah radius lokasi yang tersimpan pada database.</span>
+                    <p className="font-bold text-slate-900 dark:text-white">Radius Validasi Default</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                      Jarak geofencing default dalam satuan meter. <span className="font-medium text-slate-700 dark:text-slate-300">Konfigurasi ini belum mengubah radius lokasi yang tersimpan pada database.</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -873,9 +872,9 @@ export const SettingsPage: React.FC = () => {
                         ...prev,
                         attendance: { ...prev.attendance, defaultRadius: Math.max(5, parseInt(e.target.value) || 5) }
                       }))}
-                      className="w-24 h-10 text-center text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-2 focus:outline-none focus:bg-white focus:border-[#F97316] font-mono"
+                      className="w-24 h-10 text-center text-sm font-semibold bg-slate-50 dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#404040] rounded-xl px-2 text-slate-800 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:border-[#F97316] font-mono"
                     />
-                    <span className="font-semibold text-slate-600">meter</span>
+                    <span className="font-semibold text-slate-600 dark:text-slate-400">meter</span>
                   </div>
                 </div>
               </div>
@@ -886,22 +885,22 @@ export const SettingsPage: React.FC = () => {
           {activeCategory === 'tampilan' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#404040] pb-2">
                   Preferensi Tampilan Aplikasi
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                   Sesuaikan gaya visual antarmuka, kepadatan menu, dan tema palet warna.
                 </p>
               </div>
 
               <div className="space-y-5 text-xs">
                 {/* Theme Selector */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-3">
                   <div className="space-y-0.5">
-                    <p className="font-bold text-slate-900">Pilihan Tema</p>
-                    <p className="text-slate-500 text-[11px]">Ganti mode gelap atau mode terang aplikasi.</p>
+                    <p className="font-bold text-slate-900 dark:text-white">Pilihan Tema</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px]">Ganti mode gelap atau mode terang aplikasi.</p>
                   </div>
-                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#1F1F1F] rounded-xl border border-slate-200 dark:border-[#404040]">
                     {(['system', 'light', 'dark'] as const).map((t) => (
                       <button
                         key={t}
@@ -912,8 +911,8 @@ export const SettingsPage: React.FC = () => {
                         }))}
                         className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all uppercase tracking-wide ${
                           formSettings.appearance.theme === t 
-                            ? 'bg-white text-slate-900 shadow-3xs' 
-                            : 'text-slate-500 hover:text-slate-900'
+                            ? 'bg-white dark:bg-[#303030] text-slate-900 dark:text-white shadow-3xs' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         {t === 'system' ? 'Sistem' : t === 'light' ? 'Terang' : 'Gelap'}
@@ -923,10 +922,10 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 {/* Accent Color Selector */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-3">
                   <div className="space-y-0.5">
-                    <p className="font-bold text-slate-900">Warna Aksen Brand</p>
-                    <p className="text-slate-500 text-[11px]">Warna sorotan primer elemen tombol dan link aktif.</p>
+                    <p className="font-bold text-slate-900 dark:text-white">Warna Aksen Brand</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px]">Warna sorotan primer elemen tombol dan link aktif.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {[
@@ -945,7 +944,7 @@ export const SettingsPage: React.FC = () => {
                         title={col.label}
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${col.bg} ${
                           formSettings.appearance.accentColor === col.id 
-                            ? 'ring-3 ring-orange-100 border border-white scale-110 shadow-sm' 
+                            ? 'ring-3 ring-orange-100 dark:ring-orange-950 border border-white dark:border-neutral-800 scale-110 shadow-sm' 
                             : 'opacity-80 hover:opacity-100'
                         }`}
                       >
@@ -960,10 +959,10 @@ export const SettingsPage: React.FC = () => {
                 {/* Grid row density selector */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3">
                   <div className="space-y-0.5">
-                    <p className="font-bold text-slate-900">Kepadatan Baris Tabel</p>
-                    <p className="text-slate-500 text-[11px]">Kerapatan jarak spasi baris tabel rekapitulasi pegawai.</p>
+                    <p className="font-bold text-slate-900 dark:text-white">Kepadatan Baris Tabel</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px]">Kerapatan jarak spasi baris tabel rekapitulasi pegawai.</p>
                   </div>
-                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#1F1F1F] rounded-xl border border-slate-200 dark:border-[#404040]">
                     {(['comfortable', 'standard', 'compact'] as const).map((d) => (
                       <button
                         key={d}
@@ -974,8 +973,8 @@ export const SettingsPage: React.FC = () => {
                         }))}
                         className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all capitalize ${
                           formSettings.appearance.displayDensity === d 
-                            ? 'bg-white text-slate-900 shadow-3xs' 
-                            : 'text-slate-500 hover:text-slate-900'
+                            ? 'bg-white dark:bg-[#303030] text-slate-900 dark:text-white shadow-3xs' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         {d === 'comfortable' ? 'Nyaman' : d === 'standard' ? 'Standar' : 'Ringkas'}
@@ -991,21 +990,21 @@ export const SettingsPage: React.FC = () => {
           {activeCategory === 'notifikasi' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#404040] pb-2">
                   Pengaturan Aliran Notifikasi
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                   Kelola alert sistem, alert pengajuan, and pemberitahuan transaksi presensi.
                 </p>
               </div>
 
               <div className="space-y-5 text-xs">
                 {/* Attendance Alert Toggle */}
-                <div className="flex items-center justify-between py-3.5 border-b border-slate-100 gap-4">
+                <div className="flex items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-4">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Notifikasi Transaksi Presensi</p>
-                    <p className="text-slate-500 text-[11px] leading-relaxed">
-                      Kirimkan alert instan setiap kali pegawai melakukan check-in atau check-out harian. <span className="font-medium text-slate-700">Pengaturan ini belum mengubah mekanisme notifikasi server pada fase ini.</span>
+                    <p className="font-bold text-slate-900 dark:text-white">Notifikasi Transaksi Presensi</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                      Kirimkan alert instan setiap kali pegawai melakukan check-in atau check-out harian. <span className="font-medium text-slate-700 dark:text-slate-300">Pengaturan ini belum mengubah mekanisme notifikasi server pada fase ini.</span>
                     </p>
                   </div>
                   <button
@@ -1015,7 +1014,7 @@ export const SettingsPage: React.FC = () => {
                       notification: { ...prev.notification, attendanceNotif: !prev.notification.attendanceNotif }
                     }))}
                     className={`relative inline-flex h-6.5 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      formSettings.notification.attendanceNotif ? 'bg-[#F97316]' : 'bg-slate-200'
+                      formSettings.notification.attendanceNotif ? 'bg-[#F97316]' : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                   >
                     <span
@@ -1027,11 +1026,11 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 {/* Requests Alert Toggle */}
-                <div className="flex items-center justify-between py-3.5 border-b border-slate-100 gap-4">
+                <div className="flex items-center justify-between py-3.5 border-b border-slate-100 dark:border-[#404040] gap-4">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Notifikasi Pengajuan Cuti / Izin</p>
-                    <p className="text-slate-500 text-[11px] leading-relaxed">
-                      Beri tahu administrator mengenai adanya pengajuan izin baru dari staf pegawai. <span className="font-medium text-slate-700">Pengaturan ini belum mengubah mekanisme notifikasi server pada fase ini.</span>
+                    <p className="font-bold text-slate-900 dark:text-white">Notifikasi Pengajuan Cuti / Izin</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                      Beri tahu administrator mengenai adanya pengajuan izin baru dari staf pegawai. <span className="font-medium text-slate-700 dark:text-slate-300">Pengaturan ini belum mengubah mekanisme notifikasi server pada fase ini.</span>
                     </p>
                   </div>
                   <button
@@ -1041,7 +1040,7 @@ export const SettingsPage: React.FC = () => {
                       notification: { ...prev.notification, requestNotif: !prev.notification.requestNotif }
                     }))}
                     className={`relative inline-flex h-6.5 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      formSettings.notification.requestNotif ? 'bg-[#F97316]' : 'bg-slate-200'
+                      formSettings.notification.requestNotif ? 'bg-[#F97316]' : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                   >
                     <span
@@ -1055,9 +1054,9 @@ export const SettingsPage: React.FC = () => {
                 {/* System Alert Toggle */}
                 <div className="flex items-center justify-between py-3.5 gap-4">
                   <div className="space-y-0.5 max-w-md">
-                    <p className="font-bold text-slate-900">Notifikasi Sistem & Keamanan</p>
-                    <p className="text-slate-500 text-[11px] leading-relaxed">
-                      Kirim alert pengumuman libur nasional atau modifikasi parameter keamanan sistem. <span className="font-medium text-slate-700">Pengaturan ini belum mengubah mekanisme notifikasi server pada fase ini.</span>
+                    <p className="font-bold text-slate-900 dark:text-white">Notifikasi Sistem & Keamanan</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                      Kirim alert pengumuman libur nasional atau modifikasi parameter keamanan sistem. <span className="font-medium text-slate-700 dark:text-slate-300">Pengaturan ini belum mengubah mekanisme notifikasi server pada fase ini.</span>
                     </p>
                   </div>
                   <button
@@ -1067,7 +1066,7 @@ export const SettingsPage: React.FC = () => {
                       notification: { ...prev.notification, systemNotif: !prev.notification.systemNotif }
                     }))}
                     className={`relative inline-flex h-6.5 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      formSettings.notification.systemNotif ? 'bg-[#F97316]' : 'bg-slate-200'
+                      formSettings.notification.systemNotif ? 'bg-[#F97316]' : 'bg-slate-200 dark:bg-slate-700'
                     }`}
                   >
                     <span
@@ -1085,59 +1084,59 @@ export const SettingsPage: React.FC = () => {
           {activeCategory === 'sistem' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#404040] pb-2">
                   Detail Teknis Platform (Read Only)
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                   Informasi arsitektur platform aplikasi presensi dan status backend.
                 </p>
               </div>
 
               <div className="space-y-4 text-xs font-mono">
                 {/* App Version */}
-                <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                  <span className="font-bold text-slate-700 uppercase tracking-tight">Versi Aplikasi</span>
-                  <span className="text-slate-600 font-semibold">{APP_CONFIG.version}</span>
+                <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-[#404040]">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">Versi Aplikasi</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{APP_CONFIG.version}</span>
                 </div>
 
                 {/* Env Mode */}
-                <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                  <span className="font-bold text-slate-700 uppercase tracking-tight">Lingkungan</span>
+                <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-[#404040]">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">Lingkungan</span>
                   <Badge variant="primary" size="sm" className="font-bold font-mono">
                     {import.meta.env.MODE === 'production' ? 'Production' : 'Development'}
                   </Badge>
                 </div>
 
                 {/* Server Timezone */}
-                <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                  <span className="font-bold text-slate-700 uppercase tracking-tight">Zona Waktu Sistem</span>
-                  <span className="text-slate-600 font-semibold">{formSettings.system.sysTimezone}</span>
+                <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-[#404040]">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">Zona Waktu Sistem</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{formSettings.system.sysTimezone}</span>
                 </div>
 
                 {/* Backend status with actual connectivity state and action trigger */}
-                <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                  <span className="font-bold text-slate-700 uppercase tracking-tight">Status Konektivitas</span>
+                <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-[#404040]">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">Status Konektivitas</span>
                   <div className="flex items-center gap-1.5 flex-wrap justify-end">
                     {connStatus === 'checking' && (
-                      <div className="flex items-center gap-1.5 text-slate-500 font-semibold">
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-semibold">
                         <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-400" />
                         <span>Memeriksa konektivitas...</span>
                       </div>
                     )}
                     {connStatus === 'connected' && (
-                      <div className="flex items-center gap-1.5 text-emerald-700 font-bold">
+                      <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                         <span>Terhubung</span>
                       </div>
                     )}
                     {connStatus === 'disconnected' && (
-                      <div className="flex items-center gap-1.5 text-red-700 font-bold">
+                      <div className="flex items-center gap-1.5 text-red-700 dark:text-red-400 font-bold">
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                         <span>Tidak terhubung</span>
                       </div>
                     )}
                     {connStatus === 'unavailable' && (
-                      <div className="flex items-center gap-1.5 text-slate-500 font-semibold">
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-semibold">
                         <span>Status tidak tersedia</span>
                       </div>
                     )}
@@ -1146,7 +1145,7 @@ export const SettingsPage: React.FC = () => {
                       type="button"
                       onClick={checkConnectivity}
                       disabled={connStatus === 'checking'}
-                      className="text-xs font-bold text-[#F97316] hover:text-[#EA580C] underline cursor-pointer disabled:opacity-50 transition-colors ml-2"
+                      className="text-xs font-bold text-[#F97316] dark:text-orange-400 hover:text-[#EA580C] dark:hover:text-orange-300 underline cursor-pointer disabled:opacity-50 transition-colors ml-2"
                     >
                       Periksa kembali
                     </button>
@@ -1155,8 +1154,8 @@ export const SettingsPage: React.FC = () => {
 
                 {/* DB engine */}
                 <div className="flex items-center justify-between py-3">
-                  <span className="font-bold text-slate-700 uppercase tracking-tight">Mesin Database</span>
-                  <span className="text-slate-600 font-bold">{formSettings.system.database}</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tight">Mesin Database</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-bold">{formSettings.system.database}</span>
                 </div>
               </div>
             </div>
@@ -1166,33 +1165,33 @@ export const SettingsPage: React.FC = () => {
           {activeCategory === 'keamanan' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#404040] pb-2">
                   Parameter Kepatuhan & Keamanan
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
                   Rincian otorisasi hak akses, enkripsi sesi, dan log audit keamanan.
                 </p>
               </div>
 
               <div className="space-y-5 text-xs">
                 {/* Audit Log Status */}
-                <div className="flex flex-col py-3 border-b border-slate-100 gap-1.5">
+                <div className="flex flex-col py-3 border-b border-slate-100 dark:border-[#404040] gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Pencatatan Audit Trail</span>
+                    <span className="font-bold text-slate-900 dark:text-white">Pencatatan Audit Trail</span>
                     <Badge variant="success" size="sm" className="font-bold">Aktif</Badge>
                   </div>
-                  <p className="text-slate-500 text-[11px] leading-relaxed">
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
                     Setiap mutasi data penting dicatat di tabel permanen. Aktivitas penting sistem dicatat pada Audit Log.
                   </p>
                 </div>
 
                 {/* Session Security info */}
-                <div className="flex flex-col py-3 border-b border-slate-100 gap-1.5">
+                <div className="flex flex-col py-3 border-b border-slate-100 dark:border-[#404040] gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Enkripsi Sesi Otoritas</span>
+                    <span className="font-bold text-slate-900 dark:text-white">Enkripsi Sesi Otoritas</span>
                     <Badge variant="success" size="sm" className="font-bold">Enkripsi Sesi Aktif</Badge>
                   </div>
-                  <p className="text-slate-500 text-[11px] leading-relaxed">
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
                     {formSettings.security.sessionSec}
                   </p>
                 </div>
@@ -1200,15 +1199,15 @@ export const SettingsPage: React.FC = () => {
                 {/* User Role Mgmt redirect block */}
                 <div className="flex flex-col py-3 gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Manajemen Peran Pengguna</span>
+                    <span className="font-bold text-slate-900 dark:text-white">Manajemen Peran Pengguna</span>
                     <Badge variant="info" size="sm" className="font-bold">Otorisasi RBAC</Badge>
                   </div>
-                  <p className="text-slate-500 text-[11px] leading-relaxed mb-1.5">
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed mb-1.5">
                     {formSettings.security.roleMgmt}
                   </p>
                   <a
                     href="/users"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#F97316] hover:text-[#EA580C] transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#F97316] dark:text-orange-400 hover:text-[#EA580C] dark:hover:text-orange-300 transition-colors"
                   >
                     Buka Manajemen Pengguna &rarr;
                   </a>
@@ -1225,19 +1224,19 @@ export const SettingsPage: React.FC = () => {
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
           {/* Scrim Overlay */}
           <div 
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" 
+            className="absolute inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs transition-opacity" 
             onClick={() => setIsUnsavedGuardOpen(false)} 
           />
 
           {/* Dialog Box */}
-          <div className="relative bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 p-6 space-y-4">
+          <div className="relative bg-white dark:bg-[#262626] border border-slate-200 dark:border-[#404040] rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 p-6 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-800/60">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-bold text-slate-900">Perubahan Belum Disimpan</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Perubahan Belum Disimpan</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                   Kategori pengaturan ini memiliki modifikasi isian yang belum disimpan. Jika Anda berpindah kategori sekarang, perubahan tersebut akan hilang.
                 </p>
               </div>

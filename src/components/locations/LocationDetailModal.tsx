@@ -60,22 +60,22 @@ export const LocationDetailModal: React.FC<LocationDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E5E7EB] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl max-w-lg w-full shadow-2xl border border-[#E5E7EB] dark:border-[#333] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] dark:border-[#333]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/50 text-[#F97316] flex items-center justify-center">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#111827]">Detail Titik Lokasi</h2>
-              <p className="text-xs text-[#6B7280]">Informasi lengkap geofencing presensi</p>
+              <h2 className="text-base font-bold text-[#111827] dark:text-[#F3F4F6]">Detail Titik Lokasi</h2>
+              <p className="text-xs text-[#6B7280] dark:text-[#9CA3AF]">Informasi lengkap geofencing presensi</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg transition-colors cursor-pointer"
+            className="text-[#9CA3AF] hover:text-[#111827] dark:hover:text-[#F3F4F6] p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -84,31 +84,31 @@ export const LocationDetailModal: React.FC<LocationDetailModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           {/* Main Title & Badges */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-zinc-50 border border-[#E5E7EB] rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-zinc-50 dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] rounded-2xl">
             <div>
-              <h3 className="text-base font-bold text-[#111827]">{location.name}</h3>
-              <p className="text-xs font-mono font-semibold text-[#6B7280] mt-0.5">
+              <h3 className="text-base font-bold text-[#111827] dark:text-[#F3F4F6]">{location.name}</h3>
+              <p className="text-xs font-mono font-semibold text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
                 KODE: {location.code}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {location.isAttendanceEnabled ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-orange-700 bg-orange-100/80 rounded-full">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-orange-700 dark:text-orange-300 bg-orange-100/80 dark:bg-orange-950/80 rounded-full">
                   <Radio className="w-3 h-3 text-[#F97316]" />
                   Lokasi Presensi
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-zinc-600 bg-zinc-200/70 rounded-full">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-200/70 dark:bg-zinc-800 rounded-full">
                   Bukan Lokasi Presensi
                 </span>
               )}
 
               {location.isActive ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-100/80 rounded-full">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/80 rounded-full">
                   Aktif
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-zinc-600 bg-zinc-200/70 rounded-full">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-200/70 dark:bg-zinc-800 rounded-full">
                   Nonaktif
                 </span>
               )}
@@ -117,64 +117,64 @@ export const LocationDetailModal: React.FC<LocationDetailModalProps> = ({
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="p-3.5 bg-white border border-[#E5E7EB] rounded-xl space-y-1">
-              <span className="text-[#6B7280] font-medium block">Tipe Lokasi</span>
-              <span className="text-[#111827] font-semibold block text-sm">
+            <div className="p-3.5 bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] font-medium block">Tipe Lokasi</span>
+              <span className="text-[#111827] dark:text-[#F3F4F6] font-semibold block text-sm">
                 {getLocationTypeLabel(location.locationType)}
               </span>
             </div>
 
-            <div className="p-3.5 bg-white border border-[#E5E7EB] rounded-xl space-y-1">
-              <span className="text-[#6B7280] font-medium block">Radius Geofence</span>
-              <span className="text-[#111827] font-semibold block text-sm">
+            <div className="p-3.5 bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] font-medium block">Radius Geofence</span>
+              <span className="text-[#111827] dark:text-[#F3F4F6] font-semibold block text-sm">
                 {location.radiusMeters} Meter
               </span>
             </div>
 
-            <div className="sm:col-span-2 p-3.5 bg-white border border-[#E5E7EB] rounded-xl space-y-1">
-              <span className="text-[#6B7280] font-medium block">Koordinat GPS</span>
+            <div className="sm:col-span-2 p-3.5 bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] font-medium block">Koordinat GPS</span>
               {location.latitude !== null && location.longitude !== null ? (
                 <div className="flex items-center gap-2 mt-1">
                   <Compass className="w-4 h-4 text-[#F97316] shrink-0" />
-                  <span className="font-mono text-sm font-semibold text-[#111827]">
+                  <span className="font-mono text-sm font-semibold text-[#111827] dark:text-[#F3F4F6]">
                     {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
                   </span>
                 </div>
               ) : (
-                <span className="text-amber-700 font-medium italic block mt-0.5">
+                <span className="text-amber-700 dark:text-amber-400 font-medium italic block mt-0.5">
                   Koordinat belum diatur
                 </span>
               )}
             </div>
 
             {location.address && (
-              <div className="sm:col-span-2 p-3.5 bg-white border border-[#E5E7EB] rounded-xl space-y-1">
-                <span className="text-[#6B7280] font-medium block">Alamat / Petunjuk Arah</span>
-                <p className="text-[#111827] text-xs leading-relaxed mt-0.5">
+              <div className="sm:col-span-2 p-3.5 bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+                <span className="text-[#6B7280] dark:text-[#9CA3AF] font-medium block">Alamat / Petunjuk Arah</span>
+                <p className="text-[#111827] dark:text-[#F3F4F6] text-xs leading-relaxed mt-0.5">
                   {location.address}
                 </p>
               </div>
             )}
 
             {location.description && (
-              <div className="sm:col-span-2 p-3.5 bg-white border border-[#E5E7EB] rounded-xl space-y-1">
-                <span className="text-[#6B7280] font-medium block">Deskripsi</span>
-                <p className="text-[#111827] text-xs leading-relaxed mt-0.5">
+              <div className="sm:col-span-2 p-3.5 bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+                <span className="text-[#6B7280] dark:text-[#9CA3AF] font-medium block">Deskripsi</span>
+                <p className="text-[#111827] dark:text-[#F3F4F6] text-xs leading-relaxed mt-0.5">
                   {location.description}
                 </p>
               </div>
             )}
 
-            <div className="p-3 bg-zinc-50 border border-[#E5E7EB] rounded-xl space-y-1">
-              <span className="text-[#6B7280] block text-[11px]">Dibuat Pada</span>
-              <span className="text-[#111827] font-medium text-xs block">
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] block text-[11px]">Dibuat Pada</span>
+              <span className="text-[#111827] dark:text-[#F3F4F6] font-medium text-xs block">
                 {formatDate(location.createdAt)}
               </span>
             </div>
 
-            <div className="p-3 bg-zinc-50 border border-[#E5E7EB] rounded-xl space-y-1">
-              <span className="text-[#6B7280] block text-[11px]">Terakhir Diperbarui</span>
-              <span className="text-[#111827] font-medium text-xs block">
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] rounded-xl space-y-1">
+              <span className="text-[#6B7280] dark:text-[#9CA3AF] block text-[11px]">Terakhir Diperbarui</span>
+              <span className="text-[#111827] dark:text-[#F3F4F6] font-medium text-xs block">
                 {formatDate(location.updatedAt)}
               </span>
             </div>
@@ -182,7 +182,7 @@ export const LocationDetailModal: React.FC<LocationDetailModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 bg-zinc-50/60 border-t border-[#E5E7EB]">
+        <div className="flex items-center justify-between px-6 py-4 bg-zinc-50/60 dark:bg-zinc-900/60 border-t border-[#E5E7EB] dark:border-[#333]">
           <Button
             type="button"
             variant="outline"

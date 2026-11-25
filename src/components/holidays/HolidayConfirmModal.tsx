@@ -77,28 +77,30 @@ export const HolidayConfirmModal: React.FC<HolidayConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E5E7EB] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/75 backdrop-blur-xs">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl max-w-md w-full shadow-2xl border border-[#E5E7EB] dark:border-[#404040] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                isDeactivating ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+                isDeactivating
+                  ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60'
+                  : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60'
               }`}
             >
               <Power className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#111827]">{title}</h2>
-              <p className="text-xs text-[#6B7280]">Konfirmasi Perubahan Status</p>
+              <h2 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">{title}</h2>
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">Konfirmasi Perubahan Status</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg transition-colors cursor-pointer"
+            className="text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -107,30 +109,30 @@ export const HolidayConfirmModal: React.FC<HolidayConfirmModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-4">
           {errorMessage && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 rounded-xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
 
-          <p className="text-sm text-[#374151] leading-relaxed">
+          <p className="text-sm text-[#374151] dark:text-slate-300 leading-relaxed">
             {description}
           </p>
 
-          <div className="bg-zinc-50 border border-[#E5E7EB] rounded-xl p-3.5 space-y-1.5 text-xs">
+          <div className="bg-zinc-50 dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl p-3.5 space-y-1.5 text-xs">
             <div className="flex justify-between">
-              <span className="text-[#6B7280]">Nama Hari Libur:</span>
-              <span className="font-semibold text-[#111827]">{holiday.name}</span>
+              <span className="text-[#6B7280] dark:text-[#A3A3A3]">Nama Hari Libur:</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">{holiday.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#6B7280]">Tanggal:</span>
-              <span className="font-semibold text-[#111827]">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3]">Tanggal:</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">
                 {formatDisplayDate(holiday.holidayDate)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#6B7280]">Jenis:</span>
-              <span className="font-semibold text-[#111827]">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3]">Jenis:</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">
                 {HOLIDAY_TYPE_CONFIG[holiday.holidayType]?.label || holiday.holidayType}
               </span>
             </div>
@@ -138,7 +140,7 @@ export const HolidayConfirmModal: React.FC<HolidayConfirmModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-zinc-50/60 border-t border-[#E5E7EB]">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-zinc-50/60 dark:bg-[#1F1F1F]/60 border-t border-[#E5E7EB] dark:border-[#404040]">
           <Button
             type="button"
             variant="outline"

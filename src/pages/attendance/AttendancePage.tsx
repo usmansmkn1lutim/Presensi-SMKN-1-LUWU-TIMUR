@@ -681,8 +681,8 @@ export const AttendancePage: React.FC = () => {
 
       {/* Other Feedback Messages (Info etc) */}
       {banner && banner.type === 'info' && (
-        <div className="p-4 rounded-xl border flex items-start gap-3 text-xs sm:text-sm font-medium animate-in fade-in transition-all bg-blue-50 border-blue-200 text-blue-800">
-          <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-xl border flex items-start gap-3 text-xs sm:text-sm font-medium animate-in fade-in transition-all bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/60 text-blue-800 dark:text-blue-200">
+          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-semibold text-xs sm:text-sm">
               {banner.title || 'Pemberitahuan'}
@@ -700,19 +700,19 @@ export const AttendancePage: React.FC = () => {
 
       {/* UNLINKED ACCOUNT STATE */}
       {isUnlinked ? (
-        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
+        <div className="bg-amber-50/70 dark:bg-[#451A03]/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-[#451A03] text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700/60 flex items-center justify-center mx-auto">
             <UserX className="w-7 h-7" />
           </div>
 
           <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="text-base sm:text-lg font-bold text-amber-950">
+            <h3 className="text-base sm:text-lg font-bold text-amber-950 dark:text-amber-100">
               Akun Anda Belum Terhubung dengan Data Pegawai
             </h3>
-            <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+            <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-200/90 leading-relaxed">
               Akun login Anda belum ditautkan ke profil pegawai sekolah pada SIM Master Pegawai.
             </p>
-            <p className="text-xs text-amber-700/90 pt-1">
+            <p className="text-xs text-amber-700/90 dark:text-amber-300/80 pt-1">
               Hubungi Administrator untuk menautkan akun Anda di Manajemen Pegawai agar dapat menggunakan fitur presensi pribadi.
             </p>
           </div>
@@ -742,9 +742,9 @@ export const AttendancePage: React.FC = () => {
         </div>
       ) : errorState ? (
         /* Generic Page Error State */
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 space-y-3">
-          <div className="flex items-center gap-2 font-bold text-sm">
-            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+        <div className="bg-amber-50 dark:bg-[#451A03]/60 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-6 text-amber-800 dark:text-amber-200 space-y-3">
+          <div className="flex items-center gap-2 font-bold text-sm text-amber-950 dark:text-amber-100">
+            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>Gagal Memuat Konfigurasi Presensi</span>
           </div>
           <p className="text-xs leading-relaxed">{errorState}</p>
@@ -759,35 +759,35 @@ export const AttendancePage: React.FC = () => {
           {/* ==================================================================== */}
           <div className="lg:hidden space-y-4">
             {/* 1. Status & Tanggal Hari Ini */}
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
               {/* Tanggal Hari Ini (Clean & Prominent, No School/Location labels) */}
-              <div className="pb-3 border-b border-[#E5E7EB] flex items-center gap-2 text-xs sm:text-sm font-bold text-[#111827]">
+              <div className="pb-3 border-b border-[#E5E7EB] dark:border-[#404040] flex items-center gap-2 text-xs sm:text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">
                 <Calendar className="w-4 h-4 text-[#F97316] shrink-0" />
                 <span>{formattedTodayDate}</span>
               </div>
 
               {/* PRESENSI HARI INI & Status Typography */}
               <div>
-                <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[#9CA3AF] dark:text-[#737373] uppercase tracking-wider block">
                   PRESENSI HARI INI
                 </span>
-                <h3 className="text-base sm:text-lg font-bold text-[#111827] mt-1">
+                <h3 className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F9FAFB] mt-1">
                   {getMobileTodayStatusText()}
                 </h3>
               </div>
 
               {/* Timestamps Actual (Check-in & Check-out, Center Aligned, No icons) */}
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#E5E7EB]">
-                <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-0.5 flex flex-col items-center justify-center text-center">
-                  <span className="text-xs font-medium text-[#6B7280] block text-center">Check-in</span>
-                  <span className="text-sm sm:text-base font-bold text-[#111827] block text-center">
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#E5E7EB] dark:border-[#404040]">
+                <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] space-y-0.5 flex flex-col items-center justify-center text-center">
+                  <span className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3] block text-center">Check-in</span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] block text-center">
                     {approvedRequest ? '--:-- WITA' : formatTimeOnly(todayAttendance?.check_in_at)}
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-0.5 flex flex-col items-center justify-center text-center">
-                  <span className="text-xs font-medium text-[#6B7280] block text-center">Check-out</span>
-                  <span className="text-sm sm:text-base font-bold text-[#111827] block text-center">
+                <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] space-y-0.5 flex flex-col items-center justify-center text-center">
+                  <span className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3] block text-center">Check-out</span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] block text-center">
                     {approvedRequest ? '--:-- WITA' : formatTimeOnly(todayAttendance?.check_out_at)}
                   </span>
                 </div>
@@ -797,21 +797,21 @@ export const AttendancePage: React.FC = () => {
 
             {/* 2. STATE E: Approved Request Message (If approved request exists) */}
             {approvedRequest ? (
-              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2">
-                <p className="text-xs font-bold text-[#111827]">
+              <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2">
+                <p className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">
                   {getMobileTodayStatusText()}
                 </p>
-                <p className="text-xs text-[#6B7280]">
+                <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                   Anda tidak perlu melakukan presensi hari ini.
                 </p>
               </div>
             ) : (
               /* 3. Validasi Lokasi & Action Utama */
-              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+              <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
                 {/* VALIDASI LOKASI (Dynamic GPS radius check against all active points) */}
-                <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-center space-y-2 flex flex-col items-center justify-center">
+                <div className="p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] text-center space-y-2 flex flex-col items-center justify-center">
                   <div className="w-full flex items-center justify-between px-0.5">
-                    <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider block">
+                    <span className="text-[11px] font-bold text-[#9CA3AF] dark:text-[#737373] uppercase tracking-wider block">
                       VALIDASI LOKASI
                     </span>
                     <button
@@ -827,17 +827,17 @@ export const AttendancePage: React.FC = () => {
                   </div>
 
                   {/* Lokasi Info Title */}
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-[#374151] font-semibold text-center flex-wrap">
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-[#374151] dark:text-[#F9FAFB] font-semibold text-center flex-wrap">
                     {geoDetecting || (loading && geoValidation.status === 'idle') ? (
                       <Loader2 className="w-4 h-4 text-[#F97316] animate-spin shrink-0" />
                     ) : geoValidation.status === 'in_radius' ? (
-                      <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     ) : geoValidation.status === 'out_of_radius' ? (
-                      <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
+                      <MapPin className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
                     ) : geoValidation.status === 'uncertain' ? (
-                      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                      <AlertCircle className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
                     ) : geoValidation.status === 'error' ? (
-                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                      <AlertCircle className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
                     ) : (
                       <MapPin className="w-4 h-4 text-[#F97316] shrink-0" />
                     )}
@@ -858,15 +858,15 @@ export const AttendancePage: React.FC = () => {
 
                     {/* Radius / Jarak info */}
                     {geoValidation.status === 'in_radius' && geoValidation.matchedLocation ? (
-                      <span className="text-[11px] text-[#6B7280] font-normal">
+                      <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-normal">
                         ({geoValidation.matchedLocation.radiusMeters}m · Jarak ±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)})
                       </span>
                     ) : geoValidation.status === 'out_of_radius' && geoValidation.nearestLocation ? (
-                      <span className="text-[11px] text-[#6B7280] font-normal">
+                      <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-normal">
                         (Radius {geoValidation.nearestLocation.radiusMeters}m · Jarak ±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)})
                       </span>
                     ) : geoValidation.status === 'uncertain' && geoValidation.nearestLocation ? (
-                      <span className="text-[11px] text-[#6B7280] font-normal">
+                      <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-normal">
                         (Radius {geoValidation.nearestLocation.radiusMeters}m · Jarak ±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)}{geoValidation.userCoords?.accuracy ? ` · Akurasi ±${formatDistanceDisplay(geoValidation.userCoords.accuracy)}` : ''})
                       </span>
                     ) : null}
@@ -874,40 +874,40 @@ export const AttendancePage: React.FC = () => {
 
                   {/* Status Banner Text */}
                   <div
-                    className={`pt-1.5 border-t border-[#E5E7EB]/60 w-full text-center text-xs font-semibold flex items-center justify-center gap-1.5 ${
+                    className={`pt-1.5 border-t border-[#E5E7EB]/60 dark:border-[#404040] w-full text-center text-xs font-semibold flex items-center justify-center gap-1.5 ${
                       loading || (geoDetecting && !geoValidation.userCoords)
-                        ? 'text-[#6B7280]'
+                        ? 'text-[#6B7280] dark:text-[#A3A3A3]'
                         : geoValidation.status === 'in_radius'
-                        ? 'text-emerald-700'
+                        ? 'text-emerald-700 dark:text-emerald-400'
                         : geoValidation.status === 'out_of_radius'
-                        ? 'text-rose-600'
+                        ? 'text-rose-600 dark:text-rose-400'
                         : geoValidation.status === 'uncertain'
-                        ? 'text-amber-700'
+                        ? 'text-amber-700 dark:text-amber-400'
                         : geoValidation.status === 'error'
-                        ? 'text-rose-700'
-                        : 'text-[#6B7280]'
+                        ? 'text-rose-700 dark:text-rose-400'
+                        : 'text-[#6B7280] dark:text-[#A3A3A3]'
                     }`}
                   >
                     {loading || (geoDetecting && !geoValidation.userCoords) ? (
                       <span>Mendeteksi koordinat GPS...</span>
                     ) : geoValidation.status === 'in_radius' ? (
                       <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <span>Dalam radius presensi ({geoValidation.matchedLocation?.name})</span>
                       </>
                     ) : geoValidation.status === 'out_of_radius' ? (
                       <>
-                        <XCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <XCircle className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 shrink-0" />
                         <span>Di luar radius presensi (±{formatDistanceDisplay(geoValidation.nearestDistanceMeters ?? 0)} dari {geoValidation.nearestLocation?.name || 'sekolah'})</span>
                       </>
                     ) : geoValidation.status === 'uncertain' ? (
                       <>
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                         <span>{geoValidation.errorMessage || 'Akurasi GPS rendah — perbarui lokasi'}</span>
                       </>
                     ) : geoValidation.status === 'error' ? (
                       <>
-                        <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
                         <span>{geoValidation.errorMessage || 'Lokasi gagal dideteksi'}</span>
                       </>
                     ) : activeLocations.length === 0 ? (
@@ -921,8 +921,8 @@ export const AttendancePage: React.FC = () => {
                 {/* SATU ACTION UTAMA */}
                 {todayAttendance?.check_out_at ? (
                   /* STATE D — SUDAH CHECK-OUT */
-                  <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 text-center space-y-1">
-                    <p className="text-xs font-bold text-emerald-900">
+                  <div className="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-center space-y-1">
+                    <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300">
                       Presensi hari ini sudah lengkap
                     </p>
                   </div>
@@ -930,8 +930,8 @@ export const AttendancePage: React.FC = () => {
                   <div className="space-y-3">
                     {/* Notes Input Field (Optional) */}
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-[#374151]">
-                        Catatan Presensi <span className="text-[#9CA3AF] font-normal">(opsional)</span>
+                      <label className="text-xs font-semibold text-[#374151] dark:text-[#E5E5E5]">
+                        Catatan Presensi <span className="text-[#9CA3AF] dark:text-[#737373] font-normal">(opsional)</span>
                       </label>
                       <input
                         type="text"
@@ -939,7 +939,7 @@ export const AttendancePage: React.FC = () => {
                         onChange={(e) => setNotes(e.target.value)}
                         disabled={submitting || loading}
                         placeholder="Contoh: Tugas piket / Keterangan ketersediaan"
-                        className="w-full h-10 px-3 rounded-xl border border-[#D1D5DB] text-xs text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316] focus:border-transparent disabled:bg-[#F3F4F6] disabled:text-[#9CA3AF]"
+                        className="w-full h-10 px-3 rounded-xl border border-[#D1D5DB] dark:border-[#404040] bg-white dark:bg-[#303030] text-xs text-[#111827] dark:text-[#F9FAFB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#737373] focus:outline-none focus:ring-2 focus:ring-[#F97316] focus:border-transparent disabled:bg-[#F3F4F6] dark:disabled:bg-[#262626] disabled:text-[#9CA3AF] dark:disabled:text-[#737373]"
                       />
                     </div>
 
@@ -961,7 +961,7 @@ export const AttendancePage: React.FC = () => {
                           <span className="whitespace-nowrap">Check-in</span>
                         </button>
                         {!evalCheckIn.allowed && evalCheckIn.reason && (
-                          <span className="text-[11px] text-[#6B7280] block text-center mt-1.5 font-medium">
+                          <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] block text-center mt-1.5 font-medium">
                             {evalCheckIn.reason}
                           </span>
                         )}
@@ -976,7 +976,7 @@ export const AttendancePage: React.FC = () => {
                           className={`w-full h-12 text-xs font-bold rounded-xl transition-all shadow-2xs flex flex-row items-center justify-center gap-2 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer ${
                             evalCheckOut.allowed
                               ? 'bg-[#F97316] hover:bg-[#EA580C] text-white'
-                              : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                              : 'bg-gray-100 dark:bg-[#303030] text-gray-400 dark:text-[#737373] border border-gray-200 dark:border-[#404040] cursor-not-allowed'
                           }`}
                         >
                           {submitting && pendingAttendanceType === 'check_out' ? (
@@ -989,7 +989,7 @@ export const AttendancePage: React.FC = () => {
 
                         {/* Micro-copy when Check-out is not yet available or reason */}
                         {!evalCheckOut.allowed && (
-                          <span className="text-[11px] text-[#6B7280] block text-center mt-1.5 font-medium">
+                          <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] block text-center mt-1.5 font-medium">
                             {schedule?.operational_end_time
                               ? `Check-out tersedia mulai ${formatScheduleTime(schedule.operational_end_time)} WITA`
                               : evalCheckOut.reason || 'Check-out tersedia mulai 15.00 WITA'}
@@ -1008,16 +1008,16 @@ export const AttendancePage: React.FC = () => {
           {/* ==================================================================== */}
           <div className="hidden lg:block lg:space-y-6">
             {/* Header Banner */}
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] dark:text-[#737373] flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
                   {formattedTodayDate}
                 </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-0.5">
                   Presensi Pegawai
                 </h2>
-                <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+                <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#A3A3A3] mt-1">
                   Pencatatan kehadiran masuk & pulang pribadi secara real-time
                 </p>
               </div>
@@ -1078,10 +1078,10 @@ export const AttendancePage: React.FC = () => {
             </div>
 
             {/* Bottom Info Footer */}
-            <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-start gap-3 text-xs text-[#6B7280]">
+            <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] flex items-start gap-3 text-xs text-[#6B7280] dark:text-[#A3A3A3]">
               <ShieldCheck className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-[#111827]">Sistem Presensi Resmi Sekolah:</span> Transaksi
+                <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">Sistem Presensi Resmi Sekolah:</span> Transaksi
                 presensi dicatat secara otomatis menggunakan waktu server dan sensor lokasi perangkat
                 terautentikasi. Satu pegawai hanya diperbolehkan mencatat 1 kali presensi per hari kerja.
               </div>

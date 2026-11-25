@@ -64,9 +64,9 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
   const renderDropdownMenu = () => (
     <div
       ref={menuRef}
-      className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150"
+      className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150"
     >
-      <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
+      <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] dark:text-slate-400 uppercase tracking-wider border-b border-[#F3F4F6] dark:border-[#333333] truncate">
         {employee.full_name}
       </div>
 
@@ -78,9 +78,9 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
           setIsMenuOpen(false);
           onViewDetail(employee);
         }}
-        className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
+        className="w-full px-3 py-2 text-xs font-medium text-[#374151] dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-orange-950/40 hover:text-[#F97316] dark:hover:text-orange-400 flex items-center gap-2.5 transition-colors cursor-pointer"
       >
-        <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
+        <Eye className="w-3.5 h-3.5 text-[#6B7280] dark:text-slate-400" />
         <span>Detail Pegawai</span>
       </button>
 
@@ -94,9 +94,9 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
               setIsMenuOpen(false);
               onEdit(employee);
             }}
-            className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
+            className="w-full px-3 py-2 text-xs font-medium text-[#374151] dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer"
           >
-            <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
+            <Edit2 className="w-3.5 h-3.5 text-[#6B7280] dark:text-slate-400" />
             <span>Edit Data</span>
           </button>
 
@@ -110,15 +110,15 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
             }}
             className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
               employee.status === 'active'
-                ? 'text-amber-700 hover:bg-amber-50'
-                : 'text-emerald-700 hover:bg-emerald-50'
+                ? 'text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
             }`}
           >
             <Power className="w-3.5 h-3.5" />
             <span>{employee.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
           </button>
 
-          <div className="my-1 border-t border-[#F3F4F6]" />
+          <div className="my-1 border-t border-[#F3F4F6] dark:border-[#333333]" />
 
           {/* Delete */}
           <button
@@ -128,9 +128,9 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
               setIsMenuOpen(false);
               onDelete(employee);
             }}
-            className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+            className="w-full px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2.5 transition-colors cursor-pointer"
           >
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
+            <Trash2 className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
             <span>Hapus Pegawai</span>
           </button>
         </>
@@ -140,10 +140,10 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
 
   return (
     <>
-      {/* DESKTOP CARD (≥1024px) - 100% Untouched Main Card */}
+      {/* DESKTOP CARD (≥1024px) */}
       <div
         onClick={() => onViewDetail(employee)}
-        className="hidden lg:flex bg-[#FFFFFF] border border-[#E5E7EB] hover:border-orange-300 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all duration-200 flex-col items-center justify-between group cursor-pointer relative aspect-[4/5] text-center"
+        className="hidden lg:flex bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] hover:border-orange-300 dark:hover:border-orange-500/60 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all duration-200 flex-col items-center justify-between group cursor-pointer relative aspect-[4/5] text-center"
       >
         {/* Top Right: Minimal Three-dot More Menu Button */}
         <div className="absolute top-3 right-3 z-20">
@@ -153,7 +153,7 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
               e.stopPropagation();
               setIsMenuOpen((prev) => !prev);
             }}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#303030] active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none"
             aria-label="Menu aksi pegawai"
             title="Menu Aksi"
           >
@@ -170,45 +170,45 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
             userId={employee.profile_id}
             photoUrl={employee.photo_url}
             name={employee.full_name}
-            className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full object-cover border border-[#E5E7EB] mx-auto shrink-0"
+            className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] mx-auto shrink-0"
           />
 
           {/* Full Name (Max 2 lines) */}
-          <h3 className="font-bold text-xs sm:text-sm text-[#111827] group-hover:text-[#F97316] transition-colors mt-3.5 line-clamp-2 px-1 leading-snug">
+          <h3 className="font-bold text-xs sm:text-sm text-[#111827] dark:text-[#F9FAFB] group-hover:text-[#F97316] dark:group-hover:text-orange-400 transition-colors mt-3.5 line-clamp-2 px-1 leading-snug">
             {employee.full_name}
           </h3>
 
           {/* NIP */}
-          <p className="text-[11px] text-[#6B7280] font-mono mt-1.5 truncate">
+          <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-mono mt-1.5 truncate">
             NIP: {employee.nip || '—'}
           </p>
 
           {/* Unified Information Panel */}
-          <div className="w-full mt-3.5 bg-[#F3F4F6] rounded-xl p-3 text-left space-y-2 border border-[#E5E7EB]/50">
+          <div className="w-full mt-3.5 bg-[#F3F4F6] dark:bg-[#1F1F1F] rounded-xl p-3 text-left space-y-2 border border-[#E5E7EB]/50 dark:border-[#404040]/50">
             {/* Baris 1: Departemen */}
             <div className="flex items-start justify-between gap-2 text-[11px]">
-              <span className="font-bold text-[#374151] shrink-0">Departemen:</span>
-              <span className="text-[#4B5563] text-right truncate" title={employee.departments?.name || '—'}>
+              <span className="font-bold text-[#374151] dark:text-slate-300 shrink-0">Departemen:</span>
+              <span className="text-[#4B5563] dark:text-slate-400 text-right truncate" title={employee.departments?.name || '—'}>
                 {employee.departments?.name || '—'}
               </span>
             </div>
 
-            <div className="border-b border-[#E5E7EB]" />
+            <div className="border-b border-[#E5E7EB] dark:border-[#333333]" />
 
             {/* Baris 2: Jabatan */}
             <div className="flex items-start justify-between gap-2 text-[11px]">
-              <span className="font-bold text-[#374151] shrink-0">Jabatan:</span>
-              <span className="text-[#4B5563] text-right truncate" title={employee.positions?.name || '—'}>
+              <span className="font-bold text-[#374151] dark:text-slate-300 shrink-0">Jabatan:</span>
+              <span className="text-[#4B5563] dark:text-slate-400 text-right truncate" title={employee.positions?.name || '—'}>
                 {employee.positions?.name || '—'}
               </span>
             </div>
 
-            <div className="border-b border-[#E5E7EB]" />
+            <div className="border-b border-[#E5E7EB] dark:border-[#333333]" />
 
             {/* Baris 3: Jenis Kelamin */}
             <div className="flex items-start justify-between gap-2 text-[11px]">
-              <span className="font-bold text-[#374151] shrink-0">Jenis Kelamin:</span>
-              <span className="text-[#4B5563] text-right truncate">
+              <span className="font-bold text-[#374151] dark:text-slate-300 shrink-0">Jenis Kelamin:</span>
+              <span className="text-[#4B5563] dark:text-slate-400 text-right truncate">
                 {formatGender(employee.gender)}
               </span>
             </div>
@@ -216,8 +216,8 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
         </div>
 
         {/* Bottom Area: Employee Type and Status Badge */}
-        <div className="w-full pt-3 mt-auto border-t border-[#F3F4F6] flex items-center justify-between gap-2 px-1">
-          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-[#374151]">
+        <div className="w-full pt-3 mt-auto border-t border-[#F3F4F6] dark:border-[#333333] flex items-center justify-between gap-2 px-1">
+          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 dark:bg-[#303030] text-[#374151] dark:text-slate-300">
             {employee.employee_type || 'PNS'}
           </span>
 
@@ -233,7 +233,7 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
       {/* MOBILE / TABLET CARD (<1024px) */}
       <div
         onClick={() => onViewDetail(employee)}
-        className="flex lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] hover:border-orange-300 rounded-2xl p-4 shadow-2xs transition-all duration-200 flex-col justify-between group cursor-pointer relative"
+        className="flex lg:hidden bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] hover:border-orange-300 dark:hover:border-orange-500/60 rounded-2xl p-4 shadow-2xs transition-all duration-200 flex-col justify-between group cursor-pointer relative"
       >
         {/* Top Header Row: Avatar (left), Name & NIP (middle), Minimal Action Button (top right) */}
         <div className="flex items-start justify-between gap-3">
@@ -242,13 +242,13 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
               userId={employee.profile_id}
               photoUrl={employee.photo_url}
               name={employee.full_name}
-              className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+              className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0"
             />
             <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-sm text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
+              <h3 className="font-bold text-sm text-[#111827] dark:text-[#F9FAFB] group-hover:text-[#F97316] dark:group-hover:text-orange-400 transition-colors truncate">
                 {employee.full_name}
               </h3>
-              <p className="text-[11px] text-[#6B7280] font-mono mt-0.5 truncate">
+              <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-mono mt-0.5 truncate">
                 NIP: {employee.nip || '—'}
               </p>
             </div>
@@ -261,7 +261,7 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
                 e.stopPropagation();
                 setIsMenuOpen((prev) => !prev);
               }}
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none"
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#303030] active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none"
               aria-label="Menu aksi pegawai"
               title="Menu Aksi"
             >
@@ -273,39 +273,39 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
         </div>
 
         {/* Middle Gray Information Panel (#F3F4F6) */}
-        <div className="w-full my-3 bg-[#F3F4F6] rounded-xl p-3 space-y-2 border border-[#E5E7EB]/50 text-xs">
+        <div className="w-full my-3 bg-[#F3F4F6] dark:bg-[#1F1F1F] rounded-xl p-3 space-y-2 border border-[#E5E7EB]/50 dark:border-[#404040]/50 text-xs">
           {/* Row 1: Departemen */}
           <div className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="font-bold text-[#374151] shrink-0">Departemen:</span>
-            <span className="text-[#4B5563] text-right truncate font-medium" title={employee.departments?.name || '—'}>
+            <span className="font-bold text-[#374151] dark:text-slate-300 shrink-0">Departemen:</span>
+            <span className="text-[#4B5563] dark:text-slate-400 text-right truncate font-medium" title={employee.departments?.name || '—'}>
               {employee.departments?.name || '—'}
             </span>
           </div>
 
-          <div className="border-b border-[#E5E7EB]" />
+          <div className="border-b border-[#E5E7EB] dark:border-[#333333]" />
 
           {/* Row 2: Jabatan */}
           <div className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="font-bold text-[#374151] shrink-0">Jabatan:</span>
-            <span className="text-[#4B5563] text-right truncate font-medium" title={employee.positions?.name || '—'}>
+            <span className="font-bold text-[#374151] dark:text-slate-300 shrink-0">Jabatan:</span>
+            <span className="text-[#4B5563] dark:text-slate-400 text-right truncate font-medium" title={employee.positions?.name || '—'}>
               {employee.positions?.name || '—'}
             </span>
           </div>
 
-          <div className="border-b border-[#E5E7EB]" />
+          <div className="border-b border-[#E5E7EB] dark:border-[#333333]" />
 
           {/* Row 3: Jenis Kelamin */}
           <div className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="font-bold text-[#374151] shrink-0">Jenis Kelamin:</span>
-            <span className="text-[#4B5563] text-right truncate font-medium">
+            <span className="font-bold text-[#374151] dark:text-slate-300 shrink-0">Jenis Kelamin:</span>
+            <span className="text-[#4B5563] dark:text-slate-400 text-right truncate font-medium">
               {formatGender(employee.gender)}
             </span>
           </div>
         </div>
 
         {/* Bottom Row: Plain Text Employee Type & Status Badge */}
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#F3F4F6]">
-          <span className="text-xs font-semibold text-[#374151]">
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#F3F4F6] dark:border-[#333333]">
+          <span className="text-xs font-semibold text-[#374151] dark:text-slate-300">
             {employee.employee_type || 'PNS'}
           </span>
 
@@ -320,4 +320,3 @@ export const EmployeeGridCard: React.FC<EmployeeGridCardProps> = ({
     </>
   );
 };
-

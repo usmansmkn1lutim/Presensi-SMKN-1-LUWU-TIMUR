@@ -617,11 +617,11 @@ export const ReportsPage: React.FC = () => {
 
       {/* 2. Export Busy / Toast Indicator */}
       {isExporting && exportMessage && (
-        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex items-center gap-3 text-orange-800 shadow-2xs">
+        <div className="bg-orange-50 dark:bg-[#431F0B]/40 border border-orange-200 dark:border-orange-800/50 rounded-2xl p-4 flex items-center gap-3 text-orange-800 dark:text-orange-200 shadow-2xs">
           <Loader2 className="w-5 h-5 text-[#F97316] animate-spin shrink-0" />
           <div>
             <span className="text-xs font-bold">{exportMessage}</span>
-            <p className="text-[11px] text-orange-700 mt-0.5">
+            <p className="text-[11px] text-orange-700 dark:text-orange-300 mt-0.5">
               Sistem sedang memproses file untuk tab <strong>{tabLabels[activeTab]}</strong>. Harap tunggu sebentar.
             </p>
           </div>
@@ -630,8 +630,8 @@ export const ReportsPage: React.FC = () => {
 
       {/* 3. Export Success Toast */}
       {exportSuccess && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3 text-emerald-800 shadow-2xs">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl p-4 flex items-center gap-3 text-emerald-800 dark:text-emerald-200 shadow-2xs">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span className="text-xs font-bold">{exportSuccess}</span>
         </div>
       )}
@@ -665,21 +665,21 @@ export const ReportsPage: React.FC = () => {
 
         {/* 5. Error Banner */}
         {errorMessage && (
-          <div className="order-3 lg:order-none bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-800">
+          <div className="order-3 lg:order-none bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-800 dark:text-red-200">
             <div className="flex items-start sm:items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+              <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-900/60 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="text-sm font-bold">Peringatan / Kendala Laporan</h4>
-                <p className="text-xs text-red-700 mt-0.5">{errorMessage}</p>
+                <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">{errorMessage}</p>
               </div>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => loadReport(filter, detailPage, detailPageSize)}
-              className="border-red-300 text-red-700 hover:bg-red-100 self-start sm:self-auto shrink-0"
+              className="border-red-300 dark:border-red-800/60 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/50 self-start sm:self-auto shrink-0"
               leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
             >
               Coba Lagi
@@ -696,7 +696,7 @@ export const ReportsPage: React.FC = () => {
         {/* Mobile & Tablet (<lg): Horizontal Scrollable Pill Tabs */}
         <div
           className={`lg:hidden order-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-            activeTab === 'daily' ? 'pt-3 border-t border-[#E5E7EB]' : ''
+            activeTab === 'daily' ? 'pt-3 border-t border-[#E5E7EB] dark:border-[#404040]' : ''
           }`}
         >
           <div className="flex items-center gap-2 min-w-max">
@@ -711,7 +711,7 @@ export const ReportsPage: React.FC = () => {
                   className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors cursor-pointer disabled:opacity-60 ${
                     isActive
                       ? 'bg-[#F97316] text-white font-semibold'
-                      : 'bg-[#F3F4F6] text-[#6B7280] font-medium hover:text-[#111827]'
+                      : 'bg-[#F3F4F6] dark:bg-[#303030] text-[#6B7280] dark:text-[#A3A3A3] font-medium hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                   }`}
                 >
                   {tab.label}
@@ -722,7 +722,7 @@ export const ReportsPage: React.FC = () => {
         </div>
 
         {/* Desktop (>=lg): Unchanged Original Underline Tabs */}
-        <div className="hidden lg:block border-b border-[#E5E7EB]">
+        <div className="hidden lg:block border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-2 overflow-x-auto pb-px">
             {tabItems.map((tab) => {
               const Icon = tab.icon;
@@ -735,17 +735,17 @@ export const ReportsPage: React.FC = () => {
                   disabled={isExporting}
                   className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 whitespace-nowrap transition-colors cursor-pointer disabled:opacity-60 ${
                     isActive
-                      ? 'border-[#F97316] text-[#F97316] bg-orange-50/40 rounded-t-xl'
-                      : 'border-transparent text-[#6B7280] hover:text-[#111827] hover:border-gray-300'
+                      ? 'border-[#F97316] text-[#F97316] bg-orange-50/40 dark:bg-[#431F0B]/30 rounded-t-xl'
+                      : 'border-transparent text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:border-gray-300 dark:hover:border-[#525252]'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#F97316]' : 'text-[#9CA3AF]'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#F97316]' : 'text-[#9CA3AF] dark:text-[#737373]'}`} />
                   <span>{tab.label}</span>
                   <span
                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                       isActive
-                        ? 'bg-orange-100 text-orange-800'
-                        : 'bg-gray-100 text-[#6B7280]'
+                        ? 'bg-orange-100 dark:bg-[#431F0B] text-orange-800 dark:text-orange-300'
+                        : 'bg-gray-100 dark:bg-[#303030] text-[#6B7280] dark:text-[#A3A3A3]'
                     }`}
                   >
                     {tab.count}

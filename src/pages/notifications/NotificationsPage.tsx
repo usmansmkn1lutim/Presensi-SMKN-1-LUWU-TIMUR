@@ -187,33 +187,33 @@ export const NotificationsPage: React.FC = () => {
     switch (type) {
       case 'request_approved':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#DCFCE7] dark:bg-emerald-950/60 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         );
       case 'request_rejected':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#FEE2E2] text-[#DC2626] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#FEE2E2] dark:bg-red-950/60 text-[#DC2626] dark:text-red-400 flex items-center justify-center shrink-0 shadow-2xs">
             <XCircle className="w-5 h-5" />
           </div>
         );
       case 'request_submitted':
       case 'request_cancelled':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#EFF6FF] dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 flex items-center justify-center shrink-0 shadow-2xs">
             <FileText className="w-5 h-5" />
           </div>
         );
       case 'attendance_late':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#FEF3C7] dark:bg-amber-950/60 text-[#D97706] dark:text-amber-400 flex items-center justify-center shrink-0 shadow-2xs">
             <Clock className="w-5 h-5" />
           </div>
         );
       case 'attendance_checkin':
       case 'attendance_checkout':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#F0FDF4] text-[#16A34A] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#F0FDF4] dark:bg-emerald-950/60 text-[#16A34A] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         );
@@ -221,20 +221,20 @@ export const NotificationsPage: React.FC = () => {
       case 'account_unlinked':
       case 'role_updated':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#F3E8FF] dark:bg-purple-950/60 text-[#9333EA] dark:text-purple-400 flex items-center justify-center shrink-0 shadow-2xs">
             <UserCheck className="w-5 h-5" />
           </div>
         );
       case 'system_announcement':
       case 'system_alert':
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#FFEDD5] text-[#EA580C] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#FFEDD5] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74] flex items-center justify-center shrink-0 shadow-2xs">
             <Megaphone className="w-5 h-5" />
           </div>
         );
       default:
         return (
-          <div className="w-10 h-10 rounded-2xl bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#F3F4F6] dark:bg-[#303030] text-[#6B7280] dark:text-[#A3A3A3] flex items-center justify-center shrink-0 shadow-2xs">
             <AlertCircle className="w-5 h-5" />
           </div>
         );
@@ -246,23 +246,23 @@ export const NotificationsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner Mobile/Tablet (< 1024px) */}
-      <div className="lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+      <div className="lg:hidden bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] dark:text-[#A3A3A3]">
                 Pusat Pesan
               </span>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FFEDD5] text-[#EA580C]">
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FFEDD5] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]">
                   {unreadCount} belum dibaca
                 </span>
               )}
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#111827] mt-0.5">
+            <h2 className="text-lg sm:text-xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-0.5">
               Notifikasi & Pengumuman
             </h2>
-            <p className="text-xs text-[#6B7280] mt-1">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               Pemberitahuan presensi harian, status izin/cuti, dan pengumuman sekolah
             </p>
           </div>
@@ -295,7 +295,7 @@ export const NotificationsPage: React.FC = () => {
 
       {/* Header Desktop Only (>= 1024px) */}
       <div className="hidden lg:flex items-center justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Notifikasi & Pengumuman
         </h1>
 
@@ -313,15 +313,15 @@ export const NotificationsPage: React.FC = () => {
       </div>
 
       {/* Filter Tabs Navigation */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-1.5 sm:p-2 shadow-2xs lg:bg-transparent lg:border-0 lg:p-0 lg:shadow-none lg:rounded-none">
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-1.5 sm:p-2 shadow-2xs lg:bg-transparent dark:lg:bg-transparent lg:border-0 lg:p-0 lg:shadow-none lg:rounded-none">
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => handleTabChange('all')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] ${
               activeTab === 'all'
                 ? 'bg-[#F97316] text-white shadow-xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6]'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030]'
             }`}
           >
             Semua Notifikasi
@@ -330,10 +330,10 @@ export const NotificationsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => handleTabChange('unread')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] ${
               activeTab === 'unread'
                 ? 'bg-[#F97316] text-white shadow-xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6]'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030]'
             }`}
           >
             <span>Belum Dibaca</span>
@@ -342,7 +342,7 @@ export const NotificationsPage: React.FC = () => {
                 className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
                   activeTab === 'unread'
                     ? 'bg-white text-[#F97316]'
-                    : 'bg-[#FFEDD5] text-[#EA580C]'
+                    : 'bg-[#FFEDD5] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]'
                 }`}
               >
                 {unreadCount}
@@ -353,10 +353,10 @@ export const NotificationsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => handleTabChange('requests')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] ${
               activeTab === 'requests'
                 ? 'bg-[#F97316] text-white shadow-xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6]'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030]'
             }`}
           >
             Pengajuan
@@ -365,10 +365,10 @@ export const NotificationsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => handleTabChange('attendance')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] ${
               activeTab === 'attendance'
                 ? 'bg-[#F97316] text-white shadow-xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6]'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030]'
             }`}
           >
             Presensi
@@ -377,10 +377,10 @@ export const NotificationsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => handleTabChange('system')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] ${
               activeTab === 'system'
                 ? 'bg-[#F97316] text-white shadow-xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6]'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030]'
             }`}
           >
             Sistem & Info
@@ -389,32 +389,32 @@ export const NotificationsPage: React.FC = () => {
       </div>
 
       {/* Notifications List Container */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {loading ? (
           <div className="p-6 space-y-4">
             {[1, 2, 3, 4, 5].map((n) => (
-              <div key={n} className="flex items-start gap-4 p-4 border border-[#F3F4F6] rounded-2xl animate-pulse">
-                <div className="w-10 h-10 rounded-2xl bg-[#E5E7EB] shrink-0" />
+              <div key={n} className="flex items-start gap-4 p-4 border border-[#F3F4F6] dark:border-[#404040] rounded-2xl animate-pulse">
+                <div className="w-10 h-10 rounded-2xl bg-[#E5E7EB] dark:bg-[#303030] shrink-0" />
                 <div className="flex-1 space-y-2 py-1">
-                  <div className="h-4 bg-[#E5E7EB] rounded-md w-1/3" />
-                  <div className="h-3 bg-[#F3F4F6] rounded-md w-3/4" />
-                  <div className="h-3 bg-[#F3F4F6] rounded-md w-1/4" />
+                  <div className="h-4 bg-[#E5E7EB] dark:bg-[#303030] rounded-md w-1/3" />
+                  <div className="h-3 bg-[#F3F4F6] dark:bg-[#303030] rounded-md w-3/4" />
+                  <div className="h-3 bg-[#F3F4F6] dark:bg-[#303030] rounded-md w-1/4" />
                 </div>
               </div>
             ))}
           </div>
         ) : error ? (
           <div className="p-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-[#FEE2E2] text-[#DC2626] flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#FEE2E2] dark:bg-red-950/60 text-[#DC2626] dark:text-red-400 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-7 h-7" />
             </div>
-            <h4 className="text-base font-bold text-[#111827]">Gagal Memuat Notifikasi</h4>
-            <p className="text-xs text-[#6B7280] max-w-sm mx-auto mt-1.5">{error}</p>
+            <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Gagal Memuat Notifikasi</h4>
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto mt-1.5">{error}</p>
             <Button
               variant="outline"
               size="sm"
               onClick={handleManualRefresh}
-              className="mt-4 inline-flex items-center gap-1.5"
+              className="mt-4 inline-flex items-center gap-1.5 dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-[#303030]"
             >
               <RotateCw className="w-3.5 h-3.5" />
               <span>Coba Lagi</span>
@@ -422,20 +422,20 @@ export const NotificationsPage: React.FC = () => {
           </div>
         ) : notifications.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#F3F4F6] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto mb-4">
               <Inbox className="w-7 h-7" />
             </div>
-            <h4 className="text-base font-bold text-[#111827]">
+            <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
               {activeTab === 'unread' ? 'Semua Notifikasi Telah Dibaca' : 'Tidak Ada Notifikasi'}
             </h4>
-            <p className="text-xs text-[#6B7280] max-w-sm mx-auto mt-1.5">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto mt-1.5">
               {activeTab === 'unread'
                 ? 'Bagus! Anda telah membaca semua notifikasi terbaru.'
                 : 'Pemberitahuan persetujuan izin, status presensi, dan pengumuman sekolah akan ditampilkan di sini.'}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-[#E5E7EB]">
+          <div className="divide-y divide-[#E5E7EB] dark:divide-[#404040]">
             {notifications.map((item) => {
               const hasDeepLink = !!(
                 item.related_entity_type ||
@@ -447,7 +447,9 @@ export const NotificationsPage: React.FC = () => {
                 <div
                   key={item.id}
                   className={`p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-start justify-between gap-4 ${
-                    !item.is_read ? 'bg-[#FFFBEB]/30' : 'hover:bg-[#F9FAFB]'
+                    !item.is_read
+                      ? 'bg-[#FFFBEB]/30 dark:bg-[#431F0B]/25 hover:bg-[#FFFBEB]/50 dark:hover:bg-[#431F0B]/35'
+                      : 'hover:bg-[#F9FAFB] dark:hover:bg-[#303030]/60'
                   }`}
                 >
                   <div className="flex items-start gap-3.5 flex-1 min-w-0">
@@ -457,23 +459,23 @@ export const NotificationsPage: React.FC = () => {
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <h4
                           className={`text-sm ${
-                            !item.is_read ? 'font-bold text-[#111827]' : 'font-semibold text-[#374151]'
+                            !item.is_read ? 'font-bold text-[#111827] dark:text-[#F9FAFB]' : 'font-semibold text-[#374151] dark:text-[#D4D4D4]'
                           }`}
                         >
                           {item.title}
                         </h4>
                         {!item.is_read && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFEDD5] text-[#EA580C] uppercase tracking-wider">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFEDD5] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74] uppercase tracking-wider">
                             Baru
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs text-[#4B5563] leading-relaxed whitespace-pre-line">
+                      <p className="text-xs text-[#4B5563] dark:text-[#D4D4D4] leading-relaxed whitespace-pre-line">
                         {item.message}
                       </p>
 
-                      <div className="flex items-center gap-3 mt-2 text-[11px] text-[#9CA3AF] font-medium flex-wrap">
+                      <div className="flex items-center gap-3 mt-2 text-[11px] text-[#9CA3AF] dark:text-[#A3A3A3] font-medium flex-wrap">
                         <span title={formatFullDateTime(item.created_at)}>
                           {formatRelativeTime(item.created_at)}
                         </span>
@@ -481,8 +483,8 @@ export const NotificationsPage: React.FC = () => {
                         {item.is_read && item.read_at && (
                           <>
                             <span>•</span>
-                            <span className="text-[#6B7280] flex items-center gap-1">
-                              <Check className="w-3 h-3 text-[#16A34A]" />
+                            <span className="text-[#6B7280] dark:text-[#A3A3A3] flex items-center gap-1">
+                              <Check className="w-3 h-3 text-[#16A34A] dark:text-emerald-400" />
                               <span>Dibaca {formatRelativeTime(item.read_at)}</span>
                             </span>
                           </>
@@ -498,10 +500,10 @@ export const NotificationsPage: React.FC = () => {
                         type="button"
                         onClick={() => handleItemMarkAsRead(item.id)}
                         disabled={actionLoadingId === item.id}
-                        className="px-2.5 py-1.5 rounded-xl border border-[#E5E7EB] bg-white text-xs font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1 shadow-2xs"
+                        className="px-2.5 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-white dark:bg-[#303030] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#404040] transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1 shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]"
                         title="Tandai telah dibaca"
                       >
-                        <Check className="w-3.5 h-3.5 text-[#16A34A]" />
+                        <Check className="w-3.5 h-3.5 text-[#16A34A] dark:text-emerald-400" />
                         <span>Tandai Dibaca</span>
                       </button>
                     )}
@@ -510,7 +512,7 @@ export const NotificationsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleNavigateToEntity(item)}
-                        className="px-3 py-1.5 rounded-xl bg-[#F97316] text-white text-xs font-semibold hover:bg-[#EA580C] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                        className="px-3 py-1.5 rounded-xl bg-[#F97316] text-white text-xs font-semibold hover:bg-[#EA580C] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#262626]"
                       >
                         <span>Lihat Detail</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -525,10 +527,10 @@ export const NotificationsPage: React.FC = () => {
 
         {/* Pagination Controls */}
         {!loading && notifications.length > 0 && (
-          <div className="px-5 py-4 border-t border-[#E5E7EB] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F9FAFB]">
-            <p className="text-xs text-[#6B7280]">
-              Menampilkan <span className="font-semibold text-[#111827]">{notifications.length}</span>{' '}
-              dari <span className="font-semibold text-[#111827]">{totalCount}</span> notifikasi
+          <div className="px-5 py-4 border-t border-[#E5E7EB] dark:border-[#404040] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F9FAFB] dark:bg-[#303030]/40">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
+              Menampilkan <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">{notifications.length}</span>{' '}
+              dari <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">{totalCount}</span> notifikasi
             </p>
 
             <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -537,13 +539,13 @@ export const NotificationsPage: React.FC = () => {
                 size="sm"
                 onClick={() => fetchPageNotifications(page - 1)}
                 disabled={page <= 1 || loading}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-[#303030]"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Sebelumnya</span>
               </Button>
 
-              <span className="text-xs font-semibold px-2 text-[#374151]">
+              <span className="text-xs font-semibold px-2 text-[#374151] dark:text-[#D4D4D4]">
                 {page} / {totalPages}
               </span>
 
@@ -552,7 +554,7 @@ export const NotificationsPage: React.FC = () => {
                 size="sm"
                 onClick={() => fetchPageNotifications(page + 1)}
                 disabled={page >= totalPages || loading}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-[#303030]"
               >
                 <span>Berikutnya</span>
                 <ChevronRight className="w-3.5 h-3.5" />

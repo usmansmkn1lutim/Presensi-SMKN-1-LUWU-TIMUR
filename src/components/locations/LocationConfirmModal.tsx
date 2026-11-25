@@ -42,7 +42,7 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
   let confirmButtonLabel = '';
   let confirmButtonVariant: 'primary' | 'danger' | 'outline' = 'primary';
   let icon = <AlertTriangle className="w-5 h-5" />;
-  let iconBg = 'bg-orange-50 text-[#F97316]';
+  let iconBg = 'bg-orange-50 dark:bg-orange-950/50 text-[#F97316]';
 
   switch (actionType) {
     case 'deactivate':
@@ -51,7 +51,7 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
       confirmButtonLabel = 'Nonaktifkan';
       confirmButtonVariant = 'danger';
       icon = <Power className="w-5 h-5" />;
-      iconBg = 'bg-red-50 text-red-600';
+      iconBg = 'bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400';
       break;
 
     case 'activate':
@@ -60,7 +60,7 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
       confirmButtonLabel = 'Aktifkan';
       confirmButtonVariant = 'primary';
       icon = <Power className="w-5 h-5" />;
-      iconBg = 'bg-emerald-50 text-emerald-600';
+      iconBg = 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400';
       break;
 
     case 'enable_attendance':
@@ -69,7 +69,7 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
       confirmButtonLabel = 'Jadikan Lokasi Presensi';
       confirmButtonVariant = 'primary';
       icon = <Radio className="w-5 h-5" />;
-      iconBg = 'bg-orange-50 text-[#F97316]';
+      iconBg = 'bg-orange-50 dark:bg-orange-950/50 text-[#F97316]';
       break;
 
     case 'disable_attendance':
@@ -78,7 +78,7 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
       confirmButtonLabel = 'Nonaktifkan Presensi';
       confirmButtonVariant = 'danger';
       icon = <MapPin className="w-5 h-5" />;
-      iconBg = 'bg-amber-50 text-amber-600';
+      iconBg = 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400';
       break;
   }
 
@@ -127,23 +127,23 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E5E7EB] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl max-w-md w-full shadow-2xl border border-[#E5E7EB] dark:border-[#333] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] dark:border-[#333]">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg}`}>
               {icon}
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#111827]">{title}</h2>
-              <p className="text-xs text-[#6B7280]">Konfirmasi Tindakan Administratif</p>
+              <h2 className="text-base font-bold text-[#111827] dark:text-[#F3F4F6]">{title}</h2>
+              <p className="text-xs text-[#6B7280] dark:text-[#9CA3AF]">Konfirmasi Tindakan Administratif</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg transition-colors cursor-pointer"
+            className="text-[#9CA3AF] hover:text-[#111827] dark:hover:text-[#F3F4F6] p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -152,34 +152,34 @@ export const LocationConfirmModal: React.FC<LocationConfirmModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-4">
           {errorMessage && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 rounded-xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
 
-          <p className="text-sm text-[#374151] leading-relaxed">
+          <p className="text-sm text-[#374151] dark:text-[#D1D5DB] leading-relaxed">
             {description}
           </p>
 
-          <div className="bg-zinc-50 border border-[#E5E7EB] rounded-xl p-3.5 space-y-1.5 text-xs">
+          <div className="bg-zinc-50 dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] rounded-xl p-3.5 space-y-1.5 text-xs">
             <div className="flex justify-between">
-              <span className="text-[#6B7280]">Nama Lokasi:</span>
-              <span className="font-semibold text-[#111827]">{location.name}</span>
+              <span className="text-[#6B7280] dark:text-[#9CA3AF]">Nama Lokasi:</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F3F4F6]">{location.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#6B7280]">Kode:</span>
-              <span className="font-mono font-semibold text-[#111827]">{location.code}</span>
+              <span className="text-[#6B7280] dark:text-[#9CA3AF]">Kode:</span>
+              <span className="font-mono font-semibold text-[#111827] dark:text-[#F3F4F6]">{location.code}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#6B7280]">Radius Geofence:</span>
-              <span className="font-semibold text-[#111827]">{location.radiusMeters} Meter</span>
+              <span className="text-[#6B7280] dark:text-[#9CA3AF]">Radius Geofence:</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F3F4F6]">{location.radiusMeters} Meter</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-zinc-50/60 border-t border-[#E5E7EB]">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-zinc-50/60 dark:bg-zinc-900/60 border-t border-[#E5E7EB] dark:border-[#333]">
           <Button
             type="button"
             variant="outline"

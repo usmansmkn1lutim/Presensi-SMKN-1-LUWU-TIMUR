@@ -58,20 +58,20 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
   if (loading) {
     return (
       <div
-        className={`bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs space-y-5 animate-pulse ${className}`}
+        className={`bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 shadow-2xs space-y-5 animate-pulse ${className}`}
         aria-busy="true"
         aria-label="Memuat distribusi presensi hari ini"
       >
-        <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-          <div className="h-5 bg-[#E5E7EB] rounded w-48" />
-          <div className="h-4 bg-[#F3F4F6] rounded w-20" />
+        <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-[#303030]">
+          <div className="h-5 bg-[#E5E7EB] dark:bg-[#404040] rounded w-48" />
+          <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-20" />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-5 py-2">
-          <div className="w-44 h-44 rounded-full border-[18px] border-slate-100 bg-transparent flex items-center justify-center">
+          <div className="w-44 h-44 rounded-full border-[18px] border-slate-100 dark:border-[#303030] bg-transparent flex items-center justify-center">
             <div className="space-y-1 text-center">
-              <div className="h-6 bg-[#E5E7EB] rounded w-14 mx-auto" />
-              <div className="h-3 bg-[#F3F4F6] rounded w-16 mx-auto" />
+              <div className="h-6 bg-[#E5E7EB] dark:bg-[#404040] rounded w-14 mx-auto" />
+              <div className="h-3 bg-[#F3F4F6] dark:bg-[#303030] rounded w-16 mx-auto" />
             </div>
           </div>
 
@@ -79,15 +79,15 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-2 sm:p-2.5 rounded-xl border border-slate-100"
+                className="flex items-center justify-between p-2 sm:p-2.5 rounded-xl border border-slate-100 dark:border-[#303030]"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB]" />
-                  <div className="h-3.5 bg-[#F3F4F6] rounded w-24" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] dark:bg-[#404040]" />
+                  <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-24" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-3.5 bg-[#E5E7EB] rounded w-10" />
-                  <div className="h-4 bg-[#F3F4F6] rounded w-10" />
+                  <div className="h-3.5 bg-[#E5E7EB] dark:bg-[#404040] rounded w-10" />
+                  <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-10" />
                 </div>
               </div>
             ))}
@@ -151,7 +151,7 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       percentage: pctPending,
       color: ATTENDANCE_STATUS_TOKENS.pending.bgHex, // #E5E7EB
       hoverColor: '#D1D5DB',
-      dotClass: 'bg-[#E5E7EB] border border-slate-300',
+      dotClass: 'bg-[#E5E7EB] border border-slate-300 dark:bg-[#525252] dark:border-[#737373]',
     },
   ];
 
@@ -183,31 +183,31 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
 
   return (
     <div
-      className={`bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 ${className}`}
+      className={`bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4 ${className}`}
       aria-labelledby={`${chartId}-title`}
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-100 dark:border-[#303030]">
         <div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
             <h3
               id={`${chartId}-title`}
-              className="text-base font-semibold text-slate-900 tracking-tight"
+              className="text-base font-semibold text-slate-900 dark:text-[#F9FAFB] tracking-tight"
             >
               Distribusi Presensi Hari Ini
             </h3>
             {dateLabel && (
               <>
-                <span className="hidden sm:inline-block text-xs text-slate-400">·</span>
-                <span className="text-xs text-slate-500">{dateLabel}</span>
+                <span className="hidden sm:inline-block text-xs text-slate-400 dark:text-[#737373]">·</span>
+                <span className="text-xs text-slate-500 dark:text-[#A3A3A3]">{dateLabel}</span>
               </>
             )}
           </div>
         </div>
 
         {isNonWorkingDay && (
-          <div className="self-start sm:self-auto flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200/80 rounded-lg text-[11px] text-amber-800 font-medium shrink-0">
-            <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+          <div className="self-start sm:self-auto flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-[#451A03] border border-amber-200/80 dark:border-amber-800/60 rounded-lg text-[11px] text-amber-800 dark:text-[#FCD34D] font-medium shrink-0">
+            <Calendar className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
               {holidayName ? `Libur: ${holidayName}` : 'Akhir Pekan'}
             </span>
@@ -217,10 +217,10 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
 
       {/* Main Content Area */}
       {total === 0 ? (
-        <div className="h-56 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-center p-6 my-auto">
-          <PieChart className="w-8 h-8 text-slate-400 mb-2" />
-          <p className="text-sm font-medium text-slate-700">Belum Ada Presensi</p>
-          <p className="text-xs text-slate-500 mt-0.5 max-w-xs">
+        <div className="h-56 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-[#303030]/40 rounded-xl border border-dashed border-slate-200 dark:border-[#404040] text-center p-6 my-auto">
+          <PieChart className="w-8 h-8 text-slate-400 dark:text-[#737373] mb-2" />
+          <p className="text-sm font-medium text-slate-700 dark:text-[#F9FAFB]">Belum Ada Presensi</p>
+          <p className="text-xs text-slate-500 dark:text-[#A3A3A3] mt-0.5 max-w-xs">
             Belum ada data presensi tercatat untuk hari ini.
           </p>
         </div>
@@ -239,7 +239,7 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                 cx="100"
                 cy="100"
                 r={radius}
-                stroke="#F1F5F9"
+                className="stroke-[#F1F5F9] dark:stroke-[#333333]"
                 strokeWidth={baseStrokeWidth}
                 fill="none"
               />
@@ -261,7 +261,9 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                     strokeDashoffset={arc.strokeOffset}
                     strokeLinecap="butt"
                     fill="none"
-                    className="cursor-pointer transition-all duration-200"
+                    className={`cursor-pointer transition-all duration-200 ${
+                      arc.key === 'pending' ? 'dark:stroke-[#525252]' : ''
+                    }`}
                     onMouseEnter={() => setHoveredKey(arc.key)}
                     onMouseLeave={() => setHoveredKey(null)}
                   />
@@ -273,25 +275,25 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none">
               {activeSegment ? (
                 <div className="space-y-0.5 animate-in fade-in duration-150">
-                  <span className="text-[10px] font-medium text-slate-500 block truncate max-w-[95px]">
+                  <span className="text-[10px] font-medium text-slate-500 dark:text-[#A3A3A3] block truncate max-w-[95px]">
                     {activeSegment.shortLabel}
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight block">
+                  <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-[#F9FAFB] tracking-tight block">
                     {activeSegment.count}
                   </span>
-                  <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 block">
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-[#D4D4D4] block">
                     {activeSegment.percentage}%
                   </span>
                 </div>
               ) : (
                 <div className="space-y-0.5 animate-in fade-in duration-150">
-                  <span className="text-[11px] text-slate-500 font-medium block">
+                  <span className="text-[11px] text-slate-500 dark:text-[#A3A3A3] font-medium block">
                     Kehadiran
                   </span>
-                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight block">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F9FAFB] tracking-tight block">
                     {overallAttendanceRate}%
                   </span>
-                  <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium block">
+                  <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-[#737373] font-medium block">
                     {hadir} / {total} GTK
                   </span>
                 </div>
@@ -311,8 +313,8 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                   onMouseLeave={() => setHoveredKey(null)}
                   className={`flex items-center justify-between gap-2 p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer ${
                     isHovered
-                      ? 'bg-slate-50 border-slate-300 shadow-2xs'
-                      : 'border-slate-100 hover:border-slate-200'
+                      ? 'bg-slate-50 border-slate-300 dark:bg-[#303030] dark:border-[#525252] shadow-2xs'
+                      : 'border-slate-100 hover:border-slate-200 dark:border-[#303030] dark:hover:border-[#404040]'
                   }`}
                 >
                   <div className="flex items-start gap-2 min-w-0 flex-1">
@@ -320,15 +322,15 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
                       className={`w-2.5 h-2.5 rounded-full shrink-0 mt-0.5 ${seg.dotClass}`}
                       aria-hidden="true"
                     />
-                    <span className="text-xs font-medium text-slate-800 leading-tight break-words">
+                    <span className="text-xs font-medium text-slate-800 dark:text-[#E5E5E5] leading-tight break-words">
                       {seg.label}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0 self-center">
-                    <span className="text-xs font-semibold text-slate-900 tabular-nums whitespace-nowrap">
+                    <span className="text-xs font-semibold text-slate-900 dark:text-[#F9FAFB] tabular-nums whitespace-nowrap">
                       {seg.count}{' '}
-                      <span className="font-normal text-slate-400 text-[10px]">
+                      <span className="font-normal text-slate-400 dark:text-[#737373] text-[10px]">
                         GTK
                       </span>
                     </span>
@@ -341,16 +343,16 @@ export const AttendanceDonutChart: React.FC<AttendanceDonutChartProps> = ({
       )}
 
       {/* Footer Info note */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pt-2 border-t border-slate-100 text-[11px] text-slate-400 mt-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pt-2 border-t border-slate-100 dark:border-[#303030] text-[11px] text-slate-400 dark:text-[#737373] mt-auto">
         <div className="flex items-start gap-1.5 min-w-0">
-          <AlertCircle className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+          <AlertCircle className="w-3.5 h-3.5 text-slate-400 dark:text-[#737373] shrink-0 mt-0.5" />
           <span className="leading-tight">
             {isNonWorkingDay
               ? 'Hari ini adalah hari non-operasional presensi'
               : 'Presensi fisik tercatat memiliki prioritas atas pengajuan izin'}
           </span>
         </div>
-        <span className="shrink-0 self-end sm:self-auto font-medium text-slate-500">
+        <span className="shrink-0 self-end sm:self-auto font-medium text-slate-500 dark:text-[#A3A3A3]">
           Total: {total} GTK
         </span>
       </div>

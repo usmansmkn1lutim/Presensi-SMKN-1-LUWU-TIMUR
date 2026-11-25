@@ -199,18 +199,18 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
       aria-modal="true"
       aria-labelledby="reviewer-modal-title"
     >
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[#FFFFFF] dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] text-slate-900 dark:text-slate-100">
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F9FAFB]">
+        <div className="p-4 sm:p-5 border-b border-[#E5E7EB] dark:border-slate-800 flex items-center justify-between bg-[#F9FAFB] dark:bg-slate-800/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] text-[#EA580C] border border-[#F97316]/30 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5 text-[#F97316]" />
+            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-amber-950/50 text-[#EA580C] dark:text-amber-400 border border-[#F97316]/30 dark:border-amber-900/50 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-[#F97316] dark:text-amber-400" />
             </div>
             <div>
-              <h3 id="reviewer-modal-title" className="text-base font-bold text-[#111827]">
+              <h3 id="reviewer-modal-title" className="text-base font-bold text-[#111827] dark:text-white">
                 Tinjauan Permohonan Pegawai
               </h3>
-              <p className="text-[11px] text-[#6B7280]">
+              <p className="text-[11px] text-[#6B7280] dark:text-slate-400">
                 Rincian lengkap pengajuan, riwayat, dan keputusan peninjau
               </p>
             </div>
@@ -222,7 +222,7 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
             }}
             disabled={submitting}
             aria-label="Tutup modal"
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors"
+            className="text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white p-1.5 rounded-lg hover:bg-[#F3F4F6] dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -231,15 +231,15 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
         {/* Modal Body */}
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto">
           {errorMsg && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-red-800 dark:text-red-300 text-xs flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1">{errorMsg}</div>
             </div>
           )}
 
           {loadingDetail && (
-            <div className="text-[11px] text-[#9CA3AF] flex items-center gap-1.5 bg-[#F9FAFB] p-2 rounded-lg">
-              <Hourglass className="w-3.5 h-3.5 text-[#F97316] animate-spin" />
+            <div className="text-[11px] text-[#9CA3AF] dark:text-slate-400 flex items-center gap-1.5 bg-[#F9FAFB] dark:bg-slate-800/50 p-2 rounded-lg border border-[#E5E7EB] dark:border-slate-800">
+              <Hourglass className="w-3.5 h-3.5 text-[#F97316] dark:text-amber-400 animate-spin" />
               <span>Memperbarui data pengajuan dari server...</span>
             </div>
           )}
@@ -247,20 +247,20 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           {/* =================================================================== */}
           {/* SECTION A: IDENTITAS PEGAWAI                                         */}
           {/* =================================================================== */}
-          <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4 space-y-3.5 text-xs">
+          <div className="bg-[#F9FAFB] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl p-4 space-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <UserAvatar
                   photoUrl={employeePhoto}
                   name={employeeName}
-                  className="w-12 h-12 rounded-xl object-cover border border-[#E5E7EB] shadow-2xs shrink-0"
+                  className="w-12 h-12 rounded-xl object-cover border border-[#E5E7EB] dark:border-slate-700 shadow-2xs shrink-0"
                 />
                 <div>
-                  <div className="font-bold text-[#111827] text-sm sm:text-base leading-tight">
+                  <div className="font-bold text-[#111827] dark:text-white text-sm sm:text-base leading-tight">
                     {employeeName}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] flex flex-wrap items-center gap-1.5 mt-0.5">
-                    <span>NIP: <strong className="text-[#374151] font-semibold">{employeeNip || '—'}</strong></span>
+                  <div className="text-[11px] text-[#6B7280] dark:text-slate-400 flex flex-wrap items-center gap-1.5 mt-0.5">
+                    <span>NIP: <strong className="text-[#374151] dark:text-slate-200 font-semibold">{employeeNip || '—'}</strong></span>
                   </div>
                 </div>
               </div>
@@ -270,8 +270,8 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   <span
                     className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
                       employeeStatus === 'active'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                     }`}
                   >
                     {employeeStatus === 'active' ? 'Pegawai Aktif' : 'Nonaktif'}
@@ -282,48 +282,48 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
             </div>
 
             {/* Grid detail pegawai */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-3 border-t border-[#E5E7EB] text-[#4B5563]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-3 border-t border-[#E5E7EB] dark:border-slate-700 text-[#4B5563] dark:text-slate-300">
               <div className="space-y-0.5">
-                <span className="text-[#9CA3AF] text-[10px] block flex items-center gap-1">
-                  <IdCard className="w-3 h-3 text-[#9CA3AF]" /> NIK
+                <span className="text-[#9CA3AF] dark:text-slate-500 text-[10px] block flex items-center gap-1">
+                  <IdCard className="w-3 h-3 text-[#9CA3AF] dark:text-slate-500" /> NIK
                 </span>
-                <span className="font-semibold text-[#111827] text-xs">
+                <span className="font-semibold text-[#111827] dark:text-slate-200 text-xs">
                   {employeeNik || '—'}
                 </span>
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[#9CA3AF] text-[10px] block flex items-center gap-1">
-                  <Hash className="w-3 h-3 text-[#9CA3AF]" /> No. Pegawai
+                <span className="text-[#9CA3AF] dark:text-slate-500 text-[10px] block flex items-center gap-1">
+                  <Hash className="w-3 h-3 text-[#9CA3AF] dark:text-slate-500" /> No. Pegawai
                 </span>
-                <span className="font-semibold text-[#111827] text-xs">
+                <span className="font-semibold text-[#111827] dark:text-slate-200 text-xs">
                   {employeeNumber || '—'}
                 </span>
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[#9CA3AF] text-[10px] block flex items-center gap-1">
-                  <Users className="w-3 h-3 text-[#9CA3AF]" /> Jenis Kelamin
+                <span className="text-[#9CA3AF] dark:text-slate-500 text-[10px] block flex items-center gap-1">
+                  <Users className="w-3 h-3 text-[#9CA3AF] dark:text-slate-500" /> Jenis Kelamin
                 </span>
-                <span className="font-semibold text-[#111827] text-xs">
+                <span className="font-semibold text-[#111827] dark:text-slate-200 text-xs">
                   {formatGender(employeeGender)}
                 </span>
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[#9CA3AF] text-[10px] block flex items-center gap-1">
-                  <Building className="w-3 h-3 text-[#9CA3AF]" /> Unit / Dept
+                <span className="text-[#9CA3AF] dark:text-slate-500 text-[10px] block flex items-center gap-1">
+                  <Building className="w-3 h-3 text-[#9CA3AF] dark:text-slate-500" /> Unit / Dept
                 </span>
-                <span className="font-semibold text-[#111827] text-xs truncate block" title={departmentName || '—'}>
+                <span className="font-semibold text-[#111827] dark:text-slate-200 text-xs truncate block" title={departmentName || '—'}>
                   {departmentName || '—'}
                 </span>
               </div>
 
               <div className="space-y-0.5 col-span-2 sm:col-span-2">
-                <span className="text-[#9CA3AF] text-[10px] block flex items-center gap-1">
-                  <Briefcase className="w-3 h-3 text-[#9CA3AF]" /> Jabatan
+                <span className="text-[#9CA3AF] dark:text-slate-500 text-[10px] block flex items-center gap-1">
+                  <Briefcase className="w-3 h-3 text-[#9CA3AF] dark:text-slate-500" /> Jabatan
                 </span>
-                <span className="font-semibold text-[#111827] text-xs truncate block" title={positionName || '—'}>
+                <span className="font-semibold text-[#111827] dark:text-slate-200 text-xs truncate block" title={positionName || '—'}>
                   {positionName || '—'}
                 </span>
               </div>
@@ -333,11 +333,11 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           {/* =================================================================== */}
           {/* SECTION B: INFORMASI PENGAJUAN                                      */}
           {/* =================================================================== */}
-          <div className="border border-[#E5E7EB] rounded-2xl p-4 space-y-3 text-xs bg-white shadow-2xs">
+          <div className="border border-[#E5E7EB] dark:border-slate-800 rounded-2xl p-4 space-y-3 text-xs bg-white dark:bg-slate-800/60 shadow-2xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-[#F97316]" />
-                <span className="font-bold text-[#111827] text-xs sm:text-sm">
+                <FileText className="w-4 h-4 text-[#F97316] dark:text-amber-400" />
+                <span className="font-bold text-[#111827] dark:text-white text-xs sm:text-sm">
                   Rincian Permohonan
                 </span>
               </div>
@@ -345,38 +345,38 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-1">
-                <span className="text-[#9CA3AF] text-[11px] block">Tanggal Mulai</span>
-                <span className="font-bold text-[#111827] flex items-center gap-1.5 text-xs">
-                  <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
+              <div className="p-2.5 rounded-xl bg-[#F9FAFB] dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 space-y-1">
+                <span className="text-[#9CA3AF] dark:text-slate-400 text-[11px] block">Tanggal Mulai</span>
+                <span className="font-bold text-[#111827] dark:text-slate-200 flex items-center gap-1.5 text-xs">
+                  <Calendar className="w-3.5 h-3.5 text-[#F97316] dark:text-amber-400" />
                   {formatRequestDate(startDate)}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-1">
-                <span className="text-[#9CA3AF] text-[11px] block">Tanggal Selesai</span>
-                <span className="font-bold text-[#111827] flex items-center gap-1.5 text-xs">
-                  <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
+              <div className="p-2.5 rounded-xl bg-[#F9FAFB] dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 space-y-1">
+                <span className="text-[#9CA3AF] dark:text-slate-400 text-[11px] block">Tanggal Selesai</span>
+                <span className="font-bold text-[#111827] dark:text-slate-200 flex items-center gap-1.5 text-xs">
+                  <Calendar className="w-3.5 h-3.5 text-[#F97316] dark:text-amber-400" />
                   {formatRequestDate(endDate)}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1 border-t border-[#F3F4F6] text-[11px]">
-              <div className="flex items-center gap-1 text-[#6B7280]">
-                <Clock className="w-3.5 h-3.5 text-[#9CA3AF]" />
+            <div className="flex items-center justify-between pt-1 border-t border-[#F3F4F6] dark:border-slate-700 text-[11px]">
+              <div className="flex items-center gap-1 text-[#6B7280] dark:text-slate-400">
+                <Clock className="w-3.5 h-3.5 text-[#9CA3AF] dark:text-slate-500" />
                 <span>Diajukan pada {formatRequestDateTime(submittedAt)}</span>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF7ED] text-[#EA580C] border border-[#F97316]/30">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF7ED] dark:bg-amber-950/50 text-[#EA580C] dark:text-amber-400 border border-[#F97316]/30 dark:border-amber-900/50">
                 Durasi: {formatRequestDuration(startDate, endDate)}
               </span>
             </div>
 
             <div>
-              <span className="block text-[11px] font-semibold text-[#6B7280] mb-1">
+              <span className="block text-[11px] font-semibold text-[#6B7280] dark:text-slate-400 mb-1">
                 Alasan Pengajuan:
               </span>
-              <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-[#374151] leading-relaxed whitespace-pre-wrap">
+              <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 text-xs text-[#374151] dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                 {reason || '—'}
               </div>
             </div>
@@ -386,26 +386,26 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           {/* SECTION C: INFORMASI REVIEW & STATUS                                */}
           {/* =================================================================== */}
           <div className="space-y-1.5">
-            <span className="block text-xs font-semibold text-[#111827]">
+            <span className="block text-xs font-semibold text-[#111827] dark:text-slate-200">
               Status & Hasil Peninjauan:
             </span>
 
             {isPending ? (
-              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-amber-950 flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-950 dark:text-amber-300 flex items-start gap-2.5">
+                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold block text-xs">Menunggu Review</span>
-                  <p className="text-[11px] text-amber-800 mt-0.5">
+                  <p className="text-[11px] text-amber-800 dark:text-amber-400 mt-0.5">
                     Permohonan ini berada dalam status <strong>pending</strong> dan membutuhkan keputusan persetujuan atau penolakan dari peninjau.
                   </p>
                 </div>
               </div>
             ) : currentStatus === 'cancelled' ? (
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 flex items-start gap-2.5">
-                <Ban className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-300 flex items-start gap-2.5">
+                <Ban className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold block text-xs">Dibatalkan oleh Pegawai</span>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                     Permohonan ini telah dibatalkan oleh pegawai yang bersangkutan. Status ini bersifat final.
                   </p>
                 </div>
@@ -415,42 +415,42 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
               <div
                 className={`p-3.5 rounded-xl border space-y-2 text-xs ${
                   currentStatus === 'approved'
-                    ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950'
-                    : 'bg-red-50/50 border-red-200 text-red-950'
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900 text-emerald-950 dark:text-emerald-300'
+                    : 'bg-red-50/50 dark:bg-red-950/30 border-red-200 dark:border-red-900 text-red-950 dark:text-red-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold flex items-center gap-1.5 text-xs">
                     {currentStatus === 'approved' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     ) : (
-                      <XCircle className="w-4 h-4 text-red-600" />
+                      <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                     )}
                     {currentStatus === 'approved'
                       ? 'Disetujui oleh Peninjau'
                       : 'Ditolak oleh Peninjau'}
                   </span>
-                  <span className="text-[11px] text-[#6B7280]">
+                  <span className="text-[11px] text-[#6B7280] dark:text-slate-400">
                     {formatRequestDateTime(reviewedAt)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-[11px] text-[#4B5563]">
-                  <User className="w-3.5 h-3.5 text-[#6B7280]" />
+                <div className="flex items-center gap-1.5 text-[11px] text-[#4B5563] dark:text-slate-400">
+                  <User className="w-3.5 h-3.5 text-[#6B7280] dark:text-slate-500" />
                   <span>
                     Ditinjau oleh:{' '}
-                    <strong className="text-[#111827]">
+                    <strong className="text-[#111827] dark:text-white">
                       {reviewerName}
                     </strong>
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-black/5">
-                  <span className="text-[11px] font-semibold text-[#6B7280] block mb-0.5 flex items-center gap-1">
+                <div className="pt-2 border-t border-black/5 dark:border-white/10">
+                  <span className="text-[11px] font-semibold text-[#6B7280] dark:text-slate-400 block mb-0.5 flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" />
                     Catatan Peninjau:
                   </span>
-                  <p className="italic text-[#374151] whitespace-pre-wrap">
+                  <p className="italic text-[#374151] dark:text-slate-300 whitespace-pre-wrap">
                     "{savedReviewerNote || 'Tidak ada catatan tambahan.'}"
                   </p>
                 </div>
@@ -461,20 +461,20 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           {/* =================================================================== */}
           {/* SECTION D: STATUS TIMELINE (Actual data only, Section 9)           */}
           {/* =================================================================== */}
-          <div className="border border-[#E5E7EB] rounded-2xl p-4 space-y-3 bg-[#F9FAFB] text-xs">
-            <span className="font-bold text-[#111827] text-xs block">
+          <div className="border border-[#E5E7EB] dark:border-slate-800 rounded-2xl p-4 space-y-3 bg-[#F9FAFB] dark:bg-slate-800/60 text-xs">
+            <span className="font-bold text-[#111827] dark:text-white text-xs block">
               Timeline Pengajuan
             </span>
 
-            <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E5E7EB]">
+            <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E5E7EB] dark:before:bg-slate-700">
               {/* Step 1: Diajukan */}
               <div className="relative">
-                <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-300 flex items-center justify-center">
+                <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 flex items-center justify-center">
                   <Check className="w-3 h-3" />
                 </div>
                 <div>
-                  <div className="font-bold text-[#111827]">Diajukan oleh Pegawai</div>
-                  <div className="text-[11px] text-[#6B7280]">
+                  <div className="font-bold text-[#111827] dark:text-white">Diajukan oleh Pegawai</div>
+                  <div className="text-[11px] text-[#6B7280] dark:text-slate-400">
                     {formatRequestDateTime(submittedAt)}
                   </div>
                 </div>
@@ -485,10 +485,10 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                 <div
                   className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center border ${
                     currentStatus === 'pending'
-                      ? 'bg-amber-100 text-amber-600 border-amber-300'
+                      ? 'bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700'
                       : currentStatus === 'cancelled'
-                      ? 'bg-slate-100 text-slate-500 border-slate-300'
-                      : 'bg-emerald-100 text-emerald-600 border-emerald-300'
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                      : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700'
                   }`}
                 >
                   {currentStatus === 'pending' ? (
@@ -500,8 +500,8 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   )}
                 </div>
                 <div>
-                  <div className="font-bold text-[#111827]">Proses Peninjauan</div>
-                  <div className="text-[11px] text-[#6B7280]">
+                  <div className="font-bold text-[#111827] dark:text-white">Proses Peninjauan</div>
+                  <div className="text-[11px] text-[#6B7280] dark:text-slate-400">
                     {currentStatus === 'pending'
                       ? 'Menunggu peninjauan pimpinan/administrator'
                       : currentStatus === 'cancelled'
@@ -516,26 +516,26 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                 <div
                   className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center border ${
                     currentStatus === 'approved'
-                      ? 'bg-emerald-100 text-emerald-600 border-emerald-300'
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700'
                       : currentStatus === 'rejected'
-                      ? 'bg-red-100 text-red-600 border-red-300'
+                      ? 'bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700'
                       : currentStatus === 'cancelled'
-                      ? 'bg-slate-100 text-slate-500 border-slate-300'
-                      : 'bg-amber-50 text-amber-500 border-amber-200'
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                      : 'bg-amber-50 dark:bg-amber-950/50 text-amber-500 dark:text-amber-400 border-amber-200 dark:border-amber-800'
                   }`}
                 >
                   {currentStatus === 'approved' ? (
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                   ) : currentStatus === 'rejected' ? (
-                    <XCircle className="w-3 h-3 text-red-600" />
+                    <XCircle className="w-3 h-3 text-red-600 dark:text-red-400" />
                   ) : currentStatus === 'cancelled' ? (
-                    <Ban className="w-3 h-3 text-slate-500" />
+                    <Ban className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                   ) : (
-                    <Hourglass className="w-3 h-3 text-amber-500" />
+                    <Hourglass className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                   )}
                 </div>
                 <div>
-                  <div className="font-bold text-[#111827]">
+                  <div className="font-bold text-[#111827] dark:text-white">
                     {currentStatus === 'approved'
                       ? 'Keputusan: Disetujui'
                       : currentStatus === 'rejected'
@@ -544,7 +544,7 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                       ? 'Keputusan: Dibatalkan'
                       : 'Menunggu Keputusan'}
                   </div>
-                  <div className="text-[11px] text-[#6B7280]">
+                  <div className="text-[11px] text-[#6B7280] dark:text-slate-400">
                     {currentStatus === 'approved'
                       ? 'Permohonan telah disetujui dan berlaku untuk periode terkait'
                       : currentStatus === 'rejected'
@@ -562,21 +562,21 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           {/* SECTION E: CONFIRMATION FORMS (Approve / Reject)                   */}
           {/* =================================================================== */}
           {actionType === 'confirm_approve' && isPending && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs space-y-3 animate-in fade-in duration-150">
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-950 dark:text-emerald-300 text-xs space-y-3 animate-in fade-in duration-150">
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <p className="font-bold text-emerald-950">
+                  <p className="font-bold text-emerald-950 dark:text-emerald-200">
                     Setujui Permohonan Pegawai ini?
                   </p>
-                  <p className="text-emerald-800 leading-relaxed text-[11px]">
+                  <p className="text-emerald-800 dark:text-emerald-300 leading-relaxed text-[11px]">
                     Status permohonan akan diubah menjadi <strong>Disetujui</strong>.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-emerald-900 block">
+                <label className="text-[11px] font-semibold text-emerald-900 dark:text-emerald-300 block">
                   Catatan Persetujuan (Opsional):
                 </label>
                 <textarea
@@ -584,7 +584,7 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   onChange={(e) => setReviewerNote(e.target.value)}
                   placeholder="Tambahkan catatan jika diperlukan..."
                   rows={2}
-                  className="w-full p-2.5 rounded-lg border border-emerald-300 text-xs text-[#111827] focus:outline-hidden focus:border-emerald-600 bg-white"
+                  className="w-full p-2.5 rounded-lg border border-emerald-300 dark:border-emerald-800 text-xs text-[#111827] dark:text-white focus:outline-hidden focus:border-emerald-600 bg-white dark:bg-slate-900"
                 />
               </div>
 
@@ -614,22 +614,22 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
           )}
 
           {actionType === 'confirm_reject' && isPending && (
-            <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-950 text-xs space-y-3 animate-in fade-in duration-150">
+            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-950 dark:text-red-300 text-xs space-y-3 animate-in fade-in duration-150">
               <div className="flex items-start gap-2.5">
-                <XCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <XCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <p className="font-bold text-red-950">
+                  <p className="font-bold text-red-950 dark:text-red-200">
                     Tolak Permohonan Pegawai ini?
                   </p>
-                  <p className="text-red-800 leading-relaxed text-[11px]">
+                  <p className="text-red-800 dark:text-red-300 leading-relaxed text-[11px]">
                     Status permohonan akan diubah menjadi <strong>Ditolak</strong>. Catatan penolakan wajib diisi.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-red-900 block">
-                  Alasan Penolakan <span className="text-red-600">*</span>
+                <label className="text-[11px] font-semibold text-red-900 dark:text-red-300 block">
+                  Alasan Penolakan <span className="text-red-600 dark:text-red-400">*</span>
                 </label>
                 <textarea
                   value={reviewerNote}
@@ -637,7 +637,7 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   placeholder="Tuliskan alasan penolakan secara jelas..."
                   rows={2}
                   required
-                  className="w-full p-2.5 rounded-lg border border-red-300 text-xs text-[#111827] focus:outline-hidden focus:border-red-600 bg-white"
+                  className="w-full p-2.5 rounded-lg border border-red-300 dark:border-red-800 text-xs text-[#111827] dark:text-white focus:outline-hidden focus:border-red-600 bg-white dark:bg-slate-900"
                 />
               </div>
 
@@ -668,7 +668,7 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between">
+        <div className="p-4 border-t border-[#E5E7EB] dark:border-slate-800 bg-[#F9FAFB] dark:bg-slate-800/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {isPending && actionType === 'idle' && (
               <>
@@ -679,7 +679,7 @@ export const ReviewRequestModal: React.FC<ReviewRequestModalProps> = ({
                   onClick={() => setActionType('confirm_reject')}
                   disabled={submitting}
                   leftIcon={<XCircle className="w-4 h-4 text-red-500" />}
-                  className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 font-semibold"
+                  className="text-xs text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-700 font-semibold"
                 >
                   Tolak
                 </Button>

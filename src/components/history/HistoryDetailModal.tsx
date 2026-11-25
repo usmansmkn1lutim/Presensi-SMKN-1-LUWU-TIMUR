@@ -46,31 +46,31 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
   const checkOutLocation = record.check_out_location?.name || checkInLocation;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-5">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] text-[#F97316] flex items-center justify-center shrink-0 border border-[#FFEDD5]">
+            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] flex items-center justify-center shrink-0 border border-[#FFEDD5] dark:border-[#9A3412]/50">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">Rincian Presensi Harian</h3>
-              <p className="text-xs text-[#6B7280]">{formatDate(record.attendance_date)}</p>
+              <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Rincian Presensi Harian</h3>
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">{formatDate(record.attendance_date)}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280] hover:text-[#111827] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#F3F4F6] dark:bg-[#303030] hover:bg-[#E5E7EB] dark:hover:bg-[#404040] text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Check-in Details */}
-        <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
+        <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1.5">
               <LogIn className="w-4 h-4 text-[#F97316]" />
               Presensi Masuk (Check-in)
             </span>
@@ -83,20 +83,20 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
                 Terlambat
               </span>
             ) : (
-              <span className="text-xs text-[#9CA3AF]">—</span>
+              <span className="text-xs text-[#9CA3AF] dark:text-[#737373]">—</span>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs pt-1">
             <div>
-              <span className="text-[#6B7280] block text-[11px]">Waktu Check-in</span>
-              <span className="font-bold text-[#111827] text-sm mt-0.5 block">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3] block text-[11px]">Waktu Check-in</span>
+              <span className="font-bold text-[#111827] dark:text-[#F9FAFB] text-sm mt-0.5 block">
                 {formatTime(record.check_in_at)}
               </span>
             </div>
             <div>
-              <span className="text-[#6B7280] block text-[11px]">Lokasi Check-in</span>
-              <span className="font-semibold text-[#111827] mt-0.5 block flex items-center gap-1">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3] block text-[11px]">Lokasi Check-in</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] mt-0.5 block flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-[#F97316] shrink-0" />
                 {checkInLocation}
               </span>
@@ -105,9 +105,9 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
         </div>
 
         {/* Check-out Details */}
-        <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
+        <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1.5">
               <LogOut className="w-4 h-4 text-[#F97316]" />
               Presensi Pulang (Check-out)
             </span>
@@ -120,7 +120,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
                 Setelah Jam Kerja
               </span>
             ) : (
-              <span className="text-xs text-[#6B7280]">
+              <span className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 Belum Check-out
               </span>
             )}
@@ -128,14 +128,14 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3 text-xs pt-1">
             <div>
-              <span className="text-[#6B7280] block text-[11px]">Waktu Check-out</span>
-              <span className="font-bold text-[#111827] text-sm mt-0.5 block">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3] block text-[11px]">Waktu Check-out</span>
+              <span className="font-bold text-[#111827] dark:text-[#F9FAFB] text-sm mt-0.5 block">
                 {record.check_out_at ? formatTime(record.check_out_at) : '-'}
               </span>
             </div>
             <div>
-              <span className="text-[#6B7280] block text-[11px]">Lokasi Check-out</span>
-              <span className="font-semibold text-[#111827] mt-0.5 block flex items-center gap-1">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3] block text-[11px]">Lokasi Check-out</span>
+              <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] mt-0.5 block flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-[#F97316] shrink-0" />
                 {record.check_out_at ? checkOutLocation : '-'}
               </span>
@@ -145,8 +145,8 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({
 
         {/* Notes section if present */}
         {record.notes && (
-          <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-xs text-[#6B7280] space-y-1">
-            <span className="font-semibold text-[#111827] flex items-center gap-1">
+          <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040] text-xs text-[#6B7280] dark:text-[#A3A3A3] space-y-1">
+            <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1">
               <FileText className="w-3.5 h-3.5 text-[#F97316]" />
               Catatan:
             </span>

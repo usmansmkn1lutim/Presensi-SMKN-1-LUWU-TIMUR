@@ -46,15 +46,15 @@ export const StatusConfirmModal: React.FC<StatusConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/75 backdrop-blur-2xs p-4">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-2.5">
             <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center ${
                 isDeactivating
-                  ? 'bg-amber-50 text-amber-600 border border-amber-200'
-                  : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60'
+                  : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60'
               }`}
             >
               {isDeactivating ? (
@@ -64,42 +64,42 @@ export const StatusConfirmModal: React.FC<StatusConfirmModalProps> = ({
               )}
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">
+              <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
                 {isDeactivating ? 'Nonaktifkan Pegawai?' : 'Aktifkan Pegawai?'}
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="py-4 space-y-3 text-xs text-[#4B5563]">
+        <div className="py-4 space-y-3 text-xs text-[#4B5563] dark:text-slate-300">
           <p>
             {isDeactivating
               ? 'Pegawai tidak akan dihapus. Statusnya akan diubah menjadi tidak aktif.'
               : 'Status pegawai akan diubah kembali menjadi aktif sehingga tercatat dalam sistem sekolah.'}
           </p>
 
-          <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB]">
-            <p className="font-bold text-[#111827]">{employee.full_name}</p>
-            <p className="text-[11px] text-[#6B7280] font-mono mt-0.5">
+          <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040]">
+            <p className="font-bold text-[#111827] dark:text-[#F9FAFB]">{employee.full_name}</p>
+            <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-mono mt-0.5">
               NIP: {employee.nip || '—'} · Jabatan:{' '}
               {employee.positions?.name || 'Belum diatur'}
             </p>
           </div>
 
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700">
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 text-xs text-red-700 dark:text-red-400">
               {errorMessage}
             </div>
           )}
         </div>
 
-        <div className="pt-3 border-t border-[#E5E7EB] flex items-center justify-end gap-2.5">
+        <div className="pt-3 border-t border-[#E5E7EB] dark:border-[#404040] flex items-center justify-end gap-2.5">
           <Button
             type="button"
             variant="outline"
@@ -117,7 +117,7 @@ export const StatusConfirmModal: React.FC<StatusConfirmModalProps> = ({
             isLoading={isSubmitting}
             className={
               isDeactivating
-                ? 'text-amber-700 border-amber-300 hover:bg-amber-50'
+                ? 'text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40'
                 : ''
             }
           >

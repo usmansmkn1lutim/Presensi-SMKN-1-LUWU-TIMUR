@@ -21,12 +21,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses} ${className}`}
-      style={{
-        backgroundColor: token.bgHex,
-        color: token.textHex,
-        borderColor: token.borderHex,
-      }}
+      className={`inline-flex items-center rounded-md font-semibold border ${sizeClasses} ${token.badgeClass} ${className}`}
       title={title}
     >
       {children}

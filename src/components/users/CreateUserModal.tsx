@@ -78,18 +78,18 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[#E5E7EB] dark:border-slate-800 shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 flex flex-col text-slate-900 dark:text-slate-100">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-amber-950/50 border border-orange-200 dark:border-amber-900/50 text-[#F97316] dark:text-amber-400 flex items-center justify-center">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">
+              <h3 className="text-base font-bold text-[#111827] dark:text-white">
                 Tambah Pengguna Baru
               </h3>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-slate-400">
                 Buat akun login aplikasi melalui Supabase Auth
               </p>
             </div>
@@ -97,7 +97,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -107,19 +107,19 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           {/* Error Message */}
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-xs text-red-700">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-center gap-2 text-xs text-red-700 dark:text-red-300">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* Full Name */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#374151]">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300">
               Nama Lengkap <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <User className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF]" />
+              <User className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF] dark:text-slate-500" />
               <input
                 type="text"
                 required
@@ -127,18 +127,18 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 placeholder="Masukkan nama lengkap"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                className="w-full h-9 pl-9 pr-3 text-xs bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
               />
             </div>
           </div>
 
           {/* Email */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#374151]">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300">
               Alamat Email <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF]" />
+              <Mail className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF] dark:text-slate-500" />
               <input
                 type="email"
                 required
@@ -146,26 +146,26 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 placeholder="nama@sekolah.sch.id"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                className="w-full h-9 pl-9 pr-3 text-xs bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
               />
             </div>
-            <p className="text-[11px] text-[#9CA3AF]">
+            <p className="text-[11px] text-[#9CA3AF] dark:text-slate-500">
               Email akan digunakan pengguna untuk login dan pemulihan akun.
             </p>
           </div>
 
           {/* Role Selection */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#374151]">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300">
               Peran (Role) <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Shield className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF]" />
+              <Shield className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF] dark:text-slate-500" />
               <select
                 disabled={isLoading}
                 value={role}
                 onChange={(e) => setRole(e.target.value as ActiveAppRole)}
-                className="w-full h-9 pl-9 pr-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                className="w-full h-9 pl-9 pr-3 text-xs bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white"
               >
                 {isSuperAdmin && (
                   <option value="super_admin">Super Admin</option>
@@ -178,22 +178,22 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               </select>
             </div>
             {!isSuperAdmin && (
-              <p className="text-[11px] text-[#6B7280]">
+              <p className="text-[11px] text-[#6B7280] dark:text-slate-400">
                 Admin hanya berwenang membuat akun dengan peran Kepala Sekolah atau Pegawai.
               </p>
             )}
           </div>
 
           {/* Notice Box */}
-          <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-[11px] text-[#6B7280] space-y-1">
-            <p className="font-semibold text-[#111827]">Keamanan Kata Sandi</p>
+          <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-800 text-[11px] text-[#6B7280] dark:text-slate-400 space-y-1">
+            <p className="font-semibold text-[#111827] dark:text-white">Keamanan Kata Sandi</p>
             <p>
               Akun akan dibuat secara aman. Pengguna dapat menetapkan kata sandi melalui tautan reset kata sandi atau email aktivasi.
             </p>
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-2 border-t border-[#E5E7EB] flex items-center justify-end gap-2.5">
+          <div className="pt-2 border-t border-[#E5E7EB] dark:border-slate-800 flex items-center justify-end gap-2.5">
             <Button
               type="button"
               variant="outline"

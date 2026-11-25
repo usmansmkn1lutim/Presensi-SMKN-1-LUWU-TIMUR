@@ -22,11 +22,11 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs space-y-4 animate-pulse">
-        <div className="h-5 bg-[#F3F4F6] rounded w-1/3" />
+      <div className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-5 shadow-2xs space-y-4 animate-pulse">
+        <div className="h-5 bg-[#F3F4F6] dark:bg-zinc-800 rounded w-1/3" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="h-40 bg-[#F3F4F6] rounded-xl" />
-          <div className="h-40 bg-[#F3F4F6] rounded-xl" />
+          <div className="h-40 bg-[#F3F4F6] dark:bg-zinc-800 rounded-xl" />
+          <div className="h-40 bg-[#F3F4F6] dark:bg-zinc-800 rounded-xl" />
         </div>
       </div>
     );
@@ -34,7 +34,7 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
 
   if (!statistics) {
     return (
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 text-center text-xs text-[#6B7280]">
+      <div className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-6 text-center text-xs text-[#6B7280] dark:text-[#9CA3AF]">
         Belum ada data statistik untuk ditampilkan.
       </div>
     );
@@ -50,15 +50,15 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
   const maxDeptEmp = Math.max(1, ...departmentStats.map((d) => d.totalEmployees));
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs space-y-6">
+    <div className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-5 sm:p-6 shadow-2xs space-y-6">
       {/* Section Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-[#333]">
         <div>
-          <h3 className="text-base font-bold text-[#111827] flex items-center gap-2">
+          <h3 className="text-base font-bold text-[#111827] dark:text-[#F3F4F6] flex items-center gap-2">
             <PieChart className="w-4 h-4 text-[#F97316]" />
             Statistik Presensi
           </h3>
-          <p className="text-xs text-[#6B7280] mt-0.5">
+          <p className="text-xs text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
             Visualisasi distribusi kehadiran, tren harian, dan perbandingan departemen
           </p>
         </div>
@@ -67,19 +67,19 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
       {/* Grid 1: Status Distribution Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Check-in Status Card */}
-        <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
+        <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F3F4F6] flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-[#F97316]" />
               Statistik Status Masuk
             </span>
-            <span className="text-[11px] font-semibold text-[#6B7280]">
+            <span className="text-[11px] font-semibold text-[#6B7280] dark:text-[#9CA3AF]">
               Total: {checkInStatusStats.onTimeCount + checkInStatusStats.lateCount}
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="h-3 w-full bg-[#E5E7EB] rounded-full overflow-hidden flex">
+          <div className="h-3 w-full bg-[#E5E7EB] dark:bg-zinc-700 rounded-full overflow-hidden flex">
             <div
               style={{ width: `${checkInStatusStats.onTimePercentage}%`, backgroundColor: 'var(--color-status-present)' }}
               className="h-full transition-all duration-500"
@@ -93,27 +93,27 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
-                <CircleCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280] dark:text-[#9CA3AF]">
+                <CircleCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>Tepat Waktu</span>
               </div>
-              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
+              <div className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F3F4F6] tabular-nums">
                 {checkInStatusStats.onTimeCount}{' '}
-                <span className="text-xs font-normal text-[#6B7280]">
+                <span className="text-xs font-normal text-[#6B7280] dark:text-[#9CA3AF]">
                   ({checkInStatusStats.onTimePercentage}%)
                 </span>
               </div>
             </div>
 
-            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
-                <ClockAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280] dark:text-[#9CA3AF]">
+                <ClockAlert className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>Terlambat</span>
               </div>
-              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
+              <div className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F3F4F6] tabular-nums">
                 {checkInStatusStats.lateCount}{' '}
-                <span className="text-xs font-normal text-[#6B7280]">
+                <span className="text-xs font-normal text-[#6B7280] dark:text-[#9CA3AF]">
                   ({checkInStatusStats.latePercentage}%)
                 </span>
               </div>
@@ -122,19 +122,19 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
         </div>
 
         {/* Check-out Status Card */}
-        <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
+        <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
-              <LogOut className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F3F4F6] flex items-center gap-1.5">
+              <LogOut className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               Statistik Status Check-out
             </span>
-            <span className="text-[11px] font-semibold text-[#6B7280]">
+            <span className="text-[11px] font-semibold text-[#6B7280] dark:text-[#9CA3AF]">
               Total: {checkOutStatusStats.checkedOutCount + checkOutStatusStats.notCheckedOutCount}
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="h-3 w-full bg-[#E5E7EB] rounded-full overflow-hidden flex">
+          <div className="h-3 w-full bg-[#E5E7EB] dark:bg-zinc-700 rounded-full overflow-hidden flex">
             <div
               style={{ width: `${checkOutStatusStats.checkedOutPercentage}%` }}
               className="bg-blue-500 h-full transition-all duration-500"
@@ -148,27 +148,27 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
-                <LogOut className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280] dark:text-[#9CA3AF]">
+                <LogOut className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span>Sudah Check-out</span>
               </div>
-              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
+              <div className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F3F4F6] tabular-nums">
                 {checkOutStatusStats.checkedOutCount}{' '}
-                <span className="text-xs font-normal text-[#6B7280]">
+                <span className="text-xs font-normal text-[#6B7280] dark:text-[#9CA3AF]">
                   ({checkOutStatusStats.checkedOutPercentage}%)
                 </span>
               </div>
             </div>
 
-            <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
-                <UserRoundX className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+            <div className="p-2.5 sm:p-3 rounded-xl bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] shadow-2xs space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280] dark:text-[#9CA3AF]">
+                <UserRoundX className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span>Belum Check-out</span>
               </div>
-              <div className="text-base sm:text-lg font-bold text-[#111827] tabular-nums">
+              <div className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F3F4F6] tabular-nums">
                 {checkOutStatusStats.notCheckedOutCount}{' '}
-                <span className="text-xs font-normal text-[#6B7280]">
+                <span className="text-xs font-normal text-[#6B7280] dark:text-[#9CA3AF]">
                   ({checkOutStatusStats.notCheckedOutPercentage}%)
                 </span>
               </div>
@@ -179,13 +179,13 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
 
       {/* Grid 2: Daily Trend Chart */}
       {dailyTrend.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-4">
+        <div className="p-4 sm:p-5 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F3F4F6] flex items-center gap-1.5">
               <TrendingUp className="w-4 h-4 text-[#F97316]" />
               Tren Presensi Harian
             </span>
-            <div className="flex items-center gap-3 text-[10px] font-semibold text-[#6B7280]">
+            <div className="flex items-center gap-3 text-[10px] font-semibold text-[#6B7280] dark:text-[#9CA3AF]">
               <span className="flex items-center gap-1">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-status-present)' }} />
                 Tepat Waktu
@@ -203,7 +203,7 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
 
           {/* Daily Bar Chart */}
           <div className="overflow-x-auto pb-2">
-            <div className="min-w-[480px] h-36 flex items-end gap-2 pt-4 px-2 border-b border-[#E5E7EB]">
+            <div className="min-w-[480px] h-36 flex items-end gap-2 pt-4 px-2 border-b border-[#E5E7EB] dark:border-[#333]">
               {dailyTrend.map((pt, idx) => {
                 const totalPt = pt.onTime + pt.late + pt.absent;
                 const barHeight = Math.max(10, Math.round((totalPt / maxDailyPresent) * 100));
@@ -211,7 +211,7 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative">
                     {/* Tooltip */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 bg-[#111827] text-white text-[10px] p-2 rounded-lg shadow-lg pointer-events-none z-20 whitespace-nowrap">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 bg-[#111827] dark:bg-zinc-900 text-white text-[10px] p-2 rounded-lg shadow-lg pointer-events-none z-20 whitespace-nowrap border border-zinc-700">
                       <p className="font-bold border-b border-gray-700 pb-1">{pt.dateLabel}</p>
                       <p style={{ color: 'var(--color-status-present)' }}>Tepat Waktu: {pt.onTime}</p>
                       <p style={{ color: 'var(--color-status-late)' }}>Terlambat: {pt.late}</p>
@@ -221,7 +221,7 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
                     {/* Stacked Bar */}
                     <div
                       style={{ height: `${barHeight}%` }}
-                      className="w-full max-w-[28px] rounded-t-sm overflow-hidden flex flex-col justify-end bg-gray-100"
+                      className="w-full max-w-[28px] rounded-t-sm overflow-hidden flex flex-col justify-end bg-gray-100 dark:bg-zinc-700"
                     >
                       {pt.absent > 0 && (
                         <div
@@ -244,7 +244,7 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
                     </div>
 
                     {/* X Label */}
-                    <span className="text-[10px] text-[#6B7280] font-medium tracking-tight">
+                    <span className="text-[10px] text-[#6B7280] dark:text-[#9CA3AF] font-medium tracking-tight">
                       {pt.dateLabel}
                     </span>
                   </div>
@@ -257,9 +257,9 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
 
       {/* Grid 3: Department Comparison */}
       {departmentStats.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-4">
+        <div className="p-4 sm:p-5 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F3F4F6] flex items-center gap-1.5">
               <Building2 className="w-4 h-4 text-[#F97316]" />
               Presensi Berdasarkan Departemen
             </span>
@@ -275,14 +275,14 @@ export const RecapStatisticsSection: React.FC<RecapStatisticsSectionProps> = ({
               return (
                 <div key={dept.departmentId} className="space-y-1.5 text-xs">
                   <div className="flex items-center justify-between font-medium">
-                    <span className="text-[#111827] font-bold">{dept.departmentName}</span>
-                    <span className="text-[#6B7280] text-[11px]">
+                    <span className="text-[#111827] dark:text-[#F3F4F6] font-bold">{dept.departmentName}</span>
+                    <span className="text-[#6B7280] dark:text-[#9CA3AF] text-[11px]">
                       {dept.totalEmployees} Pegawai · {dept.totalAttendance} Presensi
                     </span>
                   </div>
 
                   {/* Stacked Progress Bar */}
-                  <div className="h-2.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden flex">
+                  <div className="h-2.5 w-full bg-[#E5E7EB] dark:bg-zinc-700 rounded-full overflow-hidden flex">
                     <div
                       style={{ width: `${onTimePct}%`, backgroundColor: 'var(--color-status-present)' }}
                       className="h-full"

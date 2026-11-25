@@ -21,18 +21,18 @@ export const LogoutConfirmModal: React.FC<LogoutConfirmModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="logout-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-[2px] animate-in fade-in duration-150"
     >
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl space-y-4 animate-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl space-y-4 animate-in zoom-in-95 duration-150">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/60 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
             <AlertCircle className="w-5 h-5" />
           </div>
           <div>
-            <h4 id="logout-title" className="text-base font-bold text-[#111827]">
+            <h4 id="logout-title" className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
               Konfirmasi Keluar
             </h4>
-            <p className="text-xs text-[#6B7280]">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
               Apakah Anda yakin ingin keluar dari akun ini?
             </p>
           </div>
@@ -43,7 +43,7 @@ export const LogoutConfirmModal: React.FC<LogoutConfirmModalProps> = ({
             type="button"
             disabled={isLoggingOut}
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-[#4B5563] bg-[#F3F4F6] hover:bg-[#E5E7EB] transition-colors cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-[#4B5563] dark:text-[#A3A3A3] bg-[#F3F4F6] dark:bg-[#303030] hover:bg-[#E5E7EB] dark:hover:bg-[#404040] transition-colors cursor-pointer disabled:opacity-50"
           >
             Batal
           </button>

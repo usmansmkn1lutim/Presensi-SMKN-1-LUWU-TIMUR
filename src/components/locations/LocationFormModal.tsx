@@ -242,19 +242,19 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E5E7EB] my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/75 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl max-w-lg w-full shadow-2xl border border-[#E5E7EB] dark:border-[#404040] my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#F97316] dark:text-orange-400 flex items-center justify-center">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-[#111827]">
+              <h2 className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F9FAFB]">
                 {isEditMode ? 'Edit Lokasi' : 'Tambah Lokasi Baru'}
               </h2>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 {isEditMode
                   ? 'Perbarui informasi titik lokasi dan batas geofence'
                   : 'Daftarkan titik lokasi baru untuk presensi pegawai'}
@@ -265,7 +265,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg transition-colors cursor-pointer"
+            className="text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -275,21 +275,21 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           {/* Top Error Alert */}
           {errorMessage && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 rounded-xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
 
           {/* Section 1: Informasi Dasar Lokasi */}
           <div className="space-y-3.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] dark:text-slate-400">
               Informasi Lokasi
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-[#374151] mb-1">
+                <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                   Nama Lokasi <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -299,12 +299,12 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                   placeholder="Contoh: Kantor/TU"
                   required
                   disabled={isLoading}
-                  className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                  className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#374151] mb-1">
+                <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                   Kode <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -314,23 +314,23 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                   placeholder="OFFICE"
                   required
                   disabled={isLoading}
-                  className="w-full px-3.5 py-2 text-sm font-mono uppercase bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                  className="w-full px-3.5 py-2 text-sm font-mono uppercase bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1">
+              <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                 Tipe Lokasi <span className="text-red-500">*</span>
               </label>
               <select
                 value={locationType}
                 onChange={(e) => setLocationType(e.target.value as LocationType)}
                 disabled={isLoading}
-                className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
               >
                 {LOCATION_TYPE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
+                  <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#262626] text-[#111827] dark:text-white">
                     {opt.label}
                   </option>
                 ))}
@@ -338,7 +338,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1">
+              <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                 Deskripsi <span className="text-xs font-normal text-[#9CA3AF]">(Opsional)</span>
               </label>
               <textarea
@@ -347,12 +347,12 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                 placeholder="Keterangan fungsi atau ruangan..."
                 rows={2}
                 disabled={isLoading}
-                className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1">
+              <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                 Alamat / Petunjuk Arah <span className="text-xs font-normal text-[#9CA3AF]">(Opsional)</span>
               </label>
               <textarea
@@ -361,22 +361,22 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                 placeholder="Contoh: Gedung A Lt. 1, SMKN 1 Luwu Timur"
                 rows={2}
                 disabled={isLoading}
-                className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
               />
             </div>
           </div>
 
           {/* Section 2: Koordinat GPS & Tombol "Gunakan Lokasi Saya" */}
-          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB]">
+          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB] dark:border-[#404040]">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] dark:text-slate-400">
                 Koordinat GPS
               </h3>
               <button
                 type="button"
                 onClick={handleGetCurrentLocation}
                 disabled={isLoading || isLocating}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#F97316] bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#F97316] dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isLocating ? (
                   <>
@@ -397,14 +397,14 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
               <div
                 className={`p-3 rounded-xl flex items-start gap-2 text-xs animate-in fade-in ${
                   geoFeedback.type === 'success'
-                    ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-                    : 'bg-amber-50 border border-amber-200 text-amber-800'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+                    : 'bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200'
                 }`}
               >
                 {geoFeedback.type === 'success' ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 )}
                 <span>{geoFeedback.message}</span>
               </div>
@@ -412,7 +412,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#374151] mb-1">
+                <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                   Latitude (-90 s/d 90)
                 </label>
                 <input
@@ -422,12 +422,12 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                   onChange={(e) => setLatitude(e.target.value)}
                   placeholder="-2.585521"
                   disabled={isLoading}
-                  className="w-full px-3.5 py-2 text-sm font-mono bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                  className="w-full px-3.5 py-2 text-sm font-mono bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#374151] mb-1">
+                <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                   Longitude (-180 s/d 180)
                 </label>
                 <input
@@ -437,23 +437,23 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                   onChange={(e) => setLongitude(e.target.value)}
                   placeholder="121.145892"
                   disabled={isLoading}
-                  className="w-full px-3.5 py-2 text-sm font-mono bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                  className="w-full px-3.5 py-2 text-sm font-mono bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
                 />
               </div>
             </div>
-            <p className="text-[11px] text-[#6B7280]">
+            <p className="text-[11px] text-[#6B7280] dark:text-slate-400">
               Kosongkan jika koordinat belum diketahui (status presensi wajib nonaktif jika belum ada koordinat).
             </p>
           </div>
 
           {/* Section 3: Pengaturan Presensi & Radius */}
-          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB]">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+          <div className="space-y-3.5 pt-3 border-t border-[#E5E7EB] dark:border-[#404040]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] dark:text-slate-400">
               Pengaturan Presensi
             </h3>
 
             <div>
-              <label className="block text-xs font-semibold text-[#374151] mb-1">
+              <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
                 Radius Geofence Presensi (Meter) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -466,19 +466,19 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                   placeholder="100"
                   required
                   disabled={isLoading}
-                  className="w-full px-3.5 py-2 pr-16 text-sm font-semibold bg-white border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                  className="w-full px-3.5 py-2 pr-16 text-sm font-semibold bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
                 />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#6B7280]">
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-medium text-[#6B7280] dark:text-slate-400">
                   Meter
                 </span>
               </div>
-              <p className="text-[11px] text-[#6B7280] mt-1">
+              <p className="text-[11px] text-[#6B7280] dark:text-slate-400 mt-1">
                 Batas jarak maksimal toleransi presensi dari titik koordinat (1 s/d 500 meter).
               </p>
             </div>
 
             {/* Checkbox: Jadikan Lokasi Presensi */}
-            <div className="bg-orange-50/60 border border-orange-200/80 rounded-xl p-3.5 space-y-2">
+            <div className="bg-orange-50/60 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-900/50 rounded-xl p-3.5 space-y-2">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -488,18 +488,18 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                   className="mt-0.5 w-4 h-4 rounded text-[#F97316] focus:ring-[#F97316] border-[#E5E7EB]"
                 />
                 <div className="text-xs">
-                  <span className="font-bold text-[#111827] block">
+                  <span className="font-bold text-[#111827] dark:text-[#F9FAFB] block">
                     Gunakan sebagai Lokasi Presensi Pegawai
                   </span>
-                  <span className="text-[#6B7280] block mt-0.5">
+                  <span className="text-[#6B7280] dark:text-slate-300 block mt-0.5">
                     Dapat mengaktifkan 3 atau lebih titik presensi aktif secara bersamaan (misal: Kantor/TU, Ruang Guru, Lab, Bengkel, Perpustakaan).
                   </span>
                 </div>
               </label>
 
               {isAttendanceEnabled && (
-                <div className="flex items-start gap-2 pt-2 border-t border-orange-200/60 text-[11px] text-amber-800">
-                  <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 pt-2 border-t border-orange-200/60 dark:border-orange-900/50 text-[11px] text-amber-800 dark:text-amber-300">
+                  <Info className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <span>
                     Lokasi ini akan digunakan untuk presensi pegawai. Koordinat latitude dan longitude wajib diisi.
                   </span>
@@ -508,7 +508,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
             </div>
 
             {/* Checkbox: Status Aktif */}
-            <label className="flex items-center gap-3 p-3 bg-zinc-50 border border-[#E5E7EB] rounded-xl cursor-pointer">
+            <label className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl cursor-pointer">
               <input
                 type="checkbox"
                 checked={isActive}
@@ -517,10 +517,10 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
                 className="w-4 h-4 rounded text-[#F97316] focus:ring-[#F97316] border-[#E5E7EB]"
               />
               <div className="text-xs">
-                <span className="font-semibold text-[#111827] block">
+                <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] block">
                   Status Lokasi Aktif
                 </span>
-                <span className="text-[#6B7280] text-[11px]">
+                <span className="text-[#6B7280] dark:text-slate-400 text-[11px]">
                   Lokasi nonaktif tidak dapat digunakan untuk operasional sistem presensi.
                 </span>
               </div>
@@ -528,7 +528,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5E7EB]">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5E7EB] dark:border-[#404040]">
             <Button
               type="button"
               variant="outline"

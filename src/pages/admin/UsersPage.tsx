@@ -222,8 +222,8 @@ export const UsersPage: React.FC = () => {
     <div className="space-y-6 pb-12">
       {/* Toast Feedback */}
       {successToast && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span className="font-semibold">{successToast}</span>
         </div>
       )}
@@ -231,10 +231,10 @@ export const UsersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#111827]">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB]">
             Manajemen Pengguna
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#A3A3A3] mt-0.5">
             Kelola akun, peran, dan status pengguna aplikasi.
           </p>
         </div>
@@ -253,71 +253,71 @@ export const UsersPage: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-[#6B7280]">Total Pengguna</span>
-            <div className="w-7 h-7 rounded-lg bg-[#F3F4F6] text-[#374151] flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3]">Total Pengguna</span>
+            <div className="w-7 h-7 rounded-lg bg-[#F3F4F6] dark:bg-zinc-800 text-[#374151] dark:text-zinc-300 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-2">
+          <p className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-2">
             {totalCount}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Seluruh akun terdaftar</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-0.5">Seluruh akun terdaftar</p>
         </div>
 
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-700">Pengguna Aktif</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Pengguna Aktif</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <UserCheck className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-emerald-700 mt-2">
+          <p className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-2">
             {activeCount}
           </p>
-          <p className="text-[11px] text-emerald-600/80 mt-0.5">Akun siap digunakan</p>
+          <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/70 mt-0.5">Akun siap digunakan</p>
         </div>
 
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-600">Pengguna Nonaktif</span>
-            <div className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center">
+            <span className="text-xs font-semibold text-gray-600 dark:text-zinc-400">Pengguna Nonaktif</span>
+            <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 flex items-center justify-center">
               <UserX className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-gray-700 mt-2">
+          <p className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-zinc-200 mt-2">
             {inactiveCount}
           </p>
-          <p className="text-[11px] text-gray-500 mt-0.5">Akses ditangguhkan</p>
+          <p className="text-[11px] text-gray-500 dark:text-zinc-400 mt-0.5">Akses ditangguhkan</p>
         </div>
 
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#F97316]">Terhubung ke Pegawai</span>
-            <div className="w-7 h-7 rounded-lg bg-[#FFF7ED] text-[#F97316] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-[#FFF7ED] dark:bg-orange-950/40 text-[#F97316] flex items-center justify-center">
               <Link2 className="w-4 h-4" />
             </div>
           </div>
           <p className="text-xl sm:text-2xl font-bold text-[#F97316] mt-2">
             {linkedCount}
           </p>
-          <p className="text-[11px] text-orange-600/80 mt-0.5">Tertaut ke data HR</p>
+          <p className="text-[11px] text-orange-600/80 dark:text-orange-400/80 mt-0.5">Tertaut ke data HR</p>
         </div>
       </div>
 
       {/* Filters & Search Toolbar */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-3">
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {/* Search Box */}
           <div className="sm:col-span-6 relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF]" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF] dark:text-[#A3A3A3]" />
             <input
               type="text"
               placeholder="Cari nama pengguna atau pegawai..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+              className="w-full h-9 pl-9 pr-3 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB]"
             />
           </div>
 
@@ -326,13 +326,13 @@ export const UsersPage: React.FC = () => {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value as 'all' | ActiveAppRole)}
-              className="w-full h-9 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+              className="w-full h-9 px-3 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB]"
             >
-              <option value="all">Semua Role</option>
-              <option value="super_admin">Super Admin</option>
-              <option value="admin">Admin</option>
-              <option value="headmaster">Kepala Sekolah</option>
-              <option value="employee">Pegawai</option>
+              <option value="all" className="dark:bg-[#202020]">Semua Role</option>
+              <option value="super_admin" className="dark:bg-[#202020]">Super Admin</option>
+              <option value="admin" className="dark:bg-[#202020]">Admin</option>
+              <option value="headmaster" className="dark:bg-[#202020]">Kepala Sekolah</option>
+              <option value="employee" className="dark:bg-[#202020]">Pegawai</option>
             </select>
           </div>
 
@@ -343,31 +343,31 @@ export const UsersPage: React.FC = () => {
               onChange={(e) =>
                 setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')
               }
-              className="w-full h-9 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+              className="w-full h-9 px-3 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB]"
             >
-              <option value="all">Semua Status</option>
-              <option value="active">Aktif</option>
-              <option value="inactive">Nonaktif</option>
+              <option value="all" className="dark:bg-[#202020]">Semua Status</option>
+              <option value="active" className="dark:bg-[#202020]">Aktif</option>
+              <option value="inactive" className="dark:bg-[#202020]">Nonaktif</option>
             </select>
           </div>
         </div>
       </div>
 
       {/* Main Content: Table or Cards */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {isLoading ? (
-          <div className="py-16 text-center text-xs text-[#6B7280] space-y-2">
+          <div className="py-16 text-center text-xs text-[#6B7280] dark:text-[#A3A3A3] space-y-2">
             <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto" />
             <p>Memuat data pengguna...</p>
           </div>
         ) : errorMessage ? (
           <div className="py-12 text-center text-xs space-y-3 max-w-sm mx-auto px-4">
-            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 flex items-center justify-center mx-auto">
               <AlertCircle className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-bold text-[#111827]">{errorMessage}</p>
-              <p className="text-[#6B7280] text-[11px] mt-0.5">
+              <p className="font-bold text-[#111827] dark:text-[#F9FAFB]">{errorMessage}</p>
+              <p className="text-[#6B7280] dark:text-[#A3A3A3] text-[11px] mt-0.5">
                 Gagal menghubungi layanan Supabase.
               </p>
             </div>
@@ -381,21 +381,21 @@ export const UsersPage: React.FC = () => {
             </Button>
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="py-16 text-center text-xs text-[#6B7280] space-y-2 px-4">
-            <div className="w-10 h-10 rounded-xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
+          <div className="py-16 text-center text-xs text-[#6B7280] dark:text-[#A3A3A3] space-y-2 px-4">
+            <div className="w-10 h-10 rounded-xl bg-[#F3F4F6] dark:bg-zinc-800 text-[#9CA3AF] dark:text-zinc-300 flex items-center justify-center mx-auto">
               <Users className="w-5 h-5" />
             </div>
             {users.length === 0 ? (
               <>
-                <p className="font-bold text-[#111827]">Belum ada pengguna</p>
-                <p className="text-[#6B7280] text-[11px]">
+                <p className="font-bold text-[#111827] dark:text-[#F9FAFB]">Belum ada pengguna</p>
+                <p className="text-[#6B7280] dark:text-[#A3A3A3] text-[11px]">
                   Belum ada akun pengguna yang dapat ditampilkan.
                 </p>
               </>
             ) : (
               <>
-                <p className="font-bold text-[#111827]">Pengguna tidak ditemukan</p>
-                <p className="text-[#6B7280] text-[11px]">
+                <p className="font-bold text-[#111827] dark:text-[#F9FAFB]">Pengguna tidak ditemukan</p>
+                <p className="text-[#6B7280] dark:text-[#A3A3A3] text-[11px]">
                   Coba ubah kata kunci pencarian atau filter yang digunakan.
                 </p>
               </>
@@ -406,7 +406,7 @@ export const UsersPage: React.FC = () => {
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[#4B5563] font-semibold">
+                <thead className="bg-[#F9FAFB] dark:bg-[#212121] border-b border-[#E5E7EB] dark:border-[#404040] text-[#4B5563] dark:text-[#D4D4D4] font-semibold">
                   <tr>
                     <th className="py-3.5 px-4">Pengguna</th>
                     <th className="py-3.5 px-4">Peran (Role)</th>
@@ -416,7 +416,7 @@ export const UsersPage: React.FC = () => {
                     <th className="py-3.5 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB]">
+                <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#333333]">
                   {filteredUsers.map((u) => {
                     const isSelf = currentUser?.id === u.id;
                     const isTargetSuperAdmin = u.role === 'super_admin';
@@ -432,7 +432,7 @@ export const UsersPage: React.FC = () => {
                       u.is_active;
 
                     return (
-                      <tr key={u.id} className="hover:bg-[#F9FAFB] transition-colors">
+                      <tr key={u.id} className="hover:bg-[#F9FAFB] dark:hover:bg-[#202020] transition-colors">
                         {/* Name & Avatar */}
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">

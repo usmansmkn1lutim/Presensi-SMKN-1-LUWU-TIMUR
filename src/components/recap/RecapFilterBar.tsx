@@ -70,45 +70,45 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+    <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
       {/* Quick Period Presets */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-xs font-semibold text-[#6B7280] whitespace-nowrap">
+          <span className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] whitespace-nowrap">
             Periode Cepat:
           </span>
           <button
             type="button"
             onClick={() => onPresetChange('today')}
-            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             Hari Ini
           </button>
           <button
             type="button"
             onClick={() => onPresetChange('last_7_days')}
-            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             7 Hari Terakhir
           </button>
           <button
             type="button"
             onClick={() => onPresetChange('this_month')}
-            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             Bulan Ini
           </button>
           <button
             type="button"
             onClick={() => onPresetChange('last_month')}
-            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             Bulan Lalu
           </button>
           <button
             type="button"
             onClick={() => onPresetChange('this_year')}
-            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-2.5 py-1 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             Tahun Ini
           </button>
@@ -121,7 +121,7 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
             size="sm"
             onClick={onResetFilter}
             disabled={loading}
-            className="text-xs text-[#6B7280] hover:text-[#111827]"
+            className="text-xs text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1" />
             Reset Filter
@@ -145,7 +145,7 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
           {/* Tanggal Mulai */}
           <div>
-            <label htmlFor="recapStartDateInput" className="block text-[#6B7280] font-medium mb-1">
+            <label htmlFor="recapStartDateInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
               Tanggal Mulai
             </label>
             <input
@@ -156,13 +156,13 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
                 setLocalStartDate(e.target.value);
                 triggerUpdate(e.target.value, localEndDate, localDepartment, localStatus, localSearch);
               }}
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all font-medium"
             />
           </div>
 
           {/* Tanggal Akhir */}
           <div>
-            <label htmlFor="recapEndDateInput" className="block text-[#6B7280] font-medium mb-1">
+            <label htmlFor="recapEndDateInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
               Tanggal Akhir
             </label>
             <input
@@ -173,13 +173,13 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
                 setLocalEndDate(e.target.value);
                 triggerUpdate(localStartDate, e.target.value, localDepartment, localStatus, localSearch);
               }}
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all font-medium"
             />
           </div>
 
           {/* Departemen */}
           <div>
-            <label htmlFor="recapDepartmentInput" className="block text-[#6B7280] font-medium mb-1">
+            <label htmlFor="recapDepartmentInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
               Departemen
             </label>
             <select
@@ -189,7 +189,7 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
                 setLocalDepartment(e.target.value);
                 triggerUpdate(localStartDate, localEndDate, e.target.value, localStatus, localSearch);
               }}
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium cursor-pointer"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all font-medium cursor-pointer"
             >
               <option value="all">Semua Departemen</option>
               {departments.map((dept) => (
@@ -202,7 +202,7 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
 
           {/* Status Kehadiran */}
           <div>
-            <label htmlFor="recapStatusInput" className="block text-[#6B7280] font-medium mb-1">
+            <label htmlFor="recapStatusInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
               Status Kehadiran
             </label>
             <select
@@ -212,7 +212,7 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
                 setLocalStatus(e.target.value);
                 triggerUpdate(localStartDate, localEndDate, localDepartment, e.target.value, localSearch);
               }}
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all font-medium cursor-pointer"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all font-medium cursor-pointer"
             >
               <option value="all">Semua Status</option>
               <option value="on_time">Tepat Waktu</option>
@@ -225,7 +225,7 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
 
           {/* Search Input */}
           <div>
-            <label htmlFor="recapSearchInput" className="block text-[#6B7280] font-medium mb-1">
+            <label htmlFor="recapSearchInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
               Cari Pegawai
             </label>
             <div className="relative">
@@ -238,17 +238,17 @@ export const RecapFilterBar: React.FC<RecapFilterBarProps> = ({
                   setLocalSearch(e.target.value);
                   triggerUpdate(localStartDate, localEndDate, localDepartment, localStatus, e.target.value);
                 }}
-                className="w-full h-10 pl-9 pr-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all text-xs font-medium"
+                className="w-full h-10 pl-9 pr-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all text-xs font-medium"
               />
-              <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-3 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] absolute left-3 top-3 pointer-events-none" />
             </div>
           </div>
         </div>
 
         {/* Validation error */}
         {validationError && (
-          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>{validationError}</span>
           </div>
         )}

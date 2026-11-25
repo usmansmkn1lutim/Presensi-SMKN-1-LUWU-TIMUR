@@ -16,6 +16,7 @@ export interface StatusColorToken {
   bgHex: string;
   borderHex: string;
   textHex: string;
+  badgeClass: string;
   description: string;
 }
 
@@ -27,6 +28,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
     textHex: '#C2410C',
+    badgeClass:
+      'bg-[#FFF7ED] text-[#C2410C] border-[#FED7AA] dark:bg-[#431F0B] dark:text-[#FDBA74] dark:border-[#9A3412]/60',
     description: 'Hadir tepat waktu sebelum batas akhir check-in.',
   },
   late: {
@@ -36,6 +39,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
     textHex: '#C2410C',
+    badgeClass:
+      'bg-[#FFF7ED] text-[#C2410C] border-[#FED7AA] dark:bg-[#431F0B] dark:text-[#FDBA74] dark:border-[#9A3412]/60',
     description: 'Hadir melebihi jam mulai kerja namun dalam jendela toleransi.',
   },
   officialDuty: {
@@ -45,6 +50,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FFF7ED',
     borderHex: '#FED7AA',
     textHex: '#C2410C',
+    badgeClass:
+      'bg-[#FFF7ED] text-[#C2410C] border-[#FED7AA] dark:bg-[#431F0B] dark:text-[#FDBA74] dark:border-[#9A3412]/60',
     description: 'Melaksanakan tugas kedinasan di luar lingkungan sekolah.',
   },
   sick: {
@@ -54,6 +61,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FEF3C7',
     borderHex: '#FDE68A',
     textHex: '#B45309',
+    badgeClass:
+      'bg-[#FEF3C7] text-[#B45309] border-[#FDE68A] dark:bg-[#451A03] dark:text-[#FCD34D] dark:border-[#92400E]/60',
     description: 'Berhalangan hadir karena sakit dengan/tanpa surat dokter.',
   },
   permit: {
@@ -63,6 +72,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FEF3C7',
     borderHex: '#FDE68A',
     textHex: '#B45309',
+    badgeClass:
+      'bg-[#FEF3C7] text-[#B45309] border-[#FDE68A] dark:bg-[#451A03] dark:text-[#FCD34D] dark:border-[#92400E]/60',
     description: 'Berhalangan hadir dengan izin resmi yang disetujui.',
   },
   leave: {
@@ -72,6 +83,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FEF3C7',
     borderHex: '#FDE68A',
     textHex: '#B45309',
+    badgeClass:
+      'bg-[#FEF3C7] text-[#B45309] border-[#FDE68A] dark:bg-[#451A03] dark:text-[#FCD34D] dark:border-[#92400E]/60',
     description: 'Mengambil hak cuti tahunan atau cuti khusus.',
   },
   absent: {
@@ -81,6 +94,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#FEE2E2',
     borderHex: '#FECACA',
     textHex: '#B91C1C',
+    badgeClass:
+      'bg-[#FEE2E2] text-[#B91C1C] border-[#FECACA] dark:bg-[#450A0A] dark:text-[#FCA5A5] dark:border-[#991B1B]/60',
     description: 'Tanpa keterangan atau mangkir.',
   },
   pending: {
@@ -90,6 +105,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#E5E7EB', // Light gray #E5E7EB
     borderHex: '#D1D5DB',
     textHex: '#374151', // Dark contrast text
+    badgeClass:
+      'bg-[#E5E7EB] text-[#374151] border-[#D1D5DB] dark:bg-[#303030] dark:text-[#D4D4D4] dark:border-[#404040]',
     description: 'Belum melakukan presensi pada hari ini.',
   },
   neutral: {
@@ -99,6 +116,8 @@ export const ATTENDANCE_STATUS_TOKENS = {
     bgHex: '#F3F4F6',
     borderHex: '#E5E7EB',
     textHex: '#4B5563',
+    badgeClass:
+      'bg-[#F3F4F6] text-[#4B5563] border-[#E5E7EB] dark:bg-[#262626] dark:text-[#A3A3A3] dark:border-[#404040]',
     description: 'Hari libur nasional, akhir pekan, atau status non-aktif.',
   },
 } as const;

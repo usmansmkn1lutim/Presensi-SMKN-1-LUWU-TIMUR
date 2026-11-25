@@ -88,7 +88,8 @@ export const EmployeesPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortOption>('name_asc');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
+  const desktopFilterRef = useRef<HTMLDivElement>(null);
+  const mobileFilterRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
 
   // State: Mobile List Row Action Dropdown
@@ -128,10 +129,14 @@ export const EmployeesPage: React.FC = () => {
   // Click-outside listener for filter popover & sort dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isInsideFilter =
+        (desktopFilterRef.current && desktopFilterRef.current.contains(target)) ||
+        (mobileFilterRef.current && mobileFilterRef.current.contains(target));
+      if (!isInsideFilter) {
         setIsFilterOpen(false);
       }
-      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+      if (sortRef.current && !sortRef.current.contains(target)) {
         setIsSortOpen(false);
       }
     };
@@ -349,81 +354,81 @@ export const EmployeesPage: React.FC = () => {
     <div className="space-y-6 pb-12">
       {/* Toast Feedback */}
       {successToast && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span className="font-semibold">{successToast}</span>
         </div>
       )}
 
       {/* Page Title */}
-      <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+      <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
         Pegawai
       </h1>
 
       {/* 4 Statistics Cards (Disembunyikan di Mobile/Tablet <1024px, tampil di Desktop ≥1024px) */}
       <div className="hidden lg:grid lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Total Pegawai */}
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3] uppercase tracking-wider">
               Total Pegawai
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FFF7ED] text-[#F97316] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] dark:text-[#FDBA74] flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-[#111827] mt-2">
+          <p className="text-2xl sm:text-3xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-2">
             {stats.total}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-1">Terdaftar di sistem</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-1">Terdaftar di sistem</p>
         </div>
 
         {/* Card 2: Pegawai Aktif */}
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3] uppercase tracking-wider">
               Pegawai Aktif
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <UserCheck className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-emerald-600 mt-2">
+          <p className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
             {stats.active}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-1">Status aktif bekerja</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-1">Status aktif bekerja</p>
         </div>
 
         {/* Card 3: Pegawai Nonaktif */}
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3] uppercase tracking-wider">
               Pegawai Nonaktif
             </span>
-            <div className="w-8 h-8 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-[#303030] text-gray-600 dark:text-[#A3A3A3] flex items-center justify-center">
               <UserX className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-[#4B5563] mt-2">
+          <p className="text-2xl sm:text-3xl font-bold text-[#4B5563] dark:text-[#D4D4D4] mt-2">
             {stats.inactive}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-1">Cuti / Nonaktif</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-1">Cuti / Nonaktif</p>
         </div>
 
         {/* Card 4: Akun Terhubung */}
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3] uppercase tracking-wider">
               Akun Terhubung
             </span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-blue-600 mt-2">
+          <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
             {stats.linkedToAccount}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-1">Memiliki akun login</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-1">Memiliki akun login</p>
         </div>
       </div>
 
@@ -448,7 +453,7 @@ export const EmployeesPage: React.FC = () => {
                   leftIcon={<Building className="w-4 h-4" />}
                   onClick={() => setIsDepartmentModalOpen(true)}
                   title="Kelola Departemen / Unit Kerja"
-                  className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
+                  className="!bg-white dark:!bg-[#262626] border-[#E5E7EB] dark:border-[#404040] hover:!bg-gray-50 dark:hover:!bg-[#303030] dark:text-[#F9FAFB] shadow-2xs"
                 >
                   Departemen
                 </Button>
@@ -458,7 +463,7 @@ export const EmployeesPage: React.FC = () => {
                   leftIcon={<Briefcase className="w-4 h-4" />}
                   onClick={() => setIsPositionModalOpen(true)}
                   title="Kelola Jabatan"
-                  className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
+                  className="!bg-white dark:!bg-[#262626] border-[#E5E7EB] dark:border-[#404040] hover:!bg-gray-50 dark:hover:!bg-[#303030] dark:text-[#F9FAFB] shadow-2xs"
                 >
                   Jabatan
                 </Button>
@@ -468,7 +473,7 @@ export const EmployeesPage: React.FC = () => {
                   leftIcon={<FileSpreadsheet className="w-4 h-4 text-[#F97316]" />}
                   onClick={() => setIsImportModalOpen(true)}
                   title="Impor Data Pegawai Massal dari Excel"
-                  className="!bg-white border-[#E5E7EB] hover:!bg-gray-50 shadow-2xs"
+                  className="!bg-white dark:!bg-[#262626] border-[#E5E7EB] dark:border-[#404040] hover:!bg-gray-50 dark:hover:!bg-[#303030] dark:text-[#F9FAFB] shadow-2xs"
                 >
                   Impor Pegawai
                 </Button>
@@ -478,20 +483,20 @@ export const EmployeesPage: React.FC = () => {
 
           {/* Kelompok Tengah — Pencarian (Search + Filter Terpadu) */}
           <div className="w-full min-w-0">
-            <div className="relative flex items-center w-full h-11 bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
+            <div className="relative flex items-center w-full h-11 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus-within:border-[#F97316] dark:focus-within:border-[#F97316] transition-colors">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] dark:text-[#737373] pointer-events-none" />
               <input
                 type="text"
                 placeholder="Cari nama, NIP, NIK..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-full pl-9 pr-8 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
+                className="w-full h-full pl-9 pr-8 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] dark:placeholder:text-[#737373] text-[#111827] dark:text-[#F9FAFB]"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-9 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#111827] cursor-pointer p-0.5"
+                  className="absolute right-9 top-1/2 -translate-y-1/2 text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer p-0.5"
                   aria-label="Hapus kata kunci pencarian"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -499,7 +504,7 @@ export const EmployeesPage: React.FC = () => {
               )}
 
               {/* Tombol Ikon Filter */}
-              <div className="relative shrink-0 pr-1" ref={filterRef}>
+              <div className="relative shrink-0 pr-1" ref={desktopFilterRef}>
                 <button
                   type="button"
                   onClick={() => {
@@ -508,8 +513,8 @@ export const EmployeesPage: React.FC = () => {
                   }}
                   className={`inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all cursor-pointer ${
                     activeFilterCount > 0 || isFilterOpen
-                      ? 'bg-orange-50 text-[#EA580C]'
-                      : 'text-[#6B7280] hover:bg-gray-100 hover:text-[#111827]'
+                      ? 'bg-orange-50 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]'
+                      : 'text-[#6B7280] dark:text-[#A3A3A3] hover:bg-gray-100 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                   }`}
                   aria-expanded={isFilterOpen}
                   aria-label="Buka filter pegawai"
@@ -525,13 +530,13 @@ export const EmployeesPage: React.FC = () => {
 
                 {/* Popover Filter Panel */}
                 {isFilterOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-4 z-30 animate-in fade-in duration-150">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
+                  <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl p-4 z-30 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6] dark:border-[#404040]">
                       <div className="flex items-center gap-2">
                         <SlidersHorizontal className="w-4 h-4 text-[#F97316]" />
-                        <h4 className="text-xs font-bold text-[#111827]">Filter Pegawai</h4>
+                        <h4 className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">Filter Pegawai</h4>
                         {activeFilterCount > 0 && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-[#EA580C]">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]">
                             {activeFilterCount} aktif
                           </span>
                         )}
@@ -539,7 +544,7 @@ export const EmployeesPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setIsFilterOpen(false)}
-                        className="text-[#9CA3AF] hover:text-[#111827] p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#303030] transition-colors cursor-pointer"
                         aria-label="Tutup panel filter"
                       >
                         <X className="w-4 h-4" />
@@ -549,13 +554,13 @@ export const EmployeesPage: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 text-xs">
                       {/* Status */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
+                        <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                           Status Pegawai
                         </label>
                         <select
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                          className="w-full h-8.5 px-2.5 bg-white border border-[#E5E7EB] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] cursor-pointer"
+                          className="w-full h-8.5 px-2.5 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB] cursor-pointer"
                         >
                           <option value="all">Semua Status</option>
                           <option value="active">Aktif</option>
@@ -565,13 +570,13 @@ export const EmployeesPage: React.FC = () => {
 
                       {/* Jenis Kelamin */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
+                        <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                           Jenis Kelamin
                         </label>
                         <select
                           value={genderFilter}
                           onChange={(e) => setGenderFilter(e.target.value as 'all' | 'male' | 'female')}
-                          className="w-full h-8.5 px-2.5 bg-white border border-[#E5E7EB] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] cursor-pointer"
+                          className="w-full h-8.5 px-2.5 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB] cursor-pointer"
                         >
                           <option value="all">Semua Jenis Kelamin</option>
                           <option value="male">Laki-laki</option>
@@ -581,13 +586,13 @@ export const EmployeesPage: React.FC = () => {
 
                       {/* Unit Kerja */}
                       <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
+                        <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                           Unit Kerja / Departemen
                         </label>
                         <select
                           value={departmentFilter}
                           onChange={(e) => setDepartmentFilter(e.target.value)}
-                          className="w-full h-8.5 px-2.5 bg-white border border-[#E5E7EB] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] cursor-pointer"
+                          className="w-full h-8.5 px-2.5 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB] cursor-pointer"
                         >
                           <option value="">Semua Unit Kerja</option>
                           {departments.map((dept) => (
@@ -600,13 +605,13 @@ export const EmployeesPage: React.FC = () => {
 
                       {/* Jabatan */}
                       <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
+                        <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                           Jabatan
                         </label>
                         <select
                           value={positionFilter}
                           onChange={(e) => setPositionFilter(e.target.value)}
-                          className="w-full h-8.5 px-2.5 bg-white border border-[#E5E7EB] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] cursor-pointer"
+                          className="w-full h-8.5 px-2.5 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB] cursor-pointer"
                         >
                           <option value="">Semua Jabatan</option>
                           {positions.map((pos) => (
@@ -619,13 +624,13 @@ export const EmployeesPage: React.FC = () => {
 
                       {/* Jenis Pegawai */}
                       <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-semibold text-[#6B7280] mb-1">
+                        <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                           Jenis Pegawai
                         </label>
                         <select
                           value={employeeTypeFilter}
                           onChange={(e) => setEmployeeTypeFilter(e.target.value)}
-                          className="w-full h-8.5 px-2.5 bg-white border border-[#E5E7EB] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] cursor-pointer"
+                          className="w-full h-8.5 px-2.5 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-xs focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-[#F9FAFB] cursor-pointer"
                         >
                           <option value="">Semua Jenis Pegawai</option>
                           {COMMON_EMPLOYEE_TYPES.map((type) => (
@@ -637,12 +642,12 @@ export const EmployeesPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-[#F3F4F6] flex items-center justify-between">
+                    <div className="pt-3 border-t border-[#F3F4F6] dark:border-[#404040] flex items-center justify-between">
                       <button
                         type="button"
                         onClick={handleResetFilter}
                         disabled={activeFilterCount === 0}
-                        className="text-xs font-semibold text-[#6B7280] hover:text-[#EF4444] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                        className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#EF4444] dark:hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
                       >
                         Reset Filter
                       </button>
@@ -670,8 +675,8 @@ export const EmployeesPage: React.FC = () => {
               }}
               className={`inline-flex items-center gap-1.5 h-11 px-3.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                 isSortOpen || sortBy !== 'name_asc'
-                  ? 'border-[#F97316] bg-orange-50 text-[#EA580C]'
-                  : 'border-[#E5E7EB] bg-white text-[#4B5563] hover:bg-gray-50 hover:text-[#111827]'
+                  ? 'border-[#F97316] bg-orange-50 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]'
+                  : 'border-[#E5E7EB] dark:border-[#404040] bg-white dark:bg-[#262626] text-[#4B5563] dark:text-[#D4D4D4] hover:bg-gray-50 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
               }`}
               aria-expanded={isSortOpen}
               aria-label="Urutkan data pegawai"
@@ -682,8 +687,8 @@ export const EmployeesPage: React.FC = () => {
 
             {/* Dropdown Menu Urutkan */}
             {isSortOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 animate-in fade-in duration-150">
-                <div className="px-3.5 py-1.5 text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6]">
+              <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl py-1.5 z-30 animate-in fade-in duration-150">
+                <div className="px-3.5 py-1.5 text-[11px] font-bold text-[#9CA3AF] dark:text-[#737373] uppercase tracking-wider border-b border-[#F3F4F6] dark:border-[#404040]">
                   Urutkan Berdasarkan
                 </div>
                 {SORT_OPTIONS.map((opt) => (
@@ -693,8 +698,8 @@ export const EmployeesPage: React.FC = () => {
                     onClick={() => handleSelectSort(opt.id)}
                     className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition-colors cursor-pointer ${
                       sortBy === opt.id
-                        ? 'text-[#F97316] font-bold bg-orange-50/70'
-                        : 'text-[#374151] hover:bg-gray-50'
+                        ? 'text-[#F97316] font-bold bg-orange-50/70 dark:bg-[#431F0B]'
+                        : 'text-[#374151] dark:text-[#D4D4D4] hover:bg-gray-50 dark:hover:bg-[#303030]'
                     }`}
                   >
                     <span>{opt.label}</span>
@@ -707,17 +712,17 @@ export const EmployeesPage: React.FC = () => {
 
           {/* Kelompok Kanan — Pengaturan Tampilan (View Switcher: [Tabel | Grid]) */}
           <div className="flex items-center gap-1.5 justify-end">
-            <span className="text-[11px] font-semibold text-[#6B7280] hidden xl:inline">
+            <span className="text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] hidden xl:inline">
               Tampilan:
             </span>
-            <div className="flex items-center gap-1 bg-[#F3F4F6] p-1 h-11 rounded-xl border border-[#E5E7EB]">
+            <div className="flex items-center gap-1 bg-[#F3F4F6] dark:bg-[#303030] p-1 h-11 rounded-xl border border-[#E5E7EB] dark:border-[#404040]">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
                 className={`h-9 flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === 'table'
-                    ? 'bg-[#FFFFFF] text-[#F97316] shadow-2xs font-bold'
-                    : 'text-[#6B7280] hover:text-[#111827]'
+                    ? 'bg-[#FFFFFF] dark:bg-[#262626] text-[#F97316] shadow-2xs font-bold'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
                 title="Tampilan Tabel / List"
                 aria-label="Tampilan Tabel"
@@ -731,8 +736,8 @@ export const EmployeesPage: React.FC = () => {
                 onClick={() => setViewMode('grid')}
                 className={`h-9 flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === 'grid'
-                    ? 'bg-[#FFFFFF] text-[#F97316] shadow-2xs font-bold'
-                    : 'text-[#6B7280] hover:text-[#111827]'
+                    ? 'bg-[#FFFFFF] dark:bg-[#262626] text-[#F97316] shadow-2xs font-bold'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
                 title="Tampilan Grid / Cards"
                 aria-label="Tampilan Grid"
@@ -747,22 +752,22 @@ export const EmployeesPage: React.FC = () => {
 
       {/* MOBILE / TABLET TOOLBAR CONTAINER (<1024px) - Minimalis Transparan */}
       <div className="block lg:hidden bg-transparent border-0 shadow-none p-0">
-        <div className="flex items-center gap-2 justify-between w-full">
-          {/* Integrated Search + Filter Bar (Search Bar Putih Bersih) */}
-          <div className="relative flex items-center flex-1 min-w-0 bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
+        <div className="relative flex items-center gap-2 justify-between w-full">
+          {/* Integrated Search + Filter Bar */}
+          <div className="flex items-center flex-1 min-w-0 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus-within:border-[#F97316] dark:focus-within:border-[#F97316] transition-colors pl-3 pr-1 gap-1.5">
+            <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#737373] pointer-events-none shrink-0" />
             <input
               type="text"
               placeholder="Cari pegawai..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-14 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
+              className="w-full min-w-0 h-9 text-xs bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] dark:placeholder:text-[#737373] text-[#111827] dark:text-[#F9FAFB]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-8 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#111827] cursor-pointer p-0.5"
+                className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer p-0.5 shrink-0"
                 aria-label="Hapus kata kunci pencarian"
               >
                 <X className="w-3.5 h-3.5" />
@@ -770,17 +775,17 @@ export const EmployeesPage: React.FC = () => {
             )}
 
             {/* Filter Trigger Button */}
-            <div className="relative shrink-0 pr-1" ref={filterRef}>
+            <div className="sm:relative shrink-0" ref={mobileFilterRef}>
               <button
                 type="button"
                 onClick={() => {
                   setIsFilterOpen((prev) => !prev);
                   setIsSortOpen(false);
                 }}
-                className={`inline-flex items-center justify-center w-7.5 h-7.5 rounded-lg transition-all cursor-pointer ${
+                className={`relative inline-flex items-center justify-center w-7.5 h-7.5 rounded-lg transition-all cursor-pointer ${
                   activeFilterCount > 0 || isFilterOpen
-                    ? 'bg-orange-50 text-[#EA580C]'
-                    : 'text-[#6B7280] hover:bg-gray-100 hover:text-[#111827]'
+                    ? 'bg-orange-50 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:bg-gray-100 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
                 aria-expanded={isFilterOpen}
                 aria-label="Buka filter pegawai"
@@ -796,16 +801,16 @@ export const EmployeesPage: React.FC = () => {
 
               {/* Popover Filter Panel Mobile */}
               {isFilterOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-3.5 z-30 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F3F4F6]">
+                <div className="absolute left-0 right-0 sm:left-auto sm:right-0 top-full mt-2 w-full sm:w-80 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl p-3.5 z-30 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F3F4F6] dark:border-[#404040]">
                     <div className="flex items-center gap-2">
                       <SlidersHorizontal className="w-3.5 h-3.5 text-[#F97316]" />
-                      <h4 className="text-xs font-bold text-[#111827]">Filter Pegawai</h4>
+                      <h4 className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">Filter Pegawai</h4>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsFilterOpen(false)}
-                      className="text-[#9CA3AF] hover:text-[#111827] p-1 rounded-lg"
+                      className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#303030] cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -813,13 +818,13 @@ export const EmployeesPage: React.FC = () => {
 
                   <div className="space-y-2.5 py-2 text-xs">
                     <div>
-                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                      <label className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                         Status Pegawai
                       </label>
                       <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       >
                         <option value="all">Semua Status</option>
                         <option value="active">Aktif</option>
@@ -828,13 +833,13 @@ export const EmployeesPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                      <label className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                         Unit Kerja
                       </label>
                       <select
                         value={departmentFilter}
                         onChange={(e) => setDepartmentFilter(e.target.value)}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       >
                         <option value="">Semua Unit Kerja</option>
                         {departments.map((dept) => (
@@ -846,13 +851,13 @@ export const EmployeesPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                      <label className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                         Jabatan
                       </label>
                       <select
                         value={positionFilter}
                         onChange={(e) => setPositionFilter(e.target.value)}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       >
                         <option value="">Semua Jabatan</option>
                         {positions.map((pos) => (
@@ -864,13 +869,13 @@ export const EmployeesPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-semibold text-[#6B7280] mb-1">
+                      <label className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                         Jenis Pegawai
                       </label>
                       <select
                         value={employeeTypeFilter}
                         onChange={(e) => setEmployeeTypeFilter(e.target.value)}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       >
                         <option value="">Semua Jenis Pegawai</option>
                         {COMMON_EMPLOYEE_TYPES.map((type) => (
@@ -882,11 +887,11 @@ export const EmployeesPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between">
+                  <div className="pt-2 border-t border-[#F3F4F6] dark:border-[#404040] flex items-center justify-between">
                     <button
                       type="button"
                       onClick={handleResetFilter}
-                      className="text-[11px] font-medium text-red-600 hover:underline"
+                      className="text-[11px] font-medium text-red-600 dark:text-red-400 hover:underline cursor-pointer"
                     >
                       Reset Filter
                     </button>
@@ -903,58 +908,32 @@ export const EmployeesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* View Switcher Minimalis (Tabel / Grid) - Tanpa Wrapper Card Putih */}
-          <div className="flex items-center gap-0.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setViewMode('table')}
-              className={`p-2 rounded-lg text-xs transition-colors cursor-pointer ${
-                viewMode === 'table'
-                  ? 'text-[#F97316] font-bold bg-orange-50/80'
-                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80'
-              }`}
-              title="Tampilan List"
-              aria-label="Tampilan List"
-            >
-              <LayoutList className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg text-xs transition-colors cursor-pointer ${
-                viewMode === 'grid'
-                  ? 'text-[#F97316] font-bold bg-orange-50/80'
-                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80'
-              }`}
-              title="Tampilan Grid"
-              aria-label="Tampilan Grid"
-            >
+          {/* View Switcher Tunggal Minimalis (List <-> Grid) */}
+          <button
+            type="button"
+            onClick={() => setViewMode((prev) => (prev === 'table' ? 'grid' : 'table'))}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-100/80 dark:hover:bg-[#303030] transition-colors cursor-pointer shrink-0"
+            title={viewMode === 'table' ? 'Beralih ke tampilan Grid' : 'Beralih ke tampilan List'}
+            aria-label={viewMode === 'table' ? 'Beralih ke tampilan Grid' : 'Beralih ke tampilan List'}
+          >
+            {viewMode === 'table' ? (
               <LayoutGrid className="w-4 h-4" />
-            </button>
-          </div>
+            ) : (
+              <LayoutList className="w-4 h-4" />
+            )}
+          </button>
 
-          {/* Tombol Impor & Tambah Pegawai di Ujung Kanan Mobile */}
+          {/* Tombol Tambah Pegawai di Ujung Kanan Mobile */}
           {canManage && (
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsImportModalOpen(true)}
-                className="w-9 h-9 rounded-xl bg-white border border-[#E5E7EB] hover:bg-gray-50 text-[#F97316] flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
-                title="Impor Pegawai dari Excel"
-                aria-label="Impor Pegawai dari Excel"
-              >
-                <FileSpreadsheet className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={handleOpenAddModal}
-                className="w-9 h-9 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
-                title="Tambah Pegawai"
-                aria-label="Tambah Pegawai Baru"
-              >
-                <UserPlus className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleOpenAddModal}
+              className="w-9 h-9 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:bg-[#C2410C] text-white flex items-center justify-center shrink-0 shadow-2xs transition-colors cursor-pointer"
+              title="Tambah Pegawai"
+              aria-label="Tambah Pegawai Baru"
+            >
+              <UserPlus className="w-4 h-4" />
+            </button>
           )}
         </div>
       </div>
@@ -964,19 +943,19 @@ export const EmployeesPage: React.FC = () => {
       {/* ========================================================= */}
       <div className="w-full">
         {isLoading ? (
-          <div className="py-16 text-center text-[#6B7280]">
+          <div className="py-16 text-center text-[#6B7280] dark:text-[#A3A3A3]">
             <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-xs font-medium">Memuat data pegawai sekolah...</p>
           </div>
         ) : paginatedEmployees.length === 0 ? (
-          <div className="py-16 px-4 text-center max-w-md mx-auto bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
-            <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] text-[#F97316] border border-orange-200 flex items-center justify-center mx-auto mb-3">
+          <div className="py-16 px-4 text-center max-w-md mx-auto bg-white dark:bg-[#262626] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xs">
+            <div className="w-14 h-14 rounded-2xl bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] border border-orange-200 dark:border-[#9A3412]/60 flex items-center justify-center mx-auto mb-3">
               <Users className="w-7 h-7" />
             </div>
-            <h3 className="text-base font-bold text-[#111827]">
+            <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
               {hasActiveFilters ? 'Pegawai Tidak Ditemukan' : 'Belum ada data pegawai'}
             </h3>
-            <p className="text-xs text-[#6B7280] mt-1">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               {hasActiveFilters
                 ? 'Tidak ada data pegawai yang sesuai dengan kriteria pencarian dan filter.'
                 : 'Tambahkan data pegawai untuk mulai mengelola informasi kepegawaian.'}
@@ -1003,12 +982,12 @@ export const EmployeesPage: React.FC = () => {
         ) : viewMode === 'table' ? (
           /* MODE TABEL / LIST */
           <div className="w-full">
-            {/* Desktop Table (≥1024px) - Card Putih Hanya Untuk Tabel */}
-            <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+            {/* Desktop Table (≥1024px) */}
+            <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl overflow-hidden shadow-2xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+                    <tr className="bg-[#F9FAFB] dark:bg-[#303030] border-b border-[#E5E7EB] dark:border-[#404040] text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3] uppercase tracking-wider">
                       <th className="py-3 px-3 text-center w-12">No</th>
                       <th className="py-3 px-4">Nama Pegawai</th>
                       <th className="py-3 px-4">Department/Unit</th>
@@ -1018,13 +997,13 @@ export const EmployeesPage: React.FC = () => {
                       <th className="py-3 px-4 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E5E7EB] text-xs">
+                  <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#404040] text-xs">
                     {paginatedEmployees.map((emp, index) => (
                       <tr
                         key={emp.id}
-                        className="hover:bg-[#F9FAFB] transition-colors group"
+                        className="hover:bg-[#F9FAFB] dark:hover:bg-[#303030]/60 transition-colors group"
                       >
-                        <td className="py-3.5 px-3 text-center text-xs font-semibold text-[#6B7280]">
+                        <td className="py-3.5 px-3 text-center text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3]">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td className="py-3.5 px-4">
@@ -1033,29 +1012,29 @@ export const EmployeesPage: React.FC = () => {
                               userId={emp.profile_id}
                               photoUrl={emp.photo_url}
                               name={emp.full_name}
-                              className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                              className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0"
                             />
                             <div className="min-w-0">
                               <button
                                 onClick={() => navigate(`/employees/${emp.id}`)}
-                                className="font-bold text-xs sm:text-sm text-[#111827] hover:text-[#F97316] text-left transition-colors cursor-pointer block truncate max-w-[220px] sm:max-w-xs"
+                                className="font-bold text-xs sm:text-sm text-[#111827] dark:text-[#F9FAFB] hover:text-[#F97316] dark:hover:text-[#F97316] text-left transition-colors cursor-pointer block truncate max-w-[220px] sm:max-w-xs"
                               >
                                 {emp.full_name}
                               </button>
-                              <p className="text-[11px] text-[#6B7280] font-mono mt-0.5 truncate">
+                              <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-mono mt-0.5 truncate">
                                 NIP: {emp.nip || '—'}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 text-[#4B5563] whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-[#4B5563] dark:text-[#D4D4D4] whitespace-nowrap">
                           {emp.departments?.name || '—'}
                         </td>
-                        <td className="py-3.5 px-4 font-medium text-[#111827] whitespace-nowrap">
+                        <td className="py-3.5 px-4 font-medium text-[#111827] dark:text-[#F9FAFB] whitespace-nowrap">
                           {emp.positions?.name || '—'}
                         </td>
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-[#374151]">
+                          <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 dark:bg-[#303030] text-[#374151] dark:text-[#D4D4D4]">
                             {emp.employee_type || 'PNS'}
                           </span>
                         </td>
@@ -1078,7 +1057,7 @@ export const EmployeesPage: React.FC = () => {
                                 e.stopPropagation();
                                 setOpenMobileListMenuId((prev) => (prev === emp.id ? null : emp.id));
                               }}
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none ml-auto"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-100/80 dark:hover:bg-[#303030] active:bg-gray-200/80 dark:active:bg-[#404040] transition-all cursor-pointer bg-transparent border-0 shadow-none ml-auto"
                               aria-label="Menu aksi pegawai"
                               title="Menu Aksi"
                             >
@@ -1086,8 +1065,8 @@ export const EmployeesPage: React.FC = () => {
                             </button>
 
                             {openMobileListMenuId === emp.id && (
-                              <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
-                                <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
+                              <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
+                                <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] dark:text-[#737373] uppercase tracking-wider border-b border-[#F3F4F6] dark:border-[#404040] truncate">
                                   {emp.full_name}
                                 </div>
 
@@ -1098,9 +1077,9 @@ export const EmployeesPage: React.FC = () => {
                                     setOpenMobileListMenuId(null);
                                     navigate(`/employees/${emp.id}`);
                                   }}
-                                  className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
+                                  className="w-full px-3 py-2 text-xs font-medium text-[#374151] dark:text-[#D4D4D4] hover:bg-orange-50 dark:hover:bg-[#431F0B] hover:text-[#F97316] dark:hover:text-[#FDBA74] flex items-center gap-2.5 transition-colors cursor-pointer"
                                 >
-                                  <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
+                                  <Eye className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#A3A3A3]" />
                                   <span>Detail Pegawai</span>
                                 </button>
 
@@ -1113,9 +1092,9 @@ export const EmployeesPage: React.FC = () => {
                                         setOpenMobileListMenuId(null);
                                         handleOpenEditModal(emp);
                                       }}
-                                      className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
+                                      className="w-full px-3 py-2 text-xs font-medium text-[#374151] dark:text-[#D4D4D4] hover:bg-gray-50 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB] flex items-center gap-2.5 transition-colors cursor-pointer"
                                     >
-                                      <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
+                                      <Edit2 className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#A3A3A3]" />
                                       <span>Edit Data</span>
                                     </button>
 
@@ -1128,15 +1107,15 @@ export const EmployeesPage: React.FC = () => {
                                       }}
                                       className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
                                         emp.status === 'active'
-                                          ? 'text-amber-700 hover:bg-amber-50'
-                                          : 'text-emerald-700 hover:bg-emerald-50'
+                                          ? 'text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                                          : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                                       }`}
                                     >
                                       <Power className="w-3.5 h-3.5" />
                                       <span>{emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
                                     </button>
 
-                                    <div className="my-1 border-t border-[#F3F4F6]" />
+                                    <div className="my-1 border-t border-[#F3F4F6] dark:border-[#404040]" />
 
                                     <button
                                       type="button"
@@ -1146,9 +1125,9 @@ export const EmployeesPage: React.FC = () => {
                                         setEmployeeForDelete(emp);
                                         setIsDeleteModalOpen(true);
                                       }}
-                                      className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                                      className="w-full px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2.5 transition-colors cursor-pointer"
                                     >
-                                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                      <Trash2 className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                                       <span>Hapus Pegawai</span>
                                     </button>
                                   </>
@@ -1165,32 +1144,32 @@ export const EmployeesPage: React.FC = () => {
             </div>
 
             {/* Mobile List (<1024px) - Transparan */}
-            <div className="block lg:hidden divide-y divide-[#E5E7EB] bg-transparent">
+            <div className="block lg:hidden divide-y divide-[#E5E7EB] dark:divide-[#404040] bg-transparent">
               {paginatedEmployees.map((emp) => (
                 <div
                   key={emp.id}
                   onClick={() => navigate(`/employees/${emp.id}`)}
-                  className="flex items-center justify-between py-3.5 px-1 gap-3 hover:bg-gray-100/60 transition-colors cursor-pointer"
+                  className="flex items-center justify-between py-3.5 px-1 gap-3 hover:bg-gray-100/60 dark:hover:bg-[#262626]/60 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <UserAvatar
                       userId={emp.profile_id}
                       photoUrl={emp.photo_url}
                       name={emp.full_name}
-                      className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                      className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-xs sm:text-sm text-[#111827] truncate">
+                      <h4 className="font-bold text-xs sm:text-sm text-[#111827] dark:text-[#F9FAFB] truncate">
                         {emp.full_name}
                       </h4>
-                      <p className="text-[11px] text-[#6B7280] truncate mt-0.5">
+                      <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] truncate mt-0.5">
                         {emp.positions?.name || '—'}
                       </p>
                     </div>
                   </div>
 
                   <div className="shrink-0 text-right px-2">
-                    <span className="text-xs font-semibold text-[#4B5563]">
+                    <span className="text-xs font-semibold text-[#4B5563] dark:text-[#D4D4D4]">
                       {emp.employee_type || 'PNS'}
                     </span>
                   </div>
@@ -1205,7 +1184,7 @@ export const EmployeesPage: React.FC = () => {
                         e.stopPropagation();
                         setOpenMobileListMenuId((prev) => (prev === emp.id ? null : emp.id));
                       }}
-                      className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80 active:bg-gray-200/80 transition-all cursor-pointer bg-transparent border-0 shadow-none"
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-100/80 dark:hover:bg-[#303030] active:bg-gray-200/80 dark:active:bg-[#404040] transition-all cursor-pointer bg-transparent border-0 shadow-none"
                       aria-label="Menu aksi pegawai"
                       title="Menu Aksi"
                     >
@@ -1213,8 +1192,8 @@ export const EmployeesPage: React.FC = () => {
                     </button>
 
                     {openMobileListMenuId === emp.id && (
-                      <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
-                        <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#F3F4F6] truncate">
+                      <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl py-1.5 z-30 text-left animate-in fade-in duration-150">
+                        <div className="px-3 py-1.5 text-[10px] font-bold text-[#9CA3AF] dark:text-[#737373] uppercase tracking-wider border-b border-[#F3F4F6] dark:border-[#404040] truncate">
                           {emp.full_name}
                         </div>
                         <button
@@ -1224,9 +1203,9 @@ export const EmployeesPage: React.FC = () => {
                             setOpenMobileListMenuId(null);
                             navigate(`/employees/${emp.id}`);
                           }}
-                          className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-orange-50 hover:text-[#F97316] flex items-center gap-2.5 transition-colors cursor-pointer"
+                          className="w-full px-3 py-2 text-xs font-medium text-[#374151] dark:text-[#D4D4D4] hover:bg-orange-50 dark:hover:bg-[#431F0B] hover:text-[#F97316] dark:hover:text-[#FDBA74] flex items-center gap-2.5 transition-colors cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
+                          <Eye className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#A3A3A3]" />
                           <span>Detail Pegawai</span>
                         </button>
 
@@ -1239,9 +1218,9 @@ export const EmployeesPage: React.FC = () => {
                                 setOpenMobileListMenuId(null);
                                 handleOpenEditModal(emp);
                               }}
-                              className="w-full px-3 py-2 text-xs font-medium text-[#374151] hover:bg-gray-50 hover:text-[#111827] flex items-center gap-2.5 transition-colors cursor-pointer"
+                              className="w-full px-3 py-2 text-xs font-medium text-[#374151] dark:text-[#D4D4D4] hover:bg-gray-50 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB] flex items-center gap-2.5 transition-colors cursor-pointer"
                             >
-                              <Edit2 className="w-3.5 h-3.5 text-[#6B7280]" />
+                              <Edit2 className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#A3A3A3]" />
                               <span>Edit Data</span>
                             </button>
 
@@ -1254,15 +1233,15 @@ export const EmployeesPage: React.FC = () => {
                               }}
                               className={`w-full px-3 py-2 text-xs font-medium flex items-center gap-2.5 transition-colors cursor-pointer ${
                                 emp.status === 'active'
-                                  ? 'text-amber-700 hover:bg-amber-50'
-                                  : 'text-emerald-700 hover:bg-emerald-50'
+                                  ? 'text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                                  : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                               }`}
                             >
                               <Power className="w-3.5 h-3.5" />
                               <span>{emp.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</span>
                             </button>
 
-                            <div className="my-1 border-t border-[#F3F4F6]" />
+                            <div className="my-1 border-t border-[#F3F4F6] dark:border-[#404040]" />
 
                             <button
                               type="button"
@@ -1272,9 +1251,9 @@ export const EmployeesPage: React.FC = () => {
                                 setEmployeeForDelete(emp);
                                 setIsDeleteModalOpen(true);
                               }}
-                              className="w-full px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                              className="w-full px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2.5 transition-colors cursor-pointer"
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                              <Trash2 className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                               <span>Hapus Pegawai</span>
                             </button>
                           </>
@@ -1322,7 +1301,7 @@ export const EmployeesPage: React.FC = () => {
                 setCurrentPage(1);
               }}
               pageSizeOptions={[10, 12, 20]}
-              className="bg-transparent border-0 px-0 py-2 flex flex-row items-center justify-between text-xs text-[#6B7280] w-full"
+              className="bg-transparent border-0 px-0 py-2 flex flex-row items-center justify-between text-xs text-[#6B7280] dark:text-[#A3A3A3] w-full"
             />
           </div>
         )}

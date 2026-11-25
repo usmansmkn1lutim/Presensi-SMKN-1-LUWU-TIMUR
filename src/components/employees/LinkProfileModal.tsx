@@ -91,26 +91,26 @@ export const LinkProfileModal: React.FC<LinkProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/75 backdrop-blur-2xs p-4">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-[#F97316] dark:text-orange-400 flex items-center justify-center">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">
+              <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
                 Hubungkan Akun Pengguna
               </h3>
-              <p className="text-xs text-[#6B7280]">
-                Tautkan akun Supabase ke pegawai: <span className="font-semibold text-[#111827]">{employee.full_name}</span>
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
+                Tautkan akun Supabase ke pegawai: <span className="font-semibold text-[#111827] dark:text-white">{employee.full_name}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -118,8 +118,8 @@ export const LinkProfileModal: React.FC<LinkProfileModalProps> = ({
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-xs text-red-700">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+          <div className="mt-3 p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 flex items-center gap-2 text-xs text-red-700 dark:text-red-400">
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -127,35 +127,35 @@ export const LinkProfileModal: React.FC<LinkProfileModalProps> = ({
         {/* Confirmation State */}
         {showConfirm && selectedProfile ? (
           <div className="py-5 space-y-4 text-center animate-in fade-in duration-150">
-            <div className="w-12 h-12 rounded-2xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFF7ED] dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-[#F97316] dark:text-orange-400 flex items-center justify-center mx-auto">
               <UserCheck className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
-              <h4 className="text-sm font-bold text-[#111827]">
+              <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">
                 Hubungkan akun ini dengan pegawai tersebut?
               </h4>
-              <p className="text-xs text-[#6B7280]">
-                Pegawai <strong className="text-[#111827]">{employee.full_name}</strong> akan ditautkan dengan akun:
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
+                Pegawai <strong className="text-[#111827] dark:text-white">{employee.full_name}</strong> akan ditautkan dengan akun:
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] text-left text-xs space-y-2 max-w-sm mx-auto">
+            <div className="p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] text-left text-xs space-y-2 max-w-sm mx-auto">
               <div className="flex items-center justify-between">
-                <span className="text-[#6B7280]">Nama Pengguna:</span>
-                <span className="font-bold text-[#111827]">{selectedProfile.full_name || 'Tanpa Nama'}</span>
+                <span className="text-[#6B7280] dark:text-[#A3A3A3]">Nama Pengguna:</span>
+                <span className="font-bold text-[#111827] dark:text-[#F9FAFB]">{selectedProfile.full_name || 'Tanpa Nama'}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6B7280]">Role:</span>
+                <span className="text-[#6B7280] dark:text-[#A3A3A3]">Role:</span>
                 <RoleBadge role={selectedProfile.role} size="sm" />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#6B7280]">Status:</span>
-                <span className="font-semibold text-emerald-700">Aktif</span>
+                <span className="text-[#6B7280] dark:text-[#A3A3A3]">Status:</span>
+                <span className="font-semibold text-emerald-700 dark:text-emerald-400">Aktif</span>
               </div>
               <div className="flex items-center justify-between font-mono text-[11px]">
-                <span className="text-[#6B7280]">ID Profil:</span>
-                <span className="text-[#9CA3AF] truncate max-w-[150px]">{selectedProfile.id}</span>
+                <span className="text-[#6B7280] dark:text-[#A3A3A3]">ID Profil:</span>
+                <span className="text-[#9CA3AF] dark:text-slate-500 truncate max-w-[150px]">{selectedProfile.id}</span>
               </div>
             </div>
 
@@ -184,44 +184,44 @@ export const LinkProfileModal: React.FC<LinkProfileModalProps> = ({
           <div className="flex-1 overflow-y-auto py-3 space-y-3">
             {/* Search Box */}
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF]" />
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#9CA3AF] dark:text-slate-400" />
               <input
                 type="text"
                 placeholder="Cari nama akun..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827]"
+                className="w-full h-9 pl-9 pr-3 text-xs bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:border-[#F97316] text-[#111827] dark:text-white placeholder:text-[#9CA3AF]"
               />
             </div>
 
             {/* List */}
             {isLoading ? (
-              <div className="py-8 text-center text-xs text-[#6B7280]">
+              <div className="py-8 text-center text-xs text-[#6B7280] dark:text-slate-400">
                 <div className="w-6 h-6 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                 Memuat daftar akun yang tersedia dari RPC...
               </div>
             ) : filteredProfiles.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#9CA3AF] space-y-1">
-                <p className="font-semibold text-[#4B5563]">Tidak ada akun yang tersedia</p>
-                <p className="text-[11px] text-[#6B7280]">
+              <div className="py-8 text-center text-xs text-[#9CA3AF] dark:text-slate-500 space-y-1">
+                <p className="font-semibold text-[#4B5563] dark:text-slate-300">Tidak ada akun yang tersedia</p>
+                <p className="text-[11px] text-[#6B7280] dark:text-slate-400">
                   Semua akun aktif sudah terhubung dengan data pegawai lain.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-[#E5E7EB] border border-[#E5E7EB] rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
+              <div className="divide-y divide-[#E5E7EB] dark:divide-[#404040] border border-[#E5E7EB] dark:border-[#404040] rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
                 {filteredProfiles.map((p) => (
                   <div
                     key={p.id}
-                    className="p-3 bg-white hover:bg-[#F9FAFB] flex items-center justify-between gap-3 text-xs transition-colors"
+                    className="p-3 bg-white dark:bg-[#262626] hover:bg-[#F9FAFB] dark:hover:bg-[#303030] flex items-center justify-between gap-3 text-xs transition-colors"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#111827] truncate">
+                        <span className="font-bold text-[#111827] dark:text-[#F9FAFB] truncate">
                           {p.full_name || 'Pengguna Tanpa Nama'}
                         </span>
                         <RoleBadge role={p.role} size="sm" />
                       </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#6B7280] mt-1">
+                      <div className="flex items-center gap-1.5 text-[11px] text-[#6B7280] dark:text-[#A3A3A3] mt-1">
                         <Clock className="w-3 h-3 text-[#9CA3AF]" />
                         <span>
                           Login terakhir:{' '}
@@ -240,7 +240,7 @@ export const LinkProfileModal: React.FC<LinkProfileModalProps> = ({
                       variant="outline"
                       size="sm"
                       onClick={() => handleSelectProfile(p)}
-                      className="shrink-0 text-xs text-[#F97316] hover:bg-orange-50 hover:border-orange-300"
+                      className="shrink-0 text-xs text-[#F97316] dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/40 hover:border-orange-300 dark:hover:border-orange-800"
                     >
                       Pilih
                     </Button>
@@ -252,9 +252,9 @@ export const LinkProfileModal: React.FC<LinkProfileModalProps> = ({
         )}
 
         {/* Footer */}
-        <div className="pt-3 border-t border-[#E5E7EB] flex justify-end">
+        <div className="pt-3 border-t border-[#E5E7EB] dark:border-[#404040] flex justify-end">
           <Button variant="outline" size="sm" onClick={onClose}>
-            Batal
+            Tutup
           </Button>
         </div>
       </div>

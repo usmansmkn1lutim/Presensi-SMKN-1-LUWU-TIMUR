@@ -237,14 +237,14 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
   const renderCheckInBadge = () => {
     if (record.checkInStatus === 'on_time') {
       return (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900 shrink-0">
           Tepat Waktu
         </span>
       );
     }
     if (record.checkInStatus === 'late') {
       return (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900 shrink-0">
           Terlambat
         </span>
       );
@@ -255,14 +255,14 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
   const renderCheckOutBadge = () => {
     if (record.checkOutStatus === 'operational') {
       return (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900 shrink-0">
           Jam Operasional
         </span>
       );
     }
     if (record.checkOutStatus === 'after_work') {
       return (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900 shrink-0">
           Setelah Jam Kerja
         </span>
       );
@@ -287,17 +287,17 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
     const Icon = isCheckIn ? LogIn : LogOut;
 
     return (
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 sm:p-4 flex flex-col gap-3">
+      <div className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-3.5 sm:p-4 flex flex-col gap-3">
         {/* Section Header */}
-        <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#E5E7EB]">
+        <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#E5E7EB] dark:border-[#333]">
           <div className="space-y-1 min-w-0">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827] flex items-center gap-1.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827] dark:text-[#F3F4F6] flex items-center gap-1.5">
               <Icon className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
               <span>{title}</span>
             </h4>
             {timeText && (
-              <p className="text-xs font-semibold text-[#111827] tabular-nums flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#6B7280] shrink-0" />
+              <p className="text-xs font-semibold text-[#111827] dark:text-[#F3F4F6] tabular-nums flex items-center gap-1">
+                <Clock className="w-3 h-3 text-[#6B7280] dark:text-[#9CA3AF] shrink-0" />
                 <span>{timeText} WITA</span>
               </p>
             )}
@@ -307,9 +307,9 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
 
         {/* Photo Viewport */}
         {state.phase === 'loading' ? (
-          <div className="w-full h-56 sm:h-64 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] animate-pulse flex flex-col items-center justify-center gap-2">
+          <div className="w-full h-56 sm:h-64 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] animate-pulse flex flex-col items-center justify-center gap-2">
             <RefreshCw className="w-5 h-5 text-[#F97316] animate-spin" />
-            <span className="text-xs font-medium text-[#6B7280]">
+            <span className="text-xs font-medium text-[#6B7280] dark:text-[#9CA3AF]">
               Memuat foto...
             </span>
           </div>
@@ -323,7 +323,7 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
                 timeText,
               })
             }
-            className="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-[#F9FAFB] border border-[#E5E7EB] group cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+            className="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] group cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#F97316]"
             title="Klik untuk memperbesar foto"
             aria-label={`Perbesar ${title}`}
           >
@@ -340,39 +340,39 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
               }}
               className="w-full h-full object-contain"
             />
-            <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#111827]/75 text-white text-[11px] font-semibold opacity-90 group-hover:opacity-100 transition-opacity">
+            <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#111827]/75 dark:bg-zinc-900/90 text-white text-[11px] font-semibold opacity-90 group-hover:opacity-100 transition-opacity">
               <Maximize2 className="w-3 h-3" />
               Perbesar
             </span>
           </button>
         ) : state.phase === 'error' ? (
-          <div className="w-full h-56 sm:h-64 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex flex-col items-center justify-center text-center p-4 gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] flex items-center justify-center">
+          <div className="w-full h-56 sm:h-64 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-[#E5E7EB] dark:border-[#333] flex flex-col items-center justify-center text-center p-4 gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] dark:bg-orange-950/50 border border-[#FFEDD5] dark:border-orange-900 flex items-center justify-center">
               <AlertCircle className="w-5 h-5 text-[#F97316]" />
             </div>
             <div className="space-y-0.5">
-              <p className="text-xs font-semibold text-[#111827]">
+              <p className="text-xs font-semibold text-[#111827] dark:text-[#F3F4F6]">
                 Gagal memuat foto
               </p>
-              <p className="text-[11px] text-[#6B7280]">
+              <p className="text-[11px] text-[#6B7280] dark:text-[#9CA3AF]">
                 Tautan foto tidak dapat dimuat atau telah kedaluwarsa.
               </p>
             </div>
             <button
               type="button"
               onClick={() => handleRetryPhoto(type)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FFF7ED] hover:bg-[#FFEDD5] text-[#F97316] border border-[#FFEDD5] text-xs font-semibold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FFF7ED] dark:bg-orange-950/50 hover:bg-[#FFEDD5] dark:hover:bg-orange-900/50 text-[#F97316] border border-[#FFEDD5] dark:border-orange-900 text-xs font-semibold transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Muat Ulang
             </button>
           </div>
         ) : (
-          <div className="w-full h-56 sm:h-64 rounded-xl bg-[#F9FAFB] border border-dashed border-[#E5E7EB] flex flex-col items-center justify-center text-center p-4 gap-2">
-            <div className="w-10 h-10 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-center">
+          <div className="w-full h-56 sm:h-64 rounded-xl bg-[#F9FAFB] dark:bg-zinc-800/60 border border-dashed border-[#E5E7EB] dark:border-[#333] flex flex-col items-center justify-center text-center p-4 gap-2">
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-[#E5E7EB] dark:border-[#333] flex items-center justify-center">
               <ImageIcon className="w-5 h-5 text-[#9CA3AF]" />
             </div>
-            <p className="text-xs font-medium text-[#6B7280] max-w-[220px]">
+            <p className="text-xs font-medium text-[#6B7280] dark:text-[#9CA3AF] max-w-[220px]">
               {getEmptyMessage(type)}
             </p>
           </div>
@@ -396,28 +396,28 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
       aria-labelledby="monitoring-photo-modal-title"
     >
       <div
-        className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl w-full max-w-[calc(100vw-1.5rem)] sm:max-w-xl md:max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+        className="bg-[#FFFFFF] dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl w-full max-w-[calc(100vw-1.5rem)] sm:max-w-xl md:max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4 border-b border-[#E5E7EB] shrink-0 bg-[#FFFFFF]">
+        <div className="flex items-start justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4 border-b border-[#E5E7EB] dark:border-[#333] shrink-0 bg-[#FFFFFF] dark:bg-[#1E1E1E]">
           <div className="flex items-start gap-3 min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF7ED] text-[#F97316] border border-[#FFEDD5] flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF7ED] dark:bg-orange-950/50 text-[#F97316] border border-[#FFEDD5] dark:border-orange-900 flex items-center justify-center shrink-0 mt-0.5">
               <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
               <h3
                 id="monitoring-photo-modal-title"
-                className="text-sm sm:text-base font-bold text-[#111827] truncate"
+                className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F3F4F6] truncate"
               >
                 {record.fullName}
               </h3>
               {record.positionName && (
-                <p className="text-xs text-[#6B7280] truncate">
+                <p className="text-xs text-[#6B7280] dark:text-[#9CA3AF] truncate">
                   {record.positionName}
                 </p>
               )}
-              <p className="text-[11px] text-[#6B7280] flex items-center gap-1.5 mt-1">
+              <p className="text-[11px] text-[#6B7280] dark:text-[#9CA3AF] flex items-center gap-1.5 mt-1">
                 <Calendar className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
                 <span className="truncate">{formatDateLong(record.attendanceDate)}</span>
               </p>
@@ -427,7 +427,7 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280] hover:text-[#111827] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#F3F4F6] dark:bg-zinc-800 hover:bg-[#E5E7EB] dark:hover:bg-zinc-700 text-[#6B7280] dark:text-zinc-300 hover:text-[#111827] dark:hover:text-[#F3F4F6] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
             aria-label="Tutup detail foto presensi"
           >
             <X className="w-4 h-4" />
@@ -438,21 +438,21 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {lightbox ? (
             <div className="space-y-3">
-              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#E5E7EB]">
+              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#E5E7EB] dark:border-[#333]">
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827]">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#111827] dark:text-[#F3F4F6]">
                     Pratinjau {lightbox.title}
                   </h4>
                   {lightbox.timeText && (
-                    <p className="text-[11px] text-[#6B7280] mt-0.5">
-                      Waktu: <strong className="text-[#111827]">{lightbox.timeText} WITA</strong>
+                    <p className="text-[11px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
+                      Waktu: <strong className="text-[#111827] dark:text-[#F3F4F6]">{lightbox.timeText} WITA</strong>
                     </p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => setLightbox(null)}
-                  className="px-3 py-1.5 rounded-lg bg-[#FFF7ED] hover:bg-[#FFEDD5] text-[#F97316] border border-[#FFEDD5] text-xs font-semibold transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-[#FFF7ED] dark:bg-orange-950/50 hover:bg-[#FFEDD5] dark:hover:bg-orange-900/50 text-[#F97316] border border-[#FFEDD5] dark:border-orange-900 text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Kembali ke Ringkasan
                 </button>
@@ -486,11 +486,11 @@ export const MonitoringPhotoModal: React.FC<MonitoringPhotoModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-4 py-3 sm:px-6 border-t border-[#E5E7EB] flex items-center justify-end shrink-0 bg-[#FFFFFF]">
+        <div className="px-4 py-3 sm:px-6 border-t border-[#E5E7EB] dark:border-[#333] flex items-center justify-end shrink-0 bg-[#FFFFFF] dark:bg-[#1E1E1E]">
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2 rounded-xl border border-[#E5E7EB] bg-white hover:bg-[#F9FAFB] text-xs font-semibold text-[#111827] transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2 rounded-xl border border-[#E5E7EB] dark:border-[#333] bg-white dark:bg-zinc-800 hover:bg-[#F9FAFB] dark:hover:bg-zinc-700 text-xs font-semibold text-[#111827] dark:text-[#F3F4F6] transition-colors cursor-pointer"
           >
             Tutup
           </button>

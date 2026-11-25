@@ -25,10 +25,10 @@ export const RecapSummaryCards: React.FC<RecapSummaryCardsProps> = ({
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
           <div
             key={i}
-            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 animate-pulse space-y-2 shadow-2xs"
+            className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-3.5 animate-pulse space-y-2 shadow-2xs"
           >
-            <div className="h-3 bg-[#F3F4F6] rounded w-2/3" />
-            <div className="h-6 bg-[#F3F4F6] rounded w-1/3" />
+            <div className="h-3 bg-[#F3F4F6] dark:bg-[#303030] rounded w-2/3" />
+            <div className="h-6 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/3" />
           </div>
         ))}
       </div>
@@ -39,37 +39,37 @@ export const RecapSummaryCards: React.FC<RecapSummaryCardsProps> = ({
     {
       title: 'Total Pegawai',
       value: summary?.totalEmployees || 0,
-      icon: <Users className="w-4 h-4 text-[#111827] shrink-0" />,
+      icon: <Users className="w-4 h-4 text-[#111827] dark:text-[#F9FAFB] shrink-0" />,
     },
     {
       title: 'Hari Kerja Efektif',
       value: summary?.effectiveWorkingDays || 0,
-      icon: <CalendarDays className="w-4 h-4 text-[#F97316] shrink-0" />,
+      icon: <CalendarDays className="w-4 h-4 text-[#F97316] dark:text-[#FB923C] shrink-0" />,
     },
     {
       title: 'Total Presensi',
       value: summary?.totalAttendance || 0,
-      icon: <CalendarCheck className="w-4 h-4 text-blue-600 shrink-0" />,
+      icon: <CalendarCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />,
     },
     {
       title: 'Tepat Waktu',
       value: summary?.onTimeCount || 0,
-      icon: <CircleCheck className="w-4 h-4 text-emerald-600 shrink-0" />,
+      icon: <CircleCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />,
     },
     {
       title: 'Terlambat',
       value: summary?.lateCount || 0,
-      icon: <ClockAlert className="w-4 h-4 text-amber-600 shrink-0" />,
+      icon: <ClockAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />,
     },
     {
       title: 'Tidak Presensi',
       value: summary?.absentCount || 0,
-      icon: <UserRoundX className="w-4 h-4 text-rose-600 shrink-0" />,
+      icon: <UserRoundX className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />,
     },
     {
       title: 'Sudah Check-out',
       value: summary?.checkedOutCount || 0,
-      icon: <LogOut className="w-4 h-4 text-indigo-600 shrink-0" />,
+      icon: <LogOut className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />,
     },
   ];
 
@@ -78,19 +78,19 @@ export const RecapSummaryCards: React.FC<RecapSummaryCardsProps> = ({
       {cards.map((card, idx) => (
         <div
           key={idx}
-          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-3.5 shadow-2xs flex flex-col justify-between gap-2"
+          className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-3.5 shadow-2xs flex flex-col justify-between gap-2"
         >
           {/* Baris Atas: Ikon langsung di sebelah kiri judul indikator */}
           <div className="flex items-center gap-1.5 min-w-0">
             {card.icon}
-            <span className="text-[11px] text-[#6B7280] font-medium truncate">
+            <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] font-medium truncate">
               {card.title}
             </span>
           </div>
 
           {/* Baris Bawah: Angka statistik diletakkan di bawah baris ikon dan judul */}
           <div>
-            <span className="text-xl font-bold text-[#111827] block tabular-nums">
+            <span className="text-xl font-bold text-[#111827] dark:text-[#F9FAFB] block tabular-nums">
               {card.value}
             </span>
           </div>

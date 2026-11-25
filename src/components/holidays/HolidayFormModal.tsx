@@ -51,7 +51,6 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
         setIsActive(holidayToEdit.isActive);
       } else {
         setName('');
-        // Default to today's ISO date string
         const today = new Date().toISOString().split('T')[0];
         setHolidayDate(today);
         setHolidayType('national');
@@ -113,19 +112,19 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E5E7EB] my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/75 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl max-w-md w-full shadow-2xl border border-[#E5E7EB] dark:border-[#404040] my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#F97316] dark:text-orange-400 flex items-center justify-center">
               <CalendarOff className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-[#111827]">
+              <h2 className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F9FAFB]">
                 {isEditMode ? 'Edit Hari Libur' : 'Tambah Hari Libur'}
               </h2>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 {isEditMode
                   ? 'Perbarui informasi tanggal atau klasifikasi libur'
                   : 'Daftarkan tanggal libur baru ke kalender sekolah'}
@@ -136,7 +135,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg transition-colors cursor-pointer"
+            className="text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white p-1.5 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -146,15 +145,15 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Error Alert */}
           {errorMessage && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 rounded-xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium">{errorMessage}</div>
             </div>
           )}
 
           {/* Nama Hari Libur */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
               Nama Hari Libur <span className="text-red-500">*</span>
             </label>
             <input
@@ -164,13 +163,13 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
               placeholder="Contoh: Hari Kemerdekaan RI"
               required
               disabled={isLoading}
-              className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
             />
           </div>
 
           {/* Tanggal Libur */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
               Tanggal Libur <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -180,27 +179,27 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
                 onChange={(e) => setHolidayDate(e.target.value)}
                 required
                 disabled={isLoading}
-                className="w-full px-3.5 py-2 text-sm font-medium bg-white border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+                className="w-full px-3.5 py-2 text-sm font-medium bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
               />
             </div>
-            <p className="text-[11px] text-[#6B7280] mt-1">
+            <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               Dapat memilih tanggal di masa lalu atau masa depan.
             </p>
           </div>
 
           {/* Jenis Hari Libur */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
               Jenis Hari Libur <span className="text-red-500">*</span>
             </label>
             <select
               value={holidayType}
               onChange={(e) => setHolidayType(e.target.value as HolidayType)}
               disabled={isLoading}
-              className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
             >
               {HOLIDAY_TYPE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#262626] text-[#111827] dark:text-white">
                   {opt.label} ({opt.desc})
                 </option>
               ))}
@@ -209,7 +208,7 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
 
           {/* Deskripsi */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1">
+            <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1">
               Deskripsi / Catatan <span className="text-xs font-normal text-[#9CA3AF]">(Opsional)</span>
             </label>
             <textarea
@@ -218,12 +217,12 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
               placeholder="Nomor SKB 3 Menteri, edaran dinas, atau ketentuan khusus..."
               rows={3}
               disabled={isLoading}
-              className="w-full px-3.5 py-2 text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+              className="w-full px-3.5 py-2 text-sm bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
             />
           </div>
 
           {/* Status Aktif */}
-          <label className="flex items-center gap-3 p-3 bg-zinc-50 border border-[#E5E7EB] rounded-xl cursor-pointer">
+          <label className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl cursor-pointer">
             <input
               type="checkbox"
               checked={isActive}
@@ -232,17 +231,17 @@ export const HolidayFormModal: React.FC<HolidayFormModalProps> = ({
               className="w-4 h-4 rounded text-[#F97316] focus:ring-[#F97316] border-[#E5E7EB]"
             />
             <div className="text-xs">
-              <span className="font-semibold text-[#111827] block">
+              <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] block">
                 Status Hari Libur Aktif
               </span>
-              <span className="text-[#6B7280] text-[11px]">
+              <span className="text-[#6B7280] dark:text-slate-400 text-[11px]">
                 Hari libur aktif akan diperhitungkan oleh sistem presensi pegawai.
               </span>
             </div>
           </label>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5E7EB]">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5E7EB] dark:border-[#404040]">
             <Button
               type="button"
               variant="outline"

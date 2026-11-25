@@ -25,7 +25,7 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB] text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+          <tr className="border-b border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] text-[11px] font-bold text-[#6B7280] dark:text-[#A3A3A3] uppercase tracking-wider">
             {mode === 'reviewer' && (
               <th scope="col" className="py-3 px-4">
                 Pegawai
@@ -56,7 +56,7 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#E5E7EB] text-xs">
+        <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#404040] text-xs">
           {requests.map((req) => {
             const relReq = req as RequestWithRelations;
             const durationText = formatRequestDuration(req.start_date, req.end_date);
@@ -65,23 +65,23 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
               <tr
                 key={req.id}
                 onClick={() => onSelect(req)}
-                className="hover:bg-[#FFF7ED]/30 transition-colors cursor-pointer group"
+                className="hover:bg-[#FFF7ED]/30 dark:hover:bg-[#303030]/50 transition-colors cursor-pointer group"
               >
                 {/* Pegawai (Reviewer only) */}
                 {mode === 'reviewer' && (
-                  <td className="py-3.5 px-4 font-semibold text-[#111827]">
+                  <td className="py-3.5 px-4 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                     <div className="flex items-center gap-2.5">
                       <UserAvatar
                         photoUrl={relReq.employees?.photo_url}
                         name={relReq.employees?.full_name}
-                        className="w-8 h-8 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                        className="w-8 h-8 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="font-bold text-[#111827] truncate">
+                        <div className="font-bold text-[#111827] dark:text-[#F9FAFB] truncate">
                           {relReq.employees?.full_name || '—'}
                         </div>
                         {relReq.employees?.positions?.name && (
-                          <span className="text-[11px] text-[#6B7280] block truncate">
+                          <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] block truncate">
                             {relReq.employees.positions.name}
                           </span>
                         )}
@@ -97,7 +97,7 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
 
                 {/* Periode */}
                 <td className="py-3.5 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1.5 font-semibold text-[#111827]">
+                  <div className="flex items-center gap-1.5 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                     <Calendar className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
                     <span>{formatRequestDateRange(req.start_date, req.end_date)}</span>
                   </div>
@@ -105,7 +105,7 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
 
                 {/* Durasi */}
                 <td className="py-3.5 px-4 whitespace-nowrap">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#F3F4F6] text-[#374151] border border-[#E5E7EB]">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#F3F4F6] dark:bg-[#303030] text-[#374151] dark:text-[#D4D4D4] border border-[#E5E7EB] dark:border-[#404040]">
                     {durationText}
                   </span>
                 </td>
@@ -116,31 +116,31 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
                 </td>
 
                 {/* Diajukan */}
-                <td className="py-3.5 px-4 whitespace-nowrap text-[#6B7280]">
+                <td className="py-3.5 px-4 whitespace-nowrap text-[#6B7280] dark:text-[#A3A3A3]">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-[#9CA3AF]" />
+                    <Clock className="w-3 h-3 text-[#9CA3AF] dark:text-[#A3A3A3]" />
                     <span>{formatRequestDateTime(req.submitted_at)}</span>
                   </div>
                 </td>
 
                 {/* Status Review (Employee mode) */}
                 {mode === 'employee' && (
-                  <td className="py-3.5 px-4 text-[#6B7280] max-w-[180px] truncate">
+                  <td className="py-3.5 px-4 text-[#6B7280] dark:text-[#A3A3A3] max-w-[180px] truncate">
                     {req.status === 'pending' ? (
-                      <span className="text-amber-700 italic text-[11px]">
+                      <span className="text-amber-700 dark:text-amber-300 italic text-[11px]">
                         Menunggu review
                       </span>
                     ) : req.status === 'cancelled' ? (
-                      <span className="text-slate-500 italic text-[11px]">
+                      <span className="text-slate-500 dark:text-slate-400 italic text-[11px]">
                         Dibatalkan oleh pemohon
                       </span>
                     ) : req.reviewed_at ? (
                       <div className="text-[11px]">
-                        <span className="font-semibold text-[#111827]">
+                        <span className="font-semibold text-[#111827] dark:text-[#F9FAFB]">
                           {req.status === 'approved' ? 'Disetujui' : 'Ditolak'}
                         </span>
                         {relReq.reviewer_profile?.full_name && (
-                          <span className="text-[#6B7280] block truncate">
+                          <span className="text-[#6B7280] dark:text-[#A3A3A3] block truncate">
                             oleh {relReq.reviewer_profile.full_name}
                           </span>
                         )}
@@ -154,12 +154,12 @@ export const RequestHistoryTable: React.FC<RequestHistoryTableProps> = ({
                 {/* Aksi */}
                 <td className="py-3.5 px-4 whitespace-nowrap text-right">
                   {mode === 'reviewer' && req.status === 'pending' ? (
-                    <span className="text-xs font-bold text-[#F97316] group-hover:text-[#EA580C] inline-flex items-center gap-0.5">
+                    <span className="text-xs font-bold text-[#F97316] group-hover:text-[#EA580C] dark:group-hover:text-[#FDBA74] inline-flex items-center gap-0.5">
                       Tinjau
                       <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   ) : (
-                    <span className="text-xs font-semibold text-[#6B7280] group-hover:text-[#F97316] inline-flex items-center gap-0.5">
+                    <span className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] group-hover:text-[#F97316] dark:group-hover:text-[#F97316] inline-flex items-center gap-0.5">
                       Rincian
                       <ChevronRight className="w-3.5 h-3.5" />
                     </span>

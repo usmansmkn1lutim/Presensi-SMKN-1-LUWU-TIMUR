@@ -253,17 +253,17 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col my-auto">
         {/* Header */}
-        <div className="px-5 py-3.5 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-gray-50/50">
+        <div className="px-5 py-3.5 border-b border-[#E5E7EB] dark:border-[#404040] flex items-center justify-between shrink-0 bg-gray-50/50 dark:bg-[#303030]/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] border border-orange-200 dark:border-orange-800/60 text-[#F97316] dark:text-[#FB923C] flex items-center justify-center">
               <Crop className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#111827]">{title}</h3>
-              <p className="text-[11px] text-[#6B7280]">
+              <h3 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">{title}</h3>
+              <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                 {stage === 'crop'
                   ? 'Langkah 1 dari 2: Atur Posisi & Skala Foto'
                   : 'Langkah 2 dari 2: Pratinjau & Konfirmasi Foto'}
@@ -273,7 +273,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer disabled:opacity-50"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#404040] transition-colors cursor-pointer disabled:opacity-50"
           >
             <X className="w-4 h-4" />
           </button>
@@ -281,7 +281,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mx-5 mt-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 font-medium">
+          <div className="mx-5 mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 text-xs text-red-700 dark:text-red-300 font-medium">
             {errorMsg}
           </div>
         )}
@@ -293,7 +293,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
               {/* Cropper Viewport Container */}
               <div className="relative flex flex-col items-center justify-center select-none">
                 <div
-                  className="relative overflow-hidden rounded-2xl bg-gray-950 border-2 border-gray-300 shadow-inner cursor-grab active:cursor-grabbing touch-none"
+                  className="relative overflow-hidden rounded-2xl bg-gray-950 border-2 border-gray-300 dark:border-gray-700 shadow-inner cursor-grab active:cursor-grabbing touch-none"
                   style={{ width: `${CROP_SIZE}px`, height: `${CROP_SIZE}px` }}
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
@@ -360,19 +360,19 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                   </svg>
                 </div>
 
-                <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-[#6B7280]">
+                <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                   <Move className="w-3.5 h-3.5 text-[#F97316]" />
                   <span>Geser foto untuk menyesuaikan posisi wajah</span>
                 </div>
               </div>
 
               {/* Interactive Zoom Controls */}
-              <div className="w-full max-w-xs space-y-2 pt-1 border-t border-[#E5E7EB]">
-                <div className="flex items-center justify-between text-xs text-[#374151]">
+              <div className="w-full max-w-xs space-y-2 pt-1 border-t border-[#E5E7EB] dark:border-[#404040]">
+                <div className="flex items-center justify-between text-xs text-[#374151] dark:text-[#D4D4D4]">
                   <span className="font-semibold flex items-center gap-1">
                     <ZoomIn className="w-3.5 h-3.5 text-[#F97316]" /> Perbesar / Zoom
                   </span>
-                  <span className="font-mono text-[11px] text-[#6B7280]">
+                  <span className="font-mono text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                     {userZoom.toFixed(1)}x
                   </span>
                 </div>
@@ -382,7 +382,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                     type="button"
                     onClick={() => handleZoomChange(userZoom - 0.2)}
                     disabled={userZoom <= 1.0}
-                    className="p-1.5 rounded-lg border border-[#E5E7EB] hover:bg-gray-100 disabled:opacity-40 text-gray-700 cursor-pointer"
+                    className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] hover:bg-gray-100 dark:hover:bg-[#404040] disabled:opacity-40 text-gray-700 dark:text-gray-300 cursor-pointer"
                     title="Perkecil"
                   >
                     <ZoomOut className="w-3.5 h-3.5" />
@@ -395,14 +395,14 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                     step="0.05"
                     value={userZoom}
                     onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
-                    className="w-full accent-[#F97316] h-1.5 bg-gray-200 rounded-lg cursor-pointer"
+                    className="w-full accent-[#F97316] h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg cursor-pointer"
                   />
 
                   <button
                     type="button"
                     onClick={() => handleZoomChange(userZoom + 0.2)}
                     disabled={userZoom >= 3.0}
-                    className="p-1.5 rounded-lg border border-[#E5E7EB] hover:bg-gray-100 disabled:opacity-40 text-gray-700 cursor-pointer"
+                    className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] hover:bg-gray-100 dark:hover:bg-[#404040] disabled:opacity-40 text-gray-700 dark:text-gray-300 cursor-pointer"
                     title="Perbesar"
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
@@ -411,7 +411,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                   <button
                     type="button"
                     onClick={handleResetPosition}
-                    className="p-1.5 rounded-lg border border-[#E5E7EB] hover:bg-orange-50 text-orange-600 cursor-pointer ml-1"
+                    className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] hover:bg-orange-50 dark:hover:bg-orange-950/40 text-orange-600 dark:text-orange-400 cursor-pointer ml-1"
                     title="Riset Posisi"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
@@ -422,8 +422,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           ) : (
             /* Stage 2: Preview Stage */
             <div className="w-full space-y-4 text-center">
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center gap-2 text-xs text-emerald-800">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-center justify-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>Pratinjau hasil potong. Foto siap disimpan ke sistem.</span>
               </div>
 
@@ -431,7 +431,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
               <div className="flex items-center justify-center gap-6 py-2">
                 {/* 1:1 Square File Preview */}
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-xl border border-gray-300 shadow-xs overflow-hidden bg-gray-100">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-xl border border-gray-300 dark:border-gray-700 shadow-xs overflow-hidden bg-gray-100 dark:bg-gray-800">
                     {croppedPreviewUrl && (
                       <img
                         src={croppedPreviewUrl}
@@ -440,14 +440,14 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                       />
                     )}
                   </div>
-                  <span className="text-[11px] font-semibold text-[#6B7280]">
+                  <span className="text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3]">
                     File Persegi 1:1
                   </span>
                 </div>
 
                 {/* Circular Avatar Preview */}
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-[#F97316] shadow-sm overflow-hidden bg-[#FFF7ED]">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-[#F97316] shadow-sm overflow-hidden bg-[#FFF7ED] dark:bg-[#431F0B]">
                     {croppedPreviewUrl && (
                       <img
                         src={croppedPreviewUrl}
@@ -456,7 +456,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                       />
                     )}
                   </div>
-                  <span className="text-[11px] font-semibold text-[#6B7280]">
+                  <span className="text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3]">
                     Avatar Profil
                   </span>
                 </div>
@@ -466,7 +466,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-5 py-3.5 border-t border-[#E5E7EB] flex items-center justify-between shrink-0 bg-gray-50/50">
+        <div className="px-5 py-3.5 border-t border-[#E5E7EB] dark:border-[#404040] flex items-center justify-between shrink-0 bg-gray-50/50 dark:bg-[#303030]/50">
           {stage === 'crop' ? (
             <>
               <Button

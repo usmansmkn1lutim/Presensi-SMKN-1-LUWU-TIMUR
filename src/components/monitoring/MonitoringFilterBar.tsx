@@ -31,11 +31,11 @@ export const MonitoringFilterBar: React.FC<MonitoringFilterBarProps> = ({
   onRefresh,
 }) => {
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
+    <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
         {/* Date Filter */}
         <div>
-          <label htmlFor="monitoringDateInput" className="block text-[#6B7280] font-medium mb-1">
+          <label htmlFor="monitoringDateInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
             Tanggal Monitoring
           </label>
           <input
@@ -43,20 +43,20 @@ export const MonitoringFilterBar: React.FC<MonitoringFilterBarProps> = ({
             type="date"
             value={date}
             onChange={(e) => onChangeDate(e.target.value)}
-            className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer font-medium"
+            className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer font-medium"
           />
         </div>
 
         {/* Department Filter */}
         <div>
-          <label htmlFor="monitoringDepartmentInput" className="block text-[#6B7280] font-medium mb-1">
+          <label htmlFor="monitoringDepartmentInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
             Departemen
           </label>
           <select
             id="monitoringDepartmentInput"
             value={departmentId}
             onChange={(e) => onChangeDepartment(e.target.value)}
-            className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer font-medium"
+            className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer font-medium"
           >
             <option value="all">Semua Departemen</option>
             {departments.map((dept) => (
@@ -69,14 +69,14 @@ export const MonitoringFilterBar: React.FC<MonitoringFilterBarProps> = ({
 
         {/* Status Filter */}
         <div>
-          <label htmlFor="monitoringStatusInput" className="block text-[#6B7280] font-medium mb-1">
+          <label htmlFor="monitoringStatusInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
             Status Presensi
           </label>
           <select
             id="monitoringStatusInput"
             value={statusFilter}
             onChange={(e) => onChangeStatus(e.target.value)}
-            className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer font-medium"
+            className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer font-medium"
           >
             <option value="all">Semua Status Presensi</option>
             <option value="belum_presensi">Belum Presensi</option>
@@ -89,7 +89,7 @@ export const MonitoringFilterBar: React.FC<MonitoringFilterBarProps> = ({
 
         {/* Search Input */}
         <div>
-          <label htmlFor="monitoringSearchInput" className="block text-[#6B7280] font-medium mb-1">
+          <label htmlFor="monitoringSearchInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">
             Cari Pegawai
           </label>
           <div className="relative">
@@ -99,9 +99,9 @@ export const MonitoringFilterBar: React.FC<MonitoringFilterBarProps> = ({
               placeholder="Cari nama atau NIP..."
               value={searchQuery}
               onChange={(e) => onChangeSearch(e.target.value)}
-              className="w-full h-10 pl-9 pr-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all text-xs font-medium"
+              className="w-full h-10 pl-9 pr-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all text-xs font-medium"
             />
-            <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-3 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] absolute left-3 top-3 pointer-events-none" />
           </div>
         </div>
       </div>

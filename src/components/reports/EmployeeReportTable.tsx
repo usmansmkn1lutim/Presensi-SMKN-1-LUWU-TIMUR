@@ -57,11 +57,11 @@ const AttendanceSummaryVisual: React.FC<{ row: EmployeeAttendanceSummary }> = ({
     ? formatIndonesianPercentage(row.attendancePercentage)
     : '0%';
 
-  let percTextClass = 'text-[#6B7280]';
+  let percTextClass = 'text-[#6B7280] dark:text-[#A3A3A3]';
   if (hasEvaluatedDays) {
-    if (row.attendancePercentage < 75) percTextClass = 'text-rose-600';
-    else if (row.attendancePercentage < 90) percTextClass = 'text-amber-600';
-    else percTextClass = 'text-emerald-600';
+    if (row.attendancePercentage < 75) percTextClass = 'text-rose-600 dark:text-rose-400';
+    else if (row.attendancePercentage < 90) percTextClass = 'text-amber-600 dark:text-amber-400';
+    else percTextClass = 'text-emerald-600 dark:text-emerald-400';
   }
 
   return (
@@ -71,14 +71,14 @@ const AttendanceSummaryVisual: React.FC<{ row: EmployeeAttendanceSummary }> = ({
         <span className={`text-sm sm:text-base font-bold tabular-nums leading-none ${percTextClass}`}>
           {displayPerc}
         </span>
-        <span className="text-[11px] sm:text-xs font-medium text-[#6B7280]">
+        <span className="text-[11px] sm:text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">
           Kehadiran
         </span>
       </div>
 
       {/* Segment Bar Horizontal 3 Kategori */}
       <div
-        className="w-full h-2 rounded-full bg-[#E5E7EB] overflow-hidden flex"
+        className="w-full h-2 rounded-full bg-[#E5E7EB] dark:bg-[#404040] overflow-hidden flex"
         role="img"
         aria-label={`Komposisi kehadiran: Hadir ${hadir} hari, Sakit/Izin/Cuti ${sakitIzinCuti} hari, Alfa ${alfa} hari`}
       >
@@ -107,25 +107,25 @@ const AttendanceSummaryVisual: React.FC<{ row: EmployeeAttendanceSummary }> = ({
       </div>
 
       {/* Legenda Satu Baris Rata Kiri */}
-      <div className="flex flex-nowrap items-center justify-start gap-2 min-[360px]:gap-3 sm:gap-4 text-[10px] min-[360px]:text-[11px] sm:text-xs text-[#6B7280] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex flex-nowrap items-center justify-start gap-2 min-[360px]:gap-3 sm:gap-4 text-[10px] min-[360px]:text-[11px] sm:text-xs text-[#6B7280] dark:text-[#A3A3A3] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <span className="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
           <span>Hadir</span>
-          <span className="font-semibold text-[#111827] tabular-nums">{hadir}</span>
+          <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] tabular-nums">{hadir}</span>
           <span className="min-[360px]:hidden">hr</span>
           <span className="hidden min-[360px]:inline">hari</span>
         </span>
         <span className="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
           <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
           <span>Sakit/Izin/Cuti</span>
-          <span className="font-semibold text-[#111827] tabular-nums">{sakitIzinCuti}</span>
+          <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] tabular-nums">{sakitIzinCuti}</span>
           <span className="min-[360px]:hidden">hr</span>
           <span className="hidden min-[360px]:inline">hari</span>
         </span>
         <span className="inline-flex items-center gap-1 whitespace-nowrap shrink-0">
           <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
           <span>Alfa</span>
-          <span className="font-semibold text-[#111827] tabular-nums">{alfa}</span>
+          <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] tabular-nums">{alfa}</span>
           <span className="min-[360px]:hidden">hr</span>
           <span className="hidden min-[360px]:inline">hari</span>
         </span>
@@ -160,16 +160,16 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
   if (isLoading) {
     return (
       <>
-        <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-3">
-          <div className="h-5 bg-gray-100 rounded w-36 animate-pulse" />
+        <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs space-y-3">
+          <div className="h-5 bg-gray-100 dark:bg-[#303030] rounded w-36 animate-pulse" />
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-gray-50 rounded-xl animate-pulse" />
+            <div key={i} className="h-24 bg-gray-50 dark:bg-[#171717] rounded-xl animate-pulse" />
           ))}
         </div>
-        <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-3">
-          <div className="h-6 bg-gray-100 rounded w-48 animate-pulse mb-4" />
+        <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-3">
+          <div className="h-6 bg-gray-100 dark:bg-[#303030] rounded w-48 animate-pulse mb-4" />
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-50 rounded-xl animate-pulse" />
+            <div key={i} className="h-12 bg-gray-50 dark:bg-[#171717] rounded-xl animate-pulse" />
           ))}
         </div>
       </>
@@ -179,23 +179,23 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
   if (data.length === 0) {
     return (
       <>
-        <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl p-6 text-center shadow-2xs">
-          <div className="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-2.5">
+        <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 text-center shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#171717] text-gray-400 dark:text-[#6B7280] flex items-center justify-center mx-auto mb-2.5">
             <Users className="w-5 h-5" />
           </div>
-          <h4 className="text-sm font-bold text-[#111827]">Belum Ada Data Rekap Pegawai</h4>
-          <p className="text-xs text-[#6B7280] max-w-xs mx-auto mt-1">
+          <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">Belum Ada Data Rekap Pegawai</h4>
+          <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-xs mx-auto mt-1">
             {effectiveSearch.trim()
               ? 'Tidak ada data pegawai yang sesuai dengan pencarian.'
               : 'Tidak ditemukan data kehadiran pegawai pada filter yang ditentukan.'}
           </p>
         </div>
-        <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl p-12 text-center shadow-2xs">
-          <div className="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-3">
+        <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-12 text-center shadow-2xs">
+          <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-[#171717] text-gray-400 dark:text-[#6B7280] flex items-center justify-center mx-auto mb-3">
             <Users className="w-6 h-6" />
           </div>
-          <h4 className="text-base font-bold text-[#111827]">Belum Ada Data Rekap Pegawai</h4>
-          <p className="text-xs text-[#6B7280] max-w-sm mx-auto mt-1">
+          <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Belum Ada Data Rekap Pegawai</h4>
+          <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto mt-1">
             Tidak ditemukan data kehadiran pegawai pada filter yang ditentukan.
           </p>
         </div>
@@ -240,20 +240,20 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
   return (
     <>
       {/* Mobile & Tablet (<lg): Compact List View with Unified Attendance Summary */}
-      <div className="lg:hidden bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="lg:hidden bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {/* Compact Data Header */}
-        <div className="px-4 py-3 border-b border-[#E5E7EB] flex flex-wrap items-center justify-between gap-2 bg-white">
+        <div className="px-4 py-3 border-b border-[#E5E7EB] dark:border-[#404040] flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-[#262626]">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[#111827]">
+            <span className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">
               {sorted.length} pegawai
             </span>
             {effectiveSearch.trim() && sorted.length !== data.length && (
-              <span className="text-[11px] text-[#6B7280]">dari {data.length}</span>
+              <span className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">dari {data.length}</span>
             )}
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="inline-flex items-center border border-[#E5E7EB] rounded-lg bg-[#F9FAFB] overflow-hidden">
+            <div className="inline-flex items-center border border-[#E5E7EB] dark:border-[#404040] rounded-lg bg-[#F9FAFB] dark:bg-[#171717] overflow-hidden">
               <select
                 value={sortField}
                 onChange={(e) => {
@@ -261,7 +261,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                   setSortAsc(false);
                 }}
                 aria-label="Urutkan rekap pegawai"
-                className="bg-transparent pl-2 pr-1 py-1 text-[11px] font-medium text-[#374151] focus:outline-none"
+                className="bg-transparent pl-2 pr-1 py-1 text-[11px] font-medium text-[#374151] dark:text-[#E5E7EB] focus:outline-none"
               >
                 <option value="attendancePercentage">Persentase</option>
                 <option value="totalPresentIncludingOfficialDuty">Total Hadir</option>
@@ -270,7 +270,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                 type="button"
                 onClick={() => setSortAsc((prev) => !prev)}
                 aria-label={sortAsc ? 'Urutan naik' : 'Urutan turun'}
-                className="px-1.5 py-1 border-l border-[#E5E7EB] text-[#6B7280] hover:text-[#111827] cursor-pointer"
+                className="px-1.5 py-1 border-l border-[#E5E7EB] dark:border-[#404040] text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer"
               >
                 {sortAsc ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
               </button>
@@ -280,7 +280,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               type="button"
               onClick={onExportExcel}
               disabled={isLoading || isExporting}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50/50 text-emerald-800 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
             >
               <FileSpreadsheet className="w-3 h-3 text-emerald-600" />
               <span>{isExporting && exportingType === 'excel' ? '...' : 'Excel'}</span>
@@ -289,7 +289,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               type="button"
               onClick={onExportPdf}
               disabled={isLoading || isExporting}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50/50 text-rose-800 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800/50 bg-rose-50/50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 text-[11px] font-semibold disabled:opacity-50 cursor-pointer"
             >
               <Download className="w-3 h-3 text-rose-600" />
               <span>{isExporting && exportingType === 'pdf' ? '...' : 'PDF'}</span>
@@ -299,15 +299,15 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
 
         {sorted.length === 0 ? (
           <div className="p-6 text-center">
-            <p className="text-xs font-semibold text-[#111827]">
+            <p className="text-xs font-semibold text-[#111827] dark:text-[#F9FAFB]">
               Pegawai Tidak Ditemukan
             </p>
-            <p className="text-[11px] text-[#6B7280] mt-1">
+            <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               Tidak ada data yang cocok dengan pencarian &ldquo;{effectiveSearch}&rdquo;.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-[#E5E7EB]">
+          <div className="divide-y divide-[#E5E7EB] dark:divide-[#404040]">
             {sorted.map((row) => {
               const isHistorical = row.employeeName.includes('(Arsip)');
 
@@ -315,11 +315,11 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                 <div key={row.employeeId} className="px-3.5 sm:px-4 py-3 space-y-2.5">
                   {/* Employee Identity (Name + Position) */}
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-[#FFF7ED] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#F97316] font-bold text-xs flex items-center justify-center shrink-0">
                       {row.employeeName.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs sm:text-sm font-semibold text-[#111827] flex items-center gap-1.5 flex-wrap">
+                      <div className="text-xs sm:text-sm font-semibold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1.5 flex-wrap">
                         <span className="truncate">{row.employeeName}</span>
                         {isHistorical && (
                           <Badge variant="warning" size="sm">
@@ -327,7 +327,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                           </Badge>
                         )}
                       </div>
-                      <div className="text-[11px] text-[#6B7280] truncate">
+                      <div className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] truncate">
                         {row.positionName || '-'}
                       </div>
                     </div>
@@ -341,34 +341,34 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
           </div>
         )}
 
-        <div className="px-4 py-2.5 bg-[#F9FAFB] border-t border-[#E5E7EB] text-[11px] text-[#6B7280]">
+        <div className="px-4 py-2.5 bg-[#F9FAFB] dark:bg-[#171717] border-t border-[#E5E7EB] dark:border-[#404040] text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
           Hari kerja efektif mengecualikan Sabtu, Minggu, &amp; Hari Libur
         </div>
       </div>
 
       {/* Desktop (>=lg): Simplified 2-Column Table (Identitas Pegawai + Ringkasan Kehadiran) */}
-      <div className="hidden lg:block bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="hidden lg:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {/* Table Header and Search */}
-        <div className="p-4 sm:p-5 border-b border-[#F3F4F6] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 border-b border-[#F3F4F6] dark:border-[#404040] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-[#111827] flex items-center gap-2">
+            <h3 className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-2">
               <Users className="w-4 h-4 text-[#F97316]" />
               Rekap Kehadiran Per Pegawai
             </h3>
-            <p className="text-xs text-[#6B7280] mt-0.5">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-0.5">
               Ringkasan persentase dan komposisi kehadiran per pegawai
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="relative w-full sm:w-48">
-              <Search className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[#9CA3AF] dark:text-[#6B7280] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Cari pegawai di tabel..."
                 value={effectiveSearch}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#111827] focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                className="w-full bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:ring-1 focus:ring-[#F97316] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280]"
               />
             </div>
             <Button
@@ -378,7 +378,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               disabled={isLoading || isExporting}
               isLoading={isExporting && exportingType === 'excel'}
               leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />}
-              className="border border-emerald-200 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs py-1.5"
+              className="border border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-semibold text-xs py-1.5"
             >
               Excel
             </Button>
@@ -389,7 +389,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
               disabled={isLoading || isExporting}
               isLoading={isExporting && exportingType === 'pdf'}
               leftIcon={<Download className="w-3.5 h-3.5 text-rose-600" />}
-              className="border border-rose-200 hover:bg-rose-50 text-rose-800 font-semibold text-xs py-1.5"
+              className="border border-rose-200 dark:border-rose-800/50 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-800 dark:text-rose-300 font-semibold text-xs py-1.5"
             >
               PDF
             </Button>
@@ -399,7 +399,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-[#F9FAFB] text-[#4B5563] border-b border-[#E5E7EB] font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="bg-[#F9FAFB] dark:bg-[#303030] text-[#4B5563] dark:text-[#A3A3A3] border-b border-[#E5E7EB] dark:border-[#404040] font-semibold text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4 w-[36%]">Pegawai</th>
                 <th className="py-3 px-4">
                   <div className="flex items-center justify-between gap-3">
@@ -410,8 +410,8 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                         onClick={() => handleToggleSort('attendancePercentage')}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] cursor-pointer transition-colors ${
                           sortField === 'attendancePercentage'
-                            ? 'bg-orange-50 border-orange-200 text-[#EA580C] font-semibold'
-                            : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:text-[#111827]'
+                            ? 'bg-orange-50 dark:bg-[#431F0B]/50 border-orange-200 dark:border-orange-800/50 text-[#EA580C] dark:text-[#F97316] font-semibold'
+                            : 'bg-white dark:bg-[#262626] border-[#E5E7EB] dark:border-[#404040] text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                         }`}
                       >
                         <span>Persentase</span>
@@ -430,8 +430,8 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                         onClick={() => handleToggleSort('totalPresentIncludingOfficialDuty')}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] cursor-pointer transition-colors ${
                           sortField === 'totalPresentIncludingOfficialDuty'
-                            ? 'bg-orange-50 border-orange-200 text-[#EA580C] font-semibold'
-                            : 'bg-white border-[#E5E7EB] text-[#6B7280] hover:text-[#111827]'
+                            ? 'bg-orange-50 dark:bg-[#431F0B]/50 border-orange-200 dark:border-orange-800/50 text-[#EA580C] dark:text-[#F97316] font-semibold'
+                            : 'bg-white dark:bg-[#262626] border-[#E5E7EB] dark:border-[#404040] text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                         }`}
                       >
                         <span>Total Hadir</span>
@@ -450,10 +450,10 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F3F4F6]">
+            <tbody className="divide-y divide-[#F3F4F6] dark:divide-[#404040]">
               {sorted.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-10 px-4 text-center text-xs text-[#6B7280]">
+                  <td colSpan={2} className="py-10 px-4 text-center text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                     Tidak ada pegawai yang cocok dengan pencarian &ldquo;{effectiveSearch}&rdquo;.
                   </td>
                 </tr>
@@ -462,14 +462,14 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                   const isHistorical = row.employeeName.includes('(Arsip)');
 
                   return (
-                    <tr key={row.employeeId} className="hover:bg-[#F9FAFB]/70 transition-colors">
+                    <tr key={row.employeeId} className="hover:bg-[#F9FAFB]/70 dark:hover:bg-[#303030]/70 transition-colors">
                       <td className="py-3.5 px-4 align-middle whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-[#FFF7ED] text-[#EA580C] font-bold text-xs flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-[#FFF7ED] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#F97316] font-bold text-xs flex items-center justify-center shrink-0">
                             {row.employeeName.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-semibold text-[#111827] flex items-center gap-1.5">
+                            <div className="font-semibold text-[#111827] dark:text-[#F9FAFB] flex items-center gap-1.5">
                               <span>{row.employeeName}</span>
                               {isHistorical && (
                                 <Badge variant="warning" size="sm">
@@ -477,7 +477,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
                                 </Badge>
                               )}
                             </div>
-                            <div className="text-[11px] text-[#6B7280]">
+                            <div className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                               {row.positionName || '-'}
                             </div>
                           </div>
@@ -494,7 +494,7 @@ export const EmployeeReportTable: React.FC<EmployeeReportTableProps> = ({
           </table>
         </div>
 
-        <div className="p-3 bg-[#F9FAFB] border-t border-[#E5E7EB] text-[11px] text-[#6B7280] flex items-center justify-between">
+        <div className="p-3 bg-[#F9FAFB] dark:bg-[#171717] border-t border-[#E5E7EB] dark:border-[#404040] text-[11px] text-[#6B7280] dark:text-[#A3A3A3] flex items-center justify-between">
           <span>Menampilkan {sorted.length} dari total {data.length} pegawai</span>
           <span>Hari kerja efektif mengecualikan Sabtu, Minggu, &amp; Hari Libur</span>
         </div>

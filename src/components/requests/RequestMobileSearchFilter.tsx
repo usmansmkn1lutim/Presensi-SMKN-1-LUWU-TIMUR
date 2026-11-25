@@ -48,24 +48,24 @@ export const RequestMobileSearchFilter: React.FC<RequestMobileSearchFilterProps>
   return (
     <div className="relative font-sans" ref={dropdownRef}>
       {/* Search Bar with integrated filter button */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-1.5 pl-3.5 shadow-2xs flex items-center gap-2 focus-within:border-[#F97316] transition-colors">
-        <Search className="w-4 h-4 text-[#9CA3AF] shrink-0" />
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-1.5 pl-3.5 shadow-2xs flex items-center gap-2 focus-within:border-[#F97316] dark:focus-within:border-[#F97316] transition-colors">
+        <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] shrink-0" />
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={placeholder}
-          className="flex-1 bg-transparent border-none text-xs sm:text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-hidden"
+          className="flex-1 min-w-0 bg-transparent border-none text-xs sm:text-sm text-[#111827] dark:text-[#F9FAFB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#A3A3A3] focus:outline-hidden"
         />
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           title="Filter status"
           aria-label="Filter status"
-          className={`p-2 rounded-xl transition-colors shrink-0 flex items-center justify-center cursor-pointer ${
+          className={`p-2 rounded-xl transition-colors shrink-0 flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316] ${
             isFiltered || isOpen
-              ? 'bg-[#FFF7ED] text-[#F97316] border border-[#FFEDD5]'
-              : 'hover:bg-[#F3F4F6] text-[#6B7280]'
+              ? 'bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] dark:text-[#FDBA74] border border-[#FFEDD5] dark:border-[#9A3412]/60'
+              : 'hover:bg-[#F3F4F6] dark:hover:bg-[#303030] text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
           }`}
         >
           <SlidersHorizontal className="w-4 h-4" />
@@ -74,9 +74,9 @@ export const RequestMobileSearchFilter: React.FC<RequestMobileSearchFilterProps>
 
       {/* Filter Dropdown Popup */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-[#E5E7EB] rounded-2xl shadow-lg z-30 p-1.5 animate-in fade-in zoom-in-95">
-          <div className="px-3 py-2 border-b border-[#F3F4F6]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+        <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-lg z-30 p-1.5 animate-in fade-in zoom-in-95">
+          <div className="px-3 py-2 border-b border-[#F3F4F6] dark:border-[#404040]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF] dark:text-[#A3A3A3]">
               Filter Status
             </span>
           </div>
@@ -93,8 +93,8 @@ export const RequestMobileSearchFilter: React.FC<RequestMobileSearchFilterProps>
                   }}
                   className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
                     isSelected
-                      ? 'bg-[#FFF7ED] text-[#F97316] font-bold'
-                      : 'text-[#374151] hover:bg-[#F9FAFB]'
+                      ? 'bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] dark:text-[#FDBA74] font-bold'
+                      : 'text-[#374151] dark:text-[#D4D4D4] hover:bg-[#F9FAFB] dark:hover:bg-[#303030]'
                   }`}
                 >
                   <span>{opt.label}</span>

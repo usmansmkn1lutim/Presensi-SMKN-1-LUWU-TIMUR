@@ -270,15 +270,15 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 space-y-6 shadow-2xs">
+    <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 space-y-6 shadow-2xs">
       {/* Header Title, Filter Toolbar & View Mode Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E5E7EB]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E5E7EB] dark:border-[#404040]">
         {/* Left: Title (No Subtitle) */}
         <div className="flex items-center gap-2.5 text-[#F97316]">
-          <div className="p-2 rounded-xl bg-[#FFF7ED] border border-orange-200 shrink-0">
+          <div className="p-2 rounded-xl bg-[#FFF7ED] dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 shrink-0">
             <CalendarCheck className="w-5 h-5 text-[#F97316]" />
           </div>
-          <h3 className="text-base font-bold text-[#111827]">
+          <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
             Riwayat Kehadiran
           </h3>
         </div>
@@ -289,53 +289,53 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
           {viewMode === 'table' && (
             <div className="flex items-center gap-2.5 flex-wrap">
               {/* Periode Selector */}
-              <div className="flex items-center gap-1.5 bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#F97316]">
-                <Calendar className="w-4 h-4 text-[#6B7280] shrink-0" />
+              <div className="flex items-center gap-1.5 bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#F97316]">
+                <Calendar className="w-4 h-4 text-[#6B7280] dark:text-[#A3A3A3] shrink-0" />
                 <select
                   value={period}
                   onChange={(e) => {
                     setPeriod(e.target.value as PeriodOption);
                     setCurrentPage(1);
                   }}
-                  className="bg-transparent text-xs font-semibold text-[#111827] focus:outline-none cursor-pointer"
+                  className="bg-transparent text-xs font-semibold text-[#111827] dark:text-[#F9FAFB] focus:outline-none cursor-pointer"
                 >
-                  <option value="this_month">Bulan Ini</option>
-                  <option value="last_month">Bulan Lalu</option>
-                  <option value="3_months">3 Bulan</option>
-                  <option value="6_months">6 Bulan</option>
-                  <option value="this_year">Tahun Ini</option>
-                  <option value="custom">Custom Range</option>
+                  <option value="this_month" className="dark:bg-[#202020]">Bulan Ini</option>
+                  <option value="last_month" className="dark:bg-[#202020]">Bulan Lalu</option>
+                  <option value="3_months" className="dark:bg-[#202020]">3 Bulan</option>
+                  <option value="6_months" className="dark:bg-[#202020]">6 Bulan</option>
+                  <option value="this_year" className="dark:bg-[#202020]">Tahun Ini</option>
+                  <option value="custom" className="dark:bg-[#202020]">Custom Range</option>
                 </select>
               </div>
 
               {/* Status Filter */}
-              <div className="flex items-center gap-1.5 bg-white border border-[#E5E7EB] rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#F97316]">
-                <Filter className="w-4 h-4 text-[#6B7280] shrink-0" />
+              <div className="flex items-center gap-1.5 bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#F97316]">
+                <Filter className="w-4 h-4 text-[#6B7280] dark:text-[#A3A3A3] shrink-0" />
                 <select
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="bg-transparent text-xs font-semibold text-[#111827] focus:outline-none cursor-pointer"
+                  className="bg-transparent text-xs font-semibold text-[#111827] dark:text-[#F9FAFB] focus:outline-none cursor-pointer"
                 >
-                  <option value="all">Semua Status</option>
-                  <option value="present">Semua Hadir</option>
-                  <option value="on_time">Hadir — Tepat Waktu</option>
-                  <option value="late">Hadir — Terlambat</option>
-                  <option value="sick">Sakit</option>
-                  <option value="permit">Izin</option>
-                  <option value="official_duty">Dinas Luar</option>
-                  <option value="leave">Cuti</option>
-                  <option value="absent">Alpha</option>
-                  <option value="holiday">Libur</option>
+                  <option value="all" className="dark:bg-[#202020]">Semua Status</option>
+                  <option value="present" className="dark:bg-[#202020]">Semua Hadir</option>
+                  <option value="on_time" className="dark:bg-[#202020]">Hadir — Tepat Waktu</option>
+                  <option value="late" className="dark:bg-[#202020]">Hadir — Terlambat</option>
+                  <option value="sick" className="dark:bg-[#202020]">Sakit</option>
+                  <option value="permit" className="dark:bg-[#202020]">Izin</option>
+                  <option value="official_duty" className="dark:bg-[#202020]">Dinas Luar</option>
+                  <option value="leave" className="dark:bg-[#202020]">Cuti</option>
+                  <option value="absent" className="dark:bg-[#202020]">Alpha</option>
+                  <option value="holiday" className="dark:bg-[#202020]">Libur</option>
                 </select>
               </div>
             </div>
           )}
 
           {/* Icon-Only View Mode Toggle (Segmented Control) */}
-          <div className="inline-flex items-center p-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-xl shrink-0">
+          <div className="inline-flex items-center p-1 bg-[#F3F4F6] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl shrink-0">
             <button
               type="button"
               onClick={() => onViewModeChange?.('table')}
@@ -344,7 +344,7 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
               className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === 'table'
                   ? 'bg-[#F97316] text-white shadow-2xs'
-                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-200/60'
+                  : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-200/60 dark:hover:bg-[#323232]'
               }`}
             >
               <Table className="w-4 h-4" />
@@ -357,7 +357,7 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
               className={`p-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === 'calendar'
                   ? 'bg-[#F97316] text-white shadow-2xs'
-                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-200/60'
+                  : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-200/60 dark:hover:bg-[#323232]'
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -373,23 +373,23 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
         <>
           {/* Custom Date Inputs if Custom Selected */}
           {period === 'custom' && (
-            <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex flex-wrap items-center gap-4 text-xs animate-in fade-in duration-150">
+            <div className="p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] flex flex-wrap items-center gap-4 text-xs animate-in fade-in duration-150">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[#374151]">Mulai:</span>
+                <span className="font-semibold text-[#374151] dark:text-[#D4D4D4]">Mulai:</span>
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="bg-white border border-[#E5E7EB] rounded-lg px-2.5 py-1 text-xs text-[#111827] font-mono focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                  className="bg-white dark:bg-[#1A1A1A] border border-[#E5E7EB] dark:border-[#404040] rounded-lg px-2.5 py-1 text-xs text-[#111827] dark:text-[#F9FAFB] font-mono focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[#374151]">Sampai:</span>
+                <span className="font-semibold text-[#374151] dark:text-[#D4D4D4]">Sampai:</span>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="bg-white border border-[#E5E7EB] rounded-lg px-2.5 py-1 text-xs text-[#111827] font-mono focus:outline-none focus:ring-2 focus:ring-[#F97316]"
+                  className="bg-white dark:bg-[#1A1A1A] border border-[#E5E7EB] dark:border-[#404040] rounded-lg px-2.5 py-1 text-xs text-[#111827] dark:text-[#F9FAFB] font-mono focus:outline-none focus:ring-2 focus:ring-[#F97316]"
                 />
               </div>
             </div>
@@ -399,46 +399,46 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
           {isLoading ? (
             <div className="min-h-[220px] flex flex-col items-center justify-center gap-3 py-10">
               <div className="w-7 h-7 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-              <p className="text-xs text-[#6B7280]">Memuat riwayat kehadiran resmi...</p>
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">Memuat riwayat kehadiran resmi...</p>
             </div>
           ) : error ? (
-            <div className="p-6 rounded-2xl bg-red-50 border border-red-200 text-center space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+            <div className="p-6 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-center space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 flex items-center justify-center mx-auto">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-red-900">Gagal Memuat Riwayat</h4>
-                <p className="text-xs text-red-700 mt-1">{error}</p>
+                <h4 className="text-xs font-bold text-red-900 dark:text-red-200">Gagal Memuat Riwayat</h4>
+                <p className="text-xs text-red-700 dark:text-red-300 mt-1">{error}</p>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onPeriodChange(tablePeriod)}
                 leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-                className="border-red-300 text-red-800 hover:bg-red-100"
+                className="border-red-300 dark:border-red-700 text-red-800 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/60"
               >
                 Coba Lagi
               </Button>
             </div>
           ) : sortedData.length === 0 ? (
-            <div className="min-h-[180px] flex flex-col items-center justify-center text-center p-8 bg-[#F9FAFB] rounded-2xl border border-dashed border-[#D1D5DB] space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#E5E7EB] text-[#6B7280] flex items-center justify-center">
+            <div className="min-h-[180px] flex flex-col items-center justify-center text-center p-8 bg-[#F9FAFB] dark:bg-[#202020] rounded-2xl border border-dashed border-[#D1D5DB] dark:border-[#404040] space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#E5E7EB] dark:bg-zinc-800 text-[#6B7280] dark:text-[#A3A3A3] flex items-center justify-center">
                 <CalendarCheck className="w-5 h-5" />
               </div>
-              <h4 className="text-xs font-bold text-[#374151]">
+              <h4 className="text-xs font-bold text-[#374151] dark:text-[#F9FAFB]">
                 Belum ada riwayat kehadiran pada periode ini.
               </h4>
-              <p className="text-[11px] text-[#6B7280]">
+              <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">
                 Tidak ditemukan catatan presensi atau status kehadiran yang sesuai dengan filter pilihan Anda.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               {/* Table Container */}
-              <div className="overflow-x-auto rounded-xl border border-[#E5E7EB]">
+              <div className="overflow-x-auto rounded-xl border border-[#E5E7EB] dark:border-[#404040]">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[#374151] font-bold uppercase text-[11px] tracking-wider">
+                    <tr className="bg-[#F9FAFB] dark:bg-[#212121] border-b border-[#E5E7EB] dark:border-[#404040] text-[#374151] dark:text-[#D4D4D4] font-bold uppercase text-[11px] tracking-wider">
                       <th className="py-3 px-4 min-w-[150px]">
                         <button
                           type="button"
@@ -474,30 +474,30 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
                       <th className="py-3 px-4 min-w-[140px]">Lokasi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E5E7EB] bg-white text-[#111827]">
+                  <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#333333] bg-white dark:bg-[#262626] text-[#111827] dark:text-[#F9FAFB]">
                     {paginatedData.map((item) => {
                       const dayName = getDayNameIndonesian(item.date);
                       const shortDate = formatMakassarShortDate(item.date);
 
                       return (
-                        <tr key={item.date} className="hover:bg-[#F9FAFB] transition-colors">
+                        <tr key={item.date} className="hover:bg-[#F9FAFB] dark:hover:bg-[#202020] transition-colors">
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <div className="font-bold text-[#111827]">{shortDate}</div>
-                            <div className="text-[11px] text-[#6B7280]">{dayName}</div>
+                            <div className="font-bold text-[#111827] dark:text-[#F9FAFB]">{shortDate}</div>
+                            <div className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3]">{dayName}</div>
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
                             {renderStatusBadge(item)}
                           </td>
-                          <td className="py-3 px-4 text-[#4B5563]">
+                          <td className="py-3 px-4 text-[#4B5563] dark:text-[#D4D4D4]">
                             {item.notes || '—'}
                           </td>
-                          <td className="py-3 px-4 text-center font-mono font-semibold text-[#111827]">
+                          <td className="py-3 px-4 text-center font-mono font-semibold text-[#111827] dark:text-[#F9FAFB]">
                             {formatMakassarTime(item.checkInAt)}
                           </td>
-                          <td className="py-3 px-4 text-center font-mono font-semibold text-[#111827]">
+                          <td className="py-3 px-4 text-center font-mono font-semibold text-[#111827] dark:text-[#F9FAFB]">
                             {formatMakassarTime(item.checkOutAt)}
                           </td>
-                          <td className="py-3 px-4 text-[#4B5563]">
+                          <td className="py-3 px-4 text-[#4B5563] dark:text-[#D4D4D4]">
                             {item.checkInLocation || item.checkOutLocation ? (
                               <div className="inline-flex items-center gap-1">
                                 <MapPin className="w-3 h-3 text-[#F97316] shrink-0" />
@@ -515,7 +515,7 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
               </div>
 
               {/* Pagination Controls */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs text-[#6B7280]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 <div className="flex items-center gap-2">
                   <span>Tampilkan:</span>
                   <select
@@ -524,14 +524,14 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
                       setPageSize(Number(e.target.value));
                       setCurrentPage(1);
                     }}
-                    className="bg-white border border-[#E5E7EB] rounded-lg px-2 py-1 text-xs text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#F97316]"
+                    className="bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-lg px-2 py-1 text-xs text-[#111827] dark:text-[#F9FAFB] font-semibold focus:outline-none focus:ring-1 focus:ring-[#F97316]"
                   >
-                    <option value={15}>15 baris</option>
-                    <option value={30}>30 baris</option>
-                    <option value={50}>50 baris</option>
+                    <option value={15} className="dark:bg-[#202020]">15 baris</option>
+                    <option value={30} className="dark:bg-[#202020]">30 baris</option>
+                    <option value={50} className="dark:bg-[#202020]">50 baris</option>
                   </select>
                   <span>
-                    dari <strong className="text-[#111827]">{sortedData.length}</strong> total catatan
+                    dari <strong className="text-[#111827] dark:text-[#F9FAFB]">{sortedData.length}</strong> total catatan
                   </span>
                 </div>
 
@@ -541,11 +541,11 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="p-1.5 min-w-[32px] justify-center"
+                    className="p-1.5 min-w-[32px] justify-center dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-[#323232]"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  <span className="font-semibold text-[#111827] px-2">
+                  <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] px-2">
                     Halaman {currentPage} dari {totalPages}
                   </span>
                   <Button
@@ -553,7 +553,7 @@ export const EmployeeAttendanceHistoryCard: React.FC<EmployeeAttendanceHistoryCa
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="p-1.5 min-w-[32px] justify-center"
+                    className="p-1.5 min-w-[32px] justify-center dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-[#323232]"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </Button>

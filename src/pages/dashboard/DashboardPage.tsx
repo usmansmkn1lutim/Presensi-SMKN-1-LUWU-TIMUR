@@ -97,7 +97,7 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
       case 'official_duty':
       case 'leave': return 'bg-amber-500';
       case 'absent': return 'bg-red-600';
-      default: return 'bg-slate-300';
+      default: return 'bg-slate-300 dark:bg-[#525252]';
     }
   };
 
@@ -111,14 +111,15 @@ const WeeklyDateCapsules: React.FC<{ records: AttendanceHistoryRecord[] }> = ({ 
         const hasStatus = Boolean(record && record.official_status && record.official_status !== 'holiday');
         const isPresent = record?.official_status === 'present';
 
-        const bgColor = isToday ? 'bg-[#111827] lg:bg-[#F97316]' : 'bg-white';
-        const textColor = isToday ? 'text-white' : (isSpecialDay ? 'text-[#DC2626]' : 'text-[#111827]');
-        const shadow = isToday ? '' : 'shadow-[0_2px_8px_rgba(15,23,42,0.06)]';
+        const bgColor = isToday ? 'bg-[#111827] dark:bg-[#431F0B] lg:bg-[#F97316] dark:lg:bg-[#F97316]' : 'bg-white dark:bg-[#262626]';
+        const textColor = isToday ? 'text-white' : (isSpecialDay ? 'text-[#DC2626] dark:text-red-400' : 'text-[#111827] dark:text-[#F9FAFB]');
+        const shadow = isToday ? '' : 'shadow-[0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-none';
+        const borderColor = isToday ? 'border-[#E5E7EB] dark:border-transparent dark:lg:border-[#F97316]' : 'border-[#E5E7EB] dark:border-[#404040]';
 
         return (
           <div
             key={day.dateStr}
-            className={`relative rounded-xl lg:rounded-full h-[88px] lg:h-[108px] flex flex-col items-center justify-center gap-1 ${bgColor} ${shadow} border border-[#E5E7EB]`}
+            className={`relative rounded-xl lg:rounded-full h-[88px] lg:h-[108px] flex flex-col items-center justify-center gap-1 ${bgColor} ${shadow} border ${borderColor}`}
           >
             <span className={`text-[10px] font-bold ${textColor}`}>{day.dayName}</span>
             <span className={`text-sm sm:text-base font-bold ${textColor}`}>{day.dayNum}</span>
@@ -648,13 +649,13 @@ export const DashboardPage: React.FC = () => {
               avatarUrl={profile?.avatar_url || user?.avatarUrl}
               photoUrl={user?.photoUrl}
               name={fullName}
-              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
+              className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0 shadow-2xs"
             />
             <div className="space-y-0.5 flex-1 min-w-0">
-              <p className="text-xs font-semibold text-[#111827]">
+              <p className="text-xs font-semibold text-[#111827] dark:text-[#F9FAFB]">
                 {greeting},
               </p>
-              <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate">
+              <h2 className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] truncate">
                 {fullName}
               </h2>
             </div>
@@ -666,12 +667,12 @@ export const DashboardPage: React.FC = () => {
 
         {/* Global Error Banner if Executive Fetch Fails */}
         {execError && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm shadow-2xs">
+          <div className="bg-amber-50 dark:bg-[#451A03]/60 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 text-amber-800 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
               <div>
-                <p className="font-semibold text-amber-950">Terjadi Kendala Memuat Data Manajerial</p>
-                <p className="text-amber-800 text-xs mt-0.5">{execError}</p>
+                <p className="font-semibold text-amber-950 dark:text-amber-100">Terjadi Kendala Memuat Data Manajerial</p>
+                <p className="text-amber-800 dark:text-amber-200/90 text-xs mt-0.5">{execError}</p>
               </div>
             </div>
             <Button
@@ -679,7 +680,7 @@ export const DashboardPage: React.FC = () => {
               size="sm"
               onClick={handleRefreshExecutive}
               leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-              className="text-xs shrink-0 self-end sm:self-auto bg-white border-amber-300 hover:bg-amber-50"
+              className="text-xs shrink-0 self-end sm:self-auto bg-white border-amber-300 hover:bg-amber-50 dark:bg-[#262626] dark:border-amber-700/60 dark:text-amber-200 dark:hover:bg-[#303030]"
             >
               Coba Lagi
             </Button>
@@ -713,14 +714,14 @@ export const DashboardPage: React.FC = () => {
 
         {/* 1.6. Mobile Managerial Quick Access Menu (Grid 1x4, lg:hidden) */}
         <section aria-label="Menu Akses Cepat Manajerial Mobile" className="lg:hidden">
-          <div className="bg-white border border-[#E5E7EB] rounded-2xl p-3 shadow-2xs space-y-2.5">
+          <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-3 shadow-2xs space-y-2.5">
             {profile?.role === 'headmaster' && (
               <div className="flex items-center justify-between px-1 pb-0.5">
-                <span className="text-xs font-bold text-[#111827]">Menu Utama</span>
+                <span className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">Menu Utama</span>
                 <button
                   type="button"
                   onClick={() => setIsQuickMenuExpanded(!isQuickMenuExpanded)}
-                  className="flex items-center gap-1 text-xs font-medium text-[#6B7280] hover:text-[#111827] transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] transition-colors cursor-pointer"
                 >
                   <span>{isQuickMenuExpanded ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Semua'}</span>
                   {isQuickMenuExpanded ? (
@@ -759,12 +760,12 @@ export const DashboardPage: React.FC = () => {
                   key={menu.path}
                   type="button"
                   onClick={() => navigate(menu.path)}
-                  className="flex flex-col items-center justify-start px-1 py-2 sm:p-2 rounded-xl bg-transparent hover:bg-slate-100 active:bg-slate-200 transition-colors cursor-pointer group"
+                  className="flex flex-col items-center justify-start px-1 py-2 sm:p-2 rounded-xl bg-transparent hover:bg-slate-100 dark:hover:bg-[#303030] active:bg-slate-200 dark:active:bg-[#404040] transition-colors cursor-pointer group"
                 >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform">
                     <menu.Icon className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" />
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-semibold text-[#3B485A] text-center leading-tight line-clamp-2 w-full">
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-[#3B485A] dark:text-[#E5E5E5] text-center leading-tight line-clamp-2 w-full">
                     {menu.label}
                   </span>
                 </button>
@@ -829,13 +830,13 @@ export const DashboardPage: React.FC = () => {
             avatarUrl={profile?.avatar_url || user?.avatarUrl}
             photoUrl={user?.photoUrl}
             name={fullName}
-            className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] shrink-0 shadow-2xs"
+            className="w-11 h-11 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0 shadow-2xs"
           />
           <div className="space-y-0.5 flex-1 min-w-0">
-            <p className="text-xs font-semibold text-[#111827]">
+            <p className="text-xs font-semibold text-[#111827] dark:text-[#F9FAFB]">
               {greeting},
             </p>
-            <h2 className="text-sm sm:text-base font-bold text-[#111827] truncate">
+            <h2 className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] truncate">
               {fullName}
             </h2>
           </div>
@@ -891,24 +892,24 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Row 4: Check-in & Check-out COMBINED SINGLE CARD DISPLAY-ONLY (CENTER ALIGNED, NO ICONS, VERTICAL SEPARATOR) */}
-        <div className="bg-white rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] relative z-10">
-          <div className="grid grid-cols-2 divide-x divide-slate-200">
+        <div className="bg-white dark:bg-[#262626] rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] dark:text-[#F9FAFB] relative z-10">
+          <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-[#404040]">
             {/* Kolom Kiri: Check-in */}
             <div className="flex flex-col items-center justify-center text-center px-2">
-              <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] leading-tight">
                 Check-in
               </span>
-              <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
+              <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight mt-1 tabular-nums">
                 {displayCheckInTime}
               </span>
             </div>
 
             {/* Kolom Kanan: Check-out */}
             <div className="flex flex-col items-center justify-center text-center px-2">
-              <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] leading-tight">
                 Check-out
               </span>
-              <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">
+              <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight mt-1 tabular-nums">
                 {displayCheckOutTime}
               </span>
             </div>
@@ -950,25 +951,25 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3 pt-1.5 relative z-10">
-          <div className="bg-white rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-xs text-[#111827]">
-            <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#262626] rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-xs text-[#111827] dark:text-[#F9FAFB]">
+            <div className="w-9 h-9 rounded-lg bg-orange-50 dark:bg-[#431F0B] text-[#F97316] flex items-center justify-center shrink-0">
               <LogIn className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div className="text-left min-w-0 flex-1">
-              <p className="font-bold text-sm text-[#6B7280] leading-tight">Check-in</p>
-              <p className="text-base font-bold text-[#111827] leading-tight mt-0.5 tabular-nums">
+              <p className="font-bold text-sm text-[#6B7280] dark:text-[#A3A3A3] leading-tight">Check-in</p>
+              <p className="text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight mt-0.5 tabular-nums">
                 {formatAttendanceTime(todayAttendance?.check_in_at)}
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-xs text-[#111827]">
-            <div className="w-9 h-9 rounded-lg bg-red-50 text-[#EF4444] flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#262626] rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-xs text-[#111827] dark:text-[#F9FAFB]">
+            <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-[#450A0A] text-[#EF4444] dark:text-red-400 flex items-center justify-center shrink-0">
               <LogOut className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div className="text-left min-w-0 flex-1">
-              <p className="font-bold text-sm text-[#6B7280] leading-tight">Check-out</p>
-              <p className="text-base font-bold text-[#111827] leading-tight mt-0.5 tabular-nums">
+              <p className="font-bold text-sm text-[#6B7280] dark:text-[#A3A3A3] leading-tight">Check-out</p>
+              <p className="text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight mt-0.5 tabular-nums">
                 {formatAttendanceTime(todayAttendance?.check_out_at)}
               </p>
             </div>
@@ -978,16 +979,16 @@ export const DashboardPage: React.FC = () => {
 
       {/* UNLINKED ACCOUNT STATE */}
       {isUnlinked ? (
-        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs font-sans">
-          <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
+        <div className="bg-amber-50/70 dark:bg-[#451A03]/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs font-sans">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-[#451A03] text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700/60 flex items-center justify-center mx-auto">
             <UserX className="w-7 h-7" />
           </div>
 
           <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="text-base sm:text-lg font-bold text-amber-950">
+            <h3 className="text-base sm:text-lg font-bold text-amber-950 dark:text-amber-100">
               Akun Anda Belum Terhubung dengan Data Pegawai
             </h3>
-            <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+            <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-200/90 leading-relaxed">
               Akun login Anda belum ditautkan ke profil pegawai sekolah pada SIM Master Pegawai. Silakan hubungi administrator sekolah untuk menghubungkan akun pengguna Anda.
             </p>
           </div>
@@ -1008,9 +1009,9 @@ export const DashboardPage: React.FC = () => {
         <>
           {/* Error Banner */}
           {error && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 flex items-center justify-between gap-3 text-xs sm:text-sm">
+            <div className="bg-amber-50 dark:bg-[#451A03]/60 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 text-amber-800 dark:text-amber-200 flex items-center justify-between gap-3 text-xs sm:text-sm">
               <div className="flex items-center gap-2.5">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>{error}</span>
               </div>
               <Button
@@ -1030,7 +1031,7 @@ export const DashboardPage: React.FC = () => {
           
           {/* 3. Mobile & Tablet: RIWAYAT KEHADIRAN ANDA (< 1024px) */}
           <div className="lg:hidden space-y-3 font-sans">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A3A3A3]">
               RIWAYAT KEHADIRAN ANDA
             </h3>
             {loading ? (
@@ -1038,28 +1039,28 @@ export const DashboardPage: React.FC = () => {
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="bg-white border border-[#E5E7EB] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex items-center gap-3.5 sm:gap-4"
+                    className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex items-center gap-3.5 sm:gap-4"
                   >
-                    <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] aspect-square rounded-xl bg-[#F3F4F6] shrink-0" />
+                    <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] aspect-square rounded-xl bg-[#F3F4F6] dark:bg-[#303030] shrink-0" />
                     <div className="flex-1 min-w-0 space-y-2">
-                      <div className="grid grid-cols-3 divide-x divide-slate-100">
+                      <div className="grid grid-cols-3 divide-x divide-slate-100 dark:divide-[#303030]">
                         {[1, 2, 3].map((col) => (
                           <div key={col} className="px-1 flex flex-col items-center gap-1">
-                            <div className="h-3.5 sm:h-4 bg-[#E5E7EB] rounded w-10" />
-                            <div className="h-2.5 bg-[#F3F4F6] rounded w-11" />
+                            <div className="h-3.5 sm:h-4 bg-[#E5E7EB] dark:bg-[#404040] rounded w-10" />
+                            <div className="h-2.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-11" />
                           </div>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100">
-                        <div className="h-3 bg-[#F3F4F6] rounded w-28" />
-                        <div className="h-3 bg-[#E5E7EB] rounded w-12" />
+                      <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-[#303030]">
+                        <div className="h-3 bg-[#F3F4F6] dark:bg-[#303030] rounded w-28" />
+                        <div className="h-3 bg-[#E5E7EB] dark:bg-[#404040] rounded w-12" />
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : historyRecords.length === 0 ? (
-              <div className="bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center text-xs text-slate-500">
+              <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-8 text-center text-xs text-slate-500 dark:text-[#A3A3A3]">
                 Tidak ada catatan presensi pada periode ini.
               </div>
             ) : (
@@ -1073,40 +1074,40 @@ export const DashboardPage: React.FC = () => {
           {/* Desktop Only: Rekap Kehadiran Bulan Ini (>= 1024px) */}
           <div className="hidden lg:block space-y-3 font-sans">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A3A3A3]">
                 RINGKASAN KEHADIRAN BULAN INI
               </h2>
-              <span className="text-xs text-[#9CA3AF]">Periode Aktif</span>
+              <span className="text-xs text-[#9CA3AF] dark:text-[#737373]">Periode Aktif</span>
             </div>
 
             <div className="grid grid-cols-4 gap-4">
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 text-center shadow-2xs">
-                <span className="text-xs font-medium text-[#6B7280]">Hadir Tepat Waktu</span>
-                <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+              <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl p-4 text-center shadow-2xs">
+                <span className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Hadir Tepat Waktu</span>
+                <p className="text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1 tabular-nums">
                   {monthlySummary?.onTimeCount ?? 0}
                 </p>
-                <span className="text-[11px] text-[#9CA3AF]">hari</span>
+                <span className="text-[11px] text-[#9CA3AF] dark:text-[#737373]">hari</span>
               </div>
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 text-center shadow-2xs">
-                <span className="text-xs font-medium text-[#6B7280]">Terlambat</span>
-                <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+              <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl p-4 text-center shadow-2xs">
+                <span className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Terlambat</span>
+                <p className="text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1 tabular-nums">
                   {monthlySummary?.lateCount ?? 0}
                 </p>
-                <span className="text-[11px] text-[#9CA3AF]">kali</span>
+                <span className="text-[11px] text-[#9CA3AF] dark:text-[#737373]">kali</span>
               </div>
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 text-center shadow-2xs">
-                <span className="text-xs font-medium text-[#6B7280]">Izin / Sakit / Dinas</span>
-                <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+              <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl p-4 text-center shadow-2xs">
+                <span className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Izin / Sakit / Dinas</span>
+                <p className="text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1 tabular-nums">
                   {monthlySummary?.approvedRequestDays ?? 0}
                 </p>
-                <span className="text-[11px] text-[#9CA3AF]">hari</span>
+                <span className="text-[11px] text-[#9CA3AF] dark:text-[#737373]">hari</span>
               </div>
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 text-center shadow-2xs">
-                <span className="text-xs font-medium text-[#6B7280]">Tanpa Keterangan</span>
-                <p className="text-2xl font-bold text-[#111827] mt-1 tabular-nums">
+              <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl p-4 text-center shadow-2xs">
+                <span className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Tanpa Keterangan</span>
+                <p className="text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1 tabular-nums">
                   {monthlySummary?.absentCount ?? 0}
                 </p>
-                <span className="text-[11px] text-[#9CA3AF]">hari</span>
+                <span className="text-[11px] text-[#9CA3AF] dark:text-[#737373]">hari</span>
               </div>
             </div>
           </div>
@@ -1121,62 +1122,62 @@ export const DashboardPage: React.FC = () => {
 
       {/* Quick Action Navigation Cards (DESKTOP ONLY: >= 1024px) */}
       <div className="hidden lg:block space-y-3 font-sans">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A3A3A3]">
           AKSI CEPAT
         </h2>
         <div className="grid grid-cols-3 gap-3">
           <button
             onClick={() => navigate('/requests')}
-            className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
+            className="p-4 rounded-2xl bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] hover:border-orange-300 dark:hover:border-[#F97316]/60 hover:bg-[#FFF7ED]/30 dark:hover:bg-[#303030] text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] border border-[#FFEDD5] dark:border-[#9A3412]/50 text-[#F97316] flex items-center justify-center shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
+                <p className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB] group-hover:text-[#F97316] transition-colors truncate">
                   Ajukan Izin / Cuti
                 </p>
-                <p className="text-xs text-[#6B7280] truncate">Form permohonan dinas, sakit & cuti</p>
+                <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] truncate">Form permohonan dinas, sakit & cuti</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#737373] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
 
           <button
             onClick={() => navigate('/history')}
-            className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
+            className="p-4 rounded-2xl bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] hover:border-orange-300 dark:hover:border-[#F97316]/60 hover:bg-[#FFF7ED]/30 dark:hover:bg-[#303030] text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] border border-[#FFEDD5] dark:border-[#9A3412]/50 text-[#F97316] flex items-center justify-center shrink-0">
                 <CalendarCheck className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
+                <p className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB] group-hover:text-[#F97316] transition-colors truncate">
                   Riwayat Presensi
                 </p>
-                <p className="text-xs text-[#6B7280] truncate">Cek kalender dan catatan kehadiran</p>
+                <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] truncate">Cek kalender dan catatan kehadiran</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#737373] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
 
           <button
             onClick={() => navigate('/profile')}
-            className="p-4 rounded-2xl bg-white border border-[#E5E7EB] hover:border-orange-300 hover:bg-[#FFF7ED]/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
+            className="p-4 rounded-2xl bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] hover:border-orange-300 dark:hover:border-[#F97316]/60 hover:bg-[#FFF7ED]/30 dark:hover:bg-[#303030] text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] border border-[#FFEDD5] text-[#F97316] flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] border border-[#FFEDD5] dark:border-[#9A3412]/50 text-[#F97316] flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-[#111827] group-hover:text-[#F97316] transition-colors truncate">
+                <p className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB] group-hover:text-[#F97316] transition-colors truncate">
                   Kelengkapan Profil
                 </p>
-                <p className="text-xs text-[#6B7280] truncate">Cek data NIP, jabatan & akun</p>
+                <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] truncate">Cek data NIP, jabatan & akun</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
+            <ChevronRight className="w-4 h-4 text-[#9CA3AF] dark:text-[#737373] group-hover:text-[#F97316] transition-colors shrink-0 ml-2" />
           </button>
         </div>
       </div>

@@ -63,60 +63,60 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
         {/* Mobile/Tablet Carousel Skeleton (< lg) */}
         <div className="lg:hidden flex overflow-x-auto snap-x snap-mandatory gap-3.5 sm:gap-4 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {role === 'headmaster' && (
-            <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 w-full flex-none snap-start min-h-[240px] sm:min-h-[244px] flex flex-col justify-between animate-pulse">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-[#F3F4F6]">
-                <div className="h-5 bg-[#E5E7EB] rounded w-44" />
-                <div className="h-3.5 bg-[#F3F4F6] rounded w-28" />
+            <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 w-full flex-none snap-start min-h-[240px] sm:min-h-[244px] flex flex-col justify-between animate-pulse">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2.5 border-b border-[#F3F4F6] dark:border-[#303030]">
+                <div className="h-5 bg-[#E5E7EB] dark:bg-[#404040] rounded w-44" />
+                <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-28" />
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="h-3.5 bg-[#F3F4F6] rounded w-28" />
-                  <div className="h-3.5 bg-[#F3F4F6] rounded w-32" />
+                  <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-28" />
+                  <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-32" />
                 </div>
-                <div className="h-5 bg-[#E5E7EB] rounded w-40" />
+                <div className="h-5 bg-[#E5E7EB] dark:bg-[#404040] rounded w-40" />
               </div>
-              <div className="bg-[#F9FAFB] rounded-xl py-3 px-4 border border-[#F3F4F6]">
-                <div className="grid grid-cols-2 divide-x divide-[#E5E7EB]">
+              <div className="bg-[#F9FAFB] dark:bg-[#303030] rounded-xl py-3 px-4 border border-[#F3F4F6] dark:border-[#404040]">
+                <div className="grid grid-cols-2 divide-x divide-[#E5E7EB] dark:divide-[#404040]">
                   <div className="flex flex-col items-center gap-1.5 px-2">
-                    <div className="h-3 bg-[#E5E7EB] rounded w-14" />
-                    <div className="h-4 bg-[#D1D5DB] rounded w-20" />
+                    <div className="h-3 bg-[#E5E7EB] dark:bg-[#404040] rounded w-14" />
+                    <div className="h-4 bg-[#D1D5DB] dark:bg-[#525252] rounded w-20" />
                   </div>
                   <div className="flex flex-col items-center gap-1.5 px-2">
-                    <div className="h-3 bg-[#E5E7EB] rounded w-14" />
-                    <div className="h-4 bg-[#D1D5DB] rounded w-20" />
+                    <div className="h-3 bg-[#E5E7EB] dark:bg-[#404040] rounded w-14" />
+                    <div className="h-4 bg-[#D1D5DB] dark:bg-[#525252] rounded w-20" />
                   </div>
                 </div>
               </div>
             </div>
           )}
           {isAdminOrSuperAdmin && (
-            <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs w-full flex-none snap-start min-h-[240px] sm:min-h-[244px] flex flex-col justify-between animate-pulse">
-              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#F3F4F6]">
-                <div className="h-4 bg-[#E5E7EB] rounded w-28" />
-                <div className="h-5 bg-[#F3F4F6] rounded-md w-20" />
+            <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs w-full flex-none snap-start min-h-[240px] sm:min-h-[244px] flex flex-col justify-between animate-pulse">
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#F3F4F6] dark:border-[#303030]">
+                <div className="h-4 bg-[#E5E7EB] dark:bg-[#404040] rounded w-28" />
+                <div className="h-5 bg-[#F3F4F6] dark:bg-[#303030] rounded-md w-20" />
               </div>
               <div className="space-y-3 py-2">
-                <div className="h-4 bg-[#F3F4F6] rounded w-32" />
-                <div className="h-8 bg-[#E5E7EB] rounded w-44" />
-                <div className="h-2.5 bg-[#F3F4F6] rounded-full w-full" />
+                <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-32" />
+                <div className="h-8 bg-[#E5E7EB] dark:bg-[#404040] rounded w-44" />
+                <div className="h-2.5 bg-[#F3F4F6] dark:bg-[#303030] rounded-full w-full" />
               </div>
-              <div className="pt-2.5 border-t border-[#F3F4F6]">
-                <div className="h-3.5 bg-[#F3F4F6] rounded w-52" />
+              <div className="pt-2.5 border-t border-[#F3F4F6] dark:border-[#303030]">
+                <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-52" />
               </div>
             </div>
           )}
           {Array.from({ length: mobileSkeletonCount }).map((_, idx) => (
             <div
               key={idx}
-              className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between w-full flex-none snap-start min-h-[240px] sm:min-h-[244px] animate-pulse"
+              className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between w-full flex-none snap-start min-h-[240px] sm:min-h-[244px] animate-pulse"
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded-md bg-[#F3F4F6] shrink-0" />
-                <div className="h-4 bg-[#F3F4F6] rounded w-28" />
+                <div className="w-5 h-5 rounded-md bg-[#F3F4F6] dark:bg-[#303030] shrink-0" />
+                <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-28" />
               </div>
               <div className="flex items-baseline gap-1.5">
-                <div className="h-8 bg-[#E5E7EB] rounded w-14" />
-                <div className="h-3.5 bg-[#F3F4F6] rounded w-8" />
+                <div className="h-8 bg-[#E5E7EB] dark:bg-[#404040] rounded w-14" />
+                <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-8" />
               </div>
             </div>
           ))}
@@ -127,33 +127,33 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
           {[1, 2].map((idx) => (
             <div
               key={`primary-skeleton-${idx}`}
-              className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs flex flex-col justify-between h-[136px] animate-pulse"
+              className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 shadow-2xs flex flex-col justify-between h-[136px] animate-pulse"
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded-md bg-[#F3F4F6] shrink-0" />
-                <div className="h-4 bg-[#F3F4F6] rounded w-28" />
+                <div className="w-5 h-5 rounded-md bg-[#F3F4F6] dark:bg-[#303030] shrink-0" />
+                <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-28" />
               </div>
               <div className="flex items-baseline gap-1.5">
-                <div className="h-8 bg-[#E5E7EB] rounded w-14" />
-                <div className="h-3.5 bg-[#F3F4F6] rounded w-8" />
+                <div className="h-8 bg-[#E5E7EB] dark:bg-[#404040] rounded w-14" />
+                <div className="h-3.5 bg-[#F3F4F6] dark:bg-[#303030] rounded w-8" />
               </div>
             </div>
           ))}
           {[1, 2].map((colIdx) => (
             <div
               key={`combined-skeleton-${colIdx}`}
-              className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs p-3 flex flex-col justify-between gap-2 animate-pulse"
+              className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs p-3 flex flex-col justify-between gap-2 animate-pulse"
             >
               {[1, 2, 3].map((rowIdx) => (
                 <div
                   key={rowIdx}
-                  className="flex items-center justify-between py-1 border-b last:border-b-0 border-[#F3F4F6] last:pb-0"
+                  className="flex items-center justify-between py-1 border-b last:border-b-0 border-[#F3F4F6] dark:border-[#303030] last:pb-0"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-3.5 h-3.5 rounded bg-[#F3F4F6]" />
-                    <div className="h-3 bg-[#F3F4F6] rounded w-20" />
+                    <div className="w-3.5 h-3.5 rounded bg-[#F3F4F6] dark:bg-[#303030]" />
+                    <div className="h-3 bg-[#F3F4F6] dark:bg-[#303030] rounded w-20" />
                   </div>
-                  <div className="h-4 bg-[#E5E7EB] rounded w-6" />
+                  <div className="h-4 bg-[#E5E7EB] dark:bg-[#404040] rounded w-6" />
                 </div>
               ))}
             </div>
@@ -285,7 +285,7 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
     return (
       <div
         key={card.key}
-        className={`bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs flex flex-col justify-between transition-all duration-150 hover:border-[#D1D5DB] ${
+        className={`bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs flex flex-col justify-between transition-all duration-150 hover:border-[#D1D5DB] dark:hover:border-[#525252] ${
           primary
             ? `${adminMobileHeightClass}p-4 sm:p-5 w-full flex-none snap-start lg:w-auto lg:shrink lg:h-[136px]`
             : 'p-3 sm:p-4 w-full flex-none snap-start lg:w-auto lg:shrink lg:h-[40px] lg:flex-row lg:items-center lg:gap-3 lg:p-3'
@@ -294,7 +294,7 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
         <div className={`flex ${primary ? 'items-center gap-2 mb-2' : 'items-center gap-2.5 flex-1'}`}>
           <Icon className={primary ? `w-5 h-5 ${card.iconColor}` : `w-4 h-4 ${card.iconColor}`} />
           <span
-            className={`font-medium text-[#6B7280] leading-snug ${
+            className={`font-medium text-[#6B7280] dark:text-[#A3A3A3] leading-snug ${
               primary ? 'text-sm' : 'text-xs lg:text-xs'
             }`}
           >
@@ -305,13 +305,13 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
         <div className={primary ? '' : 'lg:mt-0'}>
           <div className="flex items-baseline gap-1.5">
             <span
-              className={`font-extrabold text-[#111827] tracking-tight ${
+              className={`font-extrabold text-[#111827] dark:text-[#F9FAFB] tracking-tight ${
                 primary ? 'text-2xl sm:text-3xl' : 'text-sm lg:text-sm'
               }`}
             >
               {card.value.toLocaleString('id-ID')}
             </span>
-            <span className={`text-xs font-semibold text-[#9CA3AF] ${primary ? '' : 'lg:hidden'}`}>GTK</span>
+            <span className={`text-xs font-semibold text-[#9CA3AF] dark:text-[#737373] ${primary ? '' : 'lg:hidden'}`}>GTK</span>
           </div>
         </div>
       </div>
@@ -319,7 +319,7 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
   };
 
   return (
-    <section aria-label="Ringkasan Statistik Kehadiran GTK Hari Ini">
+    <section aria-label="Ringkasan Statistik Kehadiran GTK Hari Ini" className="dashboard-status-tokens">
       {/* Mobile/Tablet Carousel */}
       <div className="lg:hidden flex overflow-x-auto snap-x snap-mandatory gap-3.5 sm:gap-4 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {role === 'headmaster' && (
@@ -352,15 +352,15 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
               </div>
               <p className="text-base sm:text-lg font-extrabold text-white tracking-tight drop-shadow-2xs">{todayDisplayStatus}</p>
             </div>
-            <div className="bg-white rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] relative z-10">
-              <div className="grid grid-cols-2 divide-x divide-slate-200">
+            <div className="bg-white dark:bg-[#262626] rounded-xl py-3 px-2 sm:px-4 shadow-xs text-[#111827] dark:text-[#F9FAFB] relative z-10">
+              <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-[#404040]">
                 <div className="flex flex-col items-center justify-center text-center px-2">
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">Check-in</span>
-                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">{displayCheckInTime}</span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] leading-tight">Check-in</span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight mt-1 tabular-nums">{displayCheckInTime}</span>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center px-2">
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] leading-tight">Check-out</span>
-                  <span className="text-sm sm:text-base font-bold text-[#111827] leading-tight mt-1 tabular-nums">{displayCheckOutTime}</span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] leading-tight">Check-out</span>
+                  <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] leading-tight mt-1 tabular-nums">{displayCheckOutTime}</span>
                 </div>
               </div>
             </div>
@@ -442,16 +442,16 @@ export const ExecutiveStatCards: React.FC<ExecutiveStatCardsProps> = ({
           [cards[2], cards[3], cards[4]], // Col 3
           [cards[5], cards[6], cards[7]], // Col 4
         ].map((columnCards, colIndex) => (
-          <div key={colIndex} className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs p-3 flex flex-col justify-between gap-2">
+          <div key={colIndex} className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs p-3 flex flex-col justify-between gap-2">
             {columnCards.map((card) => {
               const Icon = card.icon;
               return (
-                <div key={card.key} className="flex items-center justify-between py-1 border-b last:border-b-0 border-[#F3F4F6] last:pb-0">
+                <div key={card.key} className="flex items-center justify-between py-1 border-b last:border-b-0 border-[#F3F4F6] dark:border-[#303030] last:pb-0">
                   <div className="flex items-center gap-2">
                     <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
-                    <span className="text-[11px] font-medium text-[#6B7280]">{card.label}</span>
+                    <span className="text-[11px] font-medium text-[#6B7280] dark:text-[#A3A3A3]">{card.label}</span>
                   </div>
-                  <span className="text-sm font-bold text-[#111827]">{card.value.toLocaleString('id-ID')}</span>
+                  <span className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">{card.value.toLocaleString('id-ID')}</span>
                 </div>
               );
             })}

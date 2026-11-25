@@ -31,41 +31,51 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
       status: 'all',
       label: 'Total',
       count: total,
-      icon: <FileText className="w-4 h-4 text-[#F97316]" />,
-      colorClasses: 'bg-white border-[#E5E7EB] text-[#111827]',
-      activeClasses: 'ring-2 ring-[#F97316] border-[#F97316] bg-[#FFF7ED]/30',
+      icon: <FileText className="w-4 h-4 text-[#F97316] dark:text-[#FB923C]" />,
+      colorClasses:
+        'bg-white dark:bg-[#262626] border-[#E5E7EB] dark:border-[#404040] text-[#111827] dark:text-[#F9FAFB]',
+      activeClasses:
+        'ring-2 ring-[#F97316] border-[#F97316] bg-[#FFF7ED]/30 dark:bg-[#431F0B]/50 text-[#111827] dark:text-[#F9FAFB]',
     },
     {
       status: 'pending',
       label: 'Menunggu',
       count: pendingCount,
-      icon: <Clock className="w-4 h-4 text-amber-600" />,
-      colorClasses: 'bg-white border-amber-200 text-amber-900',
-      activeClasses: 'ring-2 ring-amber-500 border-amber-400 bg-amber-50/50',
+      icon: <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
+      colorClasses:
+        'bg-white dark:bg-[#262626] border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300',
+      activeClasses:
+        'ring-2 ring-amber-500 border-amber-400 dark:border-amber-500/70 bg-amber-50/50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300',
     },
     {
       status: 'approved',
       label: 'Disetujui',
       count: approvedCount,
-      icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />,
-      colorClasses: 'bg-white border-emerald-200 text-emerald-900',
-      activeClasses: 'ring-2 ring-emerald-500 border-emerald-400 bg-emerald-50/50',
+      icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
+      colorClasses:
+        'bg-white dark:bg-[#262626] border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-300',
+      activeClasses:
+        'ring-2 ring-emerald-500 border-emerald-400 dark:border-emerald-500/70 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300',
     },
     {
       status: 'rejected',
       label: 'Ditolak',
       count: rejectedCount,
-      icon: <XCircle className="w-4 h-4 text-red-600" />,
-      colorClasses: 'bg-white border-red-200 text-red-900',
-      activeClasses: 'ring-2 ring-red-500 border-red-400 bg-red-50/50',
+      icon: <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />,
+      colorClasses:
+        'bg-white dark:bg-[#262626] border-red-200 dark:border-red-800/60 text-red-900 dark:text-red-300',
+      activeClasses:
+        'ring-2 ring-red-500 border-red-400 dark:border-red-500/70 bg-red-50/50 dark:bg-red-950/40 text-red-900 dark:text-red-300',
     },
     {
       status: 'cancelled',
       label: 'Dibatalkan',
       count: cancelledCount,
-      icon: <Ban className="w-4 h-4 text-slate-500" />,
-      colorClasses: 'bg-white border-slate-200 text-slate-800',
-      activeClasses: 'ring-2 ring-slate-400 border-slate-400 bg-slate-50',
+      icon: <Ban className="w-4 h-4 text-slate-500 dark:text-[#A3A3A3]" />,
+      colorClasses:
+        'bg-white dark:bg-[#262626] border-slate-200 dark:border-[#404040] text-slate-800 dark:text-[#D4D4D4]',
+      activeClasses:
+        'ring-2 ring-slate-400 dark:ring-[#737373] border-slate-400 dark:border-[#737373] bg-slate-50 dark:bg-[#303030] text-slate-800 dark:text-[#F9FAFB]',
     },
   ];
 
@@ -84,13 +94,15 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 ${
                   isSelected
                     ? 'bg-[#F97316] text-white font-bold shadow-2xs'
-                    : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-gray-50'
+                    : 'bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] text-[#6B7280] dark:text-[#D4D4D4] hover:bg-gray-50 dark:hover:bg-[#303030]'
                 }`}
               >
                 <span>{item.label}</span>
                 <span
                   className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-gray-100 text-[#374151]'
+                    isSelected
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-100 dark:bg-[#303030] text-[#374151] dark:text-[#D4D4D4]'
                   }`}
                 >
                   {item.count}
@@ -111,16 +123,16 @@ export const RequestSummaryCards: React.FC<RequestSummaryCardsProps> = ({
               type="button"
               onClick={() => onSelectStatus && onSelectStatus(item.status)}
               className={`p-3.5 rounded-2xl border transition-all text-left shadow-2xs cursor-pointer ${
-                item.colorClasses
-              } ${
-                isSelected ? item.activeClasses : 'hover:border-[#F97316]/40 hover:shadow-xs'
+                isSelected
+                  ? item.activeClasses
+                  : `${item.colorClasses} hover:border-[#F97316]/40 dark:hover:border-[#F97316]/50 hover:shadow-xs`
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-semibold text-[#6B7280]">
+                <span className="text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3]">
                   {item.label}
                 </span>
-                <div className="p-1 rounded-lg bg-[#F9FAFB]">{item.icon}</div>
+                <div className="p-1 rounded-lg bg-[#F9FAFB] dark:bg-[#303030]">{item.icon}</div>
               </div>
               <div className="text-xl sm:text-2xl font-bold tracking-tight">
                 {item.count}

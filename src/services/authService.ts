@@ -1,10 +1,132 @@
-import { User as SupabaseUser, Session, AuthChangeEvent } from '@supabase/supabase-js';
+import {
+  User as SupabaseUser,
+  Session,
+  AuthChangeEvent,
+  isAuthRetryableFetchError,
+} from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, SUPABASE_MISSING_CONFIG_MESSAGE } from '../lib/supabase';
 import { User, LoginCredentials } from '../types/auth';
 import { ProfileRow } from '../types/database.types';
 import { APP_CONFIG } from '../config/appConfig';
 
 const VALID_ROLES = ['super_admin', 'admin', 'headmaster', 'employee'];
+
+export type AuthSignInErrorCategory =
+  | 'invalid_credentials'
+  | 'network'
+  | 'rate_limit'
+  | 'server'
+  | 'inactive_account'
+  | 'validation';
+
+export class AuthSignInError extends Error {
+  readonly category: AuthSignInErrorCategory;
+
+  constructor(message: string, category: AuthSignInErrorCategory) {
+    super(message);
+    this.name = 'AuthSignInError';
+    this.category = category;
+  }
+}
+
+export function mapSupabaseSignInError(error: unknown): AuthSignInError {
+  if (error instanceof AuthSignInError) {
+    return error;
+  }
+
+  const errObj =
+    error && typeof error === 'object'
+      ? (error as {
+          status?: unknown;
+          code?: unknown;
+          name?: unknown;
+          message?: unknown;
+        })
+      : null;
+
+  const status = typeof errObj?.status === 'number' ? errObj.status : undefined;
+  const code = typeof errObj?.code === 'string' ? errObj.code.toLowerCase().trim() : '';
+  const name = typeof errObj?.name === 'string' ? errObj.name.toLowerCase().trim() : '';
+  const message =
+    typeof errObj?.message === 'string'
+      ? errObj.message.toLowerCase()
+      : typeof error === 'string'
+        ? error.toLowerCase()
+        : '';
+
+  // 1. Rate limit / terlalu banyak percobaan
+  if (
+    status === 429 ||
+    code === 'over_request_rate_limit' ||
+    code === 'over_email_send_rate_limit' ||
+    code === 'over_sms_send_rate_limit' ||
+    message.includes('too many requests') ||
+    message.includes('rate limit')
+  ) {
+    return new AuthSignInError(
+      'Terlalu banyak percobaan login. Silakan coba beberapa saat lagi.',
+      'rate_limit'
+    );
+  }
+
+  // 2. Gangguan server (HTTP 5xx atau timeout/unexpected failure di server)
+  if (
+    (typeof status === 'number' && status >= 500) ||
+    code === 'unexpected_failure' ||
+    code === 'hook_timeout' ||
+    code === 'hook_timeout_after_retry' ||
+    code === 'request_timeout'
+  ) {
+    return new AuthSignInError('Terjadi gangguan layanan. Silakan coba kembali.', 'server');
+  }
+
+  // 3. Gangguan jaringan (AuthRetryableFetchError dengan status 0/non-5xx atau fetch failure)
+  if (
+    isAuthRetryableFetchError(error) ||
+    name === 'authretryablefetcherror' ||
+    (error instanceof TypeError && (message.includes('fetch') || message.includes('network'))) ||
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('network request failed') ||
+    message.includes('err_network') ||
+    message.includes('econnrefused') ||
+    message.includes('connection') ||
+    message.includes('network')
+  ) {
+    return new AuthSignInError(
+      'Tidak dapat terhubung ke server. Silakan coba lagi.',
+      'network'
+    );
+  }
+
+  // 4. Akun nonaktif / dibanned di Supabase Auth
+  if (code === 'user_banned') {
+    return new AuthSignInError(
+      'Akun Anda tidak aktif. Silakan hubungi administrator.',
+      'inactive_account'
+    );
+  }
+
+  // 5. Kredensial salah berdasarkan kode/class/pesan resmi Supabase Auth
+  if (
+    code === 'invalid_credentials' ||
+    code === 'email_not_confirmed' ||
+    code === 'user_not_found' ||
+    name === 'authinvalidcredentialserror' ||
+    message.includes('invalid login credentials') ||
+    message.includes('invalid_grant') ||
+    message.includes('invalid credentials') ||
+    message.includes('email not confirmed')
+  ) {
+    return new AuthSignInError(
+      'Email atau kata sandi yang Anda masukkan salah.',
+      'invalid_credentials'
+    );
+  }
+
+  // 6. Fallback aman untuk gangguan lain tanpa memetakan sebagai kesalahan kredensial
+  return new AuthSignInError('Terjadi gangguan layanan. Silakan coba kembali.', 'server');
+}
 
 /**
  * Authentication Service (Phase 3 Production Supabase Auth)
@@ -91,16 +213,16 @@ class AuthService {
 
     // 1. Client-side input validation
     if (!email) {
-      throw new Error('Email wajib diisi.');
+      throw new AuthSignInError('Email wajib diisi.', 'validation');
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      throw new Error('Format email tidak valid.');
+      throw new AuthSignInError('Format email tidak valid.', 'validation');
     }
 
     if (!password) {
-      throw new Error('Password wajib diisi.');
+      throw new AuthSignInError('Kata sandi wajib diisi.', 'validation');
     }
 
     // 2. Call Supabase Auth signInWithPassword
@@ -111,33 +233,17 @@ class AuthService {
         password,
       });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : '';
-      if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
-        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
-      }
-      throw new Error('Terjadi kesalahan saat masuk. Silakan coba lagi.');
+      throw mapSupabaseSignInError(err);
     }
 
     const { data, error } = authResponse;
 
     if (error) {
-      const errMsg = error.message.toLowerCase();
-      if (
-        errMsg.includes('invalid login credentials') ||
-        errMsg.includes('invalid_grant') ||
-        errMsg.includes('invalid credentials') ||
-        errMsg.includes('email not confirmed')
-      ) {
-        throw new Error('Email atau password salah.');
-      }
-      if (errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection')) {
-        throw new Error('Tidak dapat terhubung ke server. Silakan coba lagi.');
-      }
-      throw new Error('Email atau password salah.');
+      throw mapSupabaseSignInError(error);
     }
 
     if (!data.user || !data.session) {
-      throw new Error('Email atau password salah.');
+      throw new AuthSignInError('Terjadi gangguan layanan. Silakan coba kembali.', 'server');
     }
 
     // 3. Load authoritative profile directly from database (public.profiles.role)
@@ -146,7 +252,10 @@ class AuthService {
     // 4. Check active account status
     if (profile.is_active === false) {
       await supabase.auth.signOut();
-      throw new Error('Akun Anda tidak aktif. Silakan hubungi administrator.');
+      throw new AuthSignInError(
+        'Akun Anda tidak aktif. Silakan hubungi administrator.',
+        'inactive_account'
+      );
     }
 
     // 5. Safely record last login timestamp

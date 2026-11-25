@@ -108,21 +108,21 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
     <div className="bg-transparent border-0 shadow-none p-0">
       <div className="relative flex items-center gap-2 lg:gap-3 justify-between w-full">
         {showSearch && (
-          <div className="flex items-center flex-1 min-w-0 bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors pl-3 pr-1 lg:pr-1.5 gap-1.5 lg:gap-2">
+          <div className="flex items-center flex-1 min-w-0 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus-within:border-[#F97316] dark:focus-within:border-[#F97316] transition-colors pl-3 pr-1 lg:pr-1.5 gap-1.5 lg:gap-2">
             <Search className="w-4 h-4 text-[#9CA3AF] pointer-events-none shrink-0" />
             <input
               type="text"
               placeholder={searchPlaceholder}
               value={values.search}
               onChange={(e) => onChange({ ...values, search: e.target.value })}
-              className="w-full min-w-0 h-9 lg:h-11 text-xs lg:text-sm bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
+              className="w-full min-w-0 h-9 lg:h-11 text-xs lg:text-sm bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] text-[#111827] dark:text-[#F9FAFB]"
               aria-label="Cari pengajuan"
             />
             {values.search && (
               <button
                 type="button"
                 onClick={() => onChange({ ...values, search: '' })}
-                className="text-[#9CA3AF] hover:text-[#111827] cursor-pointer p-0.5 lg:p-1 shrink-0"
+                className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer p-0.5 lg:p-1 shrink-0"
                 aria-label="Hapus kata kunci pencarian"
               >
                 <X className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
@@ -136,8 +136,8 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                 onClick={() => setIsAdvancedOpen((prev) => !prev)}
                 className={`relative inline-flex items-center justify-center w-7.5 h-7.5 lg:w-8 lg:h-8 rounded-lg transition-all cursor-pointer ${
                   activeFilterCount > 0 || isAdvancedOpen
-                    ? 'bg-orange-50 text-[#EA580C]'
-                    : 'text-[#6B7280] hover:bg-gray-100 hover:text-[#111827]'
+                    ? 'bg-orange-50 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:bg-gray-100 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
                 aria-expanded={isAdvancedOpen}
                 aria-label="Buka filter detail"
@@ -153,13 +153,13 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
 
               {/* Popover Filter Detail */}
               {isAdvancedOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-4 z-30 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6]">
+                <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl p-4 z-30 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#F3F4F6] dark:border-[#404040]">
                     <div className="flex items-center gap-2">
                       <SlidersHorizontal className="w-4 h-4 text-[#F97316]" />
-                      <h4 className="text-xs font-bold text-[#111827]">Filter Detail</h4>
+                      <h4 className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">Filter Detail</h4>
                       {activeFilterCount > 0 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-[#EA580C]">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]">
                           {activeFilterCount} aktif
                         </span>
                       )}
@@ -167,7 +167,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsAdvancedOpen(false)}
-                      className="text-[#9CA3AF] hover:text-[#111827] p-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#303030] transition-colors cursor-pointer"
                       aria-label="Tutup panel filter"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -177,7 +177,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                   <div className="space-y-3.5 py-3 text-xs">
                     {/* Filter Jenis Pengajuan */}
                     <div className="space-y-1.5">
-                      <label className="block text-[11px] font-semibold text-[#6B7280]">
+                      <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3]">
                         Jenis Pengajuan
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -196,8 +196,8 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                             }
                             className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                               values.requestType === item.id
-                                ? 'bg-[#111827] text-white font-bold'
-                                : 'bg-[#F9FAFB] text-[#4B5563] hover:bg-[#F3F4F6] border border-[#E5E7EB]'
+                                ? 'bg-[#111827] dark:bg-[#F97316] text-white font-bold'
+                                : 'bg-[#F9FAFB] dark:bg-[#303030] text-[#4B5563] dark:text-[#D4D4D4] hover:bg-[#F3F4F6] dark:hover:bg-[#404040] border border-[#E5E7EB] dark:border-[#404040]'
                             }`}
                           >
                             {item.label}
@@ -207,8 +207,8 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                     </div>
 
                     {/* Filter Rentang Tanggal */}
-                    <div className="space-y-1.5 pt-2 border-t border-[#F3F4F6]">
-                      <label className="block text-[11px] font-semibold text-[#6B7280]">
+                    <div className="space-y-1.5 pt-2 border-t border-[#F3F4F6] dark:border-[#404040]">
+                      <label className="block text-[11px] font-semibold text-[#6B7280] dark:text-[#A3A3A3]">
                         Rentang Tanggal
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -228,7 +228,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                             className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                               values.datePreset === item.id
                                 ? 'bg-[#F97316] text-white font-bold'
-                                : 'bg-[#F9FAFB] text-[#4B5563] hover:bg-[#F3F4F6] border border-[#E5E7EB]'
+                                : 'bg-[#F9FAFB] dark:bg-[#303030] text-[#4B5563] dark:text-[#D4D4D4] hover:bg-[#F3F4F6] dark:hover:bg-[#404040] border border-[#E5E7EB] dark:border-[#404040]'
                             }`}
                           >
                             {item.label}
@@ -240,7 +240,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                       {values.datePreset === 'custom' && (
                         <div className="grid grid-cols-2 gap-2 pt-2 animate-in fade-in duration-150">
                           <div>
-                            <label className="block text-[10px] text-[#6B7280] mb-1">
+                            <label className="block text-[10px] text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                               Dari Tanggal
                             </label>
                             <input
@@ -249,11 +249,11 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                               onChange={(e) =>
                                 onChange({ ...values, customStartDate: e.target.value })
                               }
-                              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] text-xs text-[#111827] focus:outline-none focus:border-[#F97316] bg-white"
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] bg-white dark:bg-[#171717]"
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-[#6B7280] mb-1">
+                            <label className="block text-[10px] text-[#6B7280] dark:text-[#A3A3A3] mb-1">
                               Sampai Tanggal
                             </label>
                             <input
@@ -262,7 +262,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                               onChange={(e) =>
                                 onChange({ ...values, customEndDate: e.target.value })
                               }
-                              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] text-xs text-[#111827] focus:outline-none focus:border-[#F97316] bg-white"
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#404040] text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] bg-white dark:bg-[#171717]"
                             />
                           </div>
                         </div>
@@ -270,7 +270,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-[#F3F4F6] flex items-center justify-between">
+                  <div className="pt-3 border-t border-[#F3F4F6] dark:border-[#404040] flex items-center justify-between">
                     <button
                       type="button"
                       onClick={() => {
@@ -278,7 +278,7 @@ export const RequestHistoryFilters: React.FC<RequestHistoryFiltersProps> = ({
                         setIsAdvancedOpen(false);
                       }}
                       disabled={!hasAdvancedFilters && !values.search}
-                      className="text-xs font-semibold text-[#6B7280] hover:text-[#EF4444] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center gap-1"
+                      className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#EF4444] dark:hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center gap-1"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Reset Filter</span>

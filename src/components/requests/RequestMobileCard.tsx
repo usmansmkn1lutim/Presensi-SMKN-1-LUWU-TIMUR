@@ -131,7 +131,7 @@ export const RequestMobileCard: React.FC<RequestMobileCardProps> = ({
   return (
     <div
       onClick={() => onSelect(request)}
-      className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-2 hover:border-slate-300 transition-colors cursor-pointer group font-sans"
+      className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs space-y-2 hover:border-slate-300 dark:hover:border-[#525252] transition-colors cursor-pointer group font-sans"
     >
       {/* Baris 1: [Icon tipe] Tipe Pengajuan (kiri, Orange Sunset) | Status (kanan, Orange Sunset tanpa badge) */}
       <div className="flex items-center justify-between gap-2">
@@ -147,7 +147,7 @@ export const RequestMobileCard: React.FC<RequestMobileCardProps> = ({
       </div>
 
       {/* Baris 2: [Icon kalender] Tanggal pengajuan • Durasi */}
-      <div className="text-xs font-medium text-[#6B7280] flex items-center gap-1.5">
+      <div className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3] flex items-center gap-1.5">
         <Calendar className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
         <span className="truncate">{dateRangeText}</span>
         <span className="mx-0.5">•</span>
@@ -156,21 +156,21 @@ export const RequestMobileCard: React.FC<RequestMobileCardProps> = ({
 
       {/* Baris 3: Alasan / deskripsi singkat (line clamp) */}
       {request.reason ? (
-        <p className="text-xs text-[#374151] line-clamp-2 leading-relaxed">
+        <p className="text-xs text-[#374151] dark:text-[#D4D4D4] line-clamp-2 leading-relaxed">
           {request.reason}
         </p>
       ) : (
-        <p className="text-xs text-[#9CA3AF] italic leading-relaxed">
+        <p className="text-xs text-[#9CA3AF] dark:text-[#A3A3A3] italic leading-relaxed">
           Tidak ada keterangan alasan.
         </p>
       )}
 
       {/* Baris 4: Diajukan tanggal • jam (kiri) | Rincian › (kanan) */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#F3F4F6] text-xs">
-        <span className="text-[11px] sm:text-xs text-[#9CA3AF]">
+      <div className="flex items-center justify-between pt-2 border-t border-[#F3F4F6] dark:border-[#404040] text-xs">
+        <span className="text-[11px] sm:text-xs text-[#9CA3AF] dark:text-[#A3A3A3]">
           {submittedText}
         </span>
-        <span className="text-xs font-semibold text-[#F97316] group-hover:text-[#EA580C] flex items-center gap-0.5">
+        <span className="text-xs font-semibold text-[#F97316] group-hover:text-[#EA580C] dark:group-hover:text-[#FB923C] flex items-center gap-0.5">
           Rincian
           <ChevronRight className="w-3.5 h-3.5" />
         </span>

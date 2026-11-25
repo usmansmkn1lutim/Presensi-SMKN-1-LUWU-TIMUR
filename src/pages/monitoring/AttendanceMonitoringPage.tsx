@@ -145,7 +145,7 @@ export const AttendanceMonitoringPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">
       {/* Page Title */}
-      <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+      <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
         Monitoring Presensi
       </h1>
 
@@ -158,21 +158,21 @@ export const AttendanceMonitoringPage: React.FC = () => {
       <div className="bg-transparent border-0 shadow-none p-0">
         <div className="relative flex items-center gap-2 lg:gap-3 justify-between w-full">
           {/* Integrated Search + Filter Bar */}
-          <div className="flex items-center flex-1 min-w-0 bg-white border border-[#E5E7EB] rounded-xl focus-within:border-[#F97316] transition-colors pl-3 pr-1 lg:pr-1.5 gap-1.5 lg:gap-2">
+          <div className="flex items-center flex-1 min-w-0 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus-within:border-[#F97316] dark:focus-within:border-[#F97316] transition-colors pl-3 pr-1 lg:pr-1.5 gap-1.5 lg:gap-2">
             <Search className="w-4 h-4 text-[#9CA3AF] pointer-events-none shrink-0" />
             <input
               type="text"
               placeholder="Cari pegawai..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full min-w-0 h-9 lg:h-11 text-xs lg:text-sm bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] text-[#111827]"
+              className="w-full min-w-0 h-9 lg:h-11 text-xs lg:text-sm bg-transparent border-0 focus:outline-none placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] text-[#111827] dark:text-[#F9FAFB]"
               aria-label="Cari pegawai"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="text-[#9CA3AF] hover:text-[#111827] cursor-pointer p-0.5 lg:p-1 shrink-0"
+                className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer p-0.5 lg:p-1 shrink-0"
                 aria-label="Hapus kata kunci pencarian"
               >
                 <X className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
@@ -186,8 +186,8 @@ export const AttendanceMonitoringPage: React.FC = () => {
                 onClick={() => setIsMobileFilterOpen((prev) => !prev)}
                 className={`relative inline-flex items-center justify-center w-7.5 h-7.5 lg:w-8 lg:h-8 rounded-lg transition-all cursor-pointer ${
                   activeFilterCount > 0 || isMobileFilterOpen
-                    ? 'bg-orange-50 text-[#EA580C]'
-                    : 'text-[#6B7280] hover:bg-gray-100 hover:text-[#111827]'
+                    ? 'bg-orange-50 dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74]'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:bg-gray-100 dark:hover:bg-[#303030] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
                 aria-expanded={isMobileFilterOpen}
                 aria-label="Buka filter monitoring"
@@ -202,16 +202,16 @@ export const AttendanceMonitoringPage: React.FC = () => {
               </button>
 
               {isMobileFilterOpen && (
-                <div className="absolute right-0 top-full mt-2 lg:mt-2.5 w-full sm:w-80 lg:w-96 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-3.5 lg:p-4 z-30 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F3F4F6]">
+                <div className="absolute right-0 top-full mt-2 lg:mt-2.5 w-full sm:w-80 lg:w-96 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xl p-3.5 lg:p-4 z-30 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F3F4F6] dark:border-[#404040]">
                     <div className="flex items-center gap-2">
                       <SlidersHorizontal className="w-3.5 h-3.5 text-[#F97316]" />
-                      <h4 className="text-xs font-bold text-[#111827]">Filter Monitoring</h4>
+                      <h4 className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB]">Filter Monitoring</h4>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsMobileFilterOpen(false)}
-                      className="text-[#9CA3AF] hover:text-[#111827] p-1 rounded-lg cursor-pointer"
+                      className="text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] p-1 rounded-lg cursor-pointer"
                       aria-label="Tutup panel filter"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -222,7 +222,7 @@ export const AttendanceMonitoringPage: React.FC = () => {
                     <div>
                       <label
                         htmlFor="mobileMonitoringDateInput"
-                        className="block text-[10px] font-semibold text-[#6B7280] mb-1"
+                        className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1"
                       >
                         Tanggal Monitoring
                       </label>
@@ -231,14 +231,14 @@ export const AttendanceMonitoringPage: React.FC = () => {
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs text-[#111827] focus:outline-none focus:border-[#F97316]"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="mobileMonitoringDepartmentInput"
-                        className="block text-[10px] font-semibold text-[#6B7280] mb-1"
+                        className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1"
                       >
                         Satuan Kerja / Departemen
                       </label>
@@ -246,7 +246,7 @@ export const AttendanceMonitoringPage: React.FC = () => {
                         id="mobileMonitoringDepartmentInput"
                         value={departmentId}
                         onChange={(e) => setDepartmentId(e.target.value)}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs text-[#111827] focus:outline-none focus:border-[#F97316]"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       >
                         <option value="all">Semua Departemen</option>
                         {departments.map((dept) => (
@@ -260,7 +260,7 @@ export const AttendanceMonitoringPage: React.FC = () => {
                     <div>
                       <label
                         htmlFor="mobileMonitoringStatusInput"
-                        className="block text-[10px] font-semibold text-[#6B7280] mb-1"
+                        className="block text-[10px] font-semibold text-[#6B7280] dark:text-[#A3A3A3] mb-1"
                       >
                         Status Presensi
                       </label>
@@ -268,7 +268,7 @@ export const AttendanceMonitoringPage: React.FC = () => {
                         id="mobileMonitoringStatusInput"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full h-8 px-2 bg-white border border-[#E5E7EB] rounded-lg text-xs text-[#111827] focus:outline-none focus:border-[#F97316]"
+                        className="w-full h-8 px-2 bg-white dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-lg text-xs text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316]"
                       >
                         <option value="all">Semua Status Presensi</option>
                         <option value="belum_presensi">Belum Presensi</option>
@@ -280,12 +280,12 @@ export const AttendanceMonitoringPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between">
+                  <div className="pt-2 border-t border-[#F3F4F6] dark:border-[#404040] flex items-center justify-between">
                     <button
                       type="button"
                       onClick={handleResetMobileFilters}
                       disabled={activeFilterCount === 0}
-                      className="text-[11px] font-medium text-red-600 hover:underline disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="text-[11px] font-medium text-red-600 dark:text-red-400 hover:underline disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Reset Filter
                     </button>
@@ -309,8 +309,8 @@ export const AttendanceMonitoringPage: React.FC = () => {
               onClick={() => setViewMode('list')}
               className={`p-2 lg:p-2.5 rounded-lg text-xs transition-colors cursor-pointer ${
                 viewMode === 'list'
-                  ? 'text-[#F97316] font-bold bg-[#FFF7ED]'
-                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80'
+                  ? 'text-[#F97316] dark:text-[#FDBA74] font-bold bg-[#FFF7ED] dark:bg-[#431F0B]'
+                  : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-100/80 dark:hover:bg-[#303030]'
               }`}
               title="Tampilan List"
               aria-label="Tampilan List"
@@ -323,8 +323,8 @@ export const AttendanceMonitoringPage: React.FC = () => {
               onClick={() => setViewMode('card')}
               className={`p-2 lg:p-2.5 rounded-lg text-xs transition-colors cursor-pointer ${
                 viewMode === 'card'
-                  ? 'text-[#F97316] font-bold bg-[#FFF7ED]'
-                  : 'text-[#6B7280] hover:text-[#111827] hover:bg-gray-100/80'
+                  ? 'text-[#F97316] dark:text-[#FDBA74] font-bold bg-[#FFF7ED] dark:bg-[#431F0B]'
+                  : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-gray-100/80 dark:hover:bg-[#303030]'
               }`}
               title="Tampilan Grid"
               aria-label="Tampilan Grid"
@@ -338,7 +338,7 @@ export const AttendanceMonitoringPage: React.FC = () => {
 
       {/* Error State */}
       {errorState && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 space-y-3">
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 text-amber-800 dark:text-amber-200 space-y-3">
           <div className="flex items-center gap-2 font-bold text-sm">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
             <span>Gagal Memuat Data Monitoring</span>
@@ -357,22 +357,22 @@ export const AttendanceMonitoringPage: React.FC = () => {
 
       {/* Loading Skeleton / Records Content */}
       {loading ? (
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
-          <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
+          <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/4" />
           <div className="space-y-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-12 bg-[#F3F4F6] rounded-xl" />
+              <div key={i} className="h-12 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl" />
             ))}
           </div>
         </div>
       ) : !errorState && records.length === 0 ? (
         /* Empty State */
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
+        <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-10 text-center shadow-2xs space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto">
             <Users className="w-6 h-6 text-[#9CA3AF]" />
           </div>
-          <h4 className="text-base font-bold text-[#111827]">Tidak Ada Data Presensi</h4>
-          <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+          <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Tidak Ada Data Presensi</h4>
+          <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto">
             Tidak ditemukan pegawai yang sesuai dengan filter atau kata kunci pencarian pada tanggal ini.
           </p>
         </div>

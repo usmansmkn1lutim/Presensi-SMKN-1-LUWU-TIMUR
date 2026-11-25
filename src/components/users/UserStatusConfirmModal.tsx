@@ -70,24 +70,24 @@ export const UserStatusConfirmModal: React.FC<UserStatusConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 flex flex-col space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[#E5E7EB] dark:border-slate-800 shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 flex flex-col space-y-4 text-slate-900 dark:text-slate-100">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-slate-800">
           <div className="flex items-center gap-2.5">
             <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center ${
                 targetNewStatus
-                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-600'
-                  : 'bg-red-50 border border-red-200 text-red-600'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
               }`}
             >
               <Power className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">
+              <h3 className="text-base font-bold text-[#111827] dark:text-white">
                 {targetNewStatus ? 'Aktifkan Akun Pengguna' : 'Nonaktifkan Akun Pengguna'}
               </h3>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-slate-400">
                 {targetNewStatus
                   ? 'Kembalikan hak akses login pengguna ke sistem'
                   : 'Tangguhkan akses login pengguna ke sistem'}
@@ -97,30 +97,30 @@ export const UserStatusConfirmModal: React.FC<UserStatusConfirmModalProps> = ({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* User Card */}
-        <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-center gap-3">
+        <div className="p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-800 flex items-center gap-3">
           <UserAvatar
             userId={user.id}
             avatarUrl={user.avatar_url}
             photoUrl={user.photo_url}
             name={user.full_name}
-            className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+            className="w-10 h-10 rounded-full object-cover border border-[#E5E7EB] dark:border-slate-700 shrink-0"
           />
           <div className="space-y-0.5 min-w-0 flex-1">
-            <p className="text-sm font-bold text-[#111827] truncate">{user.full_name}</p>
+            <p className="text-sm font-bold text-[#111827] dark:text-white truncate">{user.full_name}</p>
             <div className="flex items-center gap-2">
               <RoleBadge role={user.role} size="sm" />
               <span
                 className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
                   user.is_active
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'bg-red-50 text-red-700'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300'
                 }`}
               >
                 {user.is_active ? 'Status: Aktif' : 'Status: Nonaktif'}
@@ -131,8 +131,8 @@ export const UserStatusConfirmModal: React.FC<UserStatusConfirmModalProps> = ({
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-xs text-red-700">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-center gap-2 text-xs text-red-700 dark:text-red-300">
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -141,14 +141,14 @@ export const UserStatusConfirmModal: React.FC<UserStatusConfirmModalProps> = ({
         <div
           className={`p-3.5 rounded-xl border text-xs space-y-1.5 ${
             targetNewStatus
-              ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
-              : 'bg-red-50/70 border-red-200 text-red-950'
+              ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-950 dark:text-emerald-200'
+              : 'bg-red-50/70 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-950 dark:text-red-200'
           }`}
         >
           <div className="flex items-center gap-2 font-bold">
             <AlertTriangle
               className={`w-4 h-4 shrink-0 ${
-                targetNewStatus ? 'text-emerald-600' : 'text-red-600'
+                targetNewStatus ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
               }`}
             />
             <span>
@@ -170,7 +170,7 @@ export const UserStatusConfirmModal: React.FC<UserStatusConfirmModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-2 border-t border-[#E5E7EB] flex items-center justify-end gap-2.5">
+        <div className="pt-2 border-t border-[#E5E7EB] dark:border-slate-800 flex items-center justify-end gap-2.5">
           <Button
             type="button"
             variant="outline"

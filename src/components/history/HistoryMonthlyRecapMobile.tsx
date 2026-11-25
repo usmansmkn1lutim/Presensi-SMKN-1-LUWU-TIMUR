@@ -21,18 +21,18 @@ export const HistoryMonthlyRecapMobile: React.FC<HistoryMonthlyRecapMobileProps>
   if (loading) {
     return (
       <div className="space-y-2.5 sm:space-y-3 font-sans">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
           REKAP KEHADIRAN BULAN INI
         </h3>
         <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="relative bg-white border border-[#E5E7EB] rounded-2xl p-3 sm:p-4 min-h-[96px] sm:min-h-[108px] shadow-2xs animate-pulse flex flex-col items-center justify-center"
+              className="relative bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-3 sm:p-4 min-h-[96px] sm:min-h-[108px] shadow-2xs animate-pulse flex flex-col items-center justify-center"
             >
-              <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded bg-gray-200" />
-              <div className="h-7 bg-gray-200 rounded w-10 mb-2" />
-              <div className="h-3 bg-gray-200 rounded w-14" />
+              <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded bg-gray-200 dark:bg-zinc-700" />
+              <div className="h-7 bg-gray-200 dark:bg-zinc-700 rounded w-10 mb-2" />
+              <div className="h-3 bg-gray-200 dark:bg-zinc-700 rounded w-14" />
             </div>
           ))}
         </div>
@@ -85,14 +85,14 @@ export const HistoryMonthlyRecapMobile: React.FC<HistoryMonthlyRecapMobileProps>
 
   return (
     <div className="space-y-2.5 sm:space-y-3 font-sans">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
         REKAP KEHADIRAN BULAN INI
       </h3>
       <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
         {items.map((item) => (
           <div
             key={item.key}
-            className="relative bg-white border border-[#E5E7EB] rounded-2xl p-3 sm:p-4 min-h-[96px] sm:min-h-[108px] shadow-2xs flex flex-col items-center justify-center text-center hover:border-slate-300 transition-colors group"
+            className="relative bg-white dark:bg-[#1E1E1E] border border-[#E5E7EB] dark:border-[#333] rounded-2xl p-3 sm:p-4 min-h-[96px] sm:min-h-[108px] shadow-2xs flex flex-col items-center justify-center text-center hover:border-slate-300 dark:hover:border-zinc-700 transition-colors group"
           >
             {/* 1. Icon = pojok kanan atas, ikon saja tanpa badge/background */}
             <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 shrink-0">
@@ -101,10 +101,10 @@ export const HistoryMonthlyRecapMobile: React.FC<HistoryMonthlyRecapMobileProps>
 
             {/* 2. Angka = center secara horizontal & 3. Label = center di bawah angka */}
             <div className="flex flex-col items-center justify-center pt-2 sm:pt-2.5">
-              <span className="text-2xl sm:text-3xl font-bold text-[#111827] tracking-tight tabular-nums leading-none">
+              <span className="text-2xl sm:text-3xl font-bold text-[#111827] dark:text-[#F3F4F6] tracking-tight tabular-nums leading-none">
                 {item.value}
               </span>
-              <span className="text-xs sm:text-sm font-semibold text-[#6B7280] mt-1.5 leading-none">
+              <span className="text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#9CA3AF] mt-1.5 leading-none">
                 {item.title}
               </span>
             </div>

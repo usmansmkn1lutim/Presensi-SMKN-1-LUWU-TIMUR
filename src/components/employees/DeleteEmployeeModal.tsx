@@ -82,23 +82,23 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/75 backdrop-blur-2xs p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-employee-modal-title"
     >
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 my-8 space-y-4">
+      <div className="bg-white dark:bg-[#262626] rounded-2xl border border-[#E5E7EB] dark:border-[#404040] shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 my-8 space-y-4">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 id="delete-employee-modal-title" className="text-base font-bold text-[#111827]">
+              <h3 id="delete-employee-modal-title" className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
                 Hapus Data Pegawai
               </h3>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 Penghapusan data master pegawai dari sistem
               </p>
             </div>
@@ -107,30 +107,30 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
             onClick={onClose}
             disabled={isLoading}
             aria-label="Tutup modal"
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer disabled:opacity-50"
+            className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Employee Information Card */}
-        <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
+        <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] space-y-3">
           <div className="flex items-center gap-3">
             {employee.photo_url ? (
               <img
                 src={employee.photo_url}
                 alt={employee.full_name}
-                className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] dark:border-[#404040] shrink-0"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-base shrink-0">
+              <div className="w-12 h-12 rounded-full bg-[#FFF7ED] dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-[#F97316] dark:text-orange-400 flex items-center justify-center font-bold text-base shrink-0">
                 {employee.full_name.charAt(0)}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[#111827] truncate">{employee.full_name}</p>
-              <p className="text-xs font-mono text-[#6B7280]">
-                NIP: <span className="font-semibold text-[#374151]">{employee.nip || '—'}</span>
+              <p className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB] truncate">{employee.full_name}</p>
+              <p className="text-xs font-mono text-[#6B7280] dark:text-[#A3A3A3]">
+                NIP: <span className="font-semibold text-[#374151] dark:text-slate-200">{employee.nip || '—'}</span>
                 {employee.nik && (
                   <span className="ml-2">NIK: {employee.nik}</span>
                 )}
@@ -140,12 +140,12 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
                   {employee.status === 'active' ? 'Aktif' : 'Nonaktif'}
                 </Badge>
                 {employee.positions?.name && (
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#FFF7ED] text-[#F97316] border border-orange-200">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#FFF7ED] dark:bg-orange-950/40 text-[#F97316] dark:text-orange-400 border border-orange-200 dark:border-orange-900/50">
                     {employee.positions.name}
                   </span>
                 )}
                 {employee.departments?.name && (
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-[#4B5563]">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 dark:bg-[#303030] text-[#4B5563] dark:text-slate-300">
                     {employee.departments.name}
                   </span>
                 )}
@@ -154,21 +154,21 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
           </div>
 
           {/* Linked Account Status */}
-          <div className="pt-2.5 border-t border-[#E5E7EB] text-xs space-y-1">
+          <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#404040] text-xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[#6B7280]">Akun Pengguna Terhubung:</span>
+              <span className="text-[#6B7280] dark:text-[#A3A3A3]">Akun Pengguna Terhubung:</span>
               {isLinkedToAccount ? (
-                <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>Terhubung</span>
                 </span>
               ) : (
-                <span className="text-[#9CA3AF]">Belum Terhubung</span>
+                <span className="text-[#9CA3AF] dark:text-slate-500">Belum Terhubung</span>
               )}
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[#6B7280]">Histori Transaksi:</span>
-              <span className="text-emerald-700 font-semibold">
+              <span className="text-[#6B7280] dark:text-[#A3A3A3]">Histori Transaksi:</span>
+              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
                 Tetap Dipertahankan (Snapshot)
               </span>
             </div>
@@ -177,8 +177,8 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in duration-150">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+          <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400 animate-in fade-in duration-150">
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
               <p className="font-bold">Gagal Menghapus Data Pegawai</p>
               <p className="text-[11px] leading-relaxed">{errorMessage}</p>
@@ -187,12 +187,12 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
         )}
 
         {/* Clear Explanations & Historical Preservation Rule */}
-        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-2">
-          <div className="flex items-center gap-2 font-bold text-amber-900">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-950 dark:text-amber-200 space-y-2">
+          <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-100">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>Pemberitahuan Penting:</span>
           </div>
-          <ul className="list-disc pl-5 space-y-1 text-[11px] text-amber-900 leading-relaxed">
+          <ul className="list-disc pl-5 space-y-1 text-[11px] text-amber-900 dark:text-amber-200/90 leading-relaxed">
             <li>
               <strong>Data pegawai akan dihapus secara permanen dari sistem.</strong>
             </li>
@@ -217,9 +217,9 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
           <div>
             <label
               htmlFor="employee-delete-reason"
-              className="block text-xs font-semibold text-[#374151] mb-1"
+              className="block text-xs font-semibold text-[#374151] dark:text-slate-300 mb-1"
             >
-              Alasan Penghapusan <span className="text-[#9CA3AF] font-normal">(opsional untuk catatan audit)</span>
+              Alasan Penghapusan <span className="text-[#9CA3AF] dark:text-slate-500 font-normal">(opsional untuk catatan audit)</span>
             </label>
             <input
               id="employee-delete-reason"
@@ -228,21 +228,21 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
               onChange={(e) => setDeleteReason(e.target.value)}
               placeholder="Contoh: Data ganda / Pegawai berhenti"
               disabled={isLoading}
-              className="w-full h-9 text-xs text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-3 transition-colors placeholder:text-[#9CA3AF] focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 disabled:bg-[#F3F4F6] disabled:text-[#9CA3AF]"
+              className="w-full h-9 text-xs text-[#111827] dark:text-white bg-[#F9FAFB] dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl px-3 transition-colors placeholder:text-[#9CA3AF] focus:outline-none focus:bg-white dark:focus:bg-[#1F1F1F] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 disabled:bg-[#F3F4F6] dark:disabled:bg-[#303030] disabled:text-[#9CA3AF]"
             />
           </div>
 
           {/* Strict Phrase Input */}
-          <div className="p-3.5 rounded-xl bg-red-50/70 border border-red-200 space-y-2">
+          <div className="p-3.5 rounded-xl bg-red-50/70 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 space-y-2">
             <div className="space-y-0.5">
               <label
                 htmlFor="employee-delete-confirm-input"
-                className="block text-xs font-bold text-red-900"
+                className="block text-xs font-bold text-red-900 dark:text-red-300"
               >
                 Penghapusan data pegawai bersifat permanen dan tidak dapat dibatalkan.
               </label>
-              <p className="text-[11px] text-red-700">
-                Ketik <span className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-red-200 select-all">{REQUIRED_CONFIRMATION_PHRASE}</span> untuk melanjutkan:
+              <p className="text-[11px] text-red-700 dark:text-red-400">
+                Ketik <span className="font-mono font-bold bg-white dark:bg-[#1F1F1F] px-1.5 py-0.5 rounded border border-red-200 dark:border-red-800/60 select-all">{REQUIRED_CONFIRMATION_PHRASE}</span> untuk melanjutkan:
               </p>
             </div>
             <Input
@@ -257,7 +257,7 @@ export const DeleteEmployeeModal: React.FC<DeleteEmployeeModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 border-t border-[#E5E7EB] flex items-center justify-end gap-2.5">
+          <div className="pt-2 border-t border-[#E5E7EB] dark:border-[#404040] flex items-center justify-end gap-2.5">
             <Button
               type="button"
               variant="outline"

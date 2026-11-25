@@ -302,22 +302,22 @@ export const AuditLogsPage: React.FC = () => {
       )}
 
       {/* Header Panel Mobile/Tablet (< 1024px) */}
-      <div className="lg:hidden bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs">
+      <div className="lg:hidden bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#F97316]">
                 Keamanan & Kepatuhan
               </span>
-              <span className="w-1 h-1 rounded-full bg-slate-300" />
-              <span className="text-xs text-[#6B7280] font-mono tabular-nums">
+              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-zinc-600" />
+              <span className="text-xs text-[#6B7280] dark:text-[#A3A3A3] font-mono tabular-nums">
                 Total: {totalCount} log
               </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#111827] mt-1">
+            <h2 className="text-lg sm:text-xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1">
               Log Audit Aktivitas Sistem
             </h2>
-            <p className="text-xs text-[#6B7280] mt-1">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-1">
               Jejak audit digital permanen mencakup akses masuk, mutasi data, dan otorisasi administratif.
             </p>
           </div>
@@ -327,7 +327,7 @@ export const AuditLogsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border-red-200 dark:border-red-800"
               >
                 Reset Filter
               </Button>
@@ -347,7 +347,7 @@ export const AuditLogsPage: React.FC = () => {
 
       {/* Header Panel Desktop (>= 1024px) */}
       <div className="hidden lg:flex items-center justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Log Audit Aktivitas Sistem
         </h1>
 
@@ -356,7 +356,7 @@ export const AuditLogsPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={handleResetFilters}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+            className="text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border-red-200 dark:border-red-800"
           >
             Reset Filter
           </Button>
@@ -364,22 +364,22 @@ export const AuditLogsPage: React.FC = () => {
       </div>
 
       {/* Filter Toolbar Card */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs">
-        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3.5 flex items-center gap-2">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 shadow-2xs">
+        <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 dark:text-zinc-400 mb-3.5 flex items-center gap-2">
           <Terminal className="w-3.5 h-3.5" /> Filter Log Audit
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {/* Actor Filter */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">Aktor</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#D4D4D4] mb-1.5">Aktor</label>
             <select
               value={filterActor}
               onChange={(e) => setFilterActor(e.target.value)}
-              className="w-full h-11 text-sm text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 px-3 transition-colors"
+              className="w-full h-11 text-sm text-[#111827] dark:text-[#F9FAFB] bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:bg-white dark:focus:bg-[#202020] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 px-3 transition-colors"
             >
-              <option value="">Semua Aktor</option>
+              <option value="" className="dark:bg-[#202020]">Semua Aktor</option>
               {users.map((u) => (
-                <option key={u.id} value={u.id}>
+                <option key={u.id} value={u.id} className="dark:bg-[#202020]">
                   {u.full_name} ({u.role})
                 </option>
               ))}
@@ -388,15 +388,15 @@ export const AuditLogsPage: React.FC = () => {
 
           {/* Action Filter */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">Tindakan</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#D4D4D4] mb-1.5">Tindakan</label>
             <select
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="w-full h-11 text-sm text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 px-3 transition-colors"
+              className="w-full h-11 text-sm text-[#111827] dark:text-[#F9FAFB] bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:bg-white dark:focus:bg-[#202020] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 px-3 transition-colors"
             >
-              <option value="">Semua Tindakan</option>
+              <option value="" className="dark:bg-[#202020]">Semua Tindakan</option>
               {Object.entries(ACTION_LABELS).map(([key, value]) => (
-                <option key={key} value={key}>
+                <option key={key} value={key} className="dark:bg-[#202020]">
                   {value}
                 </option>
               ))}
@@ -405,15 +405,15 @@ export const AuditLogsPage: React.FC = () => {
 
           {/* Target Type Filter */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">Tipe Target</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#D4D4D4] mb-1.5">Tipe Target</label>
             <select
               value={filterTargetType}
               onChange={(e) => setFilterTargetType(e.target.value)}
-              className="w-full h-11 text-sm text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 px-3 transition-colors"
+              className="w-full h-11 text-sm text-[#111827] dark:text-[#F9FAFB] bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:bg-white dark:focus:bg-[#202020] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 px-3 transition-colors"
             >
-              <option value="">Semua Tipe Target</option>
+              <option value="" className="dark:bg-[#202020]">Semua Tipe Target</option>
               {Object.entries(TARGET_TYPE_LABELS).map(([key, value]) => (
-                <option key={key} value={key}>
+                <option key={key} value={key} className="dark:bg-[#202020]">
                   {value}
                 </option>
               ))}
@@ -422,51 +422,51 @@ export const AuditLogsPage: React.FC = () => {
 
           {/* Target ID Filter */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">ID Target</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#D4D4D4] mb-1.5">ID Target</label>
             <div className="relative">
               <input
                 type="text"
                 placeholder="Cari ID..."
                 value={filterTargetId}
                 onChange={(e) => setFilterTargetId(e.target.value)}
-                className="w-full h-11 pl-9 pr-3 text-sm text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-colors"
+                className="w-full h-11 pl-9 pr-3 text-sm text-[#111827] dark:text-[#F9FAFB] bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:bg-white dark:focus:bg-[#202020] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-colors"
               />
-              <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 dark:text-zinc-500" />
             </div>
           </div>
 
           {/* Start Date */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">Mulai Tanggal</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#D4D4D4] mb-1.5">Mulai Tanggal</label>
             <div className="relative">
               <input
                 type="date"
                 value={filterStartDate}
                 onChange={(e) => setFilterStartDate(e.target.value)}
-                className="w-full h-11 pl-9 pr-3 text-sm text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-colors"
+                className="w-full h-11 pl-9 pr-3 text-sm text-[#111827] dark:text-[#F9FAFB] bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:bg-white dark:focus:bg-[#202020] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-colors"
               />
-              <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+              <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 dark:text-zinc-500 pointer-events-none" />
             </div>
           </div>
 
           {/* End Date */}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">Selesai Tanggal</label>
+            <label className="block text-xs font-semibold text-[#374151] dark:text-[#D4D4D4] mb-1.5">Selesai Tanggal</label>
             <div className="relative">
               <input
                 type="date"
                 value={filterEndDate}
                 onChange={(e) => setFilterEndDate(e.target.value)}
-                className="w-full h-11 pl-9 pr-3 text-sm text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:outline-none focus:bg-white focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-colors"
+                className="w-full h-11 pl-9 pr-3 text-sm text-[#111827] dark:text-[#F9FAFB] bg-[#F9FAFB] dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl focus:outline-none focus:bg-white dark:focus:bg-[#202020] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 transition-colors"
               />
-              <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+              <Calendar className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 dark:text-zinc-500 pointer-events-none" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl overflow-hidden shadow-2xs">
         {errorMsg ? (
           <div className="p-8 text-center">
             <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-3">
@@ -536,7 +536,7 @@ export const AuditLogsPage: React.FC = () => {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-xs font-bold text-[#4B5563] uppercase tracking-wider">
+                  <tr className="bg-[#F9FAFB] dark:bg-[#212121] border-b border-[#E5E7EB] dark:border-[#404040] text-xs font-bold text-[#4B5563] dark:text-[#D4D4D4] uppercase tracking-wider">
                     <th className="px-6 py-3.5 w-[20%]">Waktu (Makassar WITA)</th>
                     <th className="px-6 py-3.5 w-[25%]">Aktor</th>
                     <th className="px-6 py-3.5 w-[15%]">Tindakan</th>
@@ -544,17 +544,17 @@ export const AuditLogsPage: React.FC = () => {
                     <th className="px-6 py-3.5 w-[15%] text-right">Inspeksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB] text-sm text-[#374151]">
+                <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#333333] text-sm text-[#374151] dark:text-[#F9FAFB]">
                   {logs.map((log) => {
                     const resolvedActor = log.actor_user_id ? userMap[log.actor_user_id] : null;
                     const actorName = resolvedActor?.full_name || log.actor_email || 'Sistem Otomatis';
                     const actorRole = resolvedActor?.role || log.actor_role || 'system';
 
                     return (
-                      <tr key={log.id} className="hover:bg-[#F9FAFB] transition-colors group">
+                      <tr key={log.id} className="hover:bg-[#F9FAFB] dark:hover:bg-[#202020] transition-colors group">
                         {/* Formatted Date & Time */}
                         <td className="px-6 py-4">
-                          <div className="font-mono text-xs text-[#111827] tabular-nums font-semibold">
+                          <div className="font-mono text-xs text-[#111827] dark:text-[#F9FAFB] tabular-nums font-semibold">
                             {formatWita(log.created_at)}
                           </div>
                         </td>
@@ -562,8 +562,8 @@ export const AuditLogsPage: React.FC = () => {
                         {/* Actor details with responsive visual weight */}
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-semibold text-slate-800">{actorName}</span>
-                            <span className="text-[11px] text-[#9CA3AF] tracking-tight truncate max-w-xs">
+                            <span className="font-semibold text-slate-800 dark:text-zinc-200">{actorName}</span>
+                            <span className="text-[11px] text-[#9CA3AF] dark:text-[#A3A3A3] tracking-tight truncate max-w-xs">
                               {log.actor_user_id ? `ID: ${log.actor_user_id}` : 'Proses Terjadwal'}
                             </span>
                           </div>
@@ -579,10 +579,10 @@ export const AuditLogsPage: React.FC = () => {
                         {/* Target description and shortened target UUID */}
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-xs font-bold text-slate-700">
+                            <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                               {TARGET_TYPE_LABELS[log.target_type] || log.target_type}
                             </span>
-                            <span className="font-mono text-[11px] text-[#6B7280] tracking-tight select-all">
+                            <span className="font-mono text-[11px] text-[#6B7280] dark:text-[#A3A3A3] tracking-tight select-all">
                               {log.target_id || 'Global Config'}
                             </span>
                           </div>
@@ -594,7 +594,7 @@ export const AuditLogsPage: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelectedLog(log)}
-                            className="hover:bg-[#F3F4F6] text-slate-500 hover:text-slate-900"
+                            className="hover:bg-[#F3F4F6] dark:hover:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-[#F9FAFB]"
                           >
                             <Eye className="w-4 h-4 mr-1.5" />
                             Detail
@@ -608,17 +608,17 @@ export const AuditLogsPage: React.FC = () => {
             </div>
 
             {/* Mobile Stacked Card View (Visible on viewports < md) */}
-            <div className="block md:hidden divide-y divide-[#E5E7EB]">
+            <div className="block md:hidden divide-y divide-[#E5E7EB] dark:divide-[#333333]">
               {logs.map((log) => {
                 const resolvedActor = log.actor_user_id ? userMap[log.actor_user_id] : null;
                 const actorName = resolvedActor?.full_name || log.actor_email || 'Sistem Otomatis';
                 const actorRole = resolvedActor?.role || log.actor_role || 'system';
 
                 return (
-                  <div key={log.id} className="p-4.5 space-y-3.5 hover:bg-[#F9FAFB] transition-colors">
+                  <div key={log.id} className="p-4.5 space-y-3.5 hover:bg-[#F9FAFB] dark:hover:bg-[#202020] transition-colors">
                     {/* Header line: Waktu & Action badge */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-xs text-[#111827] font-semibold">
+                      <span className="font-mono text-xs text-[#111827] dark:text-[#F9FAFB] font-semibold">
                         {formatWita(log.created_at)}
                       </span>
                       <Badge variant={getActionBadgeVariant(log.action)} size="sm">
@@ -628,12 +628,12 @@ export const AuditLogsPage: React.FC = () => {
 
                     {/* Actor information */}
                     <div className="text-xs space-y-1">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px] block">
+                      <span className="text-slate-400 dark:text-zinc-500 font-semibold uppercase tracking-wider text-[10px] block">
                         Aktor
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-800 text-sm">{actorName}</span>
-                        <span className="text-[10px] bg-[#F3F4F6] text-[#4B5563] px-1.5 py-0.5 rounded font-semibold uppercase font-mono">
+                        <span className="font-bold text-slate-800 dark:text-zinc-200 text-sm">{actorName}</span>
+                        <span className="text-[10px] bg-[#F3F4F6] dark:bg-zinc-800 text-[#4B5563] dark:text-zinc-300 px-1.5 py-0.5 rounded font-semibold uppercase font-mono">
                           {actorRole}
                         </span>
                       </div>
@@ -641,14 +641,14 @@ export const AuditLogsPage: React.FC = () => {
 
                     {/* Target info */}
                     <div className="text-xs space-y-1">
-                      <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px] block">
+                      <span className="text-slate-400 dark:text-zinc-500 font-semibold uppercase tracking-wider text-[10px] block">
                         Target Objek
                       </span>
-                      <div className="text-slate-800">
+                      <div className="text-slate-800 dark:text-zinc-200">
                         <span className="font-bold mr-1.5">
                           {TARGET_TYPE_LABELS[log.target_type] || log.target_type}
                         </span>
-                        <span className="font-mono bg-slate-50 border border-slate-100 px-1 py-0.5 rounded text-[11px] select-all">
+                        <span className="font-mono bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 px-1 py-0.5 rounded text-[11px] select-all">
                           {log.target_id || 'Global System Config'}
                         </span>
                       </div>
@@ -657,10 +657,10 @@ export const AuditLogsPage: React.FC = () => {
                     {/* Reason if available */}
                     {log.reason && (
                       <div className="text-xs space-y-1">
-                        <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px] block">
+                        <span className="text-slate-400 dark:text-zinc-500 font-semibold uppercase tracking-wider text-[10px] block">
                           Alasan
                         </span>
-                        <div className="text-xs text-[#B45309] bg-[#FFFBEB] border border-[#FDE68A] p-2.5 rounded-xl font-medium">
+                        <div className="text-xs text-[#B45309] dark:text-amber-300 bg-[#FFFBEB] dark:bg-amber-950/40 border border-[#FDE68A] dark:border-amber-800 p-2.5 rounded-xl font-medium">
                           {log.reason}
                         </div>
                       </div>
@@ -671,9 +671,9 @@ export const AuditLogsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedLog(log)}
-                        className="h-11 w-full text-xs font-semibold rounded-xl border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#374151] active:bg-[#E5E7EB] transition-colors flex items-center justify-center gap-1.5 shadow-3xs"
+                        className="h-11 w-full text-xs font-semibold rounded-xl border border-[#E5E7EB] dark:border-[#404040] hover:bg-[#F3F4F6] dark:hover:bg-zinc-800 text-[#374151] dark:text-[#F9FAFB] active:bg-[#E5E7EB] transition-colors flex items-center justify-center gap-1.5 shadow-3xs"
                       >
-                        <Eye className="w-4 h-4 text-slate-500" />
+                        <Eye className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
                         Detail Inspeksi
                       </button>
                     </div>
@@ -686,13 +686,13 @@ export const AuditLogsPage: React.FC = () => {
 
         {/* Footer Pagination Bar */}
         {!errorMsg && logs.length > 0 && (
-          <div className="bg-[#F9FAFB] border-t border-[#E5E7EB] px-6 py-4.5 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs text-slate-500 font-medium">
-              Menampilkan <span className="font-bold text-slate-800 font-mono tabular-nums">{(page - 1) * pageSize + 1}</span> sampai{' '}
-              <span className="font-bold text-slate-800 font-mono tabular-nums">
+          <div className="bg-[#F9FAFB] dark:bg-[#202020] border-t border-[#E5E7EB] dark:border-[#404040] px-6 py-4.5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs text-slate-500 dark:text-[#A3A3A3] font-medium">
+              Menampilkan <span className="font-bold text-slate-800 dark:text-[#F9FAFB] font-mono tabular-nums">{(page - 1) * pageSize + 1}</span> sampai{' '}
+              <span className="font-bold text-slate-800 dark:text-[#F9FAFB] font-mono tabular-nums">
                 {Math.min(page * pageSize, totalCount)}
               </span>{' '}
-              dari <span className="font-bold text-slate-800 font-mono tabular-nums">{totalCount}</span> log
+              dari <span className="font-bold text-slate-800 dark:text-[#F9FAFB] font-mono tabular-nums">{totalCount}</span> log
             </span>
 
             {/* Segmented pagination */}
@@ -702,15 +702,15 @@ export const AuditLogsPage: React.FC = () => {
                 size="sm"
                 onClick={handlePrevPage}
                 disabled={page === 1}
-                className="h-8.5 w-8.5 !p-0"
+                className="h-8.5 w-8.5 !p-0 dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-zinc-800"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               
               <div className="flex items-center gap-1 px-2.5">
-                <span className="text-xs font-bold text-slate-800 font-mono tabular-nums">{page}</span>
-                <span className="text-xs text-slate-400 font-mono">/</span>
-                <span className="text-xs text-slate-500 font-mono tabular-nums">{totalPages}</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-[#F9FAFB] font-mono tabular-nums">{page}</span>
+                <span className="text-xs text-slate-400 dark:text-zinc-500 font-mono">/</span>
+                <span className="text-xs text-slate-500 dark:text-[#A3A3A3] font-mono tabular-nums">{totalPages}</span>
               </div>
 
               <Button
@@ -718,7 +718,7 @@ export const AuditLogsPage: React.FC = () => {
                 size="sm"
                 onClick={handleNextPage}
                 disabled={page === totalPages}
-                className="h-8.5 w-8.5 !p-0"
+                className="h-8.5 w-8.5 !p-0 dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-zinc-800"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>

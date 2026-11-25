@@ -181,7 +181,7 @@ export const HolidaysPage: React.FC = () => {
 
       {/* Header Section */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Kalender & Hari Libur
         </h1>
 
@@ -201,65 +201,65 @@ export const HolidaysPage: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Total Hari Libur */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
-          <p className="text-xs font-medium text-[#6B7280]">Total Hari Libur</p>
-          <p className="text-xl sm:text-2xl font-bold text-[#111827] mt-1">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
+          <p className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Total Hari Libur</p>
+          <p className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-1">
             {isLoading ? '-' : totalCount}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Tahun {selectedYear}</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-0.5">Tahun {selectedYear}</p>
         </div>
 
         {/* Card 2: Hari Libur Aktif */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
-          <p className="text-xs font-medium text-[#6B7280]">Hari Libur Aktif</p>
-          <p className="text-xl sm:text-2xl font-bold text-emerald-700 mt-1">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
+          <p className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Hari Libur Aktif</p>
+          <p className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-1">
             {isLoading ? '-' : activeCount}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Berlaku untuk presensi</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-0.5">Berlaku untuk presensi</p>
         </div>
 
         {/* Card 3: Libur Nasional */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
-          <p className="text-xs font-medium text-[#6B7280]">Hari Libur Nasional</p>
-          <p className="text-xl sm:text-2xl font-bold text-red-600 mt-1">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
+          <p className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Hari Libur Nasional</p>
+          <p className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
             {isLoading ? '-' : nationalCount}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Hari besar kenegaraan</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-0.5">Hari besar kenegaraan</p>
         </div>
 
         {/* Card 4: Libur Sekolah */}
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs">
-          <p className="text-xs font-medium text-[#6B7280]">Hari Libur Sekolah</p>
-          <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs">
+          <p className="text-xs font-medium text-[#6B7280] dark:text-[#A3A3A3]">Hari Libur Sekolah</p>
+          <p className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
             {isLoading ? '-' : schoolCount}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Semester & kegiatan</p>
+          <p className="text-[11px] text-[#9CA3AF] dark:text-[#737373] mt-0.5">Semester & kegiatan</p>
         </div>
       </div>
 
       {/* Filter, Search & View Switcher Bar */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs space-y-3">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs space-y-3">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#9CA3AF] dark:text-[#A3A3A3] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari hari libur..."
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-[#E5E7EB] rounded-xl text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all"
             />
           </div>
 
           {/* Controls: Year, Type, Status, View Mode */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Year Selector with < > navigation */}
-            <div className="flex items-center border border-[#E5E7EB] rounded-xl bg-white overflow-hidden">
+            <div className="flex items-center border border-[#E5E7EB] dark:border-[#404040] rounded-xl bg-white dark:bg-[#202020] overflow-hidden">
               <button
                 type="button"
                 onClick={() => setSelectedYear((y) => y - 1)}
-                className="px-2.5 py-2 hover:bg-zinc-50 text-[#374151] transition-colors cursor-pointer"
+                className="px-2.5 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-[#374151] dark:text-[#D4D4D4] transition-colors cursor-pointer"
                 title="Tahun Sebelumnya"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
@@ -267,10 +267,10 @@ export const HolidaysPage: React.FC = () => {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="px-2 py-2 text-xs font-bold text-[#111827] bg-transparent focus:outline-none cursor-pointer"
+                className="px-2 py-2 text-xs font-bold text-[#111827] dark:text-[#F9FAFB] bg-transparent focus:outline-none cursor-pointer"
               >
                 {availableYears.map((y) => (
-                  <option key={y} value={y}>
+                  <option key={y} value={y} className="dark:bg-[#202020]">
                     {y}
                   </option>
                 ))}
@@ -278,7 +278,7 @@ export const HolidaysPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedYear((y) => y + 1)}
-                className="px-2.5 py-2 hover:bg-zinc-50 text-[#374151] transition-colors cursor-pointer"
+                className="px-2.5 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-[#374151] dark:text-[#D4D4D4] transition-colors cursor-pointer"
                 title="Tahun Berikutnya"
               >
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -289,36 +289,36 @@ export const HolidaysPage: React.FC = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as HolidayType | 'all')}
-              className="px-3 py-2 text-xs bg-white border border-[#E5E7EB] rounded-xl text-[#374151] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
+              className="px-3 py-2 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#374151] dark:text-[#D4D4D4] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
             >
-              <option value="all">Semua Jenis</option>
-              <option value="national">Nasional</option>
-              <option value="collective_leave">Cuti Bersama</option>
-              <option value="school">Sekolah</option>
-              <option value="special">Khusus</option>
-              <option value="other">Lainnya</option>
+              <option value="all" className="dark:bg-[#202020]">Semua Jenis</option>
+              <option value="national" className="dark:bg-[#202020]">Nasional</option>
+              <option value="collective_leave" className="dark:bg-[#202020]">Cuti Bersama</option>
+              <option value="school" className="dark:bg-[#202020]">Sekolah</option>
+              <option value="special" className="dark:bg-[#202020]">Khusus</option>
+              <option value="other" className="dark:bg-[#202020]">Lainnya</option>
             </select>
 
             {/* Status Filter */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-              className="px-3 py-2 text-xs bg-white border border-[#E5E7EB] rounded-xl text-[#374151] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
+              className="px-3 py-2 text-xs bg-white dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#374151] dark:text-[#D4D4D4] font-medium focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
             >
-              <option value="all">Semua Status</option>
-              <option value="active">Aktif</option>
-              <option value="inactive">Nonaktif</option>
+              <option value="all" className="dark:bg-[#202020]">Semua Status</option>
+              <option value="active" className="dark:bg-[#202020]">Aktif</option>
+              <option value="inactive" className="dark:bg-[#202020]">Nonaktif</option>
             </select>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center p-0.5 bg-zinc-100 border border-[#E5E7EB] rounded-xl">
+            <div className="flex items-center p-0.5 bg-zinc-100 dark:bg-[#202020] border border-[#E5E7EB] dark:border-[#404040] rounded-xl">
               <button
                 type="button"
                 onClick={() => setViewMode('calendar')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                   viewMode === 'calendar'
-                    ? 'bg-white text-[#F97316] shadow-xs'
-                    : 'text-[#6B7280] hover:text-[#111827]'
+                    ? 'bg-white dark:bg-[#303030] text-[#F97316] shadow-xs'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
               >
                 <Calendar className="w-3.5 h-3.5" />
@@ -329,8 +329,8 @@ export const HolidaysPage: React.FC = () => {
                 onClick={() => setViewMode('list')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                   viewMode === 'list'
-                    ? 'bg-white text-[#F97316] shadow-xs'
-                    : 'text-[#6B7280] hover:text-[#111827]'
+                    ? 'bg-white dark:bg-[#303030] text-[#F97316] shadow-xs'
+                    : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
                 }`}
               >
                 <List className="w-3.5 h-3.5" />
@@ -347,7 +347,7 @@ export const HolidaysPage: React.FC = () => {
                   setTypeFilter('all');
                   setStatusFilter('all');
                 }}
-                className="px-2.5 py-2 text-xs font-semibold text-[#F97316] hover:bg-orange-50 rounded-xl transition-colors cursor-pointer"
+                className="px-2.5 py-2 text-xs font-semibold text-[#F97316] hover:bg-orange-50 dark:hover:bg-orange-950/40 rounded-xl transition-colors cursor-pointer"
               >
                 Reset
               </button>
@@ -454,10 +454,10 @@ export const HolidaysPage: React.FC = () => {
         {!isLoading && !errorMessage && filteredHolidays.length > 0 && viewMode === 'list' && (
           <div className="space-y-4">
             {/* Desktop Table View */}
-            <div className="hidden md:block bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+            <div className="hidden md:block bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-zinc-50/80 border-b border-[#E5E7EB] text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+                  <tr className="bg-zinc-50/80 dark:bg-[#212121] border-b border-[#E5E7EB] dark:border-[#404040] text-[11px] font-bold uppercase tracking-wider text-[#6B7280] dark:text-[#D4D4D4]">
                     <th className="py-3.5 px-5">Tanggal</th>
                     <th className="py-3.5 px-5">Nama Hari Libur</th>
                     <th className="py-3.5 px-4">Jenis</th>
@@ -465,25 +465,25 @@ export const HolidaysPage: React.FC = () => {
                     {canManage && <th className="py-3.5 px-5 text-right">Aksi</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB] text-xs">
+                <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#333333] text-xs">
                   {filteredHolidays.map((h) => {
                     const cfg = HOLIDAY_TYPE_CONFIG[h.holidayType] || HOLIDAY_TYPE_CONFIG.other;
 
                     return (
                       <tr
                         key={h.id}
-                        className="hover:bg-zinc-50/60 transition-colors"
+                        className="hover:bg-zinc-50/60 dark:hover:bg-[#202020] transition-colors"
                       >
                         {/* Tanggal */}
-                        <td className="py-4 px-5 font-semibold text-[#111827] whitespace-nowrap">
+                        <td className="py-4 px-5 font-semibold text-[#111827] dark:text-[#F9FAFB] whitespace-nowrap">
                           {formatDisplayDate(h.holidayDate)}
                         </td>
 
                         {/* Nama & Deskripsi */}
                         <td className="py-4 px-5">
-                          <p className="font-bold text-sm text-[#111827]">{h.name}</p>
+                          <p className="font-bold text-sm text-[#111827] dark:text-[#F9FAFB]">{h.name}</p>
                           {h.description && (
-                            <p className="text-[11px] text-[#6B7280] mt-0.5 line-clamp-1">
+                            <p className="text-[11px] text-[#6B7280] dark:text-[#A3A3A3] mt-0.5 line-clamp-1">
                               {h.description}
                             </p>
                           )}
@@ -501,11 +501,11 @@ export const HolidaysPage: React.FC = () => {
                         {/* Status */}
                         <td className="py-4 px-4 whitespace-nowrap">
                           {h.isActive ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full">
+                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 rounded-full">
                               Aktif
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-zinc-500 bg-zinc-100 rounded-full">
+                            <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-full">
                               Nonaktif
                             </span>
                           )}
@@ -519,7 +519,7 @@ export const HolidaysPage: React.FC = () => {
                                 type="button"
                                 onClick={() => handleOpenEdit(h)}
                                 title="Edit Hari Libur"
-                                className="p-1.5 text-[#6B7280] hover:text-[#F97316] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#F97316] hover:bg-orange-50 dark:hover:bg-orange-950/40 rounded-lg transition-colors cursor-pointer"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -529,8 +529,8 @@ export const HolidaysPage: React.FC = () => {
                                 title={h.isActive ? 'Nonaktifkan Hari Libur' : 'Aktifkan Hari Libur'}
                                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                                   h.isActive
-                                    ? 'text-[#6B7280] hover:text-red-600 hover:bg-red-50'
-                                    : 'text-emerald-600 hover:bg-emerald-50'
+                                    ? 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
+                                    : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                                 }`}
                               >
                                 <Power className="w-4 h-4" />

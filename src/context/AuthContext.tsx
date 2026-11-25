@@ -155,17 +155,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signIn = useCallback(async (credentials: LoginCredentials) => {
-    setLoading(true);
-    try {
-      const result = await authService.signIn(credentials);
-      setUser(result.user);
-      setSession(result.session);
-      setProfile(result.profile);
-      setIsPasswordRecovery(false);
-      return result;
-    } finally {
-      setLoading(false);
-    }
+    const result = await authService.signIn(credentials);
+    setUser(result.user);
+    setSession(result.session);
+    setProfile(result.profile);
+    setIsPasswordRecovery(false);
+    return result;
   }, []);
 
   const signOut = useCallback(async () => {

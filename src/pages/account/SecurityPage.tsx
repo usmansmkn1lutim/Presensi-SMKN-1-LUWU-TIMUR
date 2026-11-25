@@ -119,11 +119,11 @@ export const SecurityPage: React.FC = () => {
     <div className="space-y-6 pb-12 font-sans max-w-2xl mx-auto">
       {/* Mandatory Password Change Notice Banner */}
       {mustChangePassword && (
-        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3 text-xs text-amber-950 shadow-2xs animate-in fade-in duration-200">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3 text-xs text-amber-950 dark:text-amber-200 shadow-2xs animate-in fade-in duration-200">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-amber-900 text-sm">Wajib Mengganti Kata Sandi</p>
-            <p className="text-amber-900/90 leading-relaxed">
+            <p className="font-bold text-amber-900 dark:text-amber-100 text-sm">Wajib Mengganti Kata Sandi</p>
+            <p className="text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
               Kata sandi Anda telah direset oleh Super Admin. Demi keamanan akun, Anda wajib memperbarui kata sandi sementara sebelum dapat mengakses menu aplikasi lainnya.
             </p>
           </div>
@@ -136,14 +136,14 @@ export const SecurityPage: React.FC = () => {
           <button
             type="button"
             onClick={() => (isFormOpen ? handleCloseForm() : navigate('/account'))}
-            className="p-2 -ml-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+            className="p-2 -ml-2 rounded-xl text-[#4B5563] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F3F4F6] dark:hover:bg-[#303030] transition-colors cursor-pointer"
             aria-label="Kembali"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
         )}
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
             Keamanan Akun
           </h1>
         </div>
@@ -153,43 +153,43 @@ export const SecurityPage: React.FC = () => {
       {!isFormOpen ? (
         /* Main View: Card List */
         <div className="space-y-4">
-          <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-xs overflow-hidden">
+          <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-xs overflow-hidden">
             <button
               type="button"
               onClick={handleOpenForm}
-              className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors cursor-pointer group"
+              className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-[#F9FAFB] dark:hover:bg-[#303030] active:bg-[#F3F4F6] dark:active:bg-[#383838] transition-colors cursor-pointer group"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <KeyRound className="w-5 h-5 text-[#F97316] shrink-0" />
-                <span className="text-sm sm:text-base font-bold text-[#111827] truncate">
+                <KeyRound className="w-5 h-5 text-[#F97316] dark:text-orange-400 shrink-0" />
+                <span className="text-sm sm:text-base font-bold text-[#111827] dark:text-[#F9FAFB] truncate">
                   Ubah Password
                 </span>
               </div>
-              <ChevronRight className="w-5 h-5 text-[#9CA3AF] group-hover:text-[#F97316] transition-colors shrink-0" />
+              <ChevronRight className="w-5 h-5 text-[#9CA3AF] dark:text-[#A3A3A3] group-hover:text-[#F97316] dark:group-hover:text-orange-400 transition-colors shrink-0" />
             </button>
           </div>
         </div>
       ) : (
         /* Form View: Change Password Form */
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-xs space-y-5 animate-in fade-in duration-200">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-xs space-y-5 animate-in fade-in duration-200">
           {/* Header Block: Unbadged Shield Icon + Title, Divider Line, Left-Aligned Instruction */}
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
-              <ShieldCheck className="w-5 h-5 text-[#F97316] shrink-0" />
-              <h2 className="text-base font-bold text-[#111827]">Ubah Kata Sandi</h2>
+              <ShieldCheck className="w-5 h-5 text-[#F97316] dark:text-orange-400 shrink-0" />
+              <h2 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Ubah Kata Sandi</h2>
             </div>
 
-            <div className="border-t border-[#E5E7EB]" />
+            <div className="border-t border-[#E5E7EB] dark:border-[#404040]" />
 
-            <p className="text-xs sm:text-sm font-normal text-[#6B7280] text-left leading-relaxed">
+            <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#A3A3A3] text-left leading-relaxed">
               Masukkan kata sandi saat ini dan kata sandi baru Anda.
             </p>
           </div>
 
           {/* Error Alert */}
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in duration-150">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/60 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400 animate-in fade-in duration-150">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 font-medium leading-relaxed">{errorMessage}</div>
             </div>
           )}
@@ -207,7 +207,7 @@ export const SecurityPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="p-1 text-[#9CA3AF] hover:text-[#111827] cursor-pointer"
+                    className="p-1 text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer"
                     tabIndex={-1}
                     aria-label={showCurrentPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                   >
@@ -232,7 +232,7 @@ export const SecurityPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="p-1 text-[#9CA3AF] hover:text-[#111827] cursor-pointer"
+                    className="p-1 text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer"
                     tabIndex={-1}
                     aria-label={showNewPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                   >
@@ -257,7 +257,7 @@ export const SecurityPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="p-1 text-[#9CA3AF] hover:text-[#111827] cursor-pointer"
+                    className="p-1 text-[#9CA3AF] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] cursor-pointer"
                     tabIndex={-1}
                     aria-label={showConfirmPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                   >
@@ -302,10 +302,10 @@ export const SecurityPage: React.FC = () => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="success-modal-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150"
         >
           {/* Narrower & Taller Container */}
-          <div className="bg-white border border-[#E5E7EB] rounded-3xl py-6 px-6 sm:py-8 sm:px-7 w-full max-w-[320px] shadow-2xl text-center flex flex-col items-center justify-between min-h-[345px] animate-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-3xl py-6 px-6 sm:py-8 sm:px-7 w-full max-w-[320px] shadow-2xl text-center flex flex-col items-center justify-between min-h-[345px] animate-in zoom-in-95 duration-150">
             {/* 1. Solid Filled Orange Shield Icon (168px x 192px) */}
             <div className="mt-1 flex items-center justify-center">
               <svg
@@ -336,10 +336,10 @@ export const SecurityPage: React.FC = () => {
 
             {/* 2 & 3. Text Group: Title & Description Shifted Downwards */}
             <div className="space-y-1 mt-auto mb-3 w-full">
-              <h3 id="success-modal-title" className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+              <h3 id="success-modal-title" className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
                 Sukses
               </h3>
-              <p className="text-xs sm:text-sm font-normal text-[#6B7280] leading-relaxed px-1">
+              <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#A3A3A3] leading-relaxed px-1">
                 Kata sandi berhasil diperbarui
               </p>
             </div>

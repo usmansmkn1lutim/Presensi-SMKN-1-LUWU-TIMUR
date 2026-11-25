@@ -46,11 +46,11 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
+    <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 shadow-2xs space-y-4">
       {/* Quick Filter Pills & Refresh */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-xs font-semibold text-[#6B7280] whitespace-nowrap">
+          <span className="text-xs font-semibold text-[#6B7280] dark:text-[#A3A3A3] whitespace-nowrap">
             Filter Cepat:
           </span>
           <button
@@ -58,7 +58,7 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
             onClick={() => {
               onQuickFilter('this_month');
             }}
-            className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             Bulan Ini
           </button>
@@ -67,7 +67,7 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
             onClick={() => {
               onQuickFilter('last_month');
             }}
-            className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             Bulan Lalu
           </button>
@@ -76,7 +76,7 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
             onClick={() => {
               onQuickFilter('last_7_days');
             }}
-            className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] hover:bg-[#FFF7ED] hover:border-[#FFEDD5] hover:text-[#EA580C] text-xs font-medium text-[#374151] transition-all cursor-pointer whitespace-nowrap"
+            className="px-3 py-1.5 rounded-xl border border-[#E5E7EB] dark:border-[#404040] bg-[#F9FAFB] dark:bg-[#303030] hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] hover:border-[#FFEDD5] dark:hover:border-[#9A3412]/60 hover:text-[#EA580C] dark:hover:text-[#FDBA74] text-xs font-medium text-[#374151] dark:text-[#F9FAFB] transition-all cursor-pointer whitespace-nowrap"
           >
             7 Hari Terakhir
           </button>
@@ -100,38 +100,38 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           {/* Tanggal Mulai */}
           <div>
-            <label htmlFor="startDateInput" className="block text-[#6B7280] font-medium mb-1">Tanggal Mulai</label>
+            <label htmlFor="startDateInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">Tanggal Mulai</label>
             <input
               id="startDateInput"
               type="date"
               value={localStartDate}
               onChange={(e) => setLocalStartDate(e.target.value)}
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all"
             />
           </div>
 
           {/* Tanggal Akhir */}
           <div>
-            <label htmlFor="endDateInput" className="block text-[#6B7280] font-medium mb-1">Tanggal Akhir</label>
+            <label htmlFor="endDateInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">Tanggal Akhir</label>
             <input
               id="endDateInput"
               type="date"
               value={localEndDate}
               onChange={(e) => setLocalEndDate(e.target.value)}
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all"
             />
           </div>
 
           {/* Status Masuk */}
           <div>
-            <label htmlFor="statusFilterInput" className="block text-[#6B7280] font-medium mb-1">Status Masuk</label>
+            <label htmlFor="statusFilterInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">Status Masuk</label>
             <select
               id="statusFilterInput"
               value={localStatus}
               onChange={(e) =>
                 setLocalStatus(e.target.value as 'all' | 'on_time' | 'late')
               }
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
             >
               <option value="all">Semua Status Masuk</option>
               <option value="on_time">Tepat Waktu</option>
@@ -141,7 +141,7 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
 
           {/* Status Pulang */}
           <div>
-            <label htmlFor="checkoutFilterInput" className="block text-[#6B7280] font-medium mb-1">Status Pulang</label>
+            <label htmlFor="checkoutFilterInput" className="block text-[#6B7280] dark:text-[#A3A3A3] font-medium mb-1">Status Pulang</label>
             <select
               id="checkoutFilterInput"
               value={localCheckout}
@@ -150,7 +150,7 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
                   e.target.value as 'all' | 'checked_out' | 'not_checked_out'
                 )
               }
-              className="w-full h-10 px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
+              className="w-full h-10 px-3 bg-[#F9FAFB] dark:bg-[#171717] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-[#F9FAFB] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
             >
               <option value="all">Semua Status Pulang</option>
               <option value="checked_out">Sudah Check-out</option>
@@ -161,8 +161,8 @@ export const HistoryFilterBar: React.FC<HistoryFilterBarProps> = ({
 
         {/* Validation Warning */}
         {validationError && (
-          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>{validationError}</span>
           </div>
         )}

@@ -115,26 +115,26 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
       aria-modal="true"
       aria-labelledby="reset-password-modal-title"
     >
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 my-8 space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[#E5E7EB] dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95 duration-150 my-8 space-y-4 text-slate-900 dark:text-slate-100">
         {mode === 'confirm' ? (
           /* ================================================================ */
           /* MODAL STEP 1: KONFIRMASI RESET PASSWORD                          */
           /* ================================================================ */
           <>
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 text-[#F97316] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-amber-950/50 border border-orange-200 dark:border-amber-900/50 text-[#F97316] dark:text-amber-400 flex items-center justify-center shrink-0">
                   <KeyRound className="w-5 h-5" />
                 </div>
                 <div>
                   <h3
                     id="reset-password-modal-title"
-                    className="text-base font-bold text-[#111827]"
+                    className="text-base font-bold text-[#111827] dark:text-white"
                   >
                     Reset Password Pegawai
                   </h3>
-                  <p className="text-xs text-[#6B7280]">
+                  <p className="text-xs text-[#6B7280] dark:text-slate-400">
                     Buat kata sandi sementara baru untuk akun pegawai
                   </p>
                 </div>
@@ -143,27 +143,27 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
                 onClick={handleClose}
                 disabled={isLoading}
                 aria-label="Tutup modal"
-                className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer disabled:opacity-50"
+                className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Target User Summary */}
-            <div className="p-4 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] space-y-3">
+            <div className="p-4 rounded-xl bg-[#F9FAFB] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-800 space-y-3">
               <div className="flex items-center gap-3">
                 <UserAvatar
                   userId={user.id}
                   avatarUrl={user.avatar_url}
                   photoUrl={user.photo_url}
                   name={user.full_name}
-                  className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] shrink-0"
+                  className="w-12 h-12 rounded-full object-cover border border-[#E5E7EB] dark:border-slate-700 shrink-0"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-[#111827] truncate">
+                  <p className="text-sm font-bold text-[#111827] dark:text-white truncate">
                     {user.full_name}
                   </p>
-                  <p className="text-xs font-mono text-[#6B7280] truncate">
+                  <p className="text-xs font-mono text-[#6B7280] dark:text-slate-400 truncate">
                     ID: {user.id}
                   </p>
                   <div className="flex items-center gap-2 pt-1">
@@ -176,16 +176,16 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
               </div>
 
               {/* Linked Employee Information */}
-              <div className="pt-2.5 border-t border-[#E5E7EB] text-xs space-y-1">
+              <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-slate-700 text-xs space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Pegawai Terhubung:</span>
+                  <span className="text-[#6B7280] dark:text-slate-400">Pegawai Terhubung:</span>
                   {user.employee_id ? (
-                    <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                    <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
                       <Link2 className="w-3.5 h-3.5" />
                       <span>{user.employee_name || 'Terhubung'}</span>
                     </div>
                   ) : (
-                    <span className="text-amber-600 font-semibold">
+                    <span className="text-amber-600 dark:text-amber-400 font-semibold">
                       Belum Terhubung
                     </span>
                   )}
@@ -195,8 +195,8 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
 
             {/* Error Alert */}
             {errorMessage && (
-              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in duration-150">
-                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <p className="font-bold">Gagal Mereset Password</p>
                   <p className="text-[11px] leading-relaxed">{errorMessage}</p>
@@ -205,12 +205,12 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
             )}
 
             {/* Clear Explanation & Information Banner */}
-            <div className="p-3.5 rounded-xl bg-orange-50/70 border border-orange-200 text-xs text-orange-950 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-orange-900">
-                <AlertTriangle className="w-4 h-4 text-[#F97316] shrink-0" />
+            <div className="p-3.5 rounded-xl bg-orange-50/70 dark:bg-amber-950/40 border border-orange-200 dark:border-amber-900 text-xs text-orange-950 dark:text-amber-200 space-y-2">
+              <div className="flex items-center gap-2 font-bold text-orange-900 dark:text-amber-300">
+                <AlertTriangle className="w-4 h-4 text-[#F97316] dark:text-amber-400 shrink-0" />
                 <span>Ketentuan Reset Password:</span>
               </div>
-              <ul className="list-disc pl-5 space-y-1 text-[11px] text-orange-900 leading-relaxed">
+              <ul className="list-disc pl-5 space-y-1 text-[11px] text-orange-900 dark:text-amber-200 leading-relaxed">
                 <li>
                   Sistem akan membuat <strong>kata sandi sementara 16 karakter</strong> acak secara otomatis.
                 </li>
@@ -224,7 +224,7 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
             </div>
 
             {/* Form Actions */}
-            <form onSubmit={handleResetSubmit} className="pt-2 border-t border-[#E5E7EB] flex items-center justify-end gap-2.5">
+            <form onSubmit={handleResetSubmit} className="pt-2 border-t border-[#E5E7EB] dark:border-slate-800 flex items-center justify-end gap-2.5">
               <Button
                 type="button"
                 variant="outline"
@@ -252,16 +252,16 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
           /* ================================================================ */
           <>
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#111827]">
+                  <h3 className="text-base font-bold text-[#111827] dark:text-white">
                     Password Berhasil Direset
                   </h3>
-                  <p className="text-xs text-[#6B7280]">
+                  <p className="text-xs text-[#6B7280] dark:text-slate-400">
                     Kata sandi sementara telah dibuat
                   </p>
                 </div>
@@ -269,30 +269,30 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
               <button
                 onClick={handleClose}
                 aria-label="Tutup modal"
-                className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Target Profile Summary */}
-            <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-center gap-3">
+            <div className="p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-slate-800/60 border border-[#E5E7EB] dark:border-slate-800 flex items-center gap-3">
               {user.avatar_url ? (
                 <img
                   src={user.avatar_url}
                   alt={user.full_name}
-                  className="w-10 h-10 rounded-xl object-cover border border-[#E5E7EB] shrink-0"
+                  className="w-10 h-10 rounded-xl object-cover border border-[#E5E7EB] dark:border-slate-700 shrink-0"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] border border-orange-200 text-[#F97316] flex items-center justify-center font-bold text-sm shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] dark:bg-amber-950/50 border border-orange-200 dark:border-amber-900/50 text-[#F97316] dark:text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
                   {user.full_name.charAt(0)}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-xs font-bold text-[#111827] truncate">
+                <p className="text-xs font-bold text-[#111827] dark:text-white truncate">
                   {user.full_name}
                 </p>
-                <p className="text-[11px] text-[#6B7280]">
+                <p className="text-[11px] text-[#6B7280] dark:text-slate-400">
                   Pegawai: {user.employee_name || user.full_name}
                 </p>
               </div>
@@ -300,11 +300,11 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
 
             {/* Temporary Password Display Box */}
             <div className="space-y-2">
-              <label className="block text-xs font-semibold text-[#374151]">
+              <label className="block text-xs font-semibold text-[#374151] dark:text-slate-300">
                 Kata Sandi Sementara:
               </label>
-              <div className="p-3.5 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] flex items-center justify-between gap-3">
-                <span className="font-mono text-sm font-bold text-[#111827] tracking-wider select-all break-all">
+              <div className="p-3.5 rounded-xl bg-[#F9FAFB] dark:bg-slate-800/80 border border-[#E5E7EB] dark:border-slate-700 flex items-center justify-between gap-3">
+                <span className="font-mono text-sm font-bold text-[#111827] dark:text-white tracking-wider select-all break-all">
                   {temporaryPassword}
                 </span>
                 <Button
@@ -328,24 +328,24 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
 
             {/* Copy Error Message */}
             {copyError && (
-              <p className="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+              <p className="text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900">
                 {copyError}
               </p>
             )}
 
             {/* Single-Show Warning Box */}
-            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1.5">
-              <p className="font-bold text-amber-900 flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-950 dark:text-amber-200 space-y-1.5">
+              <p className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 PENTING: Kata sandi ini hanya ditampilkan satu kali!
               </p>
-              <p className="text-[11px] text-amber-900 leading-relaxed">
+              <p className="text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
                 Salin dan berikan kata sandi sementara ini secara pribadi kepada pegawai terkait. Setelah Anda menutup jendela ini, kata sandi sementara tidak dapat ditampilkan kembali.
               </p>
             </div>
 
             {/* Modal Action: Done */}
-            <div className="pt-2 border-t border-[#E5E7EB] flex justify-end">
+            <div className="pt-2 border-t border-[#E5E7EB] dark:border-slate-800 flex justify-end">
               <Button
                 type="button"
                 variant="primary"

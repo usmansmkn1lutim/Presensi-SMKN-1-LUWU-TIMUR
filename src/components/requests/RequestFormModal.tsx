@@ -79,18 +79,18 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-[#FFFFFF] dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] text-slate-900 dark:text-slate-100">
         {/* Modal Header */}
-        <div className="p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F9FAFB]">
+        <div className="p-5 border-b border-[#E5E7EB] dark:border-slate-800 flex items-center justify-between bg-[#F9FAFB] dark:bg-slate-800/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#F97316] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-amber-950/50 text-[#F97316] dark:text-amber-400 flex items-center justify-center border border-orange-200 dark:border-amber-900/50">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#111827]">
+              <h3 className="text-base font-bold text-[#111827] dark:text-white">
                 Ajukan Permohonan
               </h3>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-xs text-[#6B7280] dark:text-slate-400">
                 Isi formulir permohonan ketidakhadiran atau dinas
               </p>
             </div>
@@ -98,7 +98,7 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
           <button
             onClick={onClose}
             disabled={loading}
-            className="text-[#9CA3AF] hover:text-[#111827] p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors"
+            className="text-[#9CA3AF] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white p-1.5 rounded-lg hover:bg-[#F3F4F6] dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -107,15 +107,15 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
         {/* Modal Body Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto">
           {errorMsg && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-red-800 dark:text-red-300 text-xs flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1">{errorMsg}</div>
             </div>
           )}
 
           {/* Jenis Permohonan */}
           <div>
-            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+            <label className="block text-xs font-semibold text-[#111827] dark:text-slate-200 mb-1.5">
               Jenis Permohonan <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -129,10 +129,10 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => setRequestType(item.id as RequestType)}
-                  className={`px-3 py-2.5 rounded-xl border text-xs font-semibold transition-all text-center ${
+                  className={`px-3 py-2.5 rounded-xl border text-xs font-semibold transition-all text-center cursor-pointer ${
                     requestType === item.id
-                      ? 'bg-[#FFF7ED] border-[#F97316] text-[#EA580C] shadow-2xs'
-                      : 'bg-[#FFFFFF] border-[#E5E7EB] text-[#4B5563] hover:bg-[#F9FAFB]'
+                      ? 'bg-[#FFF7ED] dark:bg-amber-950/60 border-[#F97316] dark:border-amber-500 text-[#EA580C] dark:text-amber-400 shadow-2xs'
+                      : 'bg-[#FFFFFF] dark:bg-slate-800 border-[#E5E7EB] dark:border-slate-700 text-[#4B5563] dark:text-slate-300 hover:bg-[#F9FAFB] dark:hover:bg-slate-700'
                   }`}
                 >
                   {item.label}
@@ -144,7 +144,7 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
           {/* Rentang Tanggal */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              <label className="block text-xs font-semibold text-[#111827] dark:text-slate-200 mb-1.5">
                 Tanggal Mulai <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -154,13 +154,13 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
                   onChange={(e) => setStartDate(e.target.value)}
                   disabled={loading}
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-xs font-medium text-[#111827] focus:outline-hidden focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 bg-[#FFFFFF]"
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] dark:border-slate-700 text-xs font-medium text-[#111827] dark:text-white focus:outline-hidden focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 bg-[#FFFFFF] dark:bg-slate-800"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+              <label className="block text-xs font-semibold text-[#111827] dark:text-slate-200 mb-1.5">
                 Tanggal Selesai <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -170,7 +170,7 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
                   onChange={(e) => setEndDate(e.target.value)}
                   disabled={loading}
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-xs font-medium text-[#111827] focus:outline-hidden focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 bg-[#FFFFFF]"
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] dark:border-slate-700 text-xs font-medium text-[#111827] dark:text-white focus:outline-hidden focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 bg-[#FFFFFF] dark:bg-slate-800"
                 />
               </div>
             </div>
@@ -178,7 +178,7 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
 
           {/* Alasan */}
           <div>
-            <label className="block text-xs font-semibold text-[#111827] mb-1.5">
+            <label className="block text-xs font-semibold text-[#111827] dark:text-slate-200 mb-1.5">
               Alasan Permohonan <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -188,12 +188,12 @@ export const RequestFormModal: React.FC<RequestFormModalProps> = ({
               placeholder="Tuliskan alasan permohonan Anda secara jelas..."
               disabled={loading}
               required
-              className="w-full p-3 rounded-xl border border-[#E5E7EB] text-xs text-[#111827] focus:outline-hidden focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 bg-[#FFFFFF] resize-none"
+              className="w-full p-3 rounded-xl border border-[#E5E7EB] dark:border-slate-700 text-xs text-[#111827] dark:text-white focus:outline-hidden focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 bg-[#FFFFFF] dark:bg-slate-800 resize-none"
             />
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-3 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-[#E5E7EB] dark:border-slate-800 flex items-center justify-end gap-2">
             <Button
               type="button"
               variant="outline"

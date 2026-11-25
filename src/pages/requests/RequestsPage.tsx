@@ -201,14 +201,14 @@ export const RequestsPage: React.FC = () => {
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* 1. Mobile & Tablet Heading & Primary Action (< 1024px) */}
       <div className="lg:hidden space-y-4 font-sans">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           Pengajuan
         </h1>
       </div>
 
       {/* Header Banner (Desktop Only >= 1024px) */}
       <div className="hidden lg:flex items-center justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight">
           {isReviewMode
             ? 'Tinjauan Permohonan Pegawai'
             : 'Histori Permohonan Saya'}
@@ -217,14 +217,14 @@ export const RequestsPage: React.FC = () => {
 
       {/* Reviewer Top Navigation Tabs (only when reviewer can also submit personal requests, e.g., headmaster) */}
       {isReviewer && canHavePersonalRequests && (
-        <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-1">
+        <div className="flex items-center gap-2 border-b border-[#E5E7EB] dark:border-[#404040] pb-1">
           <button
             type="button"
             onClick={() => setActiveTab('review')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'review'
-                ? 'bg-[#FFF7ED] text-[#EA580C] border border-[#F97316]/30 shadow-2xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F9FAFB]'
+                ? 'bg-[#FFF7ED] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74] border border-[#F97316]/30 dark:border-[#9A3412]/60 shadow-2xs'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F9FAFB] dark:hover:bg-[#303030]'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -235,8 +235,8 @@ export const RequestsPage: React.FC = () => {
             onClick={() => setActiveTab('personal')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === 'personal'
-                ? 'bg-[#FFF7ED] text-[#EA580C] border border-[#F97316]/30 shadow-2xs'
-                : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F9FAFB]'
+                ? 'bg-[#FFF7ED] dark:bg-[#431F0B] text-[#EA580C] dark:text-[#FDBA74] border border-[#F97316]/30 dark:border-[#9A3412]/60 shadow-2xs'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB] hover:bg-[#F9FAFB] dark:hover:bg-[#303030]'
             }`}
           >
             <User className="w-4 h-4" />
@@ -292,7 +292,7 @@ export const RequestsPage: React.FC = () => {
 
           {/* Content States */}
           {errorMsgReview ? (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-800 space-y-3">
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-2xl p-6 text-red-800 dark:text-red-200 space-y-3">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
                 <span>Gagal Memuat Daftar Permohonan Pegawai</span>
@@ -308,30 +308,30 @@ export const RequestsPage: React.FC = () => {
               </Button>
             </div>
           ) : loadingAll ? (
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
-              <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
+              <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/4" />
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-16 bg-[#F3F4F6] rounded-xl" />
+                  <div key={i} className="h-16 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl" />
                 ))}
               </div>
             </div>
           ) : allRequests.length === 0 ? (
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#F9FAFB] text-[#9CA3AF] flex items-center justify-center mx-auto border border-[#E5E7EB]">
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-10 text-center shadow-2xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#F9FAFB] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto border border-[#E5E7EB] dark:border-[#404040]">
                 <SearchX className="w-6 h-6 text-[#9CA3AF]" />
               </div>
-              <h4 className="text-sm font-bold text-[#111827]">
+              <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">
                 Tidak Ada Permohonan Ditemukan
               </h4>
-              <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto">
                 Tidak ada data permohonan pegawai yang sesuai dengan parameter filter atau pencarian.
               </p>
             </div>
           ) : (
             <>
               {/* Desktop Table View (>= 1024px) */}
-              <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+              <div className="hidden lg:block bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl overflow-hidden shadow-2xs">
                 <RequestHistoryTable
                   requests={allRequests}
                   mode="reviewer"
@@ -439,16 +439,16 @@ export const RequestsPage: React.FC = () => {
 
           {/* UNLINKED ACCOUNT STATE */}
           {isUnlinked ? (
-            <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
-              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
+            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 flex items-center justify-center mx-auto">
                 <UserX className="w-7 h-7" />
               </div>
 
               <div className="space-y-1.5 max-w-md mx-auto">
-                <h3 className="text-base sm:text-lg font-bold text-amber-950">
+                <h3 className="text-base sm:text-lg font-bold text-amber-950 dark:text-amber-100">
                   Akun Belum Terhubung
                 </h3>
-                <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+                <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-200 leading-relaxed">
                   Akun Anda belum terhubung dengan data pegawai. Silakan hubungi administrator sekolah untuk menghubungkan akun pengguna dengan profil pegawai.
                 </p>
               </div>
@@ -467,7 +467,7 @@ export const RequestsPage: React.FC = () => {
             </div>
           ) : errorMsgMy ? (
             /* Generic Error State */
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 space-y-3">
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 text-amber-800 dark:text-amber-200 space-y-3">
               <div className="flex items-center gap-2 font-bold text-sm">
                 <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
                 <span>Gagal Memuat Data Permohonan</span>
@@ -484,26 +484,26 @@ export const RequestsPage: React.FC = () => {
             </div>
           ) : loadingMy ? (
             /* Loading Skeleton */
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
-              <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
+              <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/4" />
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-[#F3F4F6] rounded-xl" />
+                  <div key={i} className="h-16 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl" />
                 ))}
               </div>
             </div>
           ) : myRequests.length === 0 ? (
             /* Empty State: No requests at all */
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-4 font-sans">
-              <div className="w-14 h-14 rounded-2xl bg-[#F9FAFB] text-[#9CA3AF] flex items-center justify-center mx-auto border border-[#E5E7EB]">
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-10 text-center shadow-2xs space-y-4 font-sans">
+              <div className="w-14 h-14 rounded-2xl bg-[#F9FAFB] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto border border-[#E5E7EB] dark:border-[#404040]">
                 <FileText className="w-7 h-7 text-[#9CA3AF]" />
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-base font-bold text-[#111827]">
+                <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
                   Belum Ada Pengajuan
                 </h4>
-                <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+                <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto">
                   Anda belum pernah mengajukan permohonan. Klik tombol di bawah untuk membuat pengajuan baru.
                 </p>
               </div>
@@ -520,14 +520,14 @@ export const RequestsPage: React.FC = () => {
             </div>
           ) : filteredMyRequests.length === 0 ? (
             /* Filtered Empty State */
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-8 text-center shadow-2xs space-y-3 font-sans">
-              <div className="w-12 h-12 rounded-2xl bg-[#F9FAFB] text-[#9CA3AF] flex items-center justify-center mx-auto border border-[#E5E7EB]">
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-8 text-center shadow-2xs space-y-3 font-sans">
+              <div className="w-12 h-12 rounded-2xl bg-[#F9FAFB] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto border border-[#E5E7EB] dark:border-[#404040]">
                 <SearchX className="w-6 h-6 text-[#9CA3AF]" />
               </div>
-              <h4 className="text-sm font-bold text-[#111827]">
+              <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB]">
                 Tidak Ada Permohonan yang Sesuai
               </h4>
-              <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto">
                 Tidak ada data histori permohonan yang cocok dengan filter atau kata kunci pencarian Anda.
               </p>
               <Button
@@ -552,7 +552,7 @@ export const RequestsPage: React.FC = () => {
             /* Personal Request List Content */
             <>
               {/* Desktop Table View (>= 1024px) */}
-              <div className="hidden lg:block bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs">
+              <div className="hidden lg:block bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl overflow-hidden shadow-2xs">
                 <RequestHistoryTable
                   requests={filteredMyRequests}
                   mode="employee"
@@ -562,7 +562,7 @@ export const RequestsPage: React.FC = () => {
 
               {/* Mobile & Tablet Card List View (< 1024px) */}
               <div className="lg:hidden space-y-3 font-sans">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   DAFTAR PENGAJUAN
                 </h3>
                 <div className="space-y-3">

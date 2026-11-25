@@ -445,22 +445,22 @@ export const HistoryPage: React.FC = () => {
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
       {/* 1. Mobile & Tablet Heading (Point 1 & 2: Intro banner removed on mobile/tablet) */}
       <div className="lg:hidden">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight font-sans">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight font-sans">
           Riwayat Presensi
         </h1>
       </div>
 
       {/* Header Banner (Desktop Only - Untouched) */}
-      <div className="hidden lg:flex bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="hidden lg:flex bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center gap-1.5">
             <CalendarCheck className="w-3.5 h-3.5 text-[#F97316]" />
             Catatan Kehadiran Pegawai
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB] mt-0.5">
             Riwayat Presensi
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#A3A3A3] mt-1">
             Daftar riwayat presensi masuk dan pulang pribadi
           </p>
         </div>
@@ -556,17 +556,17 @@ export const HistoryPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsRecapModalOpen(true)}
-          className="w-full min-h-[48px] py-3 px-4 bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#F97316] rounded-2xl shadow-2xs flex items-center justify-between text-left transition-all group active:scale-[0.99] touch-manipulation cursor-pointer"
+          className="w-full min-h-[48px] py-3 px-4 bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] hover:border-[#F97316] dark:hover:border-[#F97316] rounded-2xl shadow-2xs flex items-center justify-between text-left transition-all group active:scale-[0.99] touch-manipulation cursor-pointer"
           aria-haspopup="dialog"
           aria-expanded={isRecapModalOpen}
         >
           <div className="flex items-center gap-3">
             <BarChart3 className="w-5 h-5 text-[#F97316] shrink-0" />
             <div>
-              <div className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#EA580C] transition-colors leading-tight">
+              <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F9FAFB] group-hover:text-[#EA580C] dark:group-hover:text-[#FDBA74] transition-colors leading-tight">
                 Rekap Kehadiran Bulanan
               </div>
-              <p className="text-[11px] font-medium text-slate-500 capitalize leading-tight mt-0.5">
+              <p className="text-[11px] font-medium text-slate-500 dark:text-[#A3A3A3] capitalize leading-tight mt-0.5">
                 Statistik & rincian ({calendarMonthYearLabel})
               </p>
             </div>
@@ -581,19 +581,19 @@ export const HistoryPage: React.FC = () => {
 
       {/* UNLINKED ACCOUNT STATE (FINDING-03 Fix) */}
       {isUnlinked ? (
-        <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
+        <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 flex items-center justify-center mx-auto">
             <UserX className="w-7 h-7" />
           </div>
 
           <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="text-base sm:text-lg font-bold text-amber-950">
+            <h3 className="text-base sm:text-lg font-bold text-amber-950 dark:text-amber-100">
               Akun Anda Belum Terhubung dengan Data Pegawai
             </h3>
-            <p className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+            <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-200 leading-relaxed">
               Akun login Anda belum ditautkan ke profil pegawai sekolah pada SIM Master Pegawai.
             </p>
-            <p className="text-xs text-amber-700/90 pt-1">
+            <p className="text-xs text-amber-700/90 dark:text-amber-300/90 pt-1">
               Hubungi Administrator untuk menautkan akun Anda di Manajemen Pegawai agar dapat melihat riwayat presensi pribadi.
             </p>
           </div>
@@ -623,7 +623,7 @@ export const HistoryPage: React.FC = () => {
         </div>
       ) : errorState ? (
         /* Generic Error State */
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 space-y-3">
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 text-amber-800 dark:text-amber-200 space-y-3">
           <div className="flex items-center gap-2 font-bold text-sm">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
             <span>Gagal Memuat Riwayat Presensi</span>
@@ -637,23 +637,23 @@ export const HistoryPage: React.FC = () => {
         /* Desktop Records Content */
         <div className="hidden lg:block space-y-4">
           {loading ? (
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
-              <div className="h-4 bg-[#F3F4F6] rounded w-1/4" />
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs space-y-4 animate-pulse">
+              <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/4" />
               <div className="space-y-3">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-12 bg-[#F3F4F6] rounded-xl" />
+                  <div key={i} className="h-12 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl" />
                 ))}
               </div>
             </div>
           ) : records.length === 0 ? (
-            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
+            <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-10 text-center shadow-2xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] dark:bg-[#303030] text-[#9CA3AF] dark:text-[#A3A3A3] flex items-center justify-center mx-auto">
                 <CalendarCheck className="w-6 h-6 text-[#9CA3AF]" />
               </div>
-              <h4 className="text-base font-bold text-[#111827]">
+              <h4 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">
                 Belum Ada Riwayat Presensi
               </h4>
-              <p className="text-xs text-[#6B7280] max-w-sm mx-auto">
+              <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3] max-w-sm mx-auto">
                 Belum ada data presensi pada periode yang dipilih. Silakan pilih rentang tanggal lain.
               </p>
             </div>
@@ -663,11 +663,11 @@ export const HistoryPage: React.FC = () => {
               <HistoryTable records={records} onSelectRecord={setSelectedRecord} />
 
               {/* Desktop Pagination Controls */}
-              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B7280]">
+              <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B7280] dark:text-[#A3A3A3]">
                 <span>
-                  Menampilkan <strong className="text-[#111827]">{startRecordNum}</strong>–
-                  <strong className="text-[#111827]">{endRecordNum}</strong> dari{' '}
-                  <strong className="text-[#111827]">{totalCount}</strong> presensi
+                  Menampilkan <strong className="text-[#111827] dark:text-[#F9FAFB]">{startRecordNum}</strong>–
+                  <strong className="text-[#111827] dark:text-[#F9FAFB]">{endRecordNum}</strong> dari{' '}
+                  <strong className="text-[#111827] dark:text-[#F9FAFB]">{totalCount}</strong> presensi
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -680,7 +680,7 @@ export const HistoryPage: React.FC = () => {
                   >
                     Sebelumnya
                   </Button>
-                  <span className="text-[#111827] font-semibold px-2">
+                  <span className="text-[#111827] dark:text-[#F9FAFB] font-semibold px-2">
                     {currentPage} / {totalPages}
                   </span>
                   <Button

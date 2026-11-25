@@ -91,7 +91,7 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
           <div
             key={row.id}
             onClick={() => onSelectRecord(row)}
-            className="bg-white border border-[#E5E7EB] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex items-center gap-3.5 sm:gap-4 hover:border-slate-300 transition-all cursor-pointer group"
+            className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex items-center gap-3.5 sm:gap-4 hover:border-slate-300 dark:hover:border-[#525252] transition-all cursor-pointer group"
           >
             {/* Date Box (Square) */}
             <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] aspect-square rounded-xl bg-[#F97316] text-white shadow-2xs flex flex-col items-center justify-center text-center shrink-0">
@@ -106,44 +106,44 @@ export const HistoryMobileList: React.FC<HistoryMobileListProps> = ({
             {/* Attendance Information Right Area */}
             <div className="flex-1 min-w-0 space-y-2">
               {/* Statistics Row (3 columns) */}
-              <div className="grid grid-cols-3 divide-x divide-slate-100 text-center">
+              <div className="grid grid-cols-3 divide-x divide-slate-100 dark:divide-[#303030] text-center">
                 {/* Check-in */}
                 <div className="px-1">
-                  <div className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F9FAFB] tabular-nums">
                     {formatTime(row.check_in_at)}
                   </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-[#A3A3A3] font-medium mt-0.5">
                     Check-in
                   </div>
                 </div>
 
                 {/* Check-out */}
                 <div className="px-1">
-                  <div className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F9FAFB] tabular-nums">
                     {row.check_out_at ? formatTime(row.check_out_at) : '—'}
                   </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-[#A3A3A3] font-medium mt-0.5">
                     Check-out
                   </div>
                 </div>
 
                 {/* Total Jam */}
                 <div className="px-1">
-                  <div className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#F9FAFB] tabular-nums">
                     {calculateTotalHours(row.check_in_at, row.check_out_at)}
                   </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-[#A3A3A3] font-medium mt-0.5">
                     Total
                   </div>
                 </div>
               </div>
 
               {/* Location & Status Row */}
-              <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 text-xs">
+              <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100 dark:border-[#303030] text-xs">
                 {/* Location */}
                 <div className="flex items-center gap-1.5 truncate min-w-0">
                   <MapPin className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
-                  <span className="truncate text-[11px] sm:text-xs font-medium text-slate-600">
+                  <span className="truncate text-[11px] sm:text-xs font-medium text-slate-600 dark:text-[#A3A3A3]">
                     {locationName}
                   </span>
                 </div>

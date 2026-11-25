@@ -25,11 +25,11 @@ export const AttendanceResultModal: React.FC<AttendanceResultModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="attendance-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="bg-white border border-[#E5E7EB] rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-xl space-y-5 text-center animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-xl space-y-5 text-center animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Icon Circle */}
@@ -49,11 +49,11 @@ export const AttendanceResultModal: React.FC<AttendanceResultModalProps> = ({
         <div className="space-y-2">
           <h3
             id="attendance-modal-title"
-            className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight"
+            className="text-lg sm:text-xl font-bold text-[#111827] dark:text-[#F9FAFB] tracking-tight"
           >
             {title || (isSuccess ? 'Presensi Berhasil!' : 'Gagal Melakukan Presensi')}
           </h3>
-          <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#4B5563] dark:text-[#A3A3A3] leading-relaxed">
             {message}
           </p>
         </div>

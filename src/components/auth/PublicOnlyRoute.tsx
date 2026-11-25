@@ -11,7 +11,7 @@ export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({ children }) =>
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF] dark:bg-[#171717]">
         <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin" />
       </div>
     );

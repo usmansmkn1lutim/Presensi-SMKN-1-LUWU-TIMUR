@@ -428,47 +428,47 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
       if (r.check_in_status === 'late') {
         return {
           label: 'Terlambat',
-          className: 'bg-amber-50 text-amber-800 border-amber-200',
+          className: 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900',
         };
       }
       return {
         label: 'Tepat Waktu',
-        className: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        className: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
       };
     }
     if (r.official_status === 'official_duty') {
       return {
         label: 'Dinas Luar',
-        className: 'bg-blue-50 text-blue-800 border-blue-200',
+        className: 'bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-900',
       };
     }
     if (r.official_status === 'sick') {
       return {
         label: 'Sakit',
-        className: 'bg-orange-50 text-[#C2410C] border-orange-200',
+        className: 'bg-orange-50 dark:bg-orange-950/60 text-[#C2410C] dark:text-orange-300 border-orange-200 dark:border-orange-900',
       };
     }
     if (r.official_status === 'permit') {
       return {
         label: 'Izin',
-        className: 'bg-purple-50 text-purple-800 border-purple-200',
+        className: 'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-900',
       };
     }
     if (r.official_status === 'leave') {
       return {
         label: 'Cuti',
-        className: 'bg-cyan-50 text-cyan-800 border-cyan-200',
+        className: 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900',
       };
     }
     if (r.official_status === 'absent') {
       return {
         label: 'Alfa',
-        className: 'bg-rose-50 text-rose-800 border-rose-200',
+        className: 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-900',
       };
     }
     return {
       label: r.status_label || 'Hadir',
-      className: 'bg-slate-50 text-slate-700 border-slate-200',
+      className: 'bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700',
     };
   };
 
@@ -506,7 +506,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
             ? 'none'
             : 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)',
         }}
-        className={`relative w-full max-w-2xl bg-white rounded-t-3xl shadow-2xl z-10 max-h-[88vh] flex flex-col overflow-hidden border-t border-slate-200 ${
+        className={`relative w-full max-w-2xl bg-white dark:bg-[#1E1E1E] rounded-t-3xl shadow-2xl z-10 max-h-[88vh] flex flex-col overflow-hidden border-t border-slate-200 dark:border-[#333] ${
           !isClosing && !isDragging && dragY === 0 ? 'animate-in slide-in-from-bottom duration-300' : ''
         }`}
       >
@@ -522,18 +522,18 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
         >
           {/* Grab Handle */}
           <div className="w-full pt-3 pb-2 flex justify-center">
-            <div className="w-12 h-1.5 bg-slate-300 rounded-full transition-colors group-hover:bg-slate-400" />
+            <div className="w-12 h-1.5 bg-slate-300 dark:bg-zinc-700 rounded-full transition-colors group-hover:bg-slate-400" />
           </div>
 
           {/* Modal Header */}
-          <div className="px-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+          <div className="px-5 pb-3 border-b border-slate-100 dark:border-[#333] flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <BarChart3 className="w-5 h-5 text-[#F97316] shrink-0" />
               <div>
-                <h3 id="recap-sheet-title" className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                <h3 id="recap-sheet-title" className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F3F4F6] leading-tight">
                   Rekap Kehadiran Bulanan
                 </h3>
-                <p className="text-xs font-medium text-slate-500 capitalize">
+                <p className="text-xs font-medium text-slate-500 dark:text-[#9CA3AF] capitalize">
                   Periode: {formattedMonthYear}
                 </p>
               </div>
@@ -544,7 +544,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
               onTouchStart={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleClose}
-              className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              className="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
               aria-label="Tutup modal rekap"
             >
               <X className="w-5 h-5" />
@@ -557,7 +557,7 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
           {loading ? (
             <div className="py-16 text-center space-y-3">
               <div className="w-8 h-8 border-3 border-orange-200 border-t-[#F97316] rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-slate-500">Memuat data rekap bulanan...</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">Memuat data rekap bulanan...</p>
             </div>
           ) : (
             <>
@@ -565,28 +565,28 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <CalendarDays className="w-4 h-4 text-slate-400" />
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                     Ringkasan Utama
                   </h4>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Total Hari Kerja */}
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 text-center">
-                    <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight block">
+                  <div className="bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-[#333] rounded-2xl p-3.5 text-center">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F3F4F6] tracking-tight block">
                       {totalWorkDays}
                     </span>
-                    <span className="text-xs font-semibold text-slate-600 block mt-0.5">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-zinc-400 block mt-0.5">
                       Hari Kerja
                     </span>
                   </div>
 
                   {/* Persentase Kehadiran */}
-                  <div className="bg-orange-50/80 border border-orange-100 rounded-2xl p-3.5 text-center">
-                    <span className="text-2xl sm:text-3xl font-extrabold text-[#EA580C] tracking-tight block">
+                  <div className="bg-orange-50/80 dark:bg-orange-950/40 border border-orange-100 dark:border-orange-900/50 rounded-2xl p-3.5 text-center">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-[#EA580C] dark:text-orange-400 tracking-tight block">
                       {attendancePercentage}%
                     </span>
-                    <span className="text-xs font-semibold text-orange-900 block mt-0.5">
+                    <span className="text-xs font-semibold text-orange-900 dark:text-orange-300 block mt-0.5">
                       Persentase Kehadiran
                     </span>
                   </div>
@@ -598,27 +598,27 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-slate-400" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                       Distribusi Status Kehadiran
                     </h4>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-medium">
+                  <span className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
                     Total: {totalWorkDays} Hari
                   </span>
                 </div>
 
-                <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-2xs space-y-3">
+                <div className="bg-white dark:bg-[#1E1E1E] border border-slate-100 dark:border-[#333] rounded-2xl p-4 shadow-2xs space-y-3">
                   {chartItems.map((item) => (
                     <div key={item.label} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-slate-700">{item.label}</span>
-                        <span className="font-bold text-slate-900 tabular-nums">
-                          {item.count} <span className="font-normal text-slate-400 text-[11px]">Hari</span>
+                        <span className="font-medium text-slate-700 dark:text-zinc-300">{item.label}</span>
+                        <span className="font-bold text-slate-900 dark:text-[#F3F4F6] tabular-nums">
+                          {item.count} <span className="font-normal text-slate-400 dark:text-zinc-500 text-[11px]">Hari</span>
                         </span>
                       </div>
 
                       {/* Bar Track */}
-                      <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
+                      <div className="w-full h-2.5 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden flex">
                         <div
                           className={`h-full ${item.colorBg} rounded-full transition-all duration-500 ease-out`}
                           style={{
@@ -637,22 +637,22 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-slate-400" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                       Rincian Presensi Harian
                     </h4>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-medium">
+                  <span className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium">
                     {dailyDetailRecords.length} Catatan
                   </span>
                 </div>
 
                 {dailyDetailRecords.length === 0 ? (
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center space-y-2">
-                    <FileText className="w-8 h-8 text-slate-300 mx-auto" />
-                    <p className="text-xs font-semibold text-slate-600">
+                  <div className="bg-slate-50 dark:bg-zinc-800/60 border border-slate-100 dark:border-[#333] rounded-2xl p-8 text-center space-y-2">
+                    <FileText className="w-8 h-8 text-slate-300 dark:text-zinc-600 mx-auto" />
+                    <p className="text-xs font-semibold text-slate-600 dark:text-zinc-300">
                       Tidak ada catatan presensi pada bulan ini
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 dark:text-zinc-500">
                       Hari libur dan tanggal mendatang tidak dicatat sebagai kehadiran.
                     </p>
                   </div>
@@ -660,21 +660,20 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
                   <div className="space-y-2">
                     {dailyDetailRecords.map((rec) => {
                       const badge = getDailyStatusBadge(rec);
-                      const isPresent = rec.official_status === 'present';
 
                       return (
                         <div
                           key={rec.attendance_date}
-                          className="bg-white border border-slate-100 hover:border-slate-200 rounded-xl p-3 shadow-2xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                          className="bg-white dark:bg-[#1E1E1E] border border-slate-100 dark:border-[#333] hover:border-slate-200 dark:hover:border-zinc-700 rounded-xl p-3 shadow-2xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
                         >
                           <div className="flex items-start sm:items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-slate-300 mt-1.5 sm:mt-0 shrink-0" />
+                            <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-zinc-700 mt-1.5 sm:mt-0 shrink-0" />
                             <div>
-                              <p className="text-xs font-bold text-slate-900 leading-tight">
+                              <p className="text-xs font-bold text-slate-900 dark:text-[#F3F4F6] leading-tight">
                                 {formatDayDate(rec.attendance_date)}
                               </p>
                               {rec.notes && rec.official_status !== 'present' && (
-                                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
+                                <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
                                   {rec.notes}
                                 </p>
                               )}
@@ -683,10 +682,10 @@ export const HistoryMonthlyRecapBottomSheet: React.FC<HistoryMonthlyRecapBottomS
 
                           <div className="flex items-center justify-between sm:justify-end gap-3 pl-5 sm:pl-0">
                             {/* Check-in & Check-out Times */}
-                            <div className="text-[11px] text-slate-500 font-medium flex items-center gap-2">
-                              <span>Masuk: <strong className="text-slate-800">{formatTime(rec.check_in_at)}</strong></span>
-                              <span className="text-slate-300">•</span>
-                              <span>Pulang: <strong className="text-slate-800">{formatTime(rec.check_out_at)}</strong></span>
+                            <div className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium flex items-center gap-2">
+                              <span>Masuk: <strong className="text-slate-800 dark:text-zinc-200">{formatTime(rec.check_in_at)}</strong></span>
+                              <span className="text-slate-300 dark:text-zinc-700">•</span>
+                              <span>Pulang: <strong className="text-slate-800 dark:text-zinc-200">{formatTime(rec.check_out_at)}</strong></span>
                             </div>
 
                             {/* Official Status Badge */}

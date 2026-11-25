@@ -20,7 +20,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   photoUrl,
   name = 'Pegawai',
   className = 'w-9 h-9 rounded-full object-cover',
-  fallbackIconClassName = 'w-4 h-4 text-[#6B7280]',
+  fallbackIconClassName = 'w-4 h-4 text-[#6B7280] dark:text-[#A3A3A3]',
 }) => {
   const [resolvedSrc, setResolvedSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -38,11 +38,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         const targetId = userId || profileId;
 
         if (photoUrl) {
-          // Explicit GTK photo path passed via prop
           activePath = photoUrl;
           isGtkLinked = true;
         } else if (targetId) {
-          // Check database employee record relation
           const emp = await employeeService.getEmployeeByProfileId(targetId);
           if (emp) {
             isGtkLinked = true;
@@ -52,7 +50,6 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           }
         }
 
-        // For non-GTK accounts (e.g. general admins without GTK profile), use profile avatar_url
         if (!isGtkLinked && avatarUrl) {
           activePath = avatarUrl;
         }
@@ -103,7 +100,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   }
 
   return (
-    <div className={`flex items-center justify-center font-bold bg-[#FFF7ED] text-[#F97316] border border-[#E5E7EB] overflow-hidden ${className}`}>
+    <div className={`flex items-center justify-center font-bold bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] dark:text-[#FB923C] border border-[#E5E7EB] dark:border-[#404040] overflow-hidden ${className}`}>
       {name && name !== 'Pegawai' && name !== 'Admin' ? (
         <span>{initials}</span>
       ) : (

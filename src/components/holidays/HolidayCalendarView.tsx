@@ -50,7 +50,6 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
   // Current displayed month (0 = Jan, 11 = Dec)
   const [currentMonth, setCurrentMonth] = useState<number>(() => {
     const now = new Date();
-    // If selectedYear is current year, default to current month; otherwise January
     return now.getFullYear() === selectedYear ? now.getMonth() : 0;
   });
 
@@ -80,7 +79,6 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
     const lastDayOfMonth = new Date(selectedYear, currentMonth + 1, 0);
 
     const totalDays = lastDayOfMonth.getDate();
-    // getDay(): 0 = Sun, 1 = Mon ... 6 = Sat -> convert to Monday-first (0 = Mon, 6 = Sun)
     const rawStartDay = firstDayOfMonth.getDay();
     const startOffset = rawStartDay === 0 ? 6 : rawStartDay - 1;
 
@@ -91,7 +89,6 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
       holidays: HolidayModel[];
     }[] = [];
 
-    // Empty padding cells for days before the 1st
     for (let i = 0; i < startOffset; i++) {
       cells.push({
         dayNumber: null,
@@ -101,7 +98,6 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
       });
     }
 
-    // Days of the month
     for (let day = 1; day <= totalDays; day++) {
       const dateString = `${selectedYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(
         day
@@ -118,7 +114,6 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
     return cells;
   }, [selectedYear, currentMonth, holidaysByDate]);
 
-  // Month navigation handlers
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -139,7 +134,6 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
     setSelectedDate(null);
   };
 
-  // Selected date's holidays
   const selectedDateHolidays = selectedDate ? holidaysByDate.get(selectedDate) || [] : [];
 
   const formatDisplayDate = (isoDate: string) => {
@@ -160,16 +154,16 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Calendar Header / Month Switcher */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F97316] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#F97316] dark:text-orange-400 flex items-center justify-center shrink-0">
             <CalendarIcon className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-[#111827]">
+            <h3 className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F9FAFB]">
               {MONTH_NAMES[currentMonth]} {selectedYear}
             </h3>
-            <p className="text-xs text-[#6B7280]">
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">
               {monthlyHolidays.length} hari libur terdaftar di bulan ini
             </p>
           </div>
@@ -179,7 +173,7 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
           <button
             type="button"
             onClick={handlePrevMonth}
-            className="p-2 rounded-xl border border-[#E5E7EB] hover:bg-zinc-50 text-[#374151] transition-colors cursor-pointer"
+            className="p-2 rounded-xl border border-[#E5E7EB] dark:border-[#404040] hover:bg-zinc-50 dark:hover:bg-[#303030] text-[#374151] dark:text-slate-300 transition-colors cursor-pointer"
             title="Bulan Sebelumnya"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -191,10 +185,10 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
               setCurrentMonth(Number(e.target.value));
               setSelectedDate(null);
             }}
-            className="px-3 py-2 text-xs font-semibold bg-white border border-[#E5E7EB] rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
+            className="px-3 py-2 text-xs font-semibold bg-white dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl text-[#111827] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316] transition-all cursor-pointer"
           >
             {MONTH_NAMES.map((name, idx) => (
-              <option key={name} value={idx}>
+              <option key={name} value={idx} className="bg-white dark:bg-[#262626] text-[#111827] dark:text-white">
                 {name}
               </option>
             ))}
@@ -203,7 +197,7 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
           <button
             type="button"
             onClick={handleNextMonth}
-            className="p-2 rounded-xl border border-[#E5E7EB] hover:bg-zinc-50 text-[#374151] transition-colors cursor-pointer"
+            className="p-2 rounded-xl border border-[#E5E7EB] dark:border-[#404040] hover:bg-zinc-50 dark:hover:bg-[#303030] text-[#374151] dark:text-slate-300 transition-colors cursor-pointer"
             title="Bulan Berikutnya"
           >
             <ChevronRight className="w-4 h-4" />
@@ -212,13 +206,13 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl shadow-2xs overflow-hidden">
         {/* Day of Week Header */}
-        <div className="grid grid-cols-7 border-b border-[#E5E7EB] bg-zinc-50/80 text-center text-[11px] font-bold text-[#6B7280] uppercase tracking-wider py-2.5">
+        <div className="grid grid-cols-7 border-b border-[#E5E7EB] dark:border-[#404040] bg-zinc-50/80 dark:bg-[#1F1F1F] text-center text-[11px] font-bold text-[#6B7280] dark:text-slate-400 uppercase tracking-wider py-2.5">
           {DAY_NAMES.map((day, idx) => (
             <div
               key={day}
-              className={idx >= 5 ? 'text-red-500 font-extrabold' : 'text-[#6B7280]'}
+              className={idx >= 5 ? 'text-red-500 dark:text-red-400 font-extrabold' : 'text-[#6B7280] dark:text-slate-400'}
             >
               {day}
             </div>
@@ -226,13 +220,13 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
         </div>
 
         {/* Days Grid */}
-        <div className="grid grid-cols-7 divide-x divide-y divide-[#E5E7EB]">
+        <div className="grid grid-cols-7 divide-x divide-y divide-[#E5E7EB] dark:divide-[#404040]">
           {calendarCells.map((cell, idx) => {
             if (!cell.isCurrentMonth || !cell.dateString) {
               return (
                 <div
                   key={`empty-${idx}`}
-                  className="min-h-[72px] sm:min-h-[96px] bg-zinc-50/40 p-2 text-zinc-300"
+                  className="min-h-[72px] sm:min-h-[96px] bg-zinc-50/40 dark:bg-[#1a1a1a]/40 p-2 text-zinc-300 dark:text-zinc-700"
                 />
               );
             }
@@ -249,10 +243,10 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                 onClick={() => setSelectedDate(cell.dateString)}
                 className={`min-h-[72px] sm:min-h-[96px] p-2 text-left transition-all relative flex flex-col justify-between cursor-pointer focus:outline-none ${
                   isSelected
-                    ? 'bg-orange-50/70 ring-2 ring-[#F97316] ring-inset z-10'
+                    ? 'bg-orange-50/70 dark:bg-orange-950/40 ring-2 ring-[#F97316] ring-inset z-10'
                     : hasHolidays
-                    ? 'bg-red-50/20 hover:bg-red-50/40'
-                    : 'hover:bg-zinc-50/80'
+                    ? 'bg-red-50/20 dark:bg-red-950/20 hover:bg-red-50/40 dark:hover:bg-red-950/40'
+                    : 'hover:bg-zinc-50/80 dark:hover:bg-[#303030]'
                 }`}
               >
                 {/* Date Number */}
@@ -262,15 +256,15 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                       isSelected
                         ? 'bg-[#F97316] text-white'
                         : hasHolidays || isWeekend
-                        ? 'text-red-600'
-                        : 'text-[#111827]'
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-[#111827] dark:text-[#F9FAFB]'
                     }`}
                   >
                     {cell.dayNumber}
                   </span>
 
                   {hasHolidays && (
-                    <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-red-500 dark:bg-red-400 shrink-0" />
                   )}
                 </div>
 
@@ -289,7 +283,7 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                     );
                   })}
                   {cell.holidays.length > 2 && (
-                    <div className="text-[9px] text-[#6B7280] font-medium pl-1">
+                    <div className="text-[9px] text-[#6B7280] dark:text-slate-400 font-medium pl-1">
                       +{cell.holidays.length - 2} lainnya
                     </div>
                   )}
@@ -315,27 +309,27 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
 
       {/* Selected Date Details Card */}
       {selectedDate && (
-        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-3">
+        <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 shadow-2xs space-y-3 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-[#404040] pb-3">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF] dark:text-slate-400">
                 Detail Tanggal Terpilih
               </span>
-              <h4 className="text-sm font-bold text-[#111827] mt-0.5">
+              <h4 className="text-sm font-bold text-[#111827] dark:text-[#F9FAFB] mt-0.5">
                 {formatDisplayDate(selectedDate)}
               </h4>
             </div>
             <button
               type="button"
               onClick={() => setSelectedDate(null)}
-              className="text-xs text-[#6B7280] hover:text-[#111827] font-semibold cursor-pointer"
+              className="text-xs text-[#6B7280] dark:text-slate-400 hover:text-[#111827] dark:hover:text-white font-semibold cursor-pointer"
             >
               Tutup
             </button>
           </div>
 
           {selectedDateHolidays.length === 0 ? (
-            <div className="py-4 text-center text-xs text-[#6B7280] flex items-center justify-center gap-2">
+            <div className="py-4 text-center text-xs text-[#6B7280] dark:text-slate-400 flex items-center justify-center gap-2">
               <Info className="w-4 h-4 text-[#9CA3AF]" />
               <span>Tidak ada hari libur pada tanggal ini (hari kerja normal).</span>
             </div>
@@ -346,28 +340,28 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                 return (
                   <div
                     key={h.id}
-                    className="p-3.5 bg-zinc-50 border border-[#E5E7EB] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-3.5 bg-zinc-50 dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-[#111827]">{h.name}</span>
+                        <span className="font-bold text-sm text-[#111827] dark:text-[#F9FAFB]">{h.name}</span>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cfg.badgeClass}`}
                         >
                           {cfg.label}
                         </span>
                         {h.isActive ? (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
                             Aktif
                           </span>
                         ) : (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-600">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
                             Nonaktif
                           </span>
                         )}
                       </div>
                       {h.description && (
-                        <p className="text-xs text-[#6B7280]">{h.description}</p>
+                        <p className="text-xs text-[#6B7280] dark:text-slate-400">{h.description}</p>
                       )}
                     </div>
 
@@ -376,7 +370,7 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onEdit(h)}
-                          className="p-1.5 text-[#6B7280] hover:text-[#F97316] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-[#6B7280] dark:text-slate-400 hover:text-[#F97316] dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/40 rounded-lg transition-colors cursor-pointer"
                           title="Edit Hari Libur"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -386,8 +380,8 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                           onClick={() => onToggleStatus(h)}
                           className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                             h.isActive
-                              ? 'text-[#6B7280] hover:text-red-600 hover:bg-red-50'
-                              : 'text-emerald-600 hover:bg-emerald-50'
+                              ? 'text-[#6B7280] dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40'
+                              : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                           }`}
                           title={h.isActive ? 'Nonaktifkan Hari Libur' : 'Aktifkan Hari Libur'}
                         >
@@ -404,13 +398,13 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
       )}
 
       {/* Monthly Holidays Summary List below calendar */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-2xs space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 shadow-2xs space-y-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] dark:text-slate-400">
           Daftar Libur Bulan {MONTH_NAMES[currentMonth]} {selectedYear}
         </h4>
 
         {monthlyHolidays.length === 0 ? (
-          <p className="text-xs text-[#6B7280] py-2">
+          <p className="text-xs text-[#6B7280] dark:text-slate-400 py-2">
             Tidak ada hari libur di bulan {MONTH_NAMES[currentMonth]} {selectedYear}.
           </p>
         ) : (
@@ -420,13 +414,13 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
               return (
                 <div
                   key={h.id}
-                  className="p-3.5 bg-zinc-50 border border-[#E5E7EB] rounded-xl flex items-start justify-between gap-3"
+                  className="p-3.5 bg-zinc-50 dark:bg-[#1F1F1F] border border-[#E5E7EB] dark:border-[#404040] rounded-xl flex items-start justify-between gap-3"
                 >
                   <div className="space-y-1 min-w-0">
-                    <p className="text-xs font-semibold text-[#F97316]">
+                    <p className="text-xs font-semibold text-[#F97316] dark:text-orange-400">
                       {formatDisplayDate(h.holidayDate)}
                     </p>
-                    <p className="font-bold text-sm text-[#111827] truncate">
+                    <p className="font-bold text-sm text-[#111827] dark:text-[#F9FAFB] truncate">
                       {h.name}
                     </p>
                     <div className="flex items-center gap-1.5 pt-0.5">
@@ -436,11 +430,11 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                         {cfg.label}
                       </span>
                       {h.isActive ? (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
                           Aktif
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-600">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
                           Nonaktif
                         </span>
                       )}
@@ -452,7 +446,7 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onEdit(h)}
-                        className="p-1.5 text-[#6B7280] hover:text-[#F97316] hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-[#6B7280] dark:text-slate-400 hover:text-[#F97316] dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/40 rounded-lg transition-colors cursor-pointer"
                         title="Edit Hari Libur"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -462,8 +456,8 @@ export const HolidayCalendarView: React.FC<HolidayCalendarViewProps> = ({
                         onClick={() => onToggleStatus(h)}
                         className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                           h.isActive
-                            ? 'text-[#6B7280] hover:text-red-600 hover:bg-red-50'
-                            : 'text-emerald-600 hover:bg-emerald-50'
+                            ? 'text-[#6B7280] dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40'
+                            : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
                         }`}
                         title={h.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                       >

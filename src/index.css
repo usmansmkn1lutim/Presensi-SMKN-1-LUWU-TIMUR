@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Touch gesture utilities for physical devices */
 .touch-none {
@@ -72,6 +73,37 @@
   }
 }
 
+html.dark {
+  color-scheme: dark;
+
+  --color-primary: #F97316;
+  --color-primary-light: #431F0B;
+
+  --color-background: #171717;
+  --color-surface: #262626;
+  --color-surface-secondary: #303030;
+
+  --color-border: #404040;
+  --color-border-subtle: #404040;
+
+  --color-text-primary: #F9FAFB;
+  --color-text-secondary: #A3A3A3;
+  --color-text-muted: #737373;
+}
+
+html.dark .dashboard-status-tokens {
+  --color-status-total: #94A3B8;
+  --color-status-present: #FB923C;
+  --color-status-present-bg: #431F0B;
+  --color-status-late: #FB923C;
+  --color-status-late-bg: #431F0B;
+  --color-status-official-duty: #FB923C;
+  --color-status-sick: #FBBF24;
+  --color-status-permission: #FBBF24;
+  --color-status-leave: #FBBF24;
+  --color-status-absent: #F87171;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
@@ -93,4 +125,14 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #171717;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }

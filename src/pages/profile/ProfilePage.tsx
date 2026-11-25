@@ -241,15 +241,15 @@ export const ProfilePage: React.FC = () => {
     <div className="max-w-3xl mx-auto space-y-6 pb-12">
       {/* Top Action Bar */}
       <div>
-        <h1 className="text-lg font-bold text-[#111827]">Profil Saya</h1>
+        <h1 className="text-lg font-bold text-[#111827] dark:text-[#F9FAFB]">Profil Saya</h1>
       </div>
 
       {/* 1, 2, 3, 4. Single Horizontal Profile Card */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 shadow-xs space-y-5">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-xs space-y-5">
         <div className="flex items-center justify-between gap-4">
           {/* A. Profile Photo (Circular avatar, 64-72px, NO border/ring) */}
           <div className="relative shrink-0">
-            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-[#FFF7ED] text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden relative shadow-xs">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] flex items-center justify-center font-bold text-xl overflow-hidden relative shadow-xs">
               {signedPhotoUrl ? (
                 <img
                   src={signedPhotoUrl}
@@ -273,7 +273,7 @@ export const ProfilePage: React.FC = () => {
               type="button"
               onClick={() => setIsPhotoMenuOpen(!isPhotoMenuOpen)}
               disabled={isUploadingPhoto}
-              className="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-md border border-[#E5E7EB] text-[#F97316] flex items-center justify-center hover:bg-[#FFF7ED] transition-transform hover:scale-105 cursor-pointer z-10"
+              className="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-[#303030] shadow-md border border-[#E5E7EB] dark:border-[#404040] text-[#F97316] flex items-center justify-center hover:bg-[#FFF7ED] dark:hover:bg-[#431F0B] transition-transform hover:scale-105 cursor-pointer z-10"
               title="Atur Foto"
             >
               <Pencil className="w-3.5 h-3.5" />
@@ -281,14 +281,14 @@ export const ProfilePage: React.FC = () => {
 
             {/* Dropdown Menu for Photo Actions (Responsive positioning) */}
             {isPhotoMenuOpen && (
-              <div className="absolute left-0 mt-2 sm:left-auto sm:right-0 sm:top-auto sm:bottom-10 z-35 w-44 bg-white border border-[#E5E7EB] rounded-xl shadow-xl py-1 text-xs">
+              <div className="absolute left-0 mt-2 sm:left-auto sm:right-0 sm:top-auto sm:bottom-10 z-35 w-44 bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-xl shadow-xl py-1 text-xs">
                 <button
                   type="button"
                   onClick={() => {
                     setIsPhotoMenuOpen(false);
                     fileInputRef.current?.click();
                   }}
-                  className="w-full text-left px-3.5 py-2.5 hover:bg-[#FFF7ED] text-[#111827] flex items-center gap-2.5 cursor-pointer font-medium"
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-[#FFF7ED] dark:hover:bg-[#303030] text-[#111827] dark:text-[#F9FAFB] flex items-center gap-2.5 cursor-pointer font-medium"
                 >
                   <Camera className="w-4 h-4 text-[#F97316]" />
                   <span>Ganti Foto</span>
@@ -300,7 +300,7 @@ export const ProfilePage: React.FC = () => {
                       setIsPhotoMenuOpen(false);
                       handleDeleteClick();
                     }}
-                    className="w-full text-left px-3.5 py-2.5 hover:bg-red-50 text-red-600 flex items-center gap-2.5 cursor-pointer font-medium border-t border-[#F3F4F6]"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center gap-2.5 cursor-pointer font-medium border-t border-[#F3F4F6] dark:border-[#404040]"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Hapus Foto</span>
@@ -321,18 +321,18 @@ export const ProfilePage: React.FC = () => {
           {/* B. Information User (Name, Jenis Kepegawaian | Jabatan, NO NIP) */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-bold text-[#111827] truncate">{user.name}</h2>
+              <h2 className="text-base sm:text-lg font-bold text-[#111827] dark:text-[#F9FAFB] truncate">{user.name}</h2>
               {!isEditing && (
                 <button
                   onClick={handleStartEdit}
-                  className="text-xs text-[#6B7280] hover:text-[#F97316] transition-colors cursor-pointer"
+                  className="text-xs text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#F97316] transition-colors cursor-pointer"
                   title="Ubah nama"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 truncate">
+            <p className="text-xs sm:text-sm text-[#4B5563] dark:text-[#A3A3A3] mt-0.5 truncate">
               {linkedEmployee?.employee_type || 'Pegawai'} | {linkedEmployee?.positions?.name || user.position}
             </p>
           </div>
@@ -340,8 +340,8 @@ export const ProfilePage: React.FC = () => {
 
         {/* Edit Form Inline if isEditing */}
         {isEditing && (
-          <form onSubmit={handleSaveProfile} className="pt-3 border-t border-[#E5E7EB] space-y-3">
-            <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+          <form onSubmit={handleSaveProfile} className="pt-3 border-t border-[#E5E7EB] dark:border-[#404040] space-y-3">
+            <h4 className="text-xs font-bold text-[#111827] dark:text-[#F9FAFB] uppercase tracking-wider">
               Ubah Nama Lengkap & Gelar
             </h4>
             <div className="max-w-md">
@@ -352,6 +352,7 @@ export const ProfilePage: React.FC = () => {
                 placeholder="Nama lengkap"
                 required
                 disabled={isSaving}
+                className="dark:bg-[#303030] dark:focus:bg-[#303030] dark:border-[#404040] dark:text-[#F9FAFB] dark:placeholder:text-[#A3A3A3]"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -371,6 +372,7 @@ export const ProfilePage: React.FC = () => {
                 onClick={handleCancelEdit}
                 disabled={isSaving}
                 leftIcon={<X className="w-4 h-4" />}
+                className="dark:border-[#404040] dark:text-[#F9FAFB] dark:hover:bg-[#303030]"
               >
                 Batal
               </Button>
@@ -381,30 +383,30 @@ export const ProfilePage: React.FC = () => {
         {/* 3. Bagian Bawah — Statistik Presensi (3 equal Flexbox columns basis-0 flex-1 with 2-line controlled label) */}
         <div className="pt-2">
           {isLoadingAttendance ? (
-            <div className="py-4 flex justify-center text-[#9CA3AF]">
+            <div className="py-4 flex justify-center text-[#9CA3AF] dark:text-[#A3A3A3]">
               <div className="w-5 h-5 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
             <div className="flex w-full items-stretch text-center">
               <div className="flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 box-border">
-                <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+                <p className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB]">
                   {attendanceSummary.present}
                 </p>
-                <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5 font-medium">Hadir</p>
+                <p className="text-[11px] sm:text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-0.5 font-medium">Hadir</p>
               </div>
               <div className="flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 box-border">
-                <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+                <p className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB]">
                   {attendanceSummary.sickPermitLeave}
                 </p>
-                <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5 font-medium">
+                <p className="text-[11px] sm:text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-0.5 font-medium">
                   Sakit/Izin/Cuti
                 </p>
               </div>
               <div className="flex-1 basis-0 min-w-0 flex flex-col items-center justify-center px-1 box-border">
-                <p className="text-xl sm:text-2xl font-bold text-[#111827]">
+                <p className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-[#F9FAFB]">
                   {attendanceSummary.absent}
                 </p>
-                <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5 font-medium">Alfa</p>
+                <p className="text-[11px] sm:text-xs text-[#6B7280] dark:text-[#A3A3A3] mt-0.5 font-medium">Alfa</p>
               </div>
             </div>
           )}
@@ -416,29 +418,29 @@ export const ProfilePage: React.FC = () => {
         <div
           className={`p-3 rounded-xl border flex items-center gap-2 text-xs ${
             saveMessage.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-              : 'bg-red-50 border-red-200 text-red-700'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300'
+              : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300'
           }`}
         >
           {saveMessage.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
           )}
           <span>{saveMessage.text}</span>
         </div>
       )}
 
       {/* 4. Navigasi Lima Tab */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-5 border-b border-[#E5E7EB] text-center text-xs sm:text-sm font-medium">
+      <div className="bg-white dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-5 border-b border-[#E5E7EB] dark:border-[#404040] text-center text-xs sm:text-sm font-medium">
           <button
             type="button"
             onClick={() => setActiveTab('identity')}
             className={`py-3 px-1 sm:px-3 flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
               activeTab === 'identity'
-                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 font-semibold'
-                : 'text-[#6B7280] hover:text-[#111827]'
+                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 dark:bg-[#431F0B]/60 font-semibold'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
             }`}
           >
             <IdCard className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -450,8 +452,8 @@ export const ProfilePage: React.FC = () => {
             onClick={() => setActiveTab('position')}
             className={`py-3 px-1 sm:px-3 flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
               activeTab === 'position'
-                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 font-semibold'
-                : 'text-[#6B7280] hover:text-[#111827]'
+                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 dark:bg-[#431F0B]/60 font-semibold'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
             }`}
           >
             <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -463,8 +465,8 @@ export const ProfilePage: React.FC = () => {
             onClick={() => setActiveTab('contact')}
             className={`py-3 px-1 sm:px-3 flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
               activeTab === 'contact'
-                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 font-semibold'
-                : 'text-[#6B7280] hover:text-[#111827]'
+                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 dark:bg-[#431F0B]/60 font-semibold'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
             }`}
           >
             <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -476,8 +478,8 @@ export const ProfilePage: React.FC = () => {
             onClick={() => setActiveTab('account')}
             className={`py-3 px-1 sm:px-3 flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
               activeTab === 'account'
-                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 font-semibold'
-                : 'text-[#6B7280] hover:text-[#111827]'
+                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 dark:bg-[#431F0B]/60 font-semibold'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
             }`}
           >
             <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -489,8 +491,8 @@ export const ProfilePage: React.FC = () => {
             onClick={() => setActiveTab('notes')}
             className={`py-3 px-1 sm:px-3 flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer ${
               activeTab === 'notes'
-                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 font-semibold'
-                : 'text-[#6B7280] hover:text-[#111827]'
+                ? 'text-[#F97316] border-b-2 border-[#F97316] bg-[#FFF7ED]/50 dark:bg-[#431F0B]/60 font-semibold'
+                : 'text-[#6B7280] dark:text-[#A3A3A3] hover:text-[#111827] dark:hover:text-[#F9FAFB]'
             }`}
           >
             <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -502,27 +504,27 @@ export const ProfilePage: React.FC = () => {
         <div className="p-6">
           {activeTab === 'identity' && (
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Nama Lengkap</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Nama Lengkap</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {linkedEmployee?.full_name || user.name}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">NIP</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827] font-mono">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">NIP</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB] font-mono">
                   {linkedEmployee?.nip || user.nip || '—'}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">NIK</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827] font-mono">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">NIK</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB] font-mono">
                   {linkedEmployee?.nik || '—'}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Jenis Kelamin</span>
-                <span className="sm:col-span-2 font-medium text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Jenis Kelamin</span>
+                <span className="sm:col-span-2 font-medium text-[#111827] dark:text-[#F9FAFB]">
                   {linkedEmployee?.gender === 'male'
                     ? 'Laki-laki'
                     : linkedEmployee?.gender === 'female'
@@ -530,9 +532,9 @@ export const ProfilePage: React.FC = () => {
                     : '—'}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Tempat, Tanggal Lahir</span>
-                <span className="sm:col-span-2 font-medium text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Tempat, Tanggal Lahir</span>
+                <span className="sm:col-span-2 font-medium text-[#111827] dark:text-[#F9FAFB]">
                   {(linkedEmployee as any)?.birth_place || (linkedEmployee as any)?.birth_date
                     ? [
                         (linkedEmployee as any)?.birth_place,
@@ -544,8 +546,8 @@ export const ProfilePage: React.FC = () => {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <span className="text-[#6B7280] font-medium">Agama</span>
-                <span className="sm:col-span-2 font-medium text-[#111827]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Agama</span>
+                <span className="sm:col-span-2 font-medium text-[#111827] dark:text-[#F9FAFB]">
                   {(linkedEmployee as any)?.religion || '—'}
                 </span>
               </div>
@@ -554,27 +556,27 @@ export const ProfilePage: React.FC = () => {
 
           {activeTab === 'position' && (
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Satuan Pendidikan</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Satuan Pendidikan</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {APP_CONFIG.schoolName}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Jabatan / Tugas Pokok</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Jabatan / Tugas Pokok</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {linkedEmployee?.positions?.name || user.position}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Departemen / Bidang</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Departemen / Bidang</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {linkedEmployee?.departments?.name || user.department}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <span className="text-[#6B7280] font-medium">Jenis Pegawai</span>
-                <span className="sm:col-span-2 font-medium text-[#111827] capitalize">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Jenis Pegawai</span>
+                <span className="sm:col-span-2 font-medium text-[#111827] dark:text-[#F9FAFB] capitalize">
                   {linkedEmployee?.employee_type || 'Pegawai / GTK'}
                 </span>
               </div>
@@ -583,21 +585,21 @@ export const ProfilePage: React.FC = () => {
 
           {activeTab === 'contact' && (
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Alamat Email</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Alamat Email</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {linkedEmployee?.email || user.email}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Nomor Telepon / WA</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Nomor Telepon / WA</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {linkedEmployee?.phone || '+62 812-3456-7890'}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <span className="text-[#6B7280] font-medium">Alamat Sekolah</span>
-                <span className="sm:col-span-2 font-medium text-[#111827]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Alamat Sekolah</span>
+                <span className="sm:col-span-2 font-medium text-[#111827] dark:text-[#F9FAFB]">
                   {APP_CONFIG.schoolAddress}
                 </span>
               </div>
@@ -606,20 +608,20 @@ export const ProfilePage: React.FC = () => {
 
           {activeTab === 'account' && (
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Email Akun</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Email Akun</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB]">
                   {user.email}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Hak Akses (Role)</span>
-                <span className="sm:col-span-2 font-semibold text-[#111827] capitalize">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Hak Akses (Role)</span>
+                <span className="sm:col-span-2 font-semibold text-[#111827] dark:text-[#F9FAFB] capitalize">
                   {user.role.replace('_', ' ')}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB]">
-                <span className="text-[#6B7280] font-medium">Status Akun</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Status Akun</span>
                 <span className="sm:col-span-2">
                   <Badge variant={user.status === 'active' ? 'success' : 'danger'} size="sm">
                     {user.status === 'active' ? 'Akun Aktif' : 'Nonaktif'}
@@ -627,8 +629,8 @@ export const ProfilePage: React.FC = () => {
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <span className="text-[#6B7280] font-medium">Waktu Login Terakhir</span>
-                <span className="sm:col-span-2 font-medium text-[#111827] font-mono">
+                <span className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Waktu Login Terakhir</span>
+                <span className="sm:col-span-2 font-medium text-[#111827] dark:text-[#F9FAFB] font-mono">
                   {profile?.last_login_at
                     ? new Date(profile.last_login_at).toLocaleString('id-ID', {
                         dateStyle: 'medium',
@@ -642,8 +644,8 @@ export const ProfilePage: React.FC = () => {
 
           {activeTab === 'notes' && (
             <div className="space-y-2 text-xs sm:text-sm">
-              <p className="text-[#6B7280] font-medium">Catatan Kepegawaian</p>
-              <div className="p-4 bg-neutral-50 rounded-xl border border-[#E5E7EB] text-[#111827] whitespace-pre-wrap">
+              <p className="text-[#6B7280] dark:text-[#A3A3A3] font-medium">Catatan Kepegawaian</p>
+              <div className="p-4 bg-neutral-50 dark:bg-[#303030] rounded-xl border border-[#E5E7EB] dark:border-[#404040] text-[#111827] dark:text-[#F9FAFB] whitespace-pre-wrap">
                 {linkedEmployee?.notes?.trim() ? linkedEmployee.notes : 'Tidak ada catatan khusus.'}
               </div>
             </div>

@@ -25,10 +25,10 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 shadow-2xs animate-pulse space-y-4">
-        <div className="h-4 bg-[#F3F4F6] rounded w-1/3" />
-        <div className="h-10 bg-[#F3F4F6] rounded-xl" />
-        <div className="h-10 bg-[#F3F4F6] rounded-xl w-full" />
+      <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-6 shadow-2xs animate-pulse space-y-4">
+        <div className="h-4 bg-[#F3F4F6] dark:bg-[#303030] rounded w-1/3" />
+        <div className="h-10 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl" />
+        <div className="h-10 bg-[#F3F4F6] dark:bg-[#303030] rounded-xl w-full" />
       </div>
     );
   }
@@ -40,8 +40,8 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
     if (hasCheckedIn) {
       return {
         text: 'Presensi masuk hari ini sudah tercatat.',
-        style: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-        icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />,
+        style: 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60',
+        icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />,
       };
     }
 
@@ -49,21 +49,21 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
       if (evalCheckIn.status === 'on_time') {
         return {
           text: 'Check-in tersedia (Kategori Tepat Waktu)',
-          style: 'text-[#EA580C] bg-[#FFF7ED] border-[#FFEDD5]',
+          style: 'text-[#EA580C] dark:text-orange-300 bg-[#FFF7ED] dark:bg-[#431F0B] border-[#FFEDD5] dark:border-[#9A3412]/60',
           icon: <Clock className="w-4 h-4 text-[#F97316] shrink-0" />,
         };
       }
       return {
         text: 'Check-in tersedia (Kategori Terlambat)',
-        style: 'text-amber-800 bg-amber-50 border-amber-200',
-        icon: <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />,
+        style: 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60',
+        icon: <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />,
       };
     }
 
     return {
       text: evalCheckIn.reason || 'Check-in tidak tersedia saat ini.',
-      style: 'text-[#6B7280] bg-[#F3F4F6] border-[#E5E7EB]',
-      icon: <AlertCircle className="w-4 h-4 text-[#9CA3AF] shrink-0" />,
+      style: 'text-[#6B7280] dark:text-[#A3A3A3] bg-[#F3F4F6] dark:bg-[#303030] border-[#E5E7EB] dark:border-[#404040]',
+      icon: <AlertCircle className="w-4 h-4 text-[#9CA3AF] dark:text-[#737373] shrink-0" />,
     };
   };
 
@@ -75,30 +75,30 @@ export const CheckInCard: React.FC<CheckInCardProps> = ({
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 sm:p-6 shadow-2xs space-y-5 flex flex-col justify-between">
+    <div className="bg-[#FFFFFF] dark:bg-[#262626] border border-[#E5E7EB] dark:border-[#404040] rounded-2xl p-5 sm:p-6 shadow-2xs space-y-5 flex flex-col justify-between">
       <div className="space-y-4">
         {/* Title */}
-        <div className="flex items-center gap-3 pb-3 border-b border-[#E5E7EB]">
-          <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] text-[#F97316] flex items-center justify-center shrink-0 border border-[#FFEDD5]">
+        <div className="flex items-center gap-3 pb-3 border-b border-[#E5E7EB] dark:border-[#404040]">
+          <div className="w-10 h-10 rounded-xl bg-[#FFF7ED] dark:bg-[#431F0B] text-[#F97316] flex items-center justify-center shrink-0 border border-[#FFEDD5] dark:border-[#9A3412]/50">
             <LogIn className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-[#111827]">Presensi Masuk</h3>
-            <p className="text-xs text-[#6B7280]">Check-in kehadiran harian pegawai</p>
+            <h3 className="text-base font-bold text-[#111827] dark:text-[#F9FAFB]">Presensi Masuk</h3>
+            <p className="text-xs text-[#6B7280] dark:text-[#A3A3A3]">Check-in kehadiran harian pegawai</p>
           </div>
         </div>
 
         {/* Schedule Info Window */}
         <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB]">
-            <span className="text-[#6B7280] block text-[11px]">Jendela Check-in</span>
-            <span className="font-semibold text-[#111827] mt-0.5 block">
+          <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040]">
+            <span className="text-[#6B7280] dark:text-[#A3A3A3] block text-[11px]">Jendela Check-in</span>
+            <span className="font-semibold text-[#111827] dark:text-[#F9FAFB] mt-0.5 block">
               {formatTime(schedule?.check_in_start_time)} – {formatTime(schedule?.check_in_end_time)}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB]">
-            <span className="text-[#6B7280] block text-[11px]">Tepat Waktu Sampai</span>
-            <span className="font-semibold text-emerald-700 mt-0.5 block">
+          <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#303030] border border-[#E5E7EB] dark:border-[#404040]">
+            <span className="text-[#6B7280] dark:text-[#A3A3A3] block text-[11px]">Tepat Waktu Sampai</span>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400 mt-0.5 block">
               {formatTime(schedule?.check_in_on_time_end)}
             </span>
           </div>
